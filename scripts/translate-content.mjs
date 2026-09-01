@@ -42,7 +42,7 @@ const ROOT = join(__dirname, '..');
 // 1,681 merged notes rendered English to fr readers while id/ru/de/zh/ja/es read their
 // own. Those 1,649 were written by hand (no API spend); this keeps a future run from
 // re-opening the same hole on newly added dishes.
-const TARGET_LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']; // French, Indonesian, Russian, German, Chinese, Japanese, Spanish
+const TARGET_LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']; // French, Indonesian, Russian, German, Chinese, Japanese, Spanish
 const LANG_NAME = {
   id: 'Indonesian',
   ru: 'Russian',
@@ -50,6 +50,7 @@ const LANG_NAME = {
   zh: 'Simplified Chinese',
   ja: 'Japanese',
   es: 'Spanish',
+  ko: 'Korean',
 };
 
 // Gemini model-fallback chain — mirrors gemini-client.js so we inherit the

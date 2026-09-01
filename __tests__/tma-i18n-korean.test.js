@@ -166,21 +166,48 @@ describe('script integrity, including the direction Korean adds', () => {
   });
 });
 
-describe('K2 changes content only — every app still offers eight languages', () => {
-  it.each(Object.keys(APPS))('%s — SUPPORTED is untouched, so nothing reaches a user until the flip', (app) => {
+describe('K6 — every app OFFERS Korean now, which is what these assertions used to deny', () => {
+  // The inverse of what this block said through K2–K5. While the content was staged it asserted
+  // each app's SUPPORTED list was still the eight; the flip makes that false on purpose, so the
+  // same lines now prove the opposite and a revert of K6 fails here rather than passing quietly.
+  it.each(Object.keys(APPS))('%s — SUPPORTED carries Korean, appended last', (app) => {
     const s = src(app);
     const lists = [...s.matchAll(/SUPPORTED(?:_LOCALES)?\s*=\s*(?:new Set\()?\[([^\]]*)\]/g)].map((m) => m[1]);
     expect(lists.length, `${app} has no SUPPORTED list to check`).toBeGreaterThan(0);
     for (const l of lists) {
-      expect(l.replace(/\s|'/g, '').split(',').filter(Boolean)).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
+      const codes = l.replace(/\s|'/g, '').split(',').filter(Boolean);
+      expect(codes).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
+      // Appended, never inserted: an app that indexes into this list is unmoved by the flip.
+      expect(codes.slice(0, 8)).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
     }
   });
 
-  it('and every app still resolves an unoffered locale to English, which is what makes staging safe', () => {
-    // If any app's picker stopped falling back, the Korean would go live one PR early and every
-    // guard not yet flipped would suddenly be load-bearing.
+  it('and every app still falls back to English for a locale it does NOT offer', () => {
+    // This half does NOT invert, and that is the point: the fallback was never about Korean.
+    // It is what protects the app from any code it does not ship, and it has to survive a flip
+    // that removes one member from that set.
     for (const app of Object.keys(APPS)) {
       expect(src(app), `${app} lost its fallback`).toMatch(/SUPPORTED(?:_LOCALES)?\s*(?:\.includes\(lang\)|\.has\(lang\))[^\n]*:\s*'en'/);
+    }
+  });
+
+  it('and every app’s LocaleToggle offers Korean to the person using it', () => {
+    // The list a user actually sees. Each toggle carries its OWN endonym table — it does not
+    // build labels from locale.switchTo.* keys — so a SUPPORTED flip alone would have made
+    // Korean selectable by code and invisible in the menu.
+    const fs = require('fs');
+    const TOGGLES = [
+      'web/clipboard/src/components/LocaleToggle.jsx',
+      'web/cuisine/src/v2/components/LocaleToggle.jsx',
+      'web/hawker/src/components/LocaleToggle.jsx',
+      'web/menu/src/components/LocaleToggle.jsx',
+      'web/transport/src/components/LocaleToggle.jsx',
+    ];
+    for (const f of TOGGLES) {
+      const body = fs.readFileSync(`${ROOT}/${f}`, 'utf8');
+      const table = body.slice(body.indexOf('const LOCALES = ['), body.indexOf('];', body.indexOf('const LOCALES = [')));
+      expect((table.match(/\bcode: '/g) || []).length, `${f} row count`).toBe(9);
+      expect(table, `${f} has no Korean row`).toMatch(/code: 'ko'.*한국어/);
     }
   });
 });

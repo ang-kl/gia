@@ -40,7 +40,7 @@
 export const LOCALE_KEY = 'gia.locale';
 
 /** The app's eight. Kept as data so a ninth locale is one line, not a hunt. */
-export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 // Google's list is not the app's list. Seven of the eight are accepted verbatim;
 // bare `zh` is NOT one of Google's codes — it publishes `zh-CN` and `zh-TW`. The

@@ -127,7 +127,10 @@ describe('the card prefers the map and survives without it', () => {
       (venue.closedTodayByLang && venue.closedTodayByLang[lang]) || venue.closedTodayLabel;
     const withMap = { closedTodayByLang: oh.closedTodayByLang(CLOSED, AT, 540), closedTodayLabel: 'EN scalar' };
     expect(pick(withMap, 'ja')).toBe('本日休業 · 日 11:30 開店');
-    expect(pick(withMap, 'ko')).toBe('EN scalar');          // a locale open-hours cannot speak
+    // v0.62.883 (K6) — 'ko' was this file's example of a locale open-hours cannot speak.
+    // It speaks it now, so the example moves to 'pt' and Korean proves the other direction.
+    expect(pick(withMap, 'ko')).toBe('오늘 휴무 · 일 11:30 AM 영업 시작');
+    expect(pick(withMap, 'pt')).toBe('EN scalar');          // a locale open-hours cannot speak
     expect(pick({ closedTodayLabel: 'EN scalar' }, 'ja')).toBe('EN scalar');  // old payload
     expect(pick({}, 'ja')).toBeUndefined();                  // nothing at all — no throw
   });

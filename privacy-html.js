@@ -53,17 +53,17 @@ function renderPrivacyHtml(body, lang = 'en') {
 // read the page they are currently on.
 const LOCALE_NAMES = {
   en: 'English', fr: 'Français', id: 'Bahasa Indonesia', ru: 'Русский',
-  de: 'Deutsch', zh: '中文', ja: '日本語', es: 'Español'
+  de: 'Deutsch', zh: '中文', ja: '日本語', es: 'Español', ko: '한국어'
 };
 
 const TITLES = {
   privacy: {
     en: 'Privacy', fr: 'Confidentialité', id: 'Privasi', ru: 'Конфиденциальность',
-    de: 'Datenschutz', zh: '隐私', ja: 'プライバシー', es: 'Privacidad'
+    de: 'Datenschutz', zh: '隐私', ja: 'プライバシー', es: 'Privacidad', ko: '개인정보'
   },
   legal: {
     en: 'Legal', fr: 'Mentions légales', id: 'Hukum', ru: 'Правовая информация',
-    de: 'Rechtliches', zh: '法律声明', ja: '法的事項', es: 'Aviso legal'
+    de: 'Rechtliches', zh: '法律声明', ja: '法的事項', es: 'Aviso legal', ko: '법적 고지'
   }
 };
 

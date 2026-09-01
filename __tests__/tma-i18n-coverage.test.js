@@ -43,7 +43,7 @@ const APPS = {
   menu:      'web/menu/src/i18n.js',
   transport: 'web/transport/src/i18n.js',
 };
-const ALL_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const ALL_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 const BLOCKS = ['ID', 'RU', 'DE', 'ZH', 'JA', 'ES'];
 
 // ── absent BY DESIGN ────────────────────────────────────────────────────────

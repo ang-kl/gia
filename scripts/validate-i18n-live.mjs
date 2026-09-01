@@ -22,7 +22,7 @@ const src = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
 const args = process.argv.slice(2);
 const ONLY = args.includes('--lang') ? args[args.indexOf('--lang') + 1] : null;
 const SHOW = args.includes('--failures');
-const LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 const KEY_RE = /^ {2}'([\w.]+)':\s*\{/gm;
 const items = [];

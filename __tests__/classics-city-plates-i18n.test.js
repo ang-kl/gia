@@ -208,7 +208,7 @@ describe('translation overlays — script contamination', () => {
 describe('city-plates histories — complete locale coverage', () => {
   it('every 📜 history carries all 8 locales', () => {
     const { CITY_PLATES } = require('../city-plates.js');
-    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
     const gaps = [];
     let rows = 0;
     for (const [city, entry] of Object.entries(CITY_PLATES)) {
@@ -242,7 +242,7 @@ describe('city-plates histories — complete locale coverage', () => {
 describe('classics-notes — the 140-character cap holds in every locale', () => {
   it('no translated note exceeds the cap the curated notes obey', () => {
     const { CLASSIC_NOTES, CUISINE_NOTES } = require('../classics-notes.js');
-    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
     const over = [];
     for (const table of [CLASSIC_NOTES, CUISINE_NOTES]) {
       for (const [scope, dishes] of Object.entries(table)) {
@@ -309,7 +309,7 @@ describe('classics-notes — complete locale coverage', () => {
   it('every note carries all eight locales, with no exceptions', () => {
     const { CLASSIC_NOTES, CUISINE_NOTES } = require('../classics-notes.js');
     const overlay = require('../classics-notes-i18n.generated.js');
-    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
     const gaps = [];
     const keys = new Set();
     let rows = 0;

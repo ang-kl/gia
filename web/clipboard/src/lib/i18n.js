@@ -571,7 +571,7 @@ const STRINGS = {
   'qf.filters':             { en: 'Filters', fr: 'Filtres', id: 'Filter', ru: 'Фильтры', de: 'Filter', zh: '筛选', ja: 'フィルター', es: 'Filtros', ko: '필터' },
 };
 
-const SUPPORTED = new Set(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
+const SUPPORTED = new Set(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
 
 export function t(key, lang = 'en', vars = null) {
   const entry = STRINGS[key];
@@ -586,7 +586,7 @@ export function t(key, lang = 'en', vars = null) {
   return s;
 }
 
-export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 // v0.62.481 — operator bug: "i change the language in MENU TMA to french, but
 // sketchbook UI didn't change". ROOT CAUSE: this TMA read its locale from

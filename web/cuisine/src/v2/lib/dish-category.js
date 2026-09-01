@@ -14,9 +14,9 @@ export function dishCategory(term) {
 }
 
 const CATEGORY_WORD = {
-  dish:    { en: 'dish',    fr: 'plat',            id: 'hidangan',       ru: 'блюдо',   de: 'Gericht', zh: '料理',   ja: '料理',   es: 'plato' },
-  dessert: { en: 'dessert', fr: 'dessert',         id: 'pencuci mulut',  ru: 'десерт',  de: 'Dessert', zh: '甜品',   ja: 'デザート', es: 'postre' },
-  drink:   { en: 'drink',   fr: 'boisson',         id: 'minuman',        ru: 'напиток', de: 'Getränk', zh: '饮品',   ja: 'ドリンク', es: 'bebida' },
+  dish:    { en: 'dish',    fr: 'plat',            id: 'hidangan',       ru: 'блюдо',   de: 'Gericht', zh: '料理',   ja: '料理',   es: 'plato',   ko: '요리' },
+  dessert: { en: 'dessert', fr: 'dessert',         id: 'pencuci mulut',  ru: 'десерт',  de: 'Dessert', zh: '甜品',   ja: 'デザート', es: 'postre',  ko: '디저트' },
+  drink:   { en: 'drink',   fr: 'boisson',         id: 'minuman',        ru: 'напиток', de: 'Getränk', zh: '饮品',   ja: 'ドリンク', es: 'bebida',  ko: '음료' },
 };
 
 // v0.62.865 — operator, with a screenshot of the Japanese UI showing
@@ -43,6 +43,10 @@ const LIKELY_PATTERN = {
   zh: '可能供应{term}{category}',
   ja: '{term}{category}を提供している可能性があります',
   es: 'Probablemente sirve {term} ({category})',
+  // v0.62.883 (K6) — Korean puts the verb last, like ja, so the pattern is not a
+  // re-ordering of the English one. Same lesson the operator's screenshot taught at
+  // v0.62.865: a template is word ORDER, not a slot to drop words into.
+  ko: '{term} {category}을(를) 제공할 가능성이 있습니다',
 };
 
 export function categoryWord(term, lang) {

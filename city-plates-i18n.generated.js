@@ -19,6 +19,7 @@ module.exports = {
     zh: "阿德莱德深夜的信仰级吃食：削下的旋转烤肉堆在薯条上，浇满蒜酱、番茄酱、烧烤酱与辣酱。奥康奈尔街上两家对头——Blue & White Café与North Adelaide Burger Bar——都说是自己为饿肚子的学生发明的。",
     ja: "アデレードの夜を支える熱狂的な一皿です。削ぎ切りにしたヨロスの肉をフライドポテトの上に山と盛り、にんにく、トマト、バーベキュー、チリの四種のソースをかけます。オコンネル通りの二軒、ブルー・アンド・ホワイト・カフェとノース・アデレード・バーガー・バーが、腹を空かせた学生のために考えたと互いに主張します。",
     es: "El festín nocturno de culto de Adelaida: carne de yiros cortada a navaja amontonada sobre patatas fritas y anegada en salsas de ajo, tomate, barbacoa y chile. Dos rivales de O'Connell Street —el Blue & White Café y el North Adelaide Burger Bar— reclaman ambos haberlo inventado para estudiantes hambrientos.",
+    ko: "애들레이드의 밤을 사로잡는 음식입니다. 저민 이로스 고기를 감자튀김 위에 수북이 올리고 마늘과 토마토, 바비큐, 칠리 소스를 끼얹습니다. 오코널 거리의 경쟁자인 블루 앤드 화이트 카페와 노스 애들레이드 버거 바가 배고픈 학생들을 위해 만들었다고 서로 주장합니다.",
   },
   "Adelaide::Frog cake": {
     id: "Kepala katak dari bolu, krim, dan fondan hijau, diciptakan toko roti Balfours di Adelaide sekitar 1923, konon terilhami petits fours Paris. Termasuk di antara makanan pertama yang dinamai Ikon Warisan Australia Selatan oleh National Trust pada 2001.",
@@ -27,6 +28,7 @@ module.exports = {
     zh: "用海绵蛋糕、奶油与绿色翻糖做成的青蛙脑袋，约1923年由阿德莱德的Balfours烘焙坊创出，据说灵感来自巴黎的小点心。2001年，它是国民信托最早列为南澳「遗产标志」的食物之一。",
     ja: "スポンジとクリーム、緑のフォンダンでこしらえた蛙の頭で、1923年ごろアデレードのベーカリー、バルフォアーズが生み出しました。パリのプチフールに着想を得たと伝えられます。2001年、ナショナルトラストが南オーストラリアの「遺産の象徴」に最初に選んだ食べ物の一つです。",
     es: "Una cabeza de rana de bizcocho, crema y fondant verde creada por la panadería Balfours de Adelaida hacia 1923, según se dice inspirada en los petits fours parisinos. Entre los primeros alimentos declarados Icono Patrimonial de Australia Meridional por el National Trust en 2001.",
+    ko: "스펀지와 크림, 초록 폰던트로 개구리 머리를 만든 과자로, 1923년경 애들레이드의 발포어스 제과점이 파리의 프티푸르에서 착안해 만들었다고 전합니다. 2001년 내셔널트러스트가 남호주 유산 아이콘으로 처음 지정한 음식 가운데 하나입니다.",
   },
   "Adelaide::Pie floater": {
     id: "Pai daging yang ditelungkupkan dan mengapung dalam sup kacang polong kental, dimahkotai saus tomat — legenda larut malam Adelaide, lahir dari kereta pai pada 1880-an di depan stasiun kereta. National Trust of South Australia mencantumkannya sebagai Ikon Warisan pada 2003.",
@@ -35,6 +37,7 @@ module.exports = {
     zh: "肉派倒扣着浮在浓稠的豌豆汤里，上面浇番茄酱——这是阿德莱德的深夜传奇，源自1880年代火车站外的派车。2003年，南澳国民信托把它列为「遗产标志」。",
     ja: "ミートパイを逆さにして、どろりとした豆のスープに浮かべ、トマトソースをかけます。1880年代、駅前のパイの屋台車から生まれたアデレードの夜の伝説です。2003年、南オーストラリア・ナショナルトラストが「遺産の象徴」に挙げました。",
     es: "Una empanada de carne volcada y a flote en una espesa sopa de guisantes, coronada con kétchup: la leyenda nocturna de Adelaida, nacida de los carritos de empanadas de la década de 1880 frente a la estación. El National Trust de Australia Meridional la catalogó como Icono Patrimonial en 2003.",
+    ko: "미트파이를 뒤집어 걸쭉한 완두콩 수프에 띄우고 토마토소스를 얹은 애들레이드의 밤 전설로, 1880년대 기차역 앞 파이 수레에서 태어났습니다. 남호주 내셔널트러스트가 2003년 유산 아이콘으로 지정했습니다.",
   },
   "Alor Setar::Laksa Kedah": {
     id: "Laksa Kedah memadukan mi tepung beras buatan tangan — pas untuk negeri lumbung padi Malaysia — dengan kuah ikan berempah kental yang diasamkan asam gelugur, ditaburi sambal kelapa dan daun kesum. Tepi jalan Teluk Kechai dekat Alor Setar adalah jantungnya.",
@@ -43,6 +46,7 @@ module.exports = {
     zh: "吉打叻沙以手工米粉——正合马来西亚米仓之州的身份——搭配以亚参片酸化的浓稠鱼汤，撒上椰丝参峇与叻沙叶。亚罗士打附近的Teluk Kechai路边摊是它的大本营。",
     ja: "ケダのラクサは、手打ちの米粉麺——マレーシアの米どころにふさわしい——に、アサム・グルグルで酸味をつけた濃厚な魚のあんを合わせ、ココナッツのサンバルとクスムの葉をのせます。アロースター近くのテルック・クチャイの路傍が本場です。",
     es: "La laksa de Kedah une fideos de harina de arroz hechos a mano —muy propios del granero arrocero de Malasia— con una espesa salsa de pescado especiada y acidulada con asam gelugur, coronada con sambal de coco y hojas de kesum. Su corazón está en la cuneta de Teluk Kechai, cerca de Alor Setar.",
+    ko: "말레이시아의 쌀 곳간다운 크다의 락사는 손으로 만든 쌀국수에 아삼 글루구르로 새콤하게 낸 걸쭉한 향신 생선 소스를 더하고 코코넛 삼발과 다운 크숨을 올립니다. 알로르스타르 인근 텔룩크차이 길가가 그 본거지입니다.",
   },
   "Alor Setar::Mee Abu": {
     id: "Hidangan dari kedai legendaris di Alor Setar: mi kuning di bawah kuah kacang kental yang manis-pedas, dengan tauge, telur rebus, jeruk nipis, dan bawang goreng. Disajikan turun-temurun di Jalan Sultanah, hidangan ini menjadi identitas mee rebus kota ini.",
@@ -51,6 +55,7 @@ module.exports = {
     zh: "亚罗士打一家传奇小店的招牌：黄面浸在浓稠的甜辣花生酱汁下，配豆芽、水煮蛋、青柠与炸葱酥。在Jalan Sultanah上世代相传，成了这座城市独有的mee rebus。",
     ja: "アロースターの伝説的な店の一皿です。黄色い麺を、甘辛く濃いピーナッツのあんの下に沈め、もやし、ゆで卵、ライム、揚げ赤わけぎを添えます。ジャラン・スルタナで代々供され、この街ならではのミー・レブスとなりました。",
     es: "El plato de un local legendario de Alor Setar: fideos amarillos bajo una espesa salsa de cacahuete dulce y picante, con brotes de soja, huevo cocido, lima y chalota frita. Servido durante generaciones en la Jalan Sultanah, se ha vuelto la identidad propia del mee rebus de la ciudad.",
+    ko: "알로르스타르의 전설적인 식당 요리입니다. 노란 면에 걸쭉하고 달콤매콤한 땅콩 소스를 끼얹고 숙주와 삶은 달걀, 라임, 튀긴 샬롯을 올립니다. 잘란 술타나에서 대를 이어 내어 이 도시만의 미 르부스가 됐습니다.",
   },
   "Alor Setar::Pulut durian": {
     id: "Kebiasaan orang Kedah menyantap ketan bersantan dengan durian atau mangga — kadang keduanya, atau dengan ikan asin. Kedai-kedai Alor Setar seperti Awi Pulut, yang pernah tampil di televisi kuliner Malaysia, menjaga tradisi negeri padi di utara ini tetap hidup.",
@@ -59,6 +64,7 @@ module.exports = {
     zh: "吉打人惯把椰浆糯米配榴梿或芒果同吃——有时两样都要，或配咸鱼。亚罗士打的Awi Pulut等店曾上过马来西亚美食节目，让这北方米乡的老习惯延续下来。",
     ja: "ケダの人びとは、ココナッツミルクで炊いたもち米をドリアンやマンゴーと合わせて食べます。両方のせることも、塩魚を添えることもあります。アロースターのアウィ・プルットなどの店はマレーシアの料理番組にも登場し、この北の米どころの習わしを守っています。",
     es: "Una costumbre kedahana: comer arroz glutinoso con leche de coco acompañado de durián o mango, a veces de ambos, o con pescado salado. Tiendas de Alor Setar como Awi Pulut, presentes en la televisión gastronómica malasia, mantienen viva esta tradición del norte arrocero.",
+    ko: "코코넛밀크 찰밥을 두리안이나 망고와 함께 먹는 크다의 습관입니다. 때로는 둘 다, 때로는 소금생선과 함께 먹습니다. 말레이시아 음식 방송에 나온 아위 풀룻 같은 알로르스타르 가게들이 이 북부 쌀 고장의 전통을 이어 갑니다.",
   },
   "Auckland::Hauraki Gulf oysters": {
     id: "Tumbuh gemuk dan manis di teluk di depan pintu Auckland; tiram Bluff menyusul pada musimnya (Maret–Agustus).",
@@ -67,6 +73,7 @@ module.exports = {
     zh: "在奥克兰门前的豪拉基湾长得肥美清甜；布拉夫生蚝则在产季（三月至八月）加入。",
     ja: "オークランドのすぐ目の前、ハウラキ湾で肥えて甘みを増します。季節（三月〜八月）にはブラフ産の牡蠣も加わります。",
     es: "Crecen gordas y dulces en el golfo que Auckland tiene a la puerta; las ostras de Bluff se suman en temporada (de marzo a agosto).",
+    ko: "오클랜드 문턱의 만에서 살지고 달게 자랍니다. 제철인 3월부터 8월까지는 블러프 굴도 함께 오릅니다.",
   },
   "Auckland::Pavlova": {
     id: "Perselisihan seabad yang sama, dilihat dari Selandia Baru: pavlova diklaim kedua negara. Keduanya dicantumkan; tidak ada yang dimenangkan di sini.",
@@ -75,6 +82,7 @@ module.exports = {
     zh: "同一场持续百年的争论，换到新西兰这一边：帕夫洛娃为两国共同宣称。两方都列出，此处不作裁定。",
     ja: "同じ一世紀の論争を、ニュージーランド側から見た一皿です。パヴロヴァは両国が自国のものと主張しています。両者を併記し、ここでは決着をつけません。",
     es: "La misma disputa centenaria vista desde Nueva Zelanda: ambas naciones reclaman la pavlova. Se citan las dos; aquí no gana ninguna.",
+    ko: "같은 백 년의 논쟁을 뉴질랜드 쪽에서 본 것입니다. 파블로바는 두 나라가 모두 자기 것이라 합니다. 둘 다 적어 두고 어느 쪽 손도 들지 않습니다.",
   },
   "Ayutthaya::Kuaitiao ruea ayutthaya": {
     id: "Mi perahu — kuah pekat yang dikentalkan darah dalam mangkuk-mangkuk kecil — tumbuh dari pedagang yang mendayung di kanal-kanal Ayutthaya, dan kota ini tetap salah satu dari dua rumah termasyhur hidangan tersebut bersama Rangsit. Menumpuk mangkuk kosong setinggi mungkin adalah kebiasaannya.",
@@ -83,6 +91,7 @@ module.exports = {
     zh: "船面——浓郁、以猪血调稠的汤盛在小碗里——起于摇着小船穿行大城运河的商贩，这座城至今与兰实并列为它的两处名门。把空碗叠成高塔，是这里的规矩。",
     ja: "舟麺は、血で濃度をつけた濃厚なスープを小さな椀で供します。アユタヤの運河を漕いで売り歩いた商人から生まれ、ランシットと並ぶ二大本場の一つであり続けています。空になった椀を高く積み上げるのが、ここでの作法です。",
     es: "Los fideos de barca —caldo intenso, ligado con sangre, en cuencos pequeños— crecieron de los vendedores que remaban por los canales de Ayutthaya, y la ciudad sigue siendo una de las dos casas famosas del plato junto a Rangsit. Apilar una torre de cuencos vacíos es la costumbre.",
+    ko: "보트 누들은 진하고 피로 걸쭉하게 낸 국물을 작은 그릇에 담아 냅니다. 아유타야의 운하를 노 저으며 팔던 상인들에게서 자랐고, 이 도시는 랑싯과 함께 이 음식의 두 고향 가운데 하나로 남아 있습니다. 빈 그릇을 탑처럼 쌓는 것이 관습입니다.",
   },
   "Ayutthaya::Roti sai mai": {
     id: "Krep lembut beraroma pandan yang digulung mengelilingi benang gulali tarik dari gula karamel, diciptakan komunitas Muslim Ayutthaya dan dijual di seluruh kota selama lebih dari 70 tahun. Toko seperti Abedeen-Pranom memegang pengakuan Bib Gourmand Michelin.",
@@ -91,6 +100,7 @@ module.exports = {
     zh: "带香兰气息的软薄饼，卷起手工拉出的焦糖棉花糖细丝，由大城的穆斯林社群创制，全城售卖已逾七十年。Abedeen-Pranom等店获米其林必比登推介。",
     ja: "パンダンの香るやわらかなクレープで、手で引いたカラメル糖の綿菓子の糸を巻きます。アユタヤのムスリム共同体が生み出し、七十年以上にわたって街じゅうで売られてきました。アベディーン・プラノムなどの店はミシュランのビブグルマンに選ばれています。",
     es: "Crepes blandas perfumadas de pandan enrolladas en torno a hebras de algodón de azúcar caramelizado estiradas a mano, creadas por la comunidad musulmana de Ayutthaya y vendidas por toda la ciudad desde hace más de setenta años. Locales como Abedeen-Pranom cuentan con el Bib Gourmand de Michelin.",
+    ko: "판단 향이 나는 부드러운 전병에 캐러멜을 손으로 뽑아 만든 솜사탕 실을 말아 넣습니다. 아유타야의 무슬림 공동체가 만들어 70년 넘게 시내 곳곳에서 팔아 왔습니다. 아베딘프라놈 같은 가게는 미슐랭 빕구르망에 올라 있습니다.",
   },
   "Baguio::Pinikpikan": {
     id: "Sup ayam ritual masyarakat Cordillera, beraroma asap dari etag, daging babi yang diawetkan. Cara penyiapan tradisionalnya — memukul ayam hidup, yang konon memberi rasa pada dagingnya — terikat pada upacara adat; versi Baguio masa kini melunakkan praktik itu sambil menghormati upacaranya, meski perdebatan etisnya belum reda.",
@@ -99,6 +109,7 @@ module.exports = {
     zh: "科迪勒拉山区各族的仪式鸡汤，因加入腌制猪肉etag而带烟熏味。传统做法是活活拍打鸡只，据说能让肉更有味道，这与原住民祭仪相连；如今碧瑶的版本淡化了这一做法，仍保留仪式，但伦理争议未息。",
     ja: "コルディリェラの人びとの儀礼の鶏スープで、塩漬け豚肉エタグの燻香が効いています。生きた鶏を叩くという伝統の下ごしらえは、肉に味が乗るとされ、先住民の儀式と結びついていました。今日のバギオの作り方はその所作を和らげつつ儀礼を敬いますが、倫理をめぐる議論は続いています。",
     es: "Una sopa ritual de pollo de los pueblos de la Cordillera, ahumada por el etag, cerdo curado. La preparación tradicional —golpear al ave viva, lo que según se dice da sabor a la carne— estaba ligada a los ritos indígenas; las versiones actuales de Baguio suavizan la práctica sin dejar de honrar la ceremonia, aunque el debate ético persiste.",
+    ko: "코르디예라 사람들의 의례용 닭 수프로, 절인 돼지고기 에탁에서 훈향이 납니다. 살아 있는 닭을 두드려 고기 맛을 낸다는 전통 방식은 토착 의례와 이어져 있었습니다. 오늘날 바기오식은 그 의례를 기리되 방식을 누그러뜨렸지만 윤리 논쟁은 남아 있습니다.",
   },
   "Baguio::Strawberry taho": {
     id: "Camilan jalanan penanda Baguio: tahu sutra hangat dan mutiara sagu ditenggelamkan dalam sirup stroberi bersama buah segar dari kebun La Trinidad di sebelahnya, menggantikan arnibal gula merah yang biasa. Seruan pagi para penjaja, \"tahooo\", adalah bagian dari lanskap suara kota ini.",
@@ -107,6 +118,7 @@ module.exports = {
     zh: "碧瑶的招牌街头小食：温热的嫩豆花与西米珍珠浸在草莓糖浆里，配邻近拉特立尼达农场的鲜草莓，取代了惯用的红糖糖浆。清早小贩那一声「tahooo」的吆喝，也是这座城的声音。",
     ja: "バギオを代表する屋台の甘味です。温かい絹ごし豆腐とサゴのつぶを、いつもの黒糖シロップの代わりにイチゴのシロップに沈め、隣町ラ・トリニダードの農園の生の実を添えます。売り子の朝の「タホーオ」という呼び声も、この街の音風景の一部です。",
     es: "El tentempié callejero insignia de Baguio: tofu sedoso caliente y perlas de sagú anegados en sirope de fresa con bayas frescas de las granjas de la vecina La Trinidad, en lugar del arnibal habitual de azúcar moreno. El pregón matinal de los vendedores, «tahooo», forma parte del paisaje sonoro de la ciudad.",
+    ko: "바기오를 대표하는 길거리 간식입니다. 따뜻한 순두부와 사고 펄에 흑설탕 시럽 대신 딸기 시럽을 붓고 이웃한 라트리니다드 농장의 생딸기를 올립니다. 아침마다 '타호오' 하고 외치는 상인들의 소리는 이 도시의 소리 풍경입니다.",
   },
   "Bali (Denpasar)::Babi guling": {
     id: "Babi muda utuh diisi base genep — bumbu lengkap khas Bali — lalu dipanggang di atas tusukan sampai kulitnya merekah renyah. Dulu hanya untuk upacara pura, terdaftar sebagai Warisan Budaya Takbenda Indonesia sejak 2011, dan kini menjadi bintang warung sehari-hari di Denpasar.",
@@ -115,6 +127,7 @@ module.exports = {
     zh: "整头乳猪塞满base genep——巴厘岛完整的香料膏——再上叉炙烤到猪皮爆脆。它原本只用于庙宇祭仪，2011年起登记为印尼国家非物质文化遗产，如今已是登巴萨日常小馆的主角。",
     ja: "子豚を丸ごとバセ・グヌップ——バリの香辛料を余さず合わせたペースト——で満たし、串に刺して皮がぱりぱりに弾けるまで焼きます。かつては寺院の儀式のためだけの料理でしたが、2011年からインドネシアの無形文化遺産に登録され、今ではデンパサールの日常の食堂の主役です。",
     es: "Un cochinillo entero relleno de base genep —la pasta de especias completa de Bali— y asado al espetón hasta que la piel cruje. Antaño reservado a las ceremonias del templo, registrado como Patrimonio Cultural Inmaterial de Indonesia desde 2011 y hoy la pieza central de los warungs cotidianos de Denpasar.",
+    ko: "어린 돼지를 통째로 발리의 완전한 향신 반죽 바세 그늡으로 채워 껍질이 바삭해질 때까지 꼬치에 굽습니다. 한때는 사원 의례에만 올렸고 2011년부터 인도네시아 무형문화유산으로 등록됐으며, 지금은 덴파사르 와룽의 일상적인 주인공입니다.",
   },
   "Bali (Denpasar)::Betutu": {
     id: "Ayam atau bebek utuh dilumuri dan diisi bumbu Bali yang kaya, lalu dipanggang perlahan atau diperam dalam bara selama berjam-jam. Terdaftar dalam Warisan Budaya Takbenda Indonesia, betutu sekaligus menjadi sesaji ritual (sajen) dan hidangan sehari-hari yang dicintai di sekitar Denpasar.",
@@ -123,6 +136,7 @@ module.exports = {
     zh: "整只鸡或鸭抹上并填入浓重的巴厘香料，再慢烤或埋进余烬里焖上数小时。betutu已列入印尼国家非物质文化遗产名录，它既是祭仪供品（sajen），也是登巴萨一带深受喜爱的日常菜。",
     ja: "鶏か鴨を丸ごと、濃厚なバリの香辛料ですり込み、腹にも詰めて、何時間もかけて焼くか熾火で蒸し焼きにします。インドネシアの無形文化遺産に登録され、ブトゥトゥは儀式の供物（サジェン）であると同時に、デンパサール周辺で深く愛される日常の一皿でもあります。",
     es: "Un pollo o pato entero frotado y relleno de especias balinesas intensas, luego asado despacio o rescoldado durante horas. Inscrito en el registro indonesio de patrimonio inmaterial, el betutu es a la vez ofrenda ritual (sajen) y plato cotidiano ferozmente querido en torno a Denpasar.",
+    ko: "닭이나 오리를 통째로 발리의 진한 향신료로 문지르고 속을 채워 여러 시간 굽거나 잿불에 묻어 익힙니다. 인도네시아 무형문화유산 목록에 올라 있으며, 브투투는 제물(사젠)이자 덴파사르 일대에서 몹시 사랑받는 일상 음식이기도 합니다.",
   },
   "Bandar Seri Begawan::Ambuyat": {
     id: "Hidangan nasional Brunei adalah ritual sekaligus makanan: pati sagu yang bening dan lengket dililitkan pada chandas — sumpit bambu yang menyatu di satu ujungnya — lalu dicelup ke saus cacah yang tajam seperti sambal belacan atau tempoyak durian. Ditelan, bukan dikunyah, dan selalu disantap bersama.",
@@ -131,6 +145,7 @@ module.exports = {
     zh: "文莱的国菜既是食物也是仪式：晶亮黏稠的西谷米淀粉缠在chandas——一端相连的竹筷——上，再蘸进浓烈的cacah酱，如虾酱参峇或发酵榴梿。它是吞的，不是嚼的，而且总是共食。",
     ja: "ブルネイの国民食は、料理であると同時に儀礼です。透きとおって粘るサゴ澱粉を、片端でつながった竹の箸「チャンダス」に巻き取り、サンバル・ブラチャンや発酵ドリアンのテンポヤといった刺激的なチャチャのたれにつけます。噛まずに飲み込み、必ず皆で分け合います。",
     es: "El plato nacional de Brunéi es tanto rito como comida: almidón de sagú vidrioso y pegajoso enrollado en chandas —palillos de bambú unidos por un extremo— y mojado en salsas cacah punzantes como el sambal belacan o el tempoyak de durián fermentado. Se traga, no se mastica, y siempre se comparte.",
+    ko: "브루나이의 국민 음식은 음식이자 의식입니다. 유리처럼 맑고 끈적한 사고 전분을 한쪽 끝이 붙은 대나무 젓가락 찬다스에 감아, 삼발 블라찬이나 발효 두리안 템포약 같은 새콤한 차차 소스에 찍습니다. 씹지 않고 삼키며 언제나 나눠 먹습니다.",
   },
   "Bandar Seri Begawan::Kuih celurut": {
     id: "Kerucut melingkar dari daun kelapa muda menyembunyikan kue kukus yang lembut dan manis lembut, dari tepung beras dan sagu bersama santan serta gula aren. Dibuka lilitannya sehelai demi sehelai, kuih celurut menghiasi perayaan Brunei; media pemerintah mendorong pelestariannya sebagai warisan yang hidup.",
@@ -139,6 +154,7 @@ module.exports = {
     zh: "嫩椰叶卷成的螺旋小筒里，藏着柔软微甜的蒸糕，用米粉与西谷米粉加椰浆和棕榈糖做成。一圈圈拆开叶子来吃，kuih celurut是文莱喜庆场合的点心；官方媒体也呼吁把它当作活的遗产保存下来。",
     ja: "若いヤシの葉を螺旋に巻いた円錐の中に、米粉とサゴ粉をココナッツミルクとヤシ砂糖で蒸した、やわらかくほのかに甘い菓子が隠れています。葉を一巻きずつほどいて食べます。ブルネイの祝いの席を彩り、国営メディアも生きた遺産として守るよう呼びかけています。",
     es: "Un cono en espiral de hoja tierna de coco esconde un bizcocho al vapor blando y apenas dulce, de harina de arroz y sagú con leche de coco y azúcar de palma. Se desenrolla tira a tira; el kuih celurut adorna las celebraciones bruneanas, y los medios oficiales instan a preservarlo como patrimonio vivo.",
+    ko: "어린 코코넛잎을 나선 원뿔로 감아 그 안에 쌀과 사고 가루를 코코넛밀크와 야자설탕으로 반죽해 부드럽고 은은히 달게 쪄냅니다. 한 겹씩 풀어 가며 먹는 쿠이 츨루릇은 브루나이의 잔치를 장식하며, 정부 매체는 살아 있는 유산으로 지킬 것을 권합니다.",
   },
   "Bandar Seri Begawan::Nasi katok": {
     id: "Santapan rakyat Brunei: nasi putih, ayam goreng, dan sambal dibungkus kertas cokelat, yang termasyhur seharga satu dolar. Namanya berarti \"nasi ketuk\" — pelanggan larut malam mengetuk jendela sebuah flat di Mabohai, Bandar Seri Begawan, pada 1980-an untuk dilayani. Kini menjadi obsesi seluruh negeri.",
@@ -147,6 +163,7 @@ module.exports = {
     zh: "文莱的平民一餐：白饭、炸鸡与参峇裹进牛皮纸，以一元的价格出名。名字意为「敲门饭」——1980年代的深夜客人敲斯里巴加湾市马波海一处组屋的窗子讨吃的。如今全国为之着迷。",
     ja: "ブルネイの庶民の一食です。白飯と唐揚げ、サンバルを茶色い紙に包み、一ドルという値で知られます。名は「叩く飯」の意で、1980年代、夜更けの客がバンダルスリブガワンのマボハイの住戸の窓を叩いて求めたことに由来します。今では国じゅうが夢中です。",
     es: "La comida de todos en Brunéi: arroz blanco, pollo frito y sambal envueltos en papel de estraza, famosos por un dólar. El nombre significa «arroz de llamar»: en los años ochenta, los clientes nocturnos golpeaban la ventana de un piso de Mabohai, en Bandar Seri Begawan, para que les sirvieran. Hoy es una obsesión nacional.",
+    ko: "브루나이 서민의 한 끼입니다. 흰밥과 튀긴 닭, 삼발을 갈색 종이에 싸며 값이 1달러인 것으로 이름났습니다. 이름은 '두드리는 밥'이라는 뜻으로, 1980년대 반다르스리브가완 마보하이 아파트의 창을 밤늦게 두드려 사 먹던 데서 왔습니다. 지금은 전국이 빠져 있습니다.",
   },
   "Bandung::Batagor": {
     id: "Tahu isi ikan dan pangsit goreng bersiram saus kacang — lahir di Bandung sekitar 1968 ketika pedagang Haji Isan menggoreng bakso tahunya yang tak laku daripada terbuang. Kini ikon Bandung yang berkali-kali masuk daftar jajanan terbaik dunia versi TasteAtlas.",
@@ -155,6 +172,7 @@ module.exports = {
     zh: "炸鱼馅豆腐与云吞，浇上花生酱——1968年前后诞生于万隆：小贩Haji Isan把卖不掉的鱼豆腐下锅炸了，总好过丢掉。如今它是万隆的标志，多次入选TasteAtlas的世界最佳小吃榜。",
     ja: "魚のすり身を詰めた豆腐とワンタンを揚げ、ピーナッツソースをかけた一皿です。1968年ごろのバンドンで、売れ残ったバソ・タフを捨てるより揚げてしまおうと考えた行商ハジ・イサンが生み出しました。今ではバンドンの象徴で、TasteAtlasの世界の名物軽食に何度も選ばれています。",
     es: "Tofu relleno de pescado y wantanes fritos bajo salsa de cacahuete: nació en Bandung hacia 1968, cuando el vendedor Haji Isan frió su bakso tahu no vendido en lugar de tirarlo. Hoy es un icono de Bandung, repetidamente incluido por TasteAtlas entre los mejores aperitivos del mundo.",
+    ko: "생선살을 채운 두부와 완탕 만두를 튀겨 땅콩 소스를 끼얹습니다. 1968년경 반둥에서 상인 하지 이산이 팔지 못한 박소 타후를 버리지 않고 튀기면서 태어났습니다. 지금은 테이스트아틀라스가 거듭 세계 최고의 간식에 꼽는 반둥의 상징입니다.",
   },
   "Bandung::Siomay Bandung": {
     id: "Pangsit ikan tenggiri kukus yang disajikan bersama kentang, kubis, pare, tahu, dan telur, disiram saus kacang. Adaptasi Bandung atas siomai Tionghoa — daging babi diganti ikan — dipopulerkan sejak 1950-an dan dinobatkan TasteAtlas sebagai makanan jalanan terbaik dunia.",
@@ -163,6 +181,7 @@ module.exports = {
     zh: "蒸马鲛鱼烧卖，配马铃薯、卷心菜、苦瓜、豆腐与鸡蛋，淋花生酱。这是万隆对中式烧卖的改写——猪肉换成鱼——自1950年代流行开来，并被TasteAtlas评为世界第一街头美食。",
     ja: "サワラのすり身の蒸し焼売を、じゃがいも、キャベツ、ゴーヤ、豆腐、卵とともに供し、ピーナッツソースをかけます。豚肉を魚に替えた、バンドンによる中国の焼売の翻案で、1950年代から広まり、TasteAtlasで世界一のストリートフードに選ばれました。",
     es: "Empanadillas de caballa al vapor servidas con patata, col, melón amargo, tofu y huevo, bañadas en salsa de cacahuete. La adaptación bandunguesa del shumai chino —el cerdo cambiado por pescado— se popularizó desde los años cincuenta y TasteAtlas la coronó como la mejor comida callejera del mundo.",
+    ko: "고등어 살로 쪄낸 만두를 감자와 양배추, 여주, 두부, 달걀과 함께 내고 땅콩 소스를 듬뿍 끼얹습니다. 돼지고기를 생선으로 바꾼 중국 사오마이의 반둥식으로 1950년대부터 퍼졌고, 테이스트아틀라스가 세계 최고의 길거리 음식으로 뽑았습니다.",
   },
   "Bangar (Temburong)::Kelupis & wajid Temburong": {
     id: "Gerai pasar Bangar menjaga warisan beras Temburong tetap hidup: kelupis, ketan yang dikukus dalam daun nyirik dan disajikan pada pernikahan Bisaya, serta wajid Temburong, penganan beras bergula aren dari beras Jawa yang sulit dicari, dihargai karena gigitannya yang khas — tidak selengket yang lain.",
@@ -171,6 +190,7 @@ module.exports = {
     zh: "班加的市集摊子守着淡布隆的稻米传承：kelupis是用nyirik叶包蒸的糯米，比萨亚族婚礼上必备；wajid Temburong则是用难寻的beras Jawa米加棕榈糖做的甜米糕，以口感明显不那么黏而受推崇。",
     ja: "バンガールの市場の屋台は、テンブロンの米の伝統を守っています。クルピスはニリックの葉で蒸したもち米で、ビサヤの婚礼に供されます。ワジッ・テンブロンは、手に入りにくいブラス・ジャワの米とヤシ砂糖で作る甘い米菓子で、粘りの少ない歯ざわりが好まれます。",
     es: "Los puestos del mercado de Bangar mantienen vivo el legado arrocero de Temburong: el kelupis, arroz glutinoso cocido al vapor en hojas de nyirik y servido en las bodas bisaya, y el wajid Temburong, un dulce de arroz con azúcar de palma hecho del difícil de conseguir beras Jawa, apreciado por su mordida notablemente menos pegajosa.",
+    ko: "방아르의 시장 노점은 템부롱의 쌀 유산을 이어 갑니다. 니리크잎에 찹쌀을 싸서 쪄 비사야족 혼례에 내는 클루피스와, 구하기 힘든 브라스 자와로 만들어 덜 끈적한 씹힘으로 귀히 여겨지는 야자설탕 찰떡 와지드 템부롱입니다.",
   },
   "Bangar (Temburong)::Udang galah": {
     id: "Sungai-sungai Temburong yang masih bersih menghasilkan udang galah, udang air tawar raksasa yang ditangkap nelayan kecil setempat dan dihargai di seluruh Brunei. Di Bangar ia muncul dalam gulai dan mi, dan yang paling termasyhur sebagai burger udang galah yang dijual di pasar Tamu Temburong.",
@@ -179,6 +199,7 @@ module.exports = {
     zh: "淡布隆未受污染的河流出产udang galah——由本地小渔户捕捞的大型淡水虾，全文莱都视为珍品。在班加，它入咖喱、入面，而最出名的吃法，是Tamu Temburong市场上卖的大头虾汉堡。",
     ja: "手つかずのテンブロンの川は、ウダン・ガラーと呼ばれる大型の淡水海老を育みます。土地の小さな漁師が獲り、ブルネイじゅうで珍重されます。バンガールでは煮込みや麺に入り、なかでも名高いのが、タム・テンブロン市場で売られるウダン・ガラーのバーガーです。",
     es: "Los ríos vírgenes de Temburong dan el udang galah, langostinos gigantes de agua dulce capturados por pescadores locales a pequeña escala y apreciados en todo Brunéi. En Bangar aparecen en guisos y fideos, y sobre todo en la célebre hamburguesa de udang galah que se vende en el mercado de Tamu Temburong.",
+    ko: "템부롱의 맑은 강은 소규모 어부들이 잡는 큰 민물새우 우당 갈라를 냅니다. 브루나이 전역에서 귀히 여기며, 방아르에서는 조림과 국수로 나오고 무엇보다 타무 템부롱 시장에서 파는 우당 갈라 버거로 이름났습니다.",
   },
   "Bangkok::Pad thai": {
     id: "Dipromosikan ke seluruh negeri pada 1940-an lewat kampanye pembangunan bangsa PM Phibun — hidangan yang dirancang menjadi Thailand di atas piring.",
@@ -187,6 +208,7 @@ module.exports = {
     zh: "1940年代由銮披汶总理的建国运动推向全国——一道被设计成「盘中泰国」的菜。",
     ja: "1940年代、ピブーン首相の国民国家づくり運動によって全国に広められました。一皿でタイを表すべく設計された料理です。",
     es: "Promocionado por todo el país en los años cuarenta por la campaña de construcción nacional del primer ministro Phibun: un plato diseñado para ser Tailandia en un plato.",
+    ko: "1940년대 피분 총리의 국가 건설 운동으로 전국에 퍼졌습니다. 태국을 한 접시에 담도록 설계된 요리입니다.",
   },
   "Bangkok::Som tum": {
     id: "Salad pepaya muda yang ditumbuk sesuai pesanan — hidangan Isan (timur laut) yang menaklukkan Bangkok; di sini dilabeli Isan, bukan asli Bangkok.",
@@ -195,6 +217,7 @@ module.exports = {
     zh: "现点现舂的青木瓜沙拉——来自东北伊善地区并征服曼谷的菜式；此处标为伊善，而非曼谷本地起源。",
     ja: "注文を受けてから搗く青パパイヤのサラダ。東北部イサーンの料理がバンコクを席巻したもので、ここではバンコク発祥ではなくイサーンとして扱っています。",
     es: "Ensalada de papaya verde majada al momento: un plato de Isán (el noreste) que conquistó Bangkok; aquí se etiqueta como isanés, no como bangkokense.",
+    ko: "그 자리에서 빻아 내는 그린 파파야 샐러드입니다. 방콕을 정복한 이싼(동북부) 요리이며, 방콕이 아니라 이싼 음식으로 표기합니다.",
   },
   "Beijing::Douzhi with jiaoquan": {
     id: "Minuman kacang hijau fermentasi berwarna hijau kelabu dan berasa asam, disesap panas-panas bersama gelang adonan goreng yang renyah dan acar iris. Ujian keanggotaan sarapan Beijing lama, dijaga kedai jajanan Huguosi di bawah perlindungan warisan takbenda kota.",
@@ -203,6 +226,7 @@ module.exports = {
     zh: "灰绿泛酸的发酵绿豆汁，要趁滚烫喝，配酥脆的焦圈与切细的咸菜。这是老北京早点里认不认自家人的考题，由护国寺小吃店在市级非遗保护下延续。",
     ja: "灰緑色で酸味のある緑豆の発酵飲料を、熱いうちにすすり、揚げた輪形の焦圈と細切りの漬物を添えます。老北京の朝食における身内かどうかの試金石で、護国寺小吃が市の無形文化遺産の保護のもと守り伝えています。",
     es: "Bebida agria y de un verde grisáceo, de judía mungo fermentada, que se sorbe ardiendo con aros de masa frita crujientes y encurtidos en juliana. Una prueba de pertenencia del viejo desayuno pekinés, conservada por las casas de aperitivos de Huguosi bajo protección municipal del patrimonio inmaterial.",
+    ko: "새콤하고 잿빛 도는 녹두 발효 음료를 뜨겁게 마시며 바삭한 튀김 고리와 채 썬 장아찌를 곁들입니다. 옛 베이징 사람인지 가리는 아침 시험이며, 후궈쓰 간식점들이 시 무형유산 보호 아래 이어 갑니다.",
   },
   "Beijing::Peking roast duck": {
     id: "Bebek panggang warisan zaman kekaisaran dengan kulit renyah bak pernis, diiris di meja dan digulung dalam krep bersama daun bawang dan saus kacang manis. Teknik kedua kedai pendirinya — oven gantung terbuka Quanjude (1864) dan oven tertutup Bianyifang (1416) — sama-sama masuk warisan budaya takbenda nasional.",
@@ -211,6 +235,7 @@ module.exports = {
     zh: "自帝制时代传下的烤鸭，皮脆如漆，在桌边片好后卷进薄饼，配葱丝与甜面酱。两家开山名店的技艺——全聚德的挂炉（1864）与便宜坊的焖炉（1416）——都已列入国家级非物质文化遗产。",
     ja: "帝政期から伝わる焼き鴨で、漆のように香ばしい皮を卓上で切り分け、白髪ねぎと甘味噌とともに薄餅で包みます。二つの元祖の技法——全聚徳の掛炉（1864年）と便宜坊の焖炉（1416年）——はいずれも国家級無形文化遺産に登録されています。",
     es: "Pato asado de la era imperial, de piel crujiente como laca, cortado en la mesa y enrollado en crepes con cebolleta y salsa dulce de soja. Las técnicas de ambas casas fundadoras —el horno colgante abierto de Quanjude (1864) y el horno cerrado de Bianyifang (1416)— figuran en el patrimonio cultural inmaterial nacional.",
+    ko: "황실 시대의 오리구이로 껍질이 옻칠처럼 바삭하며, 식탁에서 저며 파와 첨면장과 함께 전병에 쌉니다. 취안쥐더의 열린 화덕(1864)과 볜이팡의 닫힌 화덕(1416), 두 원조의 기법 모두 국가 무형문화유산에 올라 있습니다.",
   },
   "Beijing::Zhajiangmian": {
     id: "Mi gandum tarik tangan diaduk dengan saus gelap dari pasta kedelai kuning yang ditumis bersama dadu daging babi, ditaburi sayuran mentah yang renyah. Ritual harian Beijing, diaduk di meja dan terikat pada kehidupan hutong lama.",
@@ -219,6 +244,7 @@ module.exports = {
     zh: "手抻的麦面拌上黄豆酱与肉丁炒出的深色酱，再堆上爽脆的生菜码。这是北京人日常的仪式，在桌上现拌，与老胡同的生活紧紧相连。",
     ja: "手で伸ばした小麦の麺に、黄醤を豚肉のさいの目と炒めた黒いあんをからめ、しゃきしゃきした生野菜をのせます。卓上で自ら混ぜる、北京の日々の作法であり、古い胡同の暮らしと結びついています。",
     es: "Fideos de trigo estirados a mano mezclados con una salsa oscura de pasta de soja amarilla frita con dados de cerdo, coronados con verduras crudas crujientes. Un rito cotidiano pekinés, mezclado en la mesa y ligado a la vieja vida de los hutong.",
+    ko: "손으로 뽑은 밀면에 노란 콩장을 돼지고기 깍둑썰기와 함께 볶은 짙은 소스를 얹고 아삭한 생채소를 올립니다. 식탁에서 비벼 먹는 베이징의 일상 의식이며 옛 후통의 삶과 이어져 있습니다.",
   },
   "Boracay::Chori burger": {
     id: "Makanan pantai milik Boracay sendiri: patty chorizo panggang beraroma asap yang dilumuri saus tomat pisang dan mayones, diciptakan untuk pengunjung pantai yang kelaparan — Merly's BBQ menyajikan versi aslinya sejak 1988. Salah satu dari sedikit hidangan yang jujur bisa diklaim sebuah pulau resor.",
@@ -227,6 +253,7 @@ module.exports = {
     zh: "长滩岛真正属于自己的海滩食物：炭烤香肠肉饼带焦香，抹上香蕉番茄酱与蛋黄酱，专为饿着肚子的海滩客而生——Merly's BBQ自1988年起卖着最初的版本。度假海岛能坦然自称原创的菜式，不多，这是其中之一。",
     ja: "ボラカイが本当に自分のものと言える浜辺の食べ物です。香ばしく焼いたチョリソのパティに、バナナケチャップとマヨネーズを塗ります。空腹の海水浴客のために生まれ、メルリーズBBQが1988年から元祖を出しています。リゾート島が正直に自前と言える数少ない一品です。",
     es: "La comida de playa propia de Boracay: una hamburguesa ahumada de chorizo a la parrilla untada con kétchup de plátano y mayonesa, inventada para bañistas hambrientos; Merly's BBQ sirve la original desde 1988. Uno de los pocos platos que una isla turística puede llamar honestamente suyo.",
+    ko: "보라카이만의 해변 음식입니다. 훈향 나는 구운 초리소 패티에 바나나 케첩과 마요네즈를 바른 것으로, 배고픈 해수욕객을 위해 만들어졌고 멀리스 바비큐가 1988년부터 원조를 내고 있습니다. 휴양지 섬이 정직하게 제 것이라 부를 수 있는 몇 안 되는 음식입니다.",
   },
   "Brisbane::Moreton Bay bug": {
     id: "Lobster sandal yang dinamai dari teluk tempat Brisbane berdiri — daging ekornya manis, paling enak dibakar sebentar dengan mentega bawang putih. Bukan resep: tempatnya sendiri yang menjadi merek.",
@@ -235,6 +262,7 @@ module.exports = {
     zh: "以布里斯班所在海湾命名的扇虾，尾肉清甜，最宜用蒜香黄油煎出焦香。它不是一道食谱：地名本身就是招牌。",
     ja: "ブリスベンが面する湾の名を負うウチワエビです。尾の身は甘く、ガーリックバターで香ばしく焼くのが一番。レシピではなく、土地そのものが看板になっています。",
     es: "Una cigarra de mar que lleva el nombre de la bahía donde se asienta Brisbane: carne de cola dulce, mejor marcada con mantequilla de ajo. No es una receta: la marca es el propio lugar.",
+    ko: "브리즈번이 자리한 만의 이름을 딴 부채새우입니다. 꼬리살이 달고, 마늘 버터에 노릇하게 구울 때가 가장 좋습니다. 조리법이 아니라 그 장소 자체가 이름값입니다.",
   },
   "Brisbane::Queensland mud crab": {
     id: "Dipanen dari alur bakau di sekitar Moreton Bay — kelas berat makanan laut Queensland, dikukus atau dimasak gaya cabai.",
@@ -243,6 +271,7 @@ module.exports = {
     zh: "捕自莫顿湾一带的红树林水道，是昆士兰海鲜里的重量级角色，清蒸或做成辣椒蟹皆宜。",
     ja: "モートン湾周辺のマングローブの水路で獲れる、クイーンズランド海鮮の重量級。蒸すか、チリ仕立てにします。",
     es: "Capturado en los canales de manglar de la bahía de Moreton: el peso pesado del marisco de Queensland, al vapor o al estilo chile.",
+    ko: "모턴만 일대의 맹그로브 하천에서 잡습니다. 퀸즐랜드 해산물의 중량급으로, 쪄 내거나 칠리로 조리합니다.",
   },
   "Busan::Dwaeji gukbap": {
     id: "Sup babi dan nasi khas Busan, kuah putih susu direbus dari tulang babi, dibumbui terasi udang dan kucai. Asalnya diperdebatkan: pengungsi Perang Korea yang menyesuaikan sup utara di Busan masa perang, atau makanan pasar Miryang yang menyebar karena perang. Kota ini mencantumkannya sebagai Warisan Masa Depan Busan.",
@@ -251,6 +280,7 @@ module.exports = {
     zh: "釜山的招牌猪肉汤饭：猪骨熬出的乳白汤底，以虾酱与韭菜调味。来历有争议——或说是朝鲜战争时期难民在釜山改造北方汤食，或说是密阳的市场吃食因战争而扩散。釜山市已将它列入「未来遗产」。",
     ja: "釜山を代表する豚肉とご飯の汁物で、豚骨から取った乳白色のスープをアミの塩辛とニラで調えます。由来には二説あり、朝鮮戦争の避難民が戦時の釜山で北の汁物を作り替えたとも、密陽の市場料理が戦争で広まったともいわれます。市は「釜山未来遺産」に指定しています。",
     es: "La sopa insignia de Busan, de cerdo y arroz: caldo lechoso hervido con huesos de cerdo y sazonado con pasta de gambas y cebollino. Su origen se discute: refugiados de la guerra de Corea adaptando sopas norteñas en el Busan bélico, o comida de mercado de Miryang difundida por la guerra. La ciudad la incluye como Patrimonio Futuro de Busan.",
+    ko: "부산을 대표하는 돼지국밥으로, 돼지뼈를 고아 뽀얗게 낸 국물에 새우젓과 부추로 간합니다. 유래는 논쟁 중입니다. 전쟁 중 부산에서 피란민이 북쪽의 국을 바꾼 것이라는 설과 밀양 장터 음식이 전쟁으로 퍼졌다는 설이 있습니다. 시는 부산미래유산으로 삼고 있습니다.",
   },
   "Busan::Milmyeon": {
     id: "Mi dingin yang kenyal, diciptakan di Busan pada 1950-an oleh pengungsi perang dari Korea Utara yang merindukan naengmyeon. Tanpa soba, mereka menarik mi dari tepung terigu bantuan Amerika yang murah dan pati, disajikan dalam kaldu babi dingin. Kini hidangan musim panas penanda Busan, sering dikelola keturunan keluarga pengungsi.",
@@ -259,6 +289,7 @@ module.exports = {
     zh: "弹牙的冷面，1950年代由思念冷面的北方战争难民在釜山创出。没有荞麦，他们便用便宜的美援小麦粉与淀粉抻面，浸在冰镇猪骨汤里。如今这是釜山夏天的代表，许多店仍由当年难民家庭的后人经营。",
     ja: "1950年代の釜山で、冷麺を懐かしんだ北からの戦争避難民が生み出した、冷たく腰のある麺です。そば粉がないため、安価なアメリカ援助の小麦粉と澱粉で麺を打ち、冷やした豚のスープに浸しました。今では釜山の夏を象徴する一杯で、当時の避難民の子孫が営む店も少なくありません。",
     es: "Fideos fríos y elásticos inventados en el Busan de los años cincuenta por refugiados de guerra norcoreanos que echaban de menos el naengmyeon. Sin trigo sarraceno, estiraron los fideos con harina de trigo barata de la ayuda estadounidense y almidón, servidos en caldo de cerdo frío. Hoy son un plato veraniego que define Busan, a menudo en manos de los descendientes de aquellas familias.",
+    ko: "냉면을 그리워한 이북 피란민들이 1950년대 부산에서 만든 차갑고 쫄깃한 국수입니다. 메밀이 없어 값싼 미국 원조 밀가루와 전분으로 면을 뽑아 차게 식힌 돼지 육수에 냈습니다. 지금은 부산의 여름을 대표하며 피란민 후손이 이어 가는 집이 많습니다.",
   },
   "Busan::Ssiat hotteok": {
     id: "Penganan jalanan termasyhur Busan dari BIFF Square di Nampo-dong: panekuk hotteok digoreng dalam minyak, dibelah, lalu diisi berlimpah biji bunga matahari, biji labu, dan aneka biji lain. Dipopulerkan gerai-gerai di alun-alun festival film, antreannya masih menjadi ritual wajib makan di Busan.",
@@ -267,6 +298,7 @@ module.exports = {
     zh: "釜山最有名的街头甜点，出自南浦洞BIFF广场：糖饼下油锅炸过后剖开，塞满葵花籽、南瓜籽等各式种子。电影节广场的摊子把它带红，至今排队仍是来釜山必做的一件事。",
     ja: "南浦洞のBIFF広場が生んだ、釜山でもっとも名高い屋台の甘味です。ホットクを油で揚げ、切れ目を入れて、ひまわりやかぼちゃなどの種をたっぷり詰めます。映画祭広場の屋台が広め、今もそこに並ぶことが釜山での食の通過儀礼になっています。",
     es: "El dulce callejero más famoso de Busan, nacido en la plaza BIFF de Nampo-dong: una torta hotteok frita en aceite, abierta y rellena con generosidad de pipas de girasol, de calabaza y otras semillas. Popularizado por los puestos de la plaza del festival de cine, hacer cola allí sigue siendo un rito obligado.",
+    ko: "남포동 BIFF 광장에서 온 부산의 이름난 길거리 간식입니다. 호떡을 기름에 튀겨 갈라 해바라기씨와 호박씨 같은 씨앗을 넉넉히 채웁니다. 영화제 광장의 노점들이 널리 알렸고 그곳의 줄서기는 지금도 빼놓을 수 없는 부산의 먹는 의식입니다.",
   },
   "Cairns::Barramundi": {
     id: "Ikan totem dari utara tropis Australia, diburu para pemancing di Cairns — yang menjuluki dirinya ibu kota memancing Australia — dan disajikan di seluruh kota, terkenal sebagai barramundi muda utuh yang digoreng renyah di Tamarind. Namanya berasal dari kata Aborigin untuk \"ikan sungai bersisik besar\".",
@@ -275,6 +307,7 @@ module.exports = {
     zh: "澳大利亚热带北部的图腾鱼，是凯恩斯钓客的目标——这座城自称澳洲垂钓之都——全城餐馆都做，最有名的是Tamarind的整条脆炸小尖吻鲈。它的名字来自原住民语中「大鳞的河鱼」一词。",
     ja: "オーストラリア熱帯北部を象徴する魚で、みずから釣りの都を名乗るケアンズの釣り人たちの憧れです。市中の店で供され、なかでもタマリンドの若魚まるごとのカリッと揚げが名高い一品。名はアボリジニの言葉で「鱗の大きな川の魚」を意味します。",
     es: "El pez totémico del norte tropical de Australia, codiciado por los pescadores de Cairns —que se proclama capital australiana de la pesca— y servido por toda la ciudad, sobre todo como barramundi joven entero y crujiente en Tamarind. Su nombre viene de una palabra aborigen para «pez de río de escamas grandes».",
+    ko: "호주 열대 북부를 상징하는 생선으로, 스스로 호주 낚시의 수도라 부르는 케언스의 낚시꾼들이 귀히 여기고 도시 곳곳에서 냅니다. 타마린드의 어린 배러먼디 통구이가 이름났습니다. 이름은 '비늘 큰 강물고기'를 뜻하는 원주민 말에서 왔습니다.",
   },
   "Cairns::Mud crab": {
     id: "Cairns tak punya hidangan ciptaan sendiri; mejanya ditentukan oleh tangkapan. Kepiting bakau, digali dari muara mangrove di sepanjang pesisir, adalah keistimewaan kawasan yang sulit didapat — warga setempat menilai sebuah restoran makanan laut dari ada tidaknya ia di menu, seperti di Dundee's di tepi air.",
@@ -283,6 +316,7 @@ module.exports = {
     zh: "凯恩斯没有自创的菜；它的餐桌由渔获决定。沿岸红树林河口挖出的泥蟹，是这一带难得的珍味——本地人评判一家海鲜餐厅，就看菜单上有没有它，比如水边的Dundee's。",
     ja: "ケアンズに自ら生み出した料理はありません。この街の食卓を決めるのは、その日の獲物です。海岸沿いのマングローブの河口から掘り出すノコギリガザミは、なかなか手に入らない土地の珍味で、地元の人は献立にそれが載っているかで海鮮の店を測ります。水辺のダンディーズもその一軒です。",
     es: "Cairns no tiene un plato de invención propia; su mesa la define la captura. El cangrejo de manglar, extraído de los estuarios de la costa, es la delicia esquiva de la región: los vecinos juzgan un restaurante de marisco por si figura en la carta, como en Dundee's, junto al agua.",
+    ko: "케언스에는 만들어 낸 요리가 없고, 그 식탁은 어획이 정합니다. 해안의 맹그로브 하구에서 캐는 머드크랩이 이 지역의 귀한 별미이며, 사람들은 물가의 던디스처럼 차림표에 이것이 오르는지로 해산물 식당을 가늠합니다.",
   },
   "Canberra::Canberra black truffles": {
     id: "Canberra tak punya hidangan kota yang asli, tetapi musim dinginnya yang dingin menjadikannya negeri truffle Australia. Kebun seperti Blue Frog membudidayakan truffle hitam sejak 2007, dan setiap Juni–Agustus restoran di seluruh ibu kota menyusun menu di sekitar \"emas hitam\" yang baru diburu.",
@@ -291,6 +325,7 @@ module.exports = {
     zh: "堪培拉没有土生的城市名菜，但寒冷的冬天让它成了澳大利亚的松露之乡。Blue Frog等农场自2007年起培育黑松露，每年六至八月，首都各家餐厅都围绕刚采到的「黑金」设计菜单。",
     ja: "キャンベラに固有の街の料理はありませんが、冬の寒さがこの街をオーストラリアのトリュフの産地にしました。ブルー・フロッグなどの農園が2007年から黒トリュフを育て、六月から八月にかけては、首都じゅうのレストランが掘りたての「黒い金」を軸に献立を組みます。",
     es: "Canberra no tiene un plato urbano propio, pero sus inviernos fríos la convirtieron en el país australiano de la trufa. Fincas como Blue Frog cultivan trufa negra desde 2007, y cada junio-agosto los restaurantes de la capital arman sus cartas en torno al «oro negro» recién buscado.",
+    ko: "캔버라에는 이 도시에서 난 요리가 없지만, 추운 겨울이 이곳을 호주의 송로버섯 산지로 만들었습니다. 블루 프로그 같은 농장이 2007년부터 검은 송로버섯을 길러 왔고, 해마다 6월에서 8월이면 수도의 식당들이 갓 캔 '검은 금'을 중심으로 차림표를 짭니다.",
   },
   "Canberra::Lamington": {
     id: "Potongan bolu yang dicelup cokelat dan digulingkan dalam kelapa parut, dikaitkan dengan Armand Galland, juru masak Lord Lamington, di Queensland pada 1890-an. Kini menjadi andalan toko roti dan penggalangan dana di seluruh negeri, dengan 21 Juli ditandai sebagai Hari Lamington Nasional.",
@@ -299,6 +334,7 @@ module.exports = {
     zh: "海绵蛋糕方块蘸巧克力再裹椰丝，一般归功于1890年代昆士兰、拉明顿勋爵的厨师Armand Galland。如今它是全国面包店与义卖募款的常备，7月21日被定为「国家拉明顿日」。",
     ja: "スポンジを四角に切り、チョコレートにくぐらせてココナッツをまぶした菓子で、1890年代クイーンズランドでラミントン卿の料理人アルマン・ガランが考案したとされます。今では全国のベーカリーと募金活動の定番で、7月21日は「ナショナル・ラミントン・デー」とされています。",
     es: "Un cuadrado de bizcocho mojado en chocolate y rebozado en coco, atribuido a Armand Galland, cocinero de lord Lamington, en el Queensland de la década de 1890. Hoy es un fijo de panaderías y colectas de todo el país, y el 21 de julio se marca como Día Nacional del Lamington.",
+    ko: "스펀지를 네모나게 잘라 초콜릿에 담그고 코코넛을 묻힌 과자로, 1890년대 퀸즐랜드에서 라밍턴 경의 요리사 아르망 갈랑이 만들었다고 전해집니다. 지금은 전국 빵집과 모금 행사의 단골이며 7월 21일을 전국 라밍턴의 날로 삼습니다.",
   },
   "Cavite::Bibingkoy": {
     id: "Kakanin yang hanya ada di Kota Cavite: bola ketan kenyal berisi kacang hijau manis, dipanggang sebentar, lalu ditenggelamkan dalam ginataan santan bersama nangka dan sagu. Dikaitkan dengan Aling Ika, pembuat kue beras di pasar umum kota itu sejak sebelum perang.",
@@ -307,6 +343,7 @@ module.exports = {
     zh: "只在甲米地市见得到的米糕点心：软糯的糯米团包甜绿豆馅，先烤香，再浸进加菠萝蜜与西米的椰浆甜汤里。相传出自战前在市公共市场做米糕的Aling Ika。",
     ja: "カビテ市にしかないカカニン（米菓子）です。もちもちしたもち米の団子に甘い緑豆餡を包み、軽く焼いてから、ジャックフルーツとサゴを加えたココナッツのギナタアンにひたします。戦前から市の公設市場で米菓子をつくっていたアリン・イカの手によるとされます。",
     es: "Un kakanin que solo existe en Ciudad de Cavite: bolas correosas de arroz glutinoso rellenas de judía mungo dulce, tostadas y luego anegadas en un ginataan de crema de coco con yaca y sagú. Se atribuye a Aling Ika, pastelera de arroz de anteguerra del mercado público de la ciudad.",
+    ko: "카비테시에서만 볼 수 있는 떡입니다. 달콤한 녹두를 채운 쫄깃한 찹쌀 경단을 구운 뒤 잭프루트와 사고를 넣은 코코넛크림 기나타안에 흠뻑 담급니다. 전쟁 전 공설시장의 떡 장수 알링 이카가 만들었다고 전해집니다.",
   },
   "Cavite::Pancit pusit": {
     id: "Mi bertinta cumi khas Kota Cavite, disebut pancit choco en su tinta dalam bahasa Spanyol berlogat Chavacano kota itu. Lahir dari kehematan — adobo cumi sisa yang ditambah bihun dan diasamkan dengan kamias — dan dihidupkan kembali untuk seluruh negeri oleh Asiong's Carinderia.",
@@ -315,6 +352,7 @@ module.exports = {
     zh: "甲米地市的墨鱼汁面，当地带查瓦卡诺腔的西班牙语叫它pancit choco en su tinta。它出于节俭——把吃剩的墨鱼adobo用米粉撑开，再以kamias果调酸——后由Asiong's Carinderia重新带回全国的视线。",
     ja: "カビテ市のイカ墨の麺で、この街のチャバカノ訛りのスペイン語ではパンシット・チョコ・エン・ス・ティンタと呼ばれます。倹約から生まれた料理で、残ったイカのアドボを米麺でかさ増しし、カミアスの実で酸味をつけました。アシオンズ・カリンデリアが全国に呼び戻しました。",
     es: "Los fideos con tinta de calamar de Ciudad de Cavite, llamados allí pancit choco en su tinta en el español teñido de chabacano de la ciudad. Nacieron del ahorro —el adobo de calamar sobrante estirado con fideos de arroz y acidulado con kamias— y Asiong's Carinderia los devolvió al país entero.",
+    ko: "카비테시의 오징어 먹물 국수로, 이 도시의 차바카노 섞인 스페인어로는 판싯 초코 엔 수 틴타라 부릅니다. 남은 오징어 아도보를 쌀국수로 늘리고 카미아스로 새콤하게 낸 알뜰함에서 태어났고, 아시옹스 카린데리아가 전국에 되살렸습니다.",
   },
   "Cebu City::Lechon Cebu": {
     id: "Babi panggang utuh khas Cebu diisi serai, bawang putih, dan rempah sehingga dagingnya tak perlu saus, berbeda dari lechon Luzon yang bersaus hati. Anthony Bourdain menyebutnya \"babi terbaik yang pernah ada\" setelah berkunjung ke Cebu pada 2008, memantapkan reputasinya di dunia.",
@@ -323,6 +361,7 @@ module.exports = {
     zh: "宿务的整只烤乳猪塞入香茅、蒜与香料，肉本身就够味，不必蘸酱，与吕宋配肝酱的烤乳猪不同。2008年造访宿务后，安东尼·波登称它是「此生最好的猪」，其世界声名由此坐实。",
     ja: "セブの丸焼き豚は、レモングラスとにんにく、香辛料を腹に詰めるので、レバーソースを添えるルソン式と違い、肉そのものにたれが要りません。2008年にセブを訪れたアンソニー・ボーデインが「人生最高の豚」と評し、その名は世界に定まりました。",
     es: "El cochinillo entero de Cebú se rellena de hierba de limón, ajo y especias, de modo que la carne no necesita salsa, al contrario del lechón de Luzón con salsa de hígado. Anthony Bourdain lo declaró «el mejor cerdo de la historia» tras su visita a Cebú en 2008, consolidando su fama mundial.",
+    ko: "세부의 통돼지 구이는 레몬그라스와 마늘, 향신료로 속을 채워 소스가 필요 없습니다. 간 소스를 곁들이는 루손식과 다릅니다. 앤서니 보데인이 2008년 세부를 다녀간 뒤 '최고의 돼지'라 선언하며 세계적인 명성을 굳혔습니다.",
   },
   "Cebu City::Puso (hanging rice)": {
     id: "Cara makan yang khas Cebu: nasi dimasak di dalam kantong anyaman daun kelapa berbentuk belah ketupat, digantung bergerombol di gerai-gerai jalanan. Orang Cebu pra-Hispanik mempersembahkan pusô kepada roh; kini ia menjadi pendamping genggam baku untuk lechon dan babi panggang.",
@@ -331,6 +370,7 @@ module.exports = {
     zh: "宿务独有的吃法：米饭装在菱形编织的椰叶小袋里煮熟，一串串挂在路边摊上。西班牙人来之前，宿务人以pusô敬奉神灵；如今它是烤乳猪与烤猪肉串边最顺手的主食。",
     ja: "セブならではの食べ方です。ひし形に編んだヤシの葉の袋に米を入れて炊き、屋台に房のように吊るします。スペイン到来以前のセブの人びとはプソを精霊に供えました。今では、レチョンや豚の串焼きに添える、手で持てる定番の主食です。",
     es: "Una forma de comer propia de Cebú: arroz cocido dentro de bolsitas de hoja de coco tejidas en rombo, colgadas en racimos en los puestos callejeros. Los cebuanos prehispánicos ofrecían pusô a los espíritus; hoy es el acompañamiento de mano habitual del lechón y la barbacoa de cerdo.",
+    ko: "세부만의 먹는 방식입니다. 코코넛잎을 마름모로 엮은 주머니 안에 밥을 지어 노점에 다발로 걸어 둡니다. 스페인 이전의 세부 사람들은 푸소를 정령에게 바쳤고, 지금은 레촌과 돼지고기 바비큐에 곁들이는 손에 드는 짝입니다.",
   },
   "Changzhou::Crab-roe xiaolongbao": {
     id: "Kebanggaan Changzhou: pangsit berkuah bermahkota titik keemasan telur kepiting tepat di simpul lipatannya, penghalusan yang ditetapkan pada 1949 di kedai Yinggui yang berumur seabad. Lahir di sebuah kedai teh masa Daoguang, tekniknya kini warisan takbenda kota Changzhou.",
@@ -339,6 +379,7 @@ module.exports = {
     zh: "常州的骄傲：小笼汤包在收口处点上一撮金黄蟹黄，这一讲究由百年老店迎桂于1949年定下。它生于道光年间的茶馆，如今其技艺已列入常州市级非物质文化遗产。",
     ja: "常州の誇りです。小籠包のひだの結び目に、金色の蟹味噌をひとつまみのせます。この工夫は1949年、百年続く老舗・迎桂で定まりました。道光年間の茶館に生まれ、その技は今、常州市の無形文化遺産です。",
     es: "El orgullo de Changzhou: empanadillas de sopa coronadas con un punto dorado de hueva de cangrejo justo en el cierre de los pliegues, un refinamiento fijado en 1949 en la centenaria casa Yinggui. Nacida en una casa de té de la era Daoguang, la técnica es hoy patrimonio inmaterial municipal de Changzhou.",
+    ko: "창저우의 자랑입니다. 주름을 여민 자리에 게알을 금빛 점처럼 올린 육즙 만두로, 백 년 된 잉구이 가게가 1949년에 지금의 모습을 굳혔습니다. 도광 연간의 찻집에서 태어났고 그 기법은 창저우 시 무형유산입니다.",
   },
   "Chengdu::Dandan noodles": {
     id: "Mangkuk-mangkuk kecil berisi mi kenyal yang diaduk dengan minyak cabai, pasta wijen, sayur asin yacai, dan remah daging babi — dijual dari keranjang pikulan sejak 1841. Diciptakan pedagang keliling dari Zigong, lalu disempurnakan dan dimasyhurkan di jalan-jalan Chengdu yang penuh kedai teh; kedua kota mengklaimnya.",
@@ -347,6 +388,7 @@ module.exports = {
     zh: "一小碗弹牙的面拌上红油、芝麻酱、芽菜与肉臊——自1841年起用扁担挑着担子沿街叫卖。它由自贡的挑夫创出，却在成都茶馆林立的街巷里被磨得精细并出了名；两座城都自认是主人。",
     ja: "小ぶりの椀に、腰のある麺をラー油、芝麻醤、漬物の芽菜、豚肉のそぼろで和えます。1841年から天秤棒の籠で売り歩かれてきました。自貢の行商が考え出し、茶館の並ぶ成都の街で磨かれて名を上げました。両市がともに本家を名乗ります。",
     es: "Cuencos pequeños de fideos elásticos salteados con aceite de chile, pasta de sésamo, yacai encurtido y migas de cerdo, vendidos desde 1841 en cestas colgadas de una pértiga. Los inventó un vendedor ambulante de Zigong y se perfeccionaron y se hicieron famosos en las calles de casas de té de Chengdú; ambas ciudades los reclaman.",
+    ko: "탱탱한 면을 작은 그릇에 담아 고추기름과 참깨장, 절인 야차이, 돼지고기 부스러기에 버무립니다. 1841년부터 어깨 멜대 바구니에서 팔았습니다. 쯔궁의 행상이 만들고 청두의 찻집 거리가 다듬어 알렸으며, 두 도시가 모두 원조를 주장합니다.",
   },
   "Chengdu::Mapo tofu": {
     id: "Tahu sutra dalam saus yang pedas dan membuat kebas, dari pasta cabai-kacang, daging sapi cincang, dan merica Sichuan, diciptakan pada 1862 oleh \"Nenek Chen\" yang wajahnya berbopeng di kedainya di Chengdu. Teknik kedai pendirinya, tujuh generasi kemudian, adalah warisan takbenda provinsi Sichuan.",
@@ -355,6 +397,7 @@ module.exports = {
     zh: "嫩豆腐浸在麻辣的豆瓣、牛肉末与花椒酱汁里，1862年由脸上有麻点的「陈婆婆」在成都的小馆里创出。七代之后，创始店的技艺已是四川省级非物质文化遗产。",
     ja: "絹ごし豆腐を、豆板醤と牛ひき肉、花椒による辛くしびれるあんで包みます。1862年、あばたのある「陳ばあさん」が成都の店で生み出しました。七代を経た創業店の技は、四川省の無形文化遺産となっています。",
     es: "Tofu sedoso en una salsa ardiente y adormecedora de pasta de judía y chile, carne picada de ternera y pimienta de Sichuan, creada en 1862 por la picada de viruelas «abuela Chen» en su casa de comidas de Chengdú. La técnica del local fundador, siete generaciones después, es patrimonio inmaterial de la provincia de Sichuan.",
+    ko: "비단 두부를 두반장과 다진 소고기, 산초로 낸 얼얼하고 매운 소스에 익힙니다. 1862년 청두의 식당에서 곰보 자국이 있던 '천 할머니'가 만들었습니다. 원조 가게의 기법은 7대를 이어 쓰촨성 무형유산입니다.",
   },
   "Chiang Mai::Gaeng hang lay": {
     id: "Kari perut babi berakar Burma — jahe, asam jawa, tanpa santan — hidangan pesta khas Lanna.",
@@ -363,6 +406,7 @@ module.exports = {
     zh: "源自缅甸的五花肉咖喱，用姜与亚参、不加椰浆——兰纳的宴席菜。",
     ja: "ビルマに由来する豚バラのカレー。生姜とタマリンドを使い、ココナッツは入りません。ランナーのご馳走です。",
     es: "Un curri de panceta de origen birmano —jengibre, tamarindo, sin coco—, el plato de fiesta de Lanna.",
+    ko: "미얀마에서 온 삼겹살 카레입니다. 생강과 타마린드를 넣고 코코넛은 쓰지 않는 란나의 잔치 요리입니다.",
   },
   "Chiang Mai::Khao soi": {
     id: "Dibawa ke Lanna oleh Chin Haw — pedagang kafilah Muslim Yunnan — lewat Burma pada 1800-an; semula halal, kekayaan kari santannya adalah lapisan Thai yang ditambahkan kemudian.",
@@ -371,6 +415,7 @@ module.exports = {
     zh: "十九世纪由云南穆斯林商队「秦霍」经缅甸带入兰纳；原本清真，椰浆咖喱的浓郁是后来添上的泰式一层。",
     ja: "十九世紀、雲南のムスリム隊商「チンホー」がビルマ経由でランナーに伝えました。もとはハラールで、ココナッツカレーの濃厚さは後からタイで加わった層です。",
     es: "Llevado a Lanna por los chin haw, comerciantes caravaneros musulmanes de Yunnan, vía Birmania en el siglo XIX; originalmente halal, la untuosidad del curri de coco es una capa tailandesa añadida después.",
+    ko: "1800년대에 윈난계 무슬림 대상 진하우가 미얀마를 거쳐 란나로 들여왔습니다. 본래는 할랄이었고, 코코넛 카레의 진한 맛은 나중에 더해진 태국의 층입니다.",
   },
   "Chon Buri::Khao lam nong mon": {
     id: "Ketan panggang dalam bambu dengan krim kelapa dan kacang hitam dari desa Nong Mon dekat Bang Saen. Dulu penganan petani di luar musim tanam, lalu meledak ketika jalan Sukhumvit membawa pelancong pantai; berhenti di pasar Nong Mon untuk khao lam adalah ritual Chon Buri.",
@@ -379,6 +424,7 @@ module.exports = {
     zh: "邦盛附近浓蒙村的竹筒烤糯米，拌椰浆与黑豆。它本是农闲时节的农家甜点，素坤逸公路把海滨游客带来后便火了起来；在浓蒙市场停车买一份竹筒糯米，是春武里的固定仪式。",
     ja: "バンセーン近くのノンモン村でつくられる、ココナッツクリームと黒豆入りの竹筒焼きもち米です。もとは農閑期の農家の甘味でしたが、スクンビット通りが海水浴客を運ぶようになって一気に広まりました。ノンモン市場に寄ってカオラームを買うのは、チョンブリーの決まりごとです。",
     es: "Arroz glutinoso asado en bambú con crema de coco y alubias negras, de la aldea de Nong Mon, cerca de Bang Saen. Antes un dulce campesino de temporada baja, despegó cuando la carretera de Sukhumvit trajo a los bañistas; parar en el mercado de Nong Mon a por khao lam es un rito de Chon Buri.",
+    ko: "방샌 인근 농몬 마을의 대나무 구이 찰밥으로 코코넛크림과 검은콩을 넣습니다. 한때는 농한기 농부의 군것질이었지만 수쿰윗 도로가 해수욕객을 데려오며 크게 퍼졌습니다. 농몬 시장에 들러 카오람을 사는 것은 촌부리의 의식입니다.",
   },
   "Christchurch::Canterbury lamb": {
     id: "Christchurch tak punya satu hidangan ciptaan sendiri; identitasnya adalah domba Canterbury, dibesarkan di dataran sekitarnya dan diekspor ke seluruh dunia sejak era pengapalan beku yang pertama. Restoran kota seperti Twenty Seven Steps menyusun menu di sekitar bahu yang dimasak lambat dan iganya.",
@@ -387,6 +433,7 @@ module.exports = {
     zh: "基督城没有哪一道自创的菜；它的身份是坎特伯雷羔羊，养在四周的平原上，自最早的冷冻运输时代起便销往世界各地。城中的Twenty Seven Steps等餐厅，把慢炖羊肩与羊排当作菜单的骨干。",
     ja: "クライストチャーチに、これという創作料理はありません。この街の顔はカンタベリー・ラムです。周囲の平野で育ち、冷凍船で運ばれ始めた時代から世界へ出荷されてきました。トゥエンティ・セブン・ステップスなどの店は、じっくり煮込んだ肩肉やラックを軸に献立を組みます。",
     es: "Christchurch no tiene un plato inventado propio; su identidad es el cordero de Canterbury, criado en las llanuras que la rodean y exportado al mundo desde la primera era de los envíos congelados. Restaurantes como Twenty Seven Steps construyen sus cartas en torno a la paletilla cocida a fuego lento y el carré.",
+    ko: "크라이스트처치에는 만들어 낸 단일한 요리가 없고, 그 정체성은 캔터베리 양고기입니다. 둘러싼 평원에서 기르며 최초의 냉동 수송 시대부터 세계로 나갔습니다. 트웬티 세븐 스텝스 같은 도시의 식당이 천천히 익힌 어깨살과 랙을 중심으로 차림표를 짭니다.",
   },
   "Christchurch::Whitebait fritter": {
     id: "Ikan muda yang mungil dan bening, dijaring pada musim semi di muara-muara sungai Canterbury dan Pantai Barat, hanya diikat sedikit dengan telur lalu digoreng menjadi perkedel — secara tradisional disajikan di antara dua iris roti putih berolesan mentega. Harta Pulau Selatan yang sangat bergantung musim.",
@@ -395,6 +442,7 @@ module.exports = {
     zh: "细小半透明的小鱼苗，春天在坎特伯雷与西海岸的河口捞起，只用少许蛋液勾住便下锅煎成饼——传统吃法是夹在两片抹了黄油的白面包中间。这是南岛极讲时令的珍味。",
     ja: "透きとおる小さな稚魚を、春にカンタベリーや西海岸の河口で網ですくい、卵でかろうじてまとめて焼き上げます。伝統的にはバターを塗った白パンに挟んで供されます。季節を厳しく選ぶ、南島の宝です。",
     es: "Diminutos alevines translúcidos, pescados en primavera en las bocas de los ríos de Canterbury y la Costa Oeste, apenas ligados con huevo y fritos en una tortita, servidos por tradición entre dos rebanadas de pan blanco con mantequilla. Un tesoro ferozmente estacional de la Isla Sur.",
+    ko: "캔터베리와 웨스트코스트의 봄철 강어귀에서 그물로 뜬 작고 투명한 어린 물고기를 달걀로 겨우 뭉쳐 부친 전으로, 전통적으로 버터 바른 흰 식빵 사이에 끼워 냅니다. 제철이 엄격한 남섬의 보물입니다.",
   },
   "Da Nang::Mì Quảng": {
     id: "Dinamai dari Quảng Nam — provinsi tempat Da Nang bernaung hingga 1997. Mi bersemu kunyit, kuah sedikit tapi pekat, kacang tanah, dan kerupuk wijen. Masuk daftar warisan budaya takbenda nasional (Agustus 2024).",
@@ -403,6 +451,7 @@ module.exports = {
     zh: "以广南命名——岘港在1997年前隶属该省。面条被姜黄染色，汤汁少而浓，配花生与芝麻米饼。2024年8月列入越南国家级非物质文化遗产名录。",
     ja: "1997年までダナンが属していたクアンナム省の名を負う一皿です。ターメリックで色づけた麺に、少量ながら濃厚な汁、落花生とごま煎餅を添えます。2024年8月、国家無形文化遺産に登録されました。",
     es: "Debe su nombre a Quảng Nam, la provincia a la que perteneció Da Nang hasta 1997. Fideos teñidos de cúrcuma, poco caldo pero intenso, cacahuetes y una oblea de sésamo. Inscrito en la lista nacional de patrimonio inmaterial en agosto de 2024.",
+    ko: "1997년까지 다낭이 속해 있던 꽝남성에서 이름을 땄습니다. 강황으로 물들인 면에 국물은 적고 진하며 땅콩과 깨 과자를 곁들입니다. 2024년 8월 국가 무형문화유산 목록에 올랐습니다.",
   },
   "Daegu::Makchang-gui": {
     id: "Abomasum sapi atau usus babi panggang, lahir sekitar 1969 ketika sebuah rumah potong dibuka di dekat kolam Seongdangmot di Daegu. Sebuah kedai gang pada 1970-an menemukan cara memanggangnya di atas briket dan mencelupkannya ke doenjang berbumbu dengan bawang putih dan kucai — kini salah satu dari 10 Rasa resmi Daegu.",
@@ -411,6 +460,7 @@ module.exports = {
     zh: "烤牛皱胃或猪大肠，约1969年大邱寿城池（Seongdangmot）畔开设屠宰场后出现。1970年代一家小巷馆子想出用煤球烤它、蘸蒜与韭菜调味的大酱——如今已是大邱官方「十味」之一。",
     ja: "牛のギアラや豚の腸を焼く料理で、1969年ごろ、大邱のソンダンモッ池のそばに屠畜場が開かれたのを機に生まれました。1970年代に路地の店が練炭で焼き、にんにくとニラを効かせたテンジャンにつける食べ方を編み出しました。今では大邱の公式「十味」の一つです。",
     es: "Cuajar de vaca o intestino de cerdo a la parrilla, nacido hacia 1969 cuando abrió un matadero junto al estanque Seongdangmot de Daegu. Un local de callejón de los setenta ideó asarlo sobre briquetas y mojarlo en doenjang sazonado con ajo y cebollino: hoy es uno de los diez sabores oficiales de Daegu.",
+    ko: "소의 막창이나 돼지 대창 구이로, 1969년경 대구 성당못 옆에 도축장이 들어서면서 생겼습니다. 1970년대 골목 식당이 연탄에 굽고 마늘과 부추를 넣은 양념된장에 찍는 방식을 고안했고, 지금은 공식 대구 십미의 하나입니다.",
   },
   "Daegu::Napjak mandu": {
     id: "\"Pangsit pipih\" Daegu menafsir ulang mandu sebagai bulan sabit tipis yang hampir tak berisi apa pun selain soun, kucai, dan lada. Diciptakan di Daegu awal 1960-an di tengah kelangkaan pascaperang dan kampanye konsumsi terigu, pangsit ini menyebar lewat kedai jajanan di depan sekolah dan kini menjadi salah satu dari 10 Rasa Daegu.",
@@ -419,6 +469,7 @@ module.exports = {
     zh: "大邱的「扁饺子」把饺子重新想象成薄薄的半月形，里头几乎只有粉丝、韭菜与胡椒。它诞生于1960年代初的大邱，正值战后物资匮乏与推广面粉之际，靠校门口的小吃摊传开，如今也是大邱「十味」之一。",
     ja: "大邱の「ナプチャクマンドゥ（平たい餃子）」は、餃子を薄い半月に読み替え、中身は春雨とニラと胡椒くらいしかありません。1960年代初め、戦後の物不足と小麦奨励のなかで大邱に生まれ、学校前の軽食店を通じて広まり、今では大邱の「十味」の一つです。",
     es: "La «empanadilla plana» de Daegu reinterpreta el mandu como una fina media luna que apenas guarda más que fideos de cristal, cebollino y pimienta. Creada en el Daegu de principios de los sesenta, entre la escasez de posguerra y las campañas del trigo, se difundió por los puestos frente a las escuelas y hoy es uno de los diez sabores de Daegu.",
+    ko: "대구의 납작만두는 만두를 얇은 반달 모양으로 다시 풀어 당면과 부추, 후추 정도만 넣습니다. 전후의 궁핍과 밀가루 장려 속에 1960년대 초 대구에서 만들어졌고 학교 앞 분식집을 통해 퍼졌으며 지금은 대구 십미의 하나입니다.",
   },
   "Daegu::Ttaro-gukbap": {
     id: "Selama Perang Korea, rumah sup di Daegu mulai menyajikan sup daging sapi pedas dengan nasi disajikan \"ttaro\" — terpisah — atas permintaan pengunjung, dan namanya melekat. Dibangun di atas kaldu tulang dengan darah beku, tafsir Daegu atas yukgaejang ini tetap menjadi salah satu dari 10 Rasa resmi kota.",
@@ -427,6 +478,7 @@ module.exports = {
     zh: "朝鲜战争期间，大邱的汤饭馆应客人要求，把辣牛肉汤与米饭分开（ttaro）盛上，这名字就留了下来。以骨汤打底、加血豆腐，这道大邱版的辣牛肉汤至今仍是本市官方「十味」之一。",
     ja: "朝鮮戦争のさなか、大邱の汁物屋は客の求めに応じて、辛い牛肉スープと飯を「タロ（別々に）」出すようになり、その呼び名が定着しました。骨のスープに血の塊を加えたこの大邱流のユッケジャンは、今も市の公式「十味」の一つです。",
     es: "Durante la guerra de Corea, las casas de sopa de Daegu empezaron a servir la sopa picante de ternera con el arroz «ttaro» —aparte— a petición de los clientes, y el nombre cuajó. Levantada sobre caldo de huesos con cuajarón de sangre, esta lectura daeguesa del yukgaejang sigue siendo uno de los diez sabores oficiales de la ciudad.",
+    ko: "한국전쟁 때 대구의 국밥집들이 손님의 청에 따라 얼큰한 소고기 국에 밥을 '따로' 내기 시작했고 그 이름이 굳었습니다. 사골 국물에 선지를 넣은 이 대구식 육개장은 여전히 이 도시의 공식 십미 가운데 하나입니다.",
   },
   "Daejeon::Kalguksu": {
     id: "Daejeon menyebut dirinya ibu kota kalguksu Korea: sebagai simpul kereta api masa kolonial dan pusat bantuan terigu Amerika pascaperang, mi gandum yang dipotong pisau memberi makan kota ini. Kini lebih dari 700 kedai kalguksu beroperasi — kepadatan tertinggi di seluruh negeri — dan Daejeon menggelar festival kalguksu pertama Korea pada 2013.",
@@ -435,6 +487,7 @@ module.exports = {
     zh: "大田自称韩国的刀切面之都：作为殖民时期的铁路枢纽与战后美援面粉的集散地，刀切面养活了这座城市。如今全市有七百多家刀切面馆，密度居全国之首，2013年大田还办起了韩国第一个刀切面节。",
     ja: "大田はみずからを韓国のカルグクスの都と称します。植民地期の鉄道の要衝であり、戦後はアメリカの小麦援助の集散地でもあった街を、包丁で切った小麦の麺が支えました。今では七百軒を超える店があり、その密度は全国一。2013年には韓国初のカルグクス祭りも開かれました。",
     es: "Daejeon se proclama la capital coreana del kalguksu: como nudo ferroviario de la época colonial y centro de la ayuda estadounidense en harina tras la guerra, los fideos de trigo cortados a cuchillo alimentaron la ciudad. Hoy funcionan más de setecientos locales —la mayor densidad del país— y en 2013 Daejeon celebró el primer festival coreano de kalguksu.",
+    ko: "대전은 스스로를 한국 칼국수의 수도로 부릅니다. 식민지 시대 철도 요충이자 전후 미국 밀가루 원조의 거점으로서 칼로 썬 밀면이 이 도시를 먹였습니다. 지금도 700곳이 넘는 칼국수집이 있어 전국에서 가장 조밀하며, 2013년 한국 최초의 칼국수 축제를 열었습니다.",
   },
   "Daejeon::Tuigim soboro": {
     id: "Diciptakan pada 20 Mei 1980 di Sungsimdang — toko roti kesayangan Daejeon yang berdiri sejak 1956 sebagai gerai bakpao dekat stasiun — tuigim soboro menyatukan tiga produk terlarisnya: roti berselimut streusel renyah berisi pasta kacang merah, lalu digoreng seperti donat. Berbagai jajak pendapat menempatkannya sebagai rasa penanda Daejeon.",
@@ -443,6 +496,7 @@ module.exports = {
     zh: "1980年5月20日诞生于圣心堂——这家大田人钟爱的面包店，1956年由车站旁的馒头摊起家。「炸酥皮红豆包」把它最畅销的三样合为一体：酥粒外皮包红豆馅，再像甜甜圈那样下油锅。多项调查都把它列为大田的代表味道。",
     ja: "1980年5月20日、聖心堂で生まれました。大田の人びとに愛されるこのパン屋は、1956年に駅前の蒸し饅頭の屋台として始まっています。トゥイギム・ソボロは同店の三大人気商品を一つにしたもの——そぼろ状の皮であんを包み、ドーナツのように揚げるのです。各種の調査で、大田を代表する味に挙げられています。",
     es: "Creado el 20 de mayo de 1980 en Sungsimdang —la panadería querida de Daejeon, fundada en 1956 como puesto de bollos al vapor junto a la estación—, el tuigim soboro funde sus tres superventas: un bollo crujiente de streusel relleno de pasta de judía roja y luego frito como un dónut. Las encuestas lo señalan como el sabor que define Daejeon.",
+    ko: "1956년 역 앞 찐빵 노점으로 시작한 대전의 사랑받는 빵집 성심당에서 1980년 5월 20일에 만들었습니다. 튀김소보로는 이 도시에서 가장 잘 팔리는 세 가지를 합쳤습니다. 바삭한 소보로 빵에 팥소를 넣고 도넛처럼 튀긴 것으로, 설문에서 대전을 대표하는 맛으로 꼽힙니다.",
   },
   "Dalat::Artichoke tea": {
     id: "Orang Prancis menanam artichoke di dataran tinggi Dalat yang sejuk, dan kota ini menjadikannya penanda: trà atisô, teh yang lembut pahit-manis diseduh dari bunga dan daun kering, diminum demi kesehatan hati dan dibeli sekotak-sekotak sebagai oleh-oleh klasik Dalat.",
@@ -451,6 +505,7 @@ module.exports = {
     zh: "法国人在大叻凉爽的高原上种下洋蓟，这座城便把它做成了自己的标志：茶atisô，用干花与干叶冲泡，微苦回甘，人们为护肝而饮，也一盒盒带走，当作大叻的经典手信。",
     ja: "フランス人がダラットの涼しい高原にアーティチョークを植え、街はそれを自らの看板にしました。乾かした花と葉で淹れるチャー・アティソは、ほろ苦く甘やかで、肝臓によいとされて飲まれ、箱ごと買われるダラット定番の土産です。",
     es: "Los franceses plantaron alcachofas en las frescas tierras altas de Dalat, y la ciudad las convirtió en su seña: el trà atisô, un té suavemente agridulce de flores y hojas secas, bebido por la salud del hígado y comprado por cajas como el souvenir clásico de Dalat.",
+    ko: "프랑스인들이 서늘한 달랏 고원에 아티초크를 심었고, 이 도시는 그것을 제 얼굴로 만들었습니다. 말린 꽃과 잎으로 우린 은은히 쌉싸름하고 달콤한 차 짜 아티소는 간에 좋다며 마시고, 상자째 사 가는 달랏의 고전적인 기념품입니다.",
   },
   "Dalat::Bánh căn": {
     id: "Kue kecil dari adonan beras yang dipanggang kering dalam cetakan tanah liat bundar di atas bara, kerap dimahkotai telur puyuh dan disantap dengan kecap ikan berdaun bawang serta bakso. Aslinya hidangan pesisir, bánh căn menjadi pranata Dalat — berkerumun di dekat tungku arang pada pagi dataran tinggi yang dingin.",
@@ -459,6 +514,7 @@ module.exports = {
     zh: "小小的米浆饼在圆形陶模里架着炭火烘干，常在上面卧一颗鹌鹑蛋，配葱花鱼露与肉丸同吃。它本是沿海的吃食，却成了大叻的固定节目——高原清晨寒气逼人，人们围着炭炉挤在一处。",
     ja: "米の生地を丸い素焼きの型に落とし、炭火で水気を飛ばして焼く小さな菓子です。うずらの卵をのせ、青ねぎ入りのヌクマムと肉団子を添えます。もとは海辺の料理ですが、バインカンはダラットの習わしになりました。高原の冷えた朝、炭の火のそばに身を寄せて食べるのです。",
     es: "Pastelillos de masa de arroz cocidos en seco en moldes redondos de barro sobre brasas, a menudo coronados con huevo de codorniz y comidos con salsa de pescado con cebolleta y albóndigas. De origen costero, el bánh căn se volvió una institución de Dalat: apretujarse junto al hornillo de carbón en una fría mañana de altura.",
+    ko: "쌀 반죽을 둥근 옹기 틀에 부어 숯불에 마르게 구운 작은 부침으로, 흔히 메추리알을 올리고 파를 넣은 피시소스와 완자를 곁들입니다. 본래는 해안 요리지만 반깐은 달랏의 제도가 됐습니다. 추운 고원의 아침에 숯 화로 곁에 웅크리고 먹습니다.",
   },
   "Dalat::Bánh tráng nướng": {
     id: "Camilan jalanan kesayangan Dalat: lembaran kertas beras dipanggang renyah di atas arang, diolesi telur, minyak daun bawang, ebi, keju, atau sosis — dijuluki \"pizza Dalat\". Muncul pada awal 2000-an, kini ia menjadi hidangan penanda malam-malam dingin di sekitar pasar malam.",
@@ -467,6 +523,7 @@ module.exports = {
     zh: "大叻人钟爱的街头小吃：圆形米纸在炭火上烤到酥脆，刷上蛋液、葱油、虾米、芝士或香肠——人称「大叻披萨」。它兴起于2000年代初，如今已是夜市周边寒夜里的代表吃食。",
     ja: "ダラットで愛される屋台の軽食です。丸いライスペーパーを炭火でぱりっと焼き、卵、ねぎ油、干し海老、チーズ、ソーセージなどを塗ります。「ダラット・ピザ」の異名をもち、2000年代初めに現れて以来、夜市まわりの寒い夜を象徴する一品です。",
     es: "El tentempié callejero más querido de Dalat: una oblea redonda de papel de arroz asada crujiente al carbón y untada con huevo, aceite de cebolleta, gamba seca, queso o embutido, apodada «pizza de Dalat». Surgida a principios de los 2000, es hoy el plato que define las noches frías en torno al mercado nocturno.",
+    ko: "달랏이 사랑하는 길거리 간식입니다. 둥근 라이스페이퍼를 숯불에 바삭하게 구워 달걀과 파기름, 건새우, 치즈나 소시지를 올리며 '달랏 피자'라 불립니다. 2000년대 초에 나타나 지금은 야시장 주변의 추운 저녁을 정의하는 음식입니다.",
   },
   "Davao City::Davao durian": {
     id: "Davao menumbuhkan sebagian besar durian Filipina, yang masuk lewat pedagang Kalimantan dan dibudidayakan secara komersial sejak awal 1900-an. Menyantap \"raja buah\" yang menyengat itu segar di gerai pinggir jalan — lalu sebagai permen, pastel, dan es krim — adalah pengalaman kuliner Davao yang paling hakiki.",
@@ -475,6 +532,7 @@ module.exports = {
     zh: "菲律宾的榴梿大半产自达沃，最初经婆罗洲商人传入，二十世纪初起商业种植。在路边摊上吃一口气味浓烈的「果王」，再尝它做成的软糖、糕点与冰淇淋——这就是达沃最本真的饮食体验。",
     ja: "フィリピンのドリアンの大半はダバオで育ちます。ボルネオの商人を介して伝わり、1900年代初めから商業栽培が始まりました。強烈に香る「果物の王」を道端の店で生のまま味わい、続いて飴や焼き菓子、アイスクリームで味わう——それがダバオの食の真髄です。",
     es: "Davao produce la mayor parte del durián filipino, introducido por comerciantes de Borneo y cultivado comercialmente desde principios del siglo XX. Comer fresco el pungente «rey de las frutas» en un puesto de carretera —y luego en caramelo, pastel y helado— es la experiencia gastronómica definitiva de Davao.",
+    ko: "다바오는 필리핀 두리안의 대부분을 기릅니다. 보르네오 상인들을 통해 들어왔고 1900년대 초부터 상업적으로 재배했습니다. 길가 노점에서 이 향 강한 '과일의 왕'을 생으로 먹고, 이어 사탕과 파스텔, 아이스크림으로 맛보는 것이 다바오의 대표적인 음식 경험입니다.",
   },
   "Davao City::Kinilaw": {
     id: "Tuna atau ikan todak mentah \"dimasak\" dalam cuka kelapa bersama jahe, bawang, dan cabai — teknik pra-kolonial yang masih hidup di seluruh Mindanao dan tak terpisahkan dari meja Davao, tempat tangkapan hari itu dari Teluk Davao muncul sebagai kinilaw hampir di setiap santapan.",
@@ -483,6 +541,7 @@ module.exports = {
     zh: "生金枪鱼或旗鱼以椰醋「浸熟」，拌姜、洋葱与辣椒——这是殖民前的技法，至今活跃于整个棉兰老岛，也与达沃的餐桌密不可分：达沃湾当天的渔获，几乎每一餐都以kinilaw的样子出现。",
     ja: "生のマグロやカジキをココナッツ酢で「締め」、生姜、玉ねぎ、唐辛子と和えます。植民地以前からの技法で、ミンダナオ全域に生きています。ダバオ湾のその日の獲物がほぼ毎食キニラウとして出るこの街の食卓とは、切り離せません。",
     es: "Atún o pez espada crudo «cocinado» en vinagre de coco con jengibre, cebolla y chile: una técnica precolonial viva en todo Mindanao e inseparable de la mesa de Davao, donde la captura del día del golfo de Davao aparece como kinilaw en casi cada comida.",
+    ko: "생참치나 황새치를 코코넛 식초에 생강과 양파, 고추와 함께 '익힙니다'. 민다나오 전역에 살아 있는 식민지 이전의 기법으로, 다바오만에서 그날 잡은 것이 거의 모든 끼니에 키닐라우로 오르는 다바오의 식탁과 떼어 놓을 수 없습니다.",
   },
   "Davao City::Sinuglaw": {
     id: "Temuan Mindanao yang lekat dengan Davao: perut babi bakar arang dilipat ke dalam ikan mentah yang diasamkan cuka, mempertemukan asap dan asam dalam satu hidangan. Namanya menggabungkan kata Cebuano sugba (memanggang) dan kinilaw (mengasamkan mentah).",
@@ -491,6 +550,7 @@ module.exports = {
     zh: "棉兰老岛的创造，与达沃紧紧相连：炭烤五花肉拌进以醋腌的生鱼，把烟熏与酸爽合于一盘。名字由宿务语的sugba（烤）与kinilaw（生腌）拼合而成。",
     ja: "ミンダナオの発明で、ダバオと強く結びついています。炭火で焼いた豚バラ肉を、酢で締めた生魚に合わせ、燻香と酸味を一皿に収めます。名はセブアノ語のスグバ（焼く）とキニラウ（生で締める）を掛け合わせたものです。",
     es: "Un invento mindanao muy ligado a Davao: panceta de cerdo a la brasa mezclada con pescado crudo curado en vinagre, casando humo y acidez en un solo plato. Su nombre funde las palabras cebuanas sugba (asar) y kinilaw (curar en crudo).",
+    ko: "다바오와 깊이 얽힌 민다나오의 발명품입니다. 숯불에 구운 삼겹살을 식초에 절인 생선회에 섞어 훈향과 산미를 한 접시에 담습니다. 이름은 세부아노어로 굽다(수그바)와 생것을 절이다(키닐라우)를 합친 것입니다.",
   },
   "Dunedin::Cheese roll": {
     id: "\"Sushi selatan\" yang dicintai di ujung selatan: roti tawar diolesi pasta keju, sup bawang, dan susu evaporasi, digulung, dipanggang, lalu diolesi mentega. Resepnya bertarikh 1935, dengan kemunculan pertama dalam buku masak di Dunedin pada 1951 — meski Southland dengan sengit menyanggah kepemilikannya.",
@@ -499,6 +559,7 @@ module.exports = {
     zh: "南部人钟爱的「南岛寿司」：白面包抹上奶酪、洋葱汤粉与炼乳调成的酱，卷起烤香，再抹黄油。方子可追到1935年，1951年首度出现在但尼丁的食谱书里——尽管南地大区对它的归属并不服气。",
     ja: "南の果ての人びとが愛する「南のスシ」です。白パンにチーズとオニオンスープの素、エバミルクを混ぜたペーストを塗り、巻いて焼き、バターを添えます。作り方は1935年にさかのぼり、料理本への初登場は1951年のダニーデンですが、サウスランドは本家争いを譲りません。",
     es: "El querido «sushi del sur» del extremo meridional: pan blanco untado con una pasta de queso, sopa de cebolla y leche evaporada, enrollado, tostado y con mantequilla. Las recetas datan de 1935 y su primera aparición en un libro de cocina es de Dunedin en 1951, aunque Southland disputa con ardor la autoría.",
+    ko: "남부가 사랑하는 '서던 스시'입니다. 흰 식빵에 치즈와 어니언 수프 가루, 무가당 연유를 섞은 소를 발라 말고 구워 버터를 바릅니다. 조리법은 1935년까지 거슬러 오르고 1951년 더니든에서 처음 요리책에 실렸지만, 사우스랜드가 그 소유권을 강하게 다툽니다.",
   },
   "Fukuoka::Hakata tonkotsu ramen": {
     id: "Semangkuk penanda Fukuoka: tulang babi direbus keras berjam-jam menjadi kuah putih susu yang pekat di atas mi lurus yang sangat tipis. Penyantap memesan tingkat kekenyalan mi dan berseru \"kaedama\" untuk tambahan — kebiasaan yang lahir dari budaya makan cepat kota pelabuhan ini dan kedai-kedai kakinya yang termasyhur.",
@@ -507,6 +568,7 @@ module.exports = {
     zh: "福冈的代表一碗：猪骨猛火熬上几个钟头，成乳白浓汤，配极细的直面。客人点面时要指定硬度，添面则喊「替玉」——这些规矩，都出自这座港城快食的习气与它有名的路边摊。",
     ja: "福岡を代表する一杯です。豚骨を何時間も強火で炊いて乳白色の濃厚なスープにし、極細のストレート麺を合わせます。客は麺の硬さを注文し、おかわりは「替え玉」と声をかける。港町の早く食べる気質と、名高い屋台が生んだ作法です。",
     es: "El cuenco que define Fukuoka: huesos de cerdo hervidos con fuerza durante horas hasta un caldo lechoso e intenso, sobre fideos rectos finísimos. Los clientes piden el punto de firmeza del fideo y gritan «kaedama» para repetir: costumbres nacidas de la cultura de comer deprisa de la ciudad portuaria y de sus famosos puestos callejeros.",
+    ko: "후쿠오카를 대표하는 한 그릇입니다. 돼지뼈를 여러 시간 세게 끓여 뽀얗고 진한 국물을 내고 아주 가는 직면을 씁니다. 손님이 면의 익힘을 정하고 '가에다마'로 면을 더 청하는 관습은 빨리 먹는 항구 문화와 이름난 포장마차에서 나왔습니다.",
   },
   "Fukuoka::Mentaiko": {
     id: "Telur ikan pollock yang dimarinasi pedas adalah kebanggaan dapur Hakata. Kawahara Toshio, yang dipulangkan dari Manchuria, menyesuaikan myeongnan-jeot Korea dengan selera Jepang di kedainya, Fukuya, di Nakasu, dan mulai menjualnya pada 10 Januari 1949 — tanggal yang kini dirayakan sebagai Hari Mentaiko.",
@@ -515,6 +577,7 @@ module.exports = {
     zh: "辣味腌明太鱼子是博多厨房的骄傲。自满洲返日的川原俊夫，在中洲的店铺福屋把韩国的明卵渍改成合日本口味的做法，1949年1月10日首度发售——这一天如今被定为「明太子之日」。",
     ja: "辛子明太子は博多の台所の誇りです。満洲から引き揚げた川原俊夫が、中洲の店ふくやで朝鮮の明卵漬を日本人の口に合うよう作り替え、1949年1月10日に初めて売り出しました。この日は今、明太子の日とされています。",
     es: "Las huevas de abadejo marinadas al picante son el orgullo de la despensa de Hakata. Kawahara Toshio, repatriado de Manchuria, adaptó el myeongnan-jeot coreano al gusto japonés en su tienda Fukuya, en Nakasu, y lo vendió por primera vez el 10 de enero de 1949, fecha que hoy se celebra como el Día del Mentaiko.",
+    ko: "매콤하게 절인 명란은 하카타 부엌의 자랑입니다. 만주에서 돌아온 가와하라 도시오가 나카스의 가게 후쿠야에서 한국의 명란젓을 일본 입맛에 맞게 바꿔 1949년 1월 10일에 처음 팔았고, 그날은 지금 명란의 날입니다.",
   },
   "Fukuoka::Yatai street-stall dining": {
     id: "Makan bahu-membahu di gerai kaki lima yatai — ramen, yakitori, oden di bawah cahaya lampion — adalah ritual penanda Fukuoka. Uniknya di Jepang, kota ini melegalkan dan melindungi budaya tersebut lewat Peraturan Dasar Yatai 2013, memberi izin gerai di jalan umum sebagai warisan warga.",
@@ -523,6 +586,7 @@ module.exports = {
     zh: "在露天的屋台摊子上肩并肩地吃——灯笼光下的拉面、烤鸡串与关东煮——是福冈的标志性仪式。这在日本独一无二：2013年市府以《屋台基本条例》把这一文化合法化并加以保护，将公共道路上的摊位视作市民遗产予以发照。",
     ja: "屋台の台に肩を並べて食べること——提灯の灯りの下のラーメン、焼き鳥、おでん——は、福岡を象徴する営みです。日本でここだけ、市は2013年の屋台基本条例でこの文化を合法化して守り、公道上の屋台を市民の財産として許可しています。",
     es: "Comer hombro con hombro en un puesto callejero yatai —ramen, yakitori, oden bajo la luz de los farolillos— es el rito que define Fukuoka. Único en Japón, la ciudad legalizó y protegió esa cultura con su Ordenanza Básica del Yatai de 2013, licenciando puestos en la vía pública como patrimonio cívico.",
+    ko: "등불 아래 야외 포장마차에서 어깨를 맞대고 라멘과 야키토리, 오뎅을 먹는 것이 후쿠오카를 정의하는 의식입니다. 일본에서 유일하게 이 도시는 2013년 야타이 기본 조례로 이 문화를 합법화해 보호하며, 공도의 노점을 시민 유산으로 허가합니다.",
   },
   "Fuzhou::Fotiaoqiang": {
     id: "Legenda jamuan Fuzhou: lebih dari tiga puluh bahan — abalon, teripang, ham, jamur — disusun berlapis dalam guci arak dan direbus perlahan sampai seorang sarjana bersumpah bahwa \"Buddha pun akan melompati tembok\" demi hidangan ini. Teknik kedai pendirinya, Juchunyuan, adalah warisan takbenda nasional (2008).",
@@ -531,6 +595,7 @@ module.exports = {
     zh: "福州的宴席传奇：三十多样食材——鲍鱼、海参、火腿、香菇——层层码进酒坛慢煨，据说有秀才为之赋诗，说连佛都要闻香跳墙。创始老铺聚春园的技艺已列入国家级非物质文化遗产（2008年）。",
     ja: "福州の宴を語る伝説の一品です。鮑、海鼠、金華ハム、椎茸など三十を超える材料を酒甕に層に詰め、じっくり煮込みます。ある書生が「仏も垣根を飛び越える」と詠んだと伝えられます。創業店・聚春園の技法は2008年、国家級無形文化遺産となりました。",
     es: "La leyenda de banquete de Fuzhou: más de treinta ingredientes —oreja de mar, pepino de mar, jamón, setas— dispuestos en capas dentro de una tinaja de vino y cocidos a fuego lento hasta que un letrado juró que «Buda saltaría el muro» por ello. La técnica de la casa fundadora, Juchunyuan, es patrimonio inmaterial nacional (2008).",
+    ko: "푸저우 연회의 전설입니다. 전복과 해삼, 햄, 버섯을 비롯한 서른 가지 넘는 재료를 술 항아리에 켜켜이 담아 은근히 고아, 한 선비가 '부처도 담을 넘겠다'고 했다는 요리입니다. 쥐춘위안 원조 기법은 2008년 국가 무형유산입니다.",
   },
   "Fuzhou::Fuzhou fish balls": {
     id: "Bola putih kenyal dari pasta belut atau hiu yang ditumbuk, menyembunyikan inti daging babi cincang berbumbu, mengapung dalam kaldu bening. Makanan penenang khas Fuzhou yang bahari; teknik kedai Yonghe (sejak 1934) adalah warisan takbenda provinsi Fujian.",
@@ -539,6 +604,7 @@ module.exports = {
     zh: "以鳗鱼或鲨鱼肉捶打成浆做成的白色弹丸，里头包着调味的猪肉馅，浮在清汤里。这是福州这座海城的暖心吃食；永和鱼丸（1934年创号）的技艺已列入福建省级非物质文化遗产。",
     ja: "鰻や鮫の身を叩いてすり身にし、味つけした豚ひき肉を芯に包んだ、弾力のある白い団子です。澄んだスープに浮かべます。海の街・福州の心和む味で、1934年創業の永和の技は福建省の無形文化遺産です。",
     es: "Bolas blancas y elásticas de pasta de anguila o tiburón majada que esconden un corazón de carne picada de cerdo sazonada, flotando en caldo claro. El plato reconfortante y marinero de Fuzhou; la técnica de la casa Yonghe (desde 1934) es patrimonio inmaterial de la provincia de Fujian.",
+    ko: "장어나 상어 살을 찧어 만든 탱탱한 흰 완자 안에 양념한 다진 돼지고기를 품고 맑은 국물에 띄웁니다. 바다의 도시 푸저우의 위안 음식이며, 1934년부터 이어 온 융허 가게의 기법은 푸젠성 무형유산입니다.",
   },
   "George Town::Nasi kandar": {
     id: "Berasal dari pedagang Muslim India yang memikul periuk nasi dan kari di kedua ujung pikulan (\"kandar\") menyusuri jalan-jalan George Town.",
@@ -547,6 +613,7 @@ module.exports = {
     zh: "源自印度穆斯林小贩，他们用扁担（kandar）挑着米饭与咖喱锅走遍乔治市街头。",
     ja: "米とカレーの鍋を天秤棒（カンダー）で担ぎ、ジョージタウンの街を歩いたインド系ムスリムの行商人に由来します。",
     es: "De los vendedores indomusulmanes que llevaban las ollas de arroz y curri en una pértiga al hombro («kandar») por las calles de George Town.",
+    ko: "쌀과 커리 냄비를 어깨 멜대('칸다르')에 지고 조지타운 거리를 다니던 인도계 무슬림 행상들에게서 왔습니다.",
   },
   "George Town::Penang assam laksa": {
     id: "Laksa asam jawa dengan ikan kembung, tanpa santan — tanda tangan George Town yang berkali-kali masuk daftar hidangan terbaik dunia.",
@@ -555,6 +622,7 @@ module.exports = {
     zh: "以亚参与鲛鱼熬成的酸辣叻沙，不放椰浆——乔治市的招牌，多次入选世界最佳美食榜。",
     ja: "タマリンドの酸味とサバで作る、ココナッツを使わないラクサ。ジョージタウンの看板料理で、世界の名物料理の上位に何度も選ばれています。",
     es: "Laksa agria de tamarindo y caballa, sin leche de coco: la seña de identidad de George Town, repetidamente incluida entre los mejores platos del mundo.",
+    ko: "타마린드로 새콤하게 낸 고등어 락사로 코코넛을 넣지 않습니다. 조지타운을 대표하며 세계 최고의 요리로 거듭 꼽혔습니다.",
   },
   "George Town::Penang char kway teow": {
     id: "Kwetiau pipih ditumis di atas bara bersama udang, kerang, dan lemak babi — tolok ukur Penang yang menjadi pembanding semua CKT lain.",
@@ -563,6 +631,7 @@ module.exports = {
     zh: "扁河粉在炭火上猛炒，配虾、血蚶与猪油——槟城的标杆，其他炒粿条都以它为准。",
     ja: "平たい米麺を炭火で一気に炒め、海老、赤貝、ラードを合わせます。ほかのすべてのチャークイティオが比べられる、ペナンの基準となる一皿です。",
     es: "Fideos planos de arroz salteados al carbón con gambas, berberechos y manteca: el listón de Penang con el que se mide cualquier otro char kway teow.",
+    ko: "넓적한 쌀국수를 새우와 꼬막, 라드와 함께 숯불에 볶습니다. 다른 모든 차꿰이띠아우를 재는 페낭의 기준입니다.",
   },
   "Gold Coast::Moreton Bay bug roll": {
     id: "Moreton Bay bug, lobster sandal yang manis dari perairan Queensland tenggara, adalah keistimewaan kawasan pesisir ini. Roti isi bug goreng buatan Rick Shores di pantai Burleigh mengubahnya menjadi hal yang paling mendekati ikon modern bagi Gold Coast.",
@@ -571,6 +640,7 @@ module.exports = {
     zh: "莫顿湾扇虾，昆士兰东南海域出产的清甜蝉虾，是这一带的地方珍味。Burleigh海滩边Rick Shores的炸扇虾卷，把它变成了黄金海岸最接近现代标志的一味。",
     ja: "南東クイーンズランドの海で獲れる甘いウチワエビ、モートン・ベイ・バグは、この海岸一帯の名物です。バーレー・ビーチのリック・ショアーズが出す揚げバグのロールは、ゴールドコーストにとって現代の象徴にもっとも近い一品となりました。",
     es: "La cigarra de mar de Moreton Bay, dulce y de aguas del sureste de Queensland, es la delicia regional de esta costa. El bocadillo de bug frito de Rick Shores, en la playa de Burleigh, la convirtió en lo más parecido a un icono moderno que tiene la Gold Coast.",
+    ko: "퀸즐랜드 남동부 바다에서 나는 달콤한 부채새우 모턴베이 버그는 이 해안의 별미입니다. 벌리 해변 릭 쇼어스의 튀긴 버그 롤이 이를 골드코스트가 가진 가장 현대적인 상징에 가깝게 만들었습니다.",
   },
   "Gold Coast::Trawler-fresh prawns": {
     id: "Gold Coast tak punya hidangan penanda; identitas kulinernya adalah ritual pagi membeli udang, kepiting, dan ikan langsung dari kapal pukat malam di Koperasi Nelayan Main Beach, disantap dingin di atas pasir dengan perasan lemon.",
@@ -579,6 +649,7 @@ module.exports = {
     zh: "黄金海岸没有招牌菜；它的饮食身份是清晨的一套仪式——在Main Beach渔业合作社直接从夜归的拖网船买下虾、蟹与鱼，就着柠檬在沙滩上冷食。",
     ja: "ゴールドコーストに看板料理はありません。この地の食のかたちは朝の営みそのものです。メインビーチの漁業協同組合で、夜通し操業したトロール船から直に海老や蟹、魚を買い、レモンを絞って砂浜で冷たいまま食べるのです。",
     es: "La Gold Coast no tiene plato insignia; su identidad gastronómica es el rito matinal de comprar gambas, cangrejos y pescado directamente a los arrastreros nocturnos en la cooperativa de pescadores de Main Beach, y comerlos fríos en la arena con limón.",
+    ko: "골드코스트에는 대표 요리가 없습니다. 이곳 음식의 정체성은 메인비치 어민 조합에서 밤새 조업한 배로부터 새우와 게, 생선을 사서 모래사장에 앉아 레몬을 뿌려 차갑게 먹는 아침의 의식입니다.",
   },
   "Guangzhou::Cheung fun": {
     id: "Lembaran licin dari adonan beras giling batu, dikukus di atas kain dalam waktu kurang dari semenit, digulung mengelilingi udang, daging sapi, atau cakwe, lalu disiram kecap manis. Ikon sarapan Xiguan yang kini masuk daftar warisan takbenda kota Guangzhou.",
@@ -587,6 +658,7 @@ module.exports = {
     zh: "石磨米浆在布上蒸不到一分钟便成滑嫩的粉皮，卷进虾仁、牛肉或油条，再淋上豉油。这道西关早餐的标志，如今已入广州市级非物质文化遗产名录。",
     ja: "石臼で挽いた米の生地を布の上で一分とかけずに蒸し上げ、絹のような薄い皮に。海老や牛肉、揚げパンを巻き、甘い醤油をかけます。西関の朝食を象徴する一品で、今は広州市の無形文化遺産に名を連ねます。",
     es: "Láminas sedosas de masa de arroz molida a piedra, cocidas al vapor sobre tela en menos de un minuto, enrolladas con gambas, ternera o churros chinos y regadas con soja dulce. Un icono del desayuno de Xiguan, hoy en la lista municipal de patrimonio inmaterial de Cantón.",
+    ko: "맷돌로 간 쌀 반죽을 천 위에 부어 1분도 안 되어 매끄러운 판으로 쪄내고, 새우나 소고기, 유탸오를 넣어 말아 달콤한 간장을 끼얹습니다. 시관의 아침을 상징하며 지금은 광저우 시 무형유산 목록에 올라 있습니다.",
   },
   "Guangzhou::White-cut chicken": {
     id: "Ayam utuh direbus perlahan lalu dicelupkan ke air dingin, disajikan pada suhu ruang dengan minyak jahe-daun bawang sehingga daging tanpa bumbu dan kulit berlapis jeli berbicara sendiri. Tekniknya yang Kanton masuk daftar warisan takbenda kota Guangzhou pada 2022.",
@@ -595,6 +667,7 @@ module.exports = {
     zh: "整鸡以文火浸熟，随即过冷河，放至室温后配姜葱油上桌，让不加调味的鸡肉与皮下那层啫喱自己说话。这套粤菜手法于2022年列入广州市级非物质文化遗产名录。",
     ja: "鶏を丸ごと静かに茹で、すぐ冷水にとり、常温で生姜と葱の油を添えて供します。味つけをしない肉と、皮の下のゼリー層そのものを味わわせるためです。この広東の技法は2022年、広州市の無形文化遺産に登録されました。",
     es: "Pollo entero escalfado con suavidad y luego sumergido en agua fría, servido a temperatura ambiente con aceite de jengibre y cebolleta para que la carne sin sazonar y la capa gelatinosa bajo la piel hablen por sí solas. Su técnica cantonesa entró en la lista municipal de patrimonio inmaterial de Cantón en 2022.",
+    ko: "닭을 통째로 은근히 데친 뒤 찬물에 담가 실온으로 내고 생강 파 기름을 곁들여, 간하지 않은 살과 젤리 같은 껍질이 스스로 말하게 합니다. 그 광둥 기법은 2022년 광저우 시 무형유산 목록에 올랐습니다.",
   },
   "Guangzhou::Yum cha morning tea": {
     id: "Cara makan yang menjadi penanda Guangzhou: pagi panjang di kedai teh dengan \"satu teko, dua potong\" — teh bersama har gow, siu mai, dan ratusan dim sum — sebuah pranata sosial yang diakui sebagai warisan takbenda provinsi Guangdong dan kini didukung rancangan peraturan kota.",
@@ -603,6 +676,7 @@ module.exports = {
     zh: "广州最能代表自己的吃法：在茶楼消磨整个上午，讲究「一盅两件」——一壶茶，配虾饺、烧卖和上百款点心。这一社会习俗已列入广东省级非物质文化遗产，如今更有市级立法草案为其护航。",
     ja: "広州を象徴する食のかたち。茶楼で朝をゆっくり過ごし、「一盅両件」——ひとつの急須に二皿——を頼み、海老餃子や焼売など数百種の点心を並べます。広東省の無形文化遺産に認定された社会的な習わしで、近年は市の条例案もこれを後押ししています。",
     es: "La manera de comer que define Cantón: largas mañanas de casa de té con «una tetera, dos piezas» —té con har gow, siu mai y centenares de dim sum—, una institución social reconocida como patrimonio inmaterial de la provincia de Guangdong y hoy respaldada por un proyecto de ordenanza municipal.",
+    ko: "광저우를 정의하는 먹는 방식입니다. 찻집에서 긴 아침을 보내며 '한 주전자에 두 접시', 곧 차와 함께 하가우와 시우마이를 비롯한 수백 가지 딤섬을 듭니다. 광둥성 무형유산으로 인정받았고 지금은 시의 조례 초안이 뒷받침합니다.",
   },
   "Gwangju::Gwangju kimchi": {
     id: "Kimchi memang milik seluruh negeri, tetapi Gwangju mengklaim mahkota untuk gaya Jeolla: kecap ikan teri yang berlimpah, pasta beras ketan, dan bumbu yang dalam serta tajam, berkat kelimpahan hasil pertanian kawasan ini. Kota ini telah menggelar Festival Kimchi Gwangju sejak 1994.",
@@ -611,6 +685,7 @@ module.exports = {
     zh: "泡菜属于整个韩国，但光州自认在全罗道流派上称冠：鳀鱼酱下得足，加糯米糊，味道深厚而冲，得益于本地富庶的农产。自1994年起，光州每年都办泡菜节。",
     ja: "キムチは国全体のものですが、光州は全羅道流の頂点を自任します。イワシの魚醤をふんだんに使い、もち米の糊を合わせ、地域の豊かな農産に支えられた深く鋭い味に仕上げるのです。市は1994年から光州キムチ祭りを開いています。",
     es: "El kimchi es de todo el país, pero Gwangju reclama la corona del estilo de Jeolla: salsa de anchoa generosa, pasta de arroz glutinoso y un aliño profundo y punzante nacido de la abundancia agrícola de la región. La ciudad celebra el Festival del Kimchi de Gwangju desde 1994.",
+    ko: "김치는 전국의 것이지만 광주는 전라도식의 으뜸을 자처합니다. 멸치액젓을 넉넉히 쓰고 찹쌀풀을 넣어 이 지역의 넉넉한 농산물에서 오는 깊고 짙은 양념을 냅니다. 1994년부터 광주김치축제를 열어 왔습니다.",
   },
   "Gwangju::Oritang": {
     id: "Gulai bebek khas Gwangju direbus berjam-jam bersama doenjang, cabai giling, dan bubuk biji perilla yang gurih, lalu ditutup dengan minari segar yang dicelup ke kuahnya. Lahir pada 1970-an ketika resep peternak bebek dari Naju berakar dekat terminal bus lama, gang gulai bebek di Yu-dong masih ramai sampai kini.",
@@ -619,6 +694,7 @@ module.exports = {
     zh: "光州的招牌鸭汤要炖上几个钟头，加大酱、辣椒粉与香浓的紫苏籽粉，最后放入新鲜的水芹涮进汤里。它成形于1970年代，一位罗州养鸭人的方子在旧客运站附近落了脚；柳洞的鸭汤巷至今仍旺。",
     ja: "光州を代表するオリタン（鴨のスープ）は、テンジャンと粉唐辛子、香ばしいエゴマの粉を加えて何時間も煮込み、最後に生のミナリを汁にくぐらせて仕上げます。1970年代、羅州の養鴨農家の作り方が旧バスターミナル近くに根づいて生まれ、柳洞の鴨スープ横丁は今も賑わっています。",
     es: "El guiso de pato insignia de Gwangju se cuece durante horas con doenjang, chile molido y polvo de semilla de perilla, y se remata con minari fresco mojado en el caldo. Nació en los años setenta, cuando la receta de un criador de patos de Naju arraigó junto a la vieja estación de autobuses; el callejón del guiso de pato en Yu-dong sigue prosperando.",
+    ko: "광주를 대표하는 오리탕은 오리를 된장과 고춧가루, 고소한 들깻가루와 함께 여러 시간 끓이고 국물에 담근 미나리로 마무리합니다. 1970년대에 나주 오리 농가의 조리법이 옛 버스터미널 근처에 뿌리내리며 생겼고, 유동의 오리탕 골목은 지금도 성합니다.",
   },
   "Gwangju::Songjeong tteokgalbi": {
     id: "Daging iga cincang berbumbu yang dipadatkan menjadi patty lalu dipanggang — asal-usul tteokgalbi diperebutkan antara versi daging sapi ala istana dari Damyang dan gaya Songjeong dari Gwangju, yang dimulai pada 1950-an oleh Choi Cheo-ja dekat pasar Songjeong untuk para lansia yang giginya lemah. Kini ada jalan khusus yang menyajikannya.",
@@ -627,6 +703,7 @@ module.exports = {
     zh: "把调味的排骨肉剁碎压成饼再上火烤——年糕排骨的源头有争议：一说是潭阳的宫廷牛肉版本，一说是光州的松汀流派，1950年代由崔处子在松汀市场附近为牙口不好的老人所创。如今有一整条街专卖此味。",
     ja: "味つけした骨つき肉をたたいて小判形に固め、火にかけます。トッカルビの起源は、潭陽の宮中風の牛肉版と、光州の松汀流とで争われています。松汀流は1950年代、崔処子が松汀市場のそばで、歯の弱いお年寄りのために考え出したものです。今では専門の通りができています。",
     es: "Carne de costilla picada y sazonada, prensada en tortas y asada: el origen del tteokgalbi se disputa entre la versión de ternera de estilo cortesano de Damyang y el estilo Songjeong de Gwangju, iniciado en los años cincuenta por Choi Cheo-ja junto al mercado de Songjeong para ancianos con la dentadura frágil. Hoy tiene una calle dedicada.",
+    ko: "다져 양념한 갈빗살을 반대기로 빚어 굽습니다. 떡갈비의 유래는 담양의 궁중식 소고기 떡갈비와 광주 송정식이 다투는데, 송정식은 1950년대에 최처자가 송정시장 근처에서 이가 약한 어른들을 위해 시작했습니다. 지금은 전용 거리가 있습니다.",
   },
   "Gyeongju::Gyeongju ssambap": {
     id: "Hidangan set yang berlimpah: nasi, daging atau ikan panggang, dan puluhan lauk pendamping dibungkus dalam keranjang sayuran berdaun segar. Meski makan ssam berlaku di seluruh negeri, deretan restoran di sepanjang gundukan makam Silla Daereungwon di Hwangnam-dong mengubah meja yang melimpah ini menjadi hidangan penanda Gyeongju.",
@@ -635,6 +712,7 @@ module.exports = {
     zh: "一桌丰盛的套餐：米饭、烤肉或烤鱼，加上几十样小菜，全用一篮篮新鲜叶菜包着吃。包饭虽是全国习惯，但皇南洞大陵苑新罗古坟旁那条餐馆街，把这份铺张变成了庆州的招牌一餐。",
     ja: "ご飯に焼いた肉か魚、そして数十種の副菜を、籠に盛った生の葉野菜で包んで食べる、たいそう豪勢な定食です。サムの食べ方は全国的ですが、皇南洞の大陵苑、新羅の古墳群沿いに続く食堂街が、この盛りだくさんの卓を慶州の看板に変えました。",
     es: "Un menú generoso: arroz, carne o pescado a la brasa y decenas de guarniciones que se envuelven en cestas de hoja verde fresca. Comer ssam es costumbre nacional, pero la calle de restaurantes junto a los túmulos de Silla de Daereungwon, en Hwangnam-dong, convirtió esta mesa abundante en la comida insignia de Gyeongju.",
+    ko: "밥과 구운 고기나 생선, 수십 가지 반찬을 신선한 쌈채소 바구니와 함께 내는 푸짐한 상차림입니다. 쌈을 먹는 것은 전국의 일이지만, 황남동 대릉원 신라 고분 옆 식당 골목이 이 넉넉한 상을 경주의 대표 한 끼로 만들었습니다.",
   },
   "Gyeongju::Gyodong-beopju": {
     id: "Arak beras ketan yang bening keemasan, diseduh selama berabad-abad di rumah klan Choi di Gyo-dong, dari resep yang dikaitkan dengan Choi Guk-jun, pejabat dapur istana pada masa Raja Sukjong. Ditetapkan sebagai Warisan Budaya Takbenda Nasional No. 86-3 pada 1986; setiap adonan matang kira-kira seratus hari.",
@@ -643,6 +721,7 @@ module.exports = {
     zh: "琥珀清亮的糯米酒，数百年来在校洞崔氏宗宅酿造，方子相传出自肃宗朝御膳官崔国俊。1986年获指定为国家无形文化财第86-3号；每一批约需熟成一百天。",
     ja: "琥珀色に澄んだもち米の酒で、校洞の崔氏の家で何百年も醸されてきました。粛宗のもとで王室の厨房を司った崔国俊に由来する製法と伝えられます。1986年に国家無形文化財第86-3号に指定され、一仕込みはおよそ百日かけて熟成します。",
     es: "Vino de arroz glutinoso, ambarino y limpio, elaborado durante siglos en la casa del clan Choi en Gyo-dong, con una receta atribuida a Choi Guk-jun, oficial de la cocina real bajo el rey Sukjong. Declarado Patrimonio Cultural Inmaterial Nacional n.º 86-3 en 1986; cada partida madura unos cien días.",
+    ko: "교동 최씨 고택에서 수백 년 빚어 온 맑은 호박빛 찹쌀 술입니다. 숙종 때 궁중 음식을 맡았던 최국준의 조리법에서 왔다고 전합니다. 1986년 국가무형문화재 제86-3호로 지정됐고, 한 번 빚는 데 백일쯤 익힙니다.",
   },
   "Gyeongju::Hwangnam-ppang": {
     id: "Penganan khas Gyeongju: kulit gandum setipis kertas yang dicap pola sisir, penuh pasta kacang merah Korea yang halus. Diciptakan sekitar 1938–1939 oleh Choi Yeong-hwa di Hwangnam-dong; toko sang pendiri masih memanggangnya, sementara cabang tahun 1978 bernama \"Gyeongju-ppang\" membawa garis keturunan saingannya.",
@@ -651,6 +730,7 @@ module.exports = {
     zh: "庆州的招牌点心：薄如纸的麦皮上压着梳齿纹，里头满是细腻的红豆馅。约1938至1939年由崔英化在皇南洞创制，创始店至今仍在烘烤；1978年分出的「庆州面包」则自成另一支脉。",
     ja: "慶州を代表する菓子です。紙のように薄い小麦の皮に櫛目の模様を押し、なめらかな小豆餡をぎっしり詰めます。1938〜39年ごろ、皇南洞で崔英花が生み出し、創業の店は今も焼き続けています。1978年に分かれた「慶州パン」は、競い合うもう一つの系譜です。",
     es: "El dulce insignia de Gyeongju: una envoltura de trigo finísima estampada con un dibujo de peine y rellena de suave pasta coreana de judía roja. Creado hacia 1938-1939 por Choi Yeong-hwa en Hwangnam-dong; la tienda del fundador lo sigue horneando, mientras que la escisión de 1978, «Gyeongju-ppang», mantiene un linaje rival.",
+    ko: "경주를 대표하는 과자입니다. 종잇장처럼 얇은 밀 껍질에 빗살무늬를 찍고 매끄러운 팥소를 가득 채웁니다. 1938~39년경 황남동에서 최영화가 만들었고 창업주의 가게가 지금도 굽고 있으며, 1978년 갈라져 나온 '경주빵'이 경쟁하는 계보를 잇습니다.",
   },
   "Hamilton::Hāngī": {
     id: "Cara Māori berumur berabad-abad untuk mengukus daging dan kūmara di atas batu panas dalam lubang tanah, digali kembali berjam-jam kemudian untuk pesta bersama. Di Waikato, tanah air gerakan Raja Māori, hāngī tetap menjadi santapan perkumpulan dan kehidupan marae.",
@@ -659,6 +739,7 @@ module.exports = {
     zh: "毛利人流传数百年的做法：把肉与kūmara（甘薯）放在地坑的热石上焖蒸，几个钟头后再挖出来共食。在毛利国王运动的故乡怀卡托，hāngī始终是聚会与marae（会所）生活的饭食。",
     ja: "肉とクマラ（さつまいも）を地面に掘った穴の焼け石の上で蒸し、数時間後に掘り出して皆で食べる、何百年も続くマオリの調理法です。マオリ王運動の故郷ワイカトでは、ハンギは今も集いとマラエ（集会所）の暮らしの食事であり続けています。",
     es: "El método maorí, de siglos, de cocer al vapor carne y kūmara sobre piedras calientes en un hoyo de tierra, desenterrado horas después para el festín comunal. En Waikato, cuna del movimiento del Rey Maorí, el hāngī sigue siendo la comida de las reuniones y de la vida del marae.",
+    ko: "달군 돌 위에서 고기와 쿠마라를 땅 구덩이에 넣어 찌고 여러 시간 뒤 파내어 함께 나누는, 수백 년 된 마오리의 조리법입니다. 마오리 왕 운동의 고향인 와이카토에서 항이는 여전히 모임과 마라에 삶의 음식입니다.",
   },
   "Hamilton::Waikato dairy & ice cream": {
     id: "Hamilton tak punya hidangan penanda; Waikato adalah mesin susu Selandia Baru, dan kota ini menyantap identitasnya berupa keju dan es krim bertabur penghargaan. Duck Island, dengan kedai andalannya di Hamilton East, menjadi lambang masa kini.",
@@ -667,6 +748,7 @@ module.exports = {
     zh: "汉密尔顿没有招牌菜；怀卡托是新西兰的乳业引擎，这座城把自己的身份吃成了屡获奖项的奶酪与冰淇淋。在汉密尔顿东区开着旗舰店的Duck Island，就是它当代的象征。",
     ja: "ハミルトンに看板料理はありません。ワイカトはニュージーランドの酪農の心臓であり、この街は自らの拠って立つところを、数々の賞に輝くチーズとアイスクリームとして味わっています。ハミルトン・イーストに旗艦店を構えるダック・アイランドが、その現代的な象徴です。",
     es: "Hamilton no tiene plato insignia; Waikato es el motor lácteo de Nueva Zelanda, y la ciudad se come su identidad en forma de quesos y helados premiados. Duck Island, con su local emblemático en Hamilton East, es el símbolo contemporáneo.",
+    ko: "해밀턴에는 대표 요리가 없습니다. 와이카토는 뉴질랜드 낙농의 심장이고, 이 도시는 상을 받은 치즈와 아이스크림으로 그 정체성을 먹습니다. 해밀턴 이스트에 본점을 둔 덕 아일랜드가 오늘날의 상징입니다.",
   },
   "Hangzhou::Dongpo pork": {
     id: "Sepotong kubus perut babi berkulit berwarna mahoni, dibraise perlahan dalam arak Shaoxing sampai bergetar — \"semerah akik, lembut tapi tak hancur\". Legenda mengaitkannya dengan penyair-gubernur Su Dongpo, yang pada 1089 mengganjar para pengeruk Danau Barat dengan daging babi rebus.",
@@ -675,6 +757,7 @@ module.exports = {
     zh: "一方带皮的五花肉煨成红木色，在绍兴酒里慢炖到颤巍巍——「红如玛瑙，酥而不散」。传说归功于诗人太守苏东坡：1089年他以红烧肉犒赏疏浚西湖的民工。",
     ja: "皮つき豚バラの角切りを紹興酒でゆっくり煮込み、揺れるほどやわらかく、紅木のような色に仕上げます。「瑪瑙のごとく紅く、やわらかくして崩れず」。詩人にして知事の蘇東坡が1089年、西湖の浚渫にあたった人夫たちに煮豚をふるまった故事に由来すると伝えられます。",
     es: "Un único dado caoba de panceta con corteza, estofado despacio en vino de Shaoxing hasta que tiembla: «rojo como el ágata, blando pero entero». La leyenda lo atribuye al poeta y gobernador Su Dongpo, que en 1089 premió con cerdo estofado a las cuadrillas que dragaron el Lago del Oeste.",
+    ko: "껍질째 네모나게 썬 삼겹살 한 덩이를 소흥주에 천천히 조려 숟가락에 떨릴 만큼 부드럽게 만듭니다. '마노처럼 붉고 부드럽되 흐트러지지 않는다'고 합니다. 1089년 서호 준설 인부들에게 조린 돼지고기를 내렸다는 시인 지사 소동파의 이야기가 전합니다.",
   },
   "Hangzhou::Longjing shrimp": {
     id: "Udang air tawar yang dikupas tangan, dilapisi sampai bening, lalu ditumis bersama daun teh Longjing yang baru diseduh — mempertemukan dua pusaka Hangzhou, danau dan kebun teh, dalam satu piring pucat yang harum, hadir di setiap jamuan klasik kota ini.",
@@ -683,6 +766,7 @@ module.exports = {
     zh: "手剥的河虾仁上浆滑至透亮，与刚泡开的龙井茶叶同炒——把杭州的两样宝贝，湖与茶园，收进一盘清淡而清香的菜里，是本地经典宴席上的常客。",
     ja: "手で剥いた川海老に衣をまとわせ、透きとおるまで火を通し、淹れたての龍井の茶葉とともに炒めます。湖と茶園という杭州の二つの宝を、淡く香り高い一皿に収めた料理で、この街の古典的な宴席には欠かせません。",
     es: "Gambas de río peladas a mano, aterciopeladas hasta la transparencia y salteadas con hojas de té Longjing recién infusionadas: los dos tesoros de Hangzhou, el lago y el jardín de té, en un plato pálido y fragante que no falta en ningún banquete clásico de la ciudad.",
+    ko: "손으로 깐 민물새우를 반투명하게 손질해 갓 우린 룽징 찻잎과 함께 볶습니다. 호수와 차밭이라는 항저우의 두 보물을 옅고 향긋한 한 접시에 담아, 고전적인 항저우 연회마다 오릅니다.",
   },
   "Hangzhou::West Lake vinegar fish": {
     id: "Ikan mas rumput yang dipuasakan hidup-hidup dalam keramba di Danau Barat, direbus perlahan tanpa minyak lalu diselimuti saus cuka asam-manis yang konon berasa kepiting. Ditelusuri ke \"Kakak Song\" pada masa Dinasti Song dan dibakukan oleh Louwailou (1848), yang tekniknya menjadi warisan takbenda provinsi Zhejiang.",
@@ -691,6 +775,7 @@ module.exports = {
     zh: "草鱼在西湖的网箱里活养饿清，不放油慢火汆熟，再浇上酸甜的醋汁，据说吃来有蟹味。此菜上溯宋代的「宋五嫂」，由1848年的楼外楼定型，其技艺已列为浙江省级非物质文化遗产。",
     ja: "西湖の生け簀で活かして腹を空かせた草魚を、油を使わずそっと煮て、甘酸っぱい酢のあんをかけます。その味は蟹に似ているといわれます。宋代の「宋嫂」にさかのぼり、1848年創業の楼外楼が型を定めました。その技は浙江省の無形文化遺産です。",
     es: "Carpa herbívora purgada viva en jaulas del Lago del Oeste, escalfada con suavidad y sin aceite, y glaseada con una salsa agridulce de vinagre de la que se dice que sabe a cangrejo. Se remonta a la «hermana Song» de la dinastía Song y la codificó el Louwailou (1848), cuya técnica es patrimonio inmaterial de la provincia de Zhejiang.",
+    ko: "서호의 가두리에서 산 채로 속을 비운 초어를 기름 없이 은근히 데쳐 새콤달콤한 식초 소스를 입히면 게 맛이 난다고 합니다. 송나라 '송씨 누이'까지 거슬러 오르고 1848년 러우와이러우가 정립했으며, 그 기법은 저장성 무형유산입니다.",
   },
   "Hanoi::Bún chả": {
     id: "Panggangan siang hari khas Hanoi: perkedel babi dan samcan dibakar di atas arang, direndam kuah asam manis berbahan kecap ikan, disertai bihun dan aneka herba. Inilah hidangan yang disantap Anthony Bourdain bersama Presiden Obama di Hanoi pada 2016.",
@@ -699,6 +784,7 @@ module.exports = {
     zh: "河内的午间炭烤：猪肉饼与五花肉烤香后泡进酸甜鱼露汤汁，配米粉和香草。2016年安东尼·波登与奥巴马总统在河内同吃的正是这一味。",
     ja: "ハノイの昼の炭火焼きです。豚のつくねとバラ肉を焼き、甘酸っぱい魚醤のたれに浸し、ビーフンと香草を添えます。2016年、アンソニー・ボーデインがハノイでオバマ大統領と分け合った一皿です。",
     es: "La parrilla del mediodía de Hanói: albóndigas y panceta de cerdo al carbón en un baño agridulce de salsa de pescado, con fideos de arroz y hierbas al lado. El plato que Anthony Bourdain compartió con el presidente Obama en Hanói en 2016.",
+    ko: "하노이의 점심 숯불구이입니다. 돼지고기 완자와 삼겹살을 새콤달콤한 피시소스 국물에 담그고 쌀국수와 허브를 곁들입니다. 2016년 하노이에서 앤서니 보데인이 오바마 대통령과 나눠 먹은 음식입니다.",
   },
   "Hanoi::Chả cá Lã Vọng": {
     id: "Ikan sungai yang dibumbui kunyit, didesis di meja bersama adas sowa dan daun bawang — diciptakan kedai keluarga Đoàn pada 1870-an; jalan tempatnya berdiri kemudian dinamai ulang menjadi Chả Cá sesuai hidangan ini.",
@@ -707,6 +793,7 @@ module.exports = {
     zh: "用姜黄腌过的河鱼在桌边煎得滋滋作响，配莳萝与葱段——由段氏家族的店铺创于1870年代；店所在的街道后来便以此菜改名为「炸鱼街」（Chả Cá）。",
     ja: "ターメリックに漬けた川魚を、ディルと青ねぎとともに卓上で焼き上げます。1870年代にドアン家の店が生み出し、その通りは後に料理の名をとってチャーカー通りと改称されました。",
     es: "Pescado de río marinado en cúrcuma y chisporroteando en la mesa con eneldo y cebolleta; lo creó el local de la familia Đoàn en la década de 1870, y la calle donde estaba pasó a llamarse Chả Cá por el plato.",
+    ko: "강고기를 강황에 재워 딜과 파와 함께 식탁에서 지져 냅니다. 1870년대 도안 집안의 가게에서 만들어졌고, 그 가게가 있던 거리는 요리 이름을 따 짜까 거리로 바뀌었습니다.",
   },
   "Hanoi::Phở Hà Nội": {
     id: "Masuk daftar warisan budaya takbenda nasional Vietnam (Agustus 2024) bersama Phở Nam Định — klaim kota kelahiran saingannya. Gaya Hanoi: kuah sapi bening dan menahan diri. Kedua pengklaim disebut; tidak ada yang dimenangkan di sini.",
@@ -715,6 +802,7 @@ module.exports = {
     zh: "2024年8月与「南定河粉」一同列入越南国家级非物质文化遗产名录——后者是争夺发源地的另一方。河内风格讲究清澈内敛的牛肉汤。两方都列出，此处不作裁定。",
     ja: "2024年8月、ベトナムの国家無形文化遺産に「ナムディンのフォー」とともに登録されました。後者は発祥地を争うもう一方の主張です。ハノイ式は澄んで控えめな牛のスープ。両者を併記し、ここでは決着をつけません。",
     es: "Inscrito en la lista nacional de patrimonio cultural inmaterial de Vietnam (agosto de 2024) junto al Phở Nam Định, la reclamación rival sobre la cuna del plato. El estilo de Hanói: un caldo de ternera claro y contenido. Se citan ambas partes; aquí no gana ninguna.",
+    ko: "2024년 8월 베트남 국가 무형문화유산 목록에 남딘 퍼와 함께 올랐습니다. 남딘은 원조를 다투는 곳입니다. 하노이식은 맑고 절제된 소고기 국물입니다. 두 주장 모두 적어 두고 어느 쪽 손도 들지 않습니다.",
   },
   "Hiroshima::Hiroshima okonomiyaki": {
     id: "Hiroshima menyusun okonomiyaki-nya berlapis — krep tipis, tumpukan kubis, babi, mi goreng, lalu telur — tidak pernah dicampur. Terlahir kembali dari jajanan satu sen sebelum perang sebagai makanan bertahan hidup pascaperang, Hiroshima memimpin Jepang dalam jumlah kedai okonomiyaki per kapita. Osaka menyanggah mahkota gaya itu.",
@@ -723,6 +811,7 @@ module.exports = {
     zh: "广岛的什锦烧是叠出来的——薄饼、高高的卷心菜、猪肉、炒面，最后是蛋——从不搅拌。它由战前的一钱洋食重生为战后的活命食物，如今广岛每人平均的什锦烧店数居全日本之首。至于哪种做法正统，大阪并不认输。",
     ja: "広島のお好み焼きは重ねてつくります。薄い生地、山盛りのキャベツ、豚肉、焼きそば、そして卵。決して混ぜません。戦前の一銭洋食から戦後の生きるための食としてよみがえり、人口あたりの店舗数は日本一です。流儀の王座については、大阪が異を唱えています。",
     es: "Hiroshima construye su okonomiyaki por capas —una crepe fina, una montaña de col, cerdo, fideos fritos y luego huevo— sin mezclar nunca. Renacido de los aperitivos de un sen de anteguerra como comida de supervivencia de posguerra, Hiroshima encabeza Japón en locales de okonomiyaki por habitante. Osaka disputa la corona del estilo.",
+    ko: "히로시마는 부침을 켜켜이 쌓습니다. 얇은 전병 위에 양배추를 수북이 올리고 돼지고기와 볶음면, 달걀을 얹으며 절대 섞지 않습니다. 전쟁 전 1전 간식에서 전후의 생존 음식으로 되살아났고, 히로시마는 인구당 오코노미야키 가게 수에서 일본 으뜸입니다. 오사카는 그 우열을 인정하지 않습니다.",
   },
   "Hiroshima::Hiroshima oysters": {
     id: "Perairan Teluk Hiroshima yang tenang dan kaya nutrisi menghasilkan sekitar enam puluh persen tiram budidaya Jepang, sebuah tradisi berumur berabad-abad. Warga menyantapnya dipanggang dalam cangkang, digoreng sebagai kaki-furai, direbus dalam dote-nabe bermiso, atau di atas okonomiyaki — dua ikon kota ini disatukan.",
@@ -731,6 +820,7 @@ module.exports = {
     zh: "广岛湾水域平静而富营养，产出全日本约六成的养殖牡蛎，这项传统已有数百年。当地人连壳烤着吃、裹粉炸成炸牡蛎（kaki-furai）、放进味噌土手锅里煮，或干脆铺在什锦烧上——把这座城的两大象征合在一处。",
     ja: "穏やかで栄養に富む広島湾の海は、日本の養殖牡蠣のおよそ六割を生みます。数百年に及ぶ営みです。地元では殻付きのまま焼き、カキフライにし、味噌仕立ての土手鍋で煮て、あるいはお好み焼きにのせます。この街の二つの象徴が、一皿で出会うのです。",
     es: "Las aguas tranquilas y ricas en nutrientes de la bahía de Hiroshima producen cerca del sesenta por ciento de las ostras de cultivo de Japón, una tradición de siglos. Los vecinos las comen asadas en su concha, fritas como kaki-furai, guisadas en dote-nabe de miso o coronando un okonomiyaki: los dos iconos de la ciudad reunidos.",
+    ko: "히로시마만의 잔잔하고 영양이 풍부한 물이 일본 양식 굴의 약 60퍼센트를 냅니다. 수백 년 된 전통입니다. 사람들은 껍데기째 굽거나 가키후라이로 튀기고 된장 도테나베에 끓이며, 오코노미야키 위에 올려 이 도시의 두 상징을 하나로 만듭니다.",
   },
   "Hiroshima::Momiji manju": {
     id: "Kue bolu berbentuk daun mapel berisi kacang merah manis, diciptakan pada 1906 oleh pembuat kue Miyajima, Takatsu Tsunesuke, untuk tamu penginapan Iwaso, sebagai penghormatan pada lembah mapel termasyhur di pulau itu. Keturunannya menghidupkan kembali resep asli di Takatsudo; kini ada ratusan varian isian.",
@@ -739,6 +829,7 @@ module.exports = {
     zh: "枫叶形的海绵蛋糕里裹着甜红豆馅，1906年由宫岛的点心师高津常助为岩惣旅馆的客人所创，以致敬岛上著名的枫谷。其后人在高津堂重现了最初的配方；如今馅料已有数百种。",
     ja: "紅葉のかたちをした餡入りの焼き菓子で、1906年、宮島の菓子職人・高津常助が岩惣の客のために考案しました。島の名高い紅葉谷にちなむ意匠です。子孫が高津堂で創業当時の姿を復活させ、今では餡の種類は数百に及びます。",
     es: "Un bizcocho con forma de hoja de arce relleno de judía roja dulce, creado en 1906 por el confitero de Miyajima Takatsu Tsunesuke para los huéspedes de la posada Iwaso, en honor al célebre valle de arces de la isla. Sus descendientes recuperaron el original en Takatsudo; hoy existen cientos de rellenos.",
+    ko: "단풍잎 모양의 카스텔라에 달콤한 팥을 채운 과자로, 1906년 미야지마의 과자 장인 다카쓰 쓰네스케가 이와소 여관 손님을 위해 만들어 섬의 이름난 단풍 골짜기를 기렸습니다. 후손들이 다카쓰도에서 원형을 되살렸고, 지금은 수백 가지 소가 있습니다.",
   },
   "Ho Chi Minh City::Bánh mì Sài Gòn": {
     id: "Baguette datang bersama Prancis; Saigon menjadikannya santapan penuh. Toko roti Hòa Mã (Distrik 3, 1958) dianggap yang pertama memasukkan isian KE DALAM roti agar pekerja bisa membawanya — di sinilah bánh mì thịt lahir.",
@@ -747,6 +838,7 @@ module.exports = {
     zh: "长棍面包随法国人而来，西贡把它做成了一顿正餐。第三郡的「和马」面包店（1958年）被认为最早把馅料塞进面包里，方便工人带着走——bánh mì thịt 就此诞生。",
     ja: "バゲットはフランス人とともに来ましたが、これを一食に仕立てたのはサイゴンです。3区のホアマー（1958年創業）が、労働者が持ち歩けるよう具をパンの中に詰めた最初の店とされ、バインミー・ティットはここで生まれました。",
     es: "La baguette llegó con los franceses; Saigón la convirtió en una comida. A la panadería Hòa Mã (Distrito 3, 1958) se le atribuye haber sido la primera en meter el relleno DENTRO del pan para que los obreros se lo llevaran: aquí nació el bánh mì thịt.",
+    ko: "바게트는 프랑스가 들여왔지만 사이공이 이를 한 끼로 만들었습니다. 1958년 3군의 호아마 빵집이 노동자들이 들고 다니도록 속을 빵 안에 처음 넣었다고 전해지며, 반미 팃이 여기서 태어났습니다.",
   },
   "Ho Chi Minh City::Cơm tấm": {
     id: "Beras patah — dulu butir pecah murah yang disimpan petani untuk diri sendiri — menjadi ciri khas Saigon: iga babi panggang, kulit babi suwir, kue telur kukus, saus kecap ikan. Paling enak saat fajar atau lewat tengah malam.",
@@ -755,6 +847,7 @@ module.exports = {
     zh: "碎米——从前是农民留给自己的廉价断粒——成了西贡的招牌：烤猪排、猪皮丝、蒸蛋糕、鱼露汁。天刚亮或过了午夜最对味。",
     ja: "砕け米は、かつて農民が自家用に取っておいた安い割れ粒でした。それがサイゴンの看板になり、焼き豚のあばら肉、豚皮の細切り、蒸し卵のケーキ、ヌクマムのたれを合わせます。夜明けか、深夜過ぎが一番です。",
     es: "El arroz partido —antaño los granos rotos y baratos que los campesinos guardaban para sí— se volvió la seña de Saigón: chuleta de cerdo a la brasa, piel de cerdo en hebras, pastel de huevo al vapor y aliño de salsa de pescado. Mejor al amanecer o pasada la medianoche.",
+    ko: "한때 농부들이 팔지 못해 스스로 먹던 부서진 쌀알이 사이공의 얼굴이 됐습니다. 구운 돼지갈비와 채 썬 돼지껍질, 달걀찜, 피시소스를 곁들이며 새벽이나 자정 넘어가 가장 좋습니다.",
   },
   "Ho Chi Minh City::Hủ tiếu Nam Vang": {
     id: "Impor yang jujur: namanya menyebut Phnom Penh. Sup mi Khmer–Teochew yang dibawa menyusuri Mekong, dibumbui ulang oleh kawasan Tionghoa Saigon menjadi ritual pagi berisi babi dan udang miliknya sendiri.",
@@ -763,6 +856,7 @@ module.exports = {
     zh: "坦率的舶来品：菜名里写着金边。这道高棉—潮州风味的粿条汤沿湄公河北上，被西贡华埠重新调味，成了自家的猪肉鲜虾早餐仪式。",
     ja: "名前がプノンペンと明かしている、正直な外来料理です。クメールと潮州の流れを汲む麺スープがメコンをさかのぼり、サイゴンの華人街で味を組み替えられて、豚肉と海老の朝の習慣になりました。",
     es: "Una importación honesta: el nombre dice Nom Pen. Una sopa de fideos jemer-teochew que remontó el Mekong y que el barrio chino de Saigón resazonó hasta convertirla en su propio ritual matinal de cerdo y gambas.",
+    ko: "이름이 프놈펜을 가리키는 정직한 수입품입니다. 크메르와 조주의 국수가 메콩을 거슬러 올라왔고, 사이공 화교 거리가 돼지고기와 새우의 아침 의식으로 다시 간했습니다.",
   },
   "Hoi An::Cao lầu": {
     id: "Satu-satunya hidangan mi Vietnam yang benar-benar tak bisa pergi dari rumahnya: mi-nya dialkalikan dengan abu pohon Kepulauan Chàm dan air yang ditimba dari sumur Bà Lễ berusia berabad-abad. Babi ala char siu, sayuran hijau, remah renyah — sintesis kota pelabuhan dagang.",
@@ -771,6 +865,7 @@ module.exports = {
     zh: "唯一真正离不开原产地的越南面食：面条以占婆岛树木的草木灰与百年古井「婆礼井」的水碱化。配叉烧式猪肉、青菜与酥脆碎块——一座贸易港的融合之作。",
     ja: "本当に故郷を離れられない、唯一のベトナム麺料理です。麺はチャム諸島の木の灰と、数百年を経たバーレー井戸の水で灰汁処理されます。チャーシュー風の豚肉、青菜、カリッとした揚げ片。交易港が生んだ折衷です。",
     es: "El único plato de fideos vietnamita que de verdad no puede salir de casa: los fideos se alcalinizan con ceniza de árboles de las islas Chàm y agua sacada del pozo Bà Lễ, de siglos. Cerdo al estilo char siu, verduras y costrones crujientes: la síntesis de un puerto comercial.",
+    ko: "고향을 정말로 떠날 수 없는 유일한 베트남 국수입니다. 면은 참섬 나무의 잿물과 수백 년 된 바레 우물물로 반죽합니다. 차슈식 돼지고기와 채소, 바삭한 튀김을 곁들인 교역항의 종합입니다.",
   },
   "Hoi An::White rose dumplings": {
     id: "Pangsit udang bening yang dilipat menyerupai mawar — dibuat satu keluarga Hội An selama lebih dari seabad; sebagian besar restoran di kota membeli dari bengkel tunggal itu. Santaplah di tempat kelahirannya.",
@@ -779,6 +874,7 @@ module.exports = {
     zh: "半透明的虾饺捏成玫瑰花形，由会安一户人家做了一百多年；城里多数餐馆都向这唯一的作坊进货。就在它诞生的地方吃吧。",
     ja: "透きとおる海老の点心を、薔薇のようにひだ寄せしたもの。ホイアンの一族が百年以上つくり続け、町の多くの店はこの一軒の工房から仕入れています。生まれた場所で食べてこそです。",
     es: "Empanadillas translúcidas de gamba plegadas como rosas, hechas por una sola familia de Hội An desde hace más de un siglo; casi todos los restaurantes del pueblo se abastecen de ese único taller. Cómelas donde nacieron.",
+    ko: "장미처럼 주름 잡은 반투명한 새우 만두입니다. 호이안의 한 집안이 백 년 넘게 빚어 왔고, 시내 대부분의 식당이 그 한 공방에서 받아 씁니다. 태어난 자리에서 먹어야 합니다.",
   },
   "Hong Kong::Dim sum / yum cha": {
     id: "Yum cha — berkumpul dengan teh dan kereta dorong berisi dim sum sekali suap seperti har gow, siu mai, dan char siu bao — adalah tradisi Kanton yang dibagi bersama Guangzhou, yang oleh Hong Kong disempurnakan menjadi ritual sosial akhir pekan penanda kotanya dan diekspor ke Pecinan di seluruh dunia.",
@@ -787,6 +883,7 @@ module.exports = {
     zh: "饮茶——围坐喝茶，推车送上虾饺、烧卖、叉烧包这类一口点心——是与广州共享的粤式传统，香港把它打磨成自己标志性的周末社交仪式，并输出到世界各地的唐人街。",
     ja: "飲茶は、茶を囲みワゴンで運ばれる海老餃子、焼売、叉焼包といった一口の点心を分け合う広東の伝統です。広州と共有するこの習慣を、香港は週末を象徴する社交の儀式に磨き上げ、世界の中華街へ送り出しました。",
     es: "El yum cha —reunirse en torno al té y a los carritos de dim sum de un bocado, como har gow, siu mai y char siu bao— es una tradición cantonesa compartida con Cantón que Hong Kong refinó hasta convertirla en su rito social de fin de semana y exportó a los barrios chinos del mundo.",
+    ko: "차와 함께 하가우, 시우마이, 차슈바오 같은 한입 딤섬 수레를 놓고 모이는 얌차는 광저우와 함께 나눈 광둥의 전통으로, 홍콩이 주말의 대표적인 사교 의식으로 다듬어 세계의 차이나타운에 퍼뜨렸습니다.",
   },
   "Hong Kong::HK egg tart": {
     id: "Diadaptasi dari tart custard Inggris lewat Guangzhou pada pertengahan abad ke-20, tart telur Hong Kong memadatkan custard yang mengilap dan tak gosong di dalam kulit sablé atau pastri berlapis renyah. Disantap hangat dari toko roti dan cha chaan teng, inilah ikon waktu minum teh sehari-hari kota ini.",
@@ -795,6 +892,7 @@ module.exports = {
     zh: "二十世纪中叶经广州自英式蛋挞演化而来，港式蛋挞把光亮不焦的蛋浆凝在酥皮或牛油曲奇皮中。从饼店与茶餐厅端出趁热吃，是这座城市日常下午茶的标志。",
     ja: "二十世紀半ば、広州を経てイギリスのカスタードタルトから生まれた香港式エッグタルトは、艶やかで焦げ目のない卵液をサブレ生地かパイ生地に収めます。ベーカリーや茶餐廳で温かいうちに食べる、この街の日常のティータイムの象徴です。",
     es: "Adaptado de los pasteles de crema británicos vía Cantón a mediados del siglo XX, el pastel de huevo hongkonés cuaja una crema brillante y sin quemar en masa quebrada u hojaldrada. Comido tibio en panaderías y cha chaan tengs, es el icono cotidiano de la hora del té de la ciudad.",
+    ko: "20세기 중반 광저우를 거쳐 영국 커스터드 타르트에서 바뀌었습니다. 홍콩식 에그타르트는 겉이 타지 않고 윤기 나는 커스터드를 부슬부슬한 반죽이나 겹겹의 퍼프에 담습니다. 빵집과 차찬텡에서 따뜻하게 먹는 이 도시의 일상적인 티타임 상징입니다.",
   },
   "Hong Kong::HK-style milk tea": {
     id: "Diseduh pekat melalui saringan kain \"stoking sutra\", ditarik bolak-balik antara dua teko, lalu dihaluskan dengan susu evaporasi, teh susu Hong Kong merangkum jiwa Timur-Barat cha chaan teng. Teknik pembuatannya masuk Daftar Perwakilan Warisan Budaya Takbenda pertama Hong Kong pada 2017.",
@@ -803,6 +901,7 @@ module.exports = {
     zh: "以布袋「丝袜」滤网冲得浓酽，在两壶之间反复拉茶，再用淡奶调顺——港式奶茶正是茶餐厅中西合璧的灵魂。其冲制技艺于2017年列入香港首份非物质文化遗产代表作名录。",
     ja: "布の「シルクストッキング」漉しで濃く淹れ、二つのポットのあいだで何度も注ぎ分け、エバミルクでまろやかに仕上げます。香港式ミルクティーは、茶餐廳の東西が交わる魂そのものです。その技法は2017年、香港初の無形文化遺産代表作名録に入りました。",
     es: "Preparado fuerte a través de un filtro de tela llamado «media de seda», trasegado entre teteras y suavizado con leche evaporada, el té con leche hongkonés encarna el alma este-oeste del cha chaan teng. Su técnica de elaboración entró en 2017 en la primera Lista Representativa del Patrimonio Inmaterial de Hong Kong.",
+    ko: "삼베 '실크 스타킹' 필터로 진하게 내려 주전자 사이로 당기고 무가당 연유로 부드럽게 만든 홍콩 밀크티는 차찬텡의 동서양이 만난 정신을 담고 있습니다. 그 제조 기법은 2017년 홍콩 최초의 무형문화유산 대표 목록에 올랐습니다.",
   },
   "Hsinchu::Hsinchu pork meatballs": {
     id: "Gongwan adalah bakso kenyal yang dibuat dengan menumbuk daging babi segar yang masih hangat menjadi pasta, sehingga proteinnya membentuk jaringan yang memantul. Dipadukan dengan bihun di kedai-kedai sekitar Kuil Dewa Kota Hsinchu, keduanya membentuk semangkuk \"dua pusaka\" yang klasik.",
@@ -811,6 +910,7 @@ module.exports = {
     zh: "贡丸的弹性来自把温热的新鲜猪肉捶打成浆，让蛋白质结成有回弹的网络。在新竹城隍庙一带的摊子上与米粉同碗，便是这座城市经典的「双宝」。",
     ja: "貢丸の弾力は、温かい新鮮な豚肉を叩いてすり身にし、たんぱく質を跳ね返る網目に組み替えることで生まれます。新竹の城隍廟まわりの屋台でビーフンと合わせた一椀が、この街の古典的な「二宝」です。",
     es: "Los gongwan son albóndigas elásticas: se maja cerdo fresco aún tibio hasta hacerlo pasta, de modo que sus proteínas cuajan en una red que rebota. Servidas con fideos de arroz en los puestos del templo del Dios de la Ciudad de Hsinchu, forman el cuenco clásico de los «dos tesoros».",
+    ko: "궁완은 따뜻한 생돼지고기를 두드려 반죽으로 만들어 단백질이 탱탱한 그물을 이루게 한 완자입니다. 신주 성황묘 주변 노점에서 쌀국수와 짝을 이뤄 이 도시의 고전인 두 가지 보물 한 그릇을 만듭니다.",
   },
   "Hsinchu::Hsinchu rice vermicelli": {
     id: "Dibawa dari Hui'an di Fujian pada masa Dinasti Qing, bihun Hsinchu berutang kekenyalannya pada \"angin jiujiang\" musim gugur yang kering — tiga bagian dijemur, tujuh bagian diangin-anginkan. Sebagai salah satu \"tiga pusaka\" kota, bihun ini menjadi tulang punggung tumisan dan sup di seluruh Taiwan.",
@@ -819,6 +919,7 @@ module.exports = {
     zh: "清代自福建惠安传入，新竹米粉的弹牙口感来自秋日干燥的「九降风」——三分日晒、七分风干。作为新竹「三宝」之一，它撑起了全台湾的炒米粉与米粉汤。",
     ja: "清代に福建の恵安から伝わった新竹のビーフンは、乾いた秋の「九降風」に腰の強さを負っています。三分の日干しに、七分の風干し。市の「三宝」のひとつとして、台湾じゅうの炒めものと汁ものを支えています。",
     es: "Traídos de Hui'an, en Fujian, en tiempos Qing, los fideos de arroz de Hsinchu deben su mordida elástica al seco «viento jiujiang» del otoño: tres partes de sol, siete de secado al viento. Uno de los «tres tesoros» de la ciudad, sostiene salteados y sopas por todo Taiwán.",
+    ko: "청나라 때 푸젠 후이안에서 들어왔고, 신주 쌀국수의 탱탱한 씹힘은 건조한 가을 '주장풍' 덕입니다. 볕에 셋, 바람에 일곱을 말립니다. 이 도시의 '삼보' 가운데 하나로 대만 전역의 볶음과 국물을 떠받칩니다.",
   },
   "Hua Hin::Gulf dried seafood": {
     id: "Hua Hin bermula sebagai kampung nelayan, dan tradisi kulinernya yang bertahan adalah hasil laut Teluk yang diawetkan — cumi kering matahari, ikan asin, dan udang yang dijual di pasar Chatchai. Sebuah kerajinan pesisir kawasan ini, bukan hidangan khas kota itu sendiri.",
@@ -827,6 +928,7 @@ module.exports = {
     zh: "华欣起家于渔村，它延续至今的饮食传统是泰国湾的海产腌制品——日晒鱿鱼干、咸鱼与虾米，在Chatchai市场上出售。这是整条海岸线共有的手艺，而非小城独有的一道菜。",
     ja: "ホアヒンは漁村として始まり、今に続く食の伝統はタイ湾の海産の保存食です。天日干しのイカ、塩魚、干し海老がチャッチャイ市場に並びます。この町だけの料理というより、沿岸一帯に共通する手仕事です。",
     es: "Hua Hin empezó como aldea de pescadores, y su tradición culinaria duradera es el marisco del Golfo en conserva: calamar secado al sol, pescado salado y gambas vendidos en el mercado de Chatchai. Un oficio de toda la costa, no un plato exclusivo del pueblo.",
+    ko: "후아힌은 어촌으로 시작했고, 지금까지 이어지는 음식 전통은 말린 걸프 해산물입니다. 볕에 말린 오징어와 소금 생선, 새우를 찻차이 시장에서 팝니다. 이 마을만의 요리라기보다 연안 지역의 기술입니다.",
   },
   "Hua Hin::Tako": {
     id: "Cangkir jeli pandan berlapis krim kelapa yang gurih adalah kudapan penutup nasional Thailand, tetapi toko kue peristirahatan kerajaan lama di Hua Hin — terutama Tako Sawoei dekat kota istana — menjadikan tako dan penganan tradisional bagian dari identitas kota pantai ini.",
@@ -835,6 +937,7 @@ module.exports = {
     zh: "香兰冻杯上覆浓椰浆，本是泰国的全国性甜点，但华欣这座旧日皇家度假地的老甜品铺——尤以行宫附近的Tako Sawoei闻名——把tako与传统点心变成了这座海滨小城身份的一部分。",
     ja: "パンダンの寒天に濃いココナッツクリームを重ねた小さな器菓子はタイ全土の甘味ですが、王室保養地であったホアヒンの老舗菓子店、とりわけ離宮のそばのタコー・サウォイが、タコーと伝統菓子をこの海辺の町の顔にしました。",
     es: "Las tarrinas de gelatina de pandan cubiertas de crema de coco espesa son un postre nacional tailandés, pero las viejas pastelerías del balneario real de Hua Hin —sobre todo Tako Sawoei, junto a la ciudad palaciega— hicieron del tako y de los dulces tradicionales parte de la identidad del pueblo costero.",
+    ko: "판단 젤리 컵에 진한 코코넛크림을 올린 것은 태국 전역의 디저트지만, 왕실 휴양지 시절부터 이어진 후아힌의 옛 과자점들, 특히 궁 근처 타코 사워이가 타코와 전통 과자를 이 바닷가 마을의 정체성으로 만들었습니다.",
   },
   "Hue::Bún bò Huế": {
     id: "Jawaban bekas ibu kota kekaisaran atas phở: kuah sapi dengan serai dan terasi udang, mi bulat tebal. \"Pengetahuan Rakyat tentang Bún Bò Huế\" masuk daftar warisan budaya takbenda nasional Vietnam pada Juni 2025.",
@@ -843,6 +946,7 @@ module.exports = {
     zh: "旧日皇城对河粉的回应：牛肉汤以香茅和虾酱调味，配粗圆米线。「顺化牛肉米线的民间知识」于2025年6月列入越南国家级非物质文化遗产名录。",
     ja: "かつての帝都がフォーに与えた答えです。レモングラスとエビ味噌を利かせた牛のスープに、太い丸麺を合わせます。「ブンボー・フエの民俗知識」は2025年6月、ベトナムの国家無形文化遺産に登録されました。",
     es: "La respuesta de la vieja capital imperial al phở: caldo de ternera con hierba de limón y pasta de gambas, y fideos redondos y gruesos. «El saber popular del bún bò Huế» se inscribió en la lista nacional de patrimonio inmaterial de Vietnam en junio de 2025.",
+    ko: "옛 황도가 내놓은 퍼의 답입니다. 레몬그라스와 새우젓으로 낸 소고기 국물에 굵고 둥근 면을 넣습니다. '분보후에의 민간 지식'이 2025년 6월 베트남 국가 무형문화유산에 올랐습니다.",
   },
   "Hue::Cơm hến": {
     id: "Nasi dingin sisa di bawah tumpukan kerang kecil yang dikeruk dari pulau Cồn Hến di Sungai Harum, dengan terasi udang, kacang tanah, kerupuk kulit babi, dan kaldu kerang di sampingnya. Makanan petani yang akhirnya dicintai istana.",
@@ -851,6 +955,7 @@ module.exports = {
     zh: "隔夜冷饭上堆满从香江蚬洲（Cồn Hến）挖来的小蚬，配虾酱、花生、猪皮脆和另盛的蚬汤。原是农家饭，后来连宫廷也爱上了。",
     ja: "冷めた残り飯に、フォン川の蜆洲（コンヘン）で掻き採った小さなシジミを山盛りにし、エビ味噌、落花生、豚皮の揚げ、そして別椀のシジミ汁を添えます。庶民の食が、やがて宮廷にも愛されました。",
     es: "Arroz frío del día anterior bajo un montón de almejas diminutas dragadas en el islote de Cồn Hến, en el río de los Perfumes, con pasta de gambas, cacahuetes, cortezas de cerdo y el caldo de almeja aparte. Comida campesina que la corte aprendió a querer.",
+    ko: "식은 밥 위에 흐엉강 콘헨섬에서 건진 작은 재첩을 수북이 올립니다. 새우젓과 땅콩, 돼지껍질 튀김을 넣고 조갯국은 따로 냅니다. 궁정이 사랑하게 된 서민의 음식입니다.",
   },
   "Iloilo City::La Paz batchoy": {
     id: "Sup mi berisi jeroan babi, remah chicharon, bawang putih, dan daun bawang, lahir di Pasar Umum La Paz — hidangan andalan Iloilo, Kota Kreatif Gastronomi UNESCO pertama di Filipina. Inggo's (1922) dan Deco's (1938) sama-sama mengklaim penemuannya; Ted's yang mempopulerkannya ke seluruh negeri.",
@@ -859,6 +964,7 @@ module.exports = {
     zh: "以猪杂、碎猪皮酥、蒜与葱花做的面汤，生于拉巴斯公共市场——这是伊洛伊洛的招牌，也是菲律宾第一座联合国教科文组织美食创意城市。Inggo's（1922）与Deco's（1938）都自称首创；把它推向全国的则是Ted's。",
     ja: "豚もつ、砕いたチチャロン、にんにく、青ねぎを合わせた麺のスープで、ラパス公設市場に生まれました。フィリピン初のユネスコ食文化創造都市イロイロの看板です。イン゙ゴス（1922年）とデコス（1938年）がともに元祖を名乗り、全国に広めたのはテッズでした。",
     es: "Una sopa de fideos con casquería de cerdo, chicharrón desmenuzado, ajo y cebolleta nacida en el Mercado Público de La Paz: el buque insignia de Iloílo, la primera Ciudad Creativa de la Gastronomía de la UNESCO en Filipinas. Inggo's (1922) y Deco's (1938) reclaman ambos la invención; Ted's la popularizó en todo el país.",
+    ko: "돼지 내장과 부순 치차론, 마늘, 파를 넣은 국수로 라파스 공설시장에서 태어났습니다. 필리핀 최초의 유네스코 미식 창의도시 일로일로의 대표 음식입니다. 잉고스(1922)와 데코스(1938)가 모두 원조를 주장하고 테즈가 전국에 알렸습니다.",
   },
   "Iloilo City::Pancit Molo": {
     id: "Sup pangsit warisan Iloilo dari distrik Molo, kawasan Tionghoa lama kota ini: kulit berisi babi dalam kaldu ayam beraroma bawang putih, dengan kulit-kulit lepas yang berperan sebagai mi. Dihidangkan di dapur keluarga sejak 1920-an dan menjadi inti dari gelar gastronomi UNESCO milik Iloilo.",
@@ -867,6 +973,7 @@ module.exports = {
     zh: "伊洛伊洛的传承云吞汤，出自旧华人区莫洛：猪肉馅的面皮浸在蒜香鸡汤里，另有几张散开的面皮权当面条。自1920年代起在家庭厨房代代相传，也是伊洛伊洛获颁联合国教科文组织美食之城的核心。",
     ja: "イロイロの旧華人街モロ地区に伝わるワンタンのスープです。豚肉を包んだ皮を、にんにくの香る鶏のだしに浮かべ、ほどけた皮そのものが麺の役を務めます。1920年代から家庭の台所で受け継がれ、イロイロのユネスコ食文化都市の称号の中心にある一品です。",
     es: "La sopa patrimonial de empanadillas de Iloílo, del distrito de Molo, el viejo barrio chino de la ciudad: obleas rellenas de cerdo en un caldo de pollo con ajo, con obleas sueltas haciendo de fideos. Cocinada en cocinas familiares desde los años veinte y central en el título gastronómico UNESCO de Iloílo.",
+    ko: "옛 화교 거리인 몰로 지구에서 온 일로일로의 유산 만둣국입니다. 돼지고기를 채운 만두피를 마늘 향 닭 육수에 넣고, 남은 피가 국수 노릇을 합니다. 1920년대부터 집집의 부엌에서 내어 왔고 일로일로의 유네스코 미식 도시 지위의 중심입니다.",
   },
   "Incheon::Jajangmyeon": {
     id: "Mi saus kacang hitam kesayangan Korea lahir di Pecinan Incheon, tempat perantau Shandong menyesuaikan zhajiangmian setelah pelabuhan dibuka pada 1883. Restoran Gonghwachun mempopulerkannya bagi buruh dermaga; bangunan batanya, kini cagar budaya terdaftar, menjadi Museum Jjajangmyeon.",
@@ -875,6 +982,7 @@ module.exports = {
     zh: "韩国人钟爱的炸酱面诞生于仁川唐人街：1883年开港后，山东移民把炸酱面改造成了本地口味。共和春饭店把它推给码头工人；那栋砖楼如今是登录文化财，也成了炸酱面博物馆。",
     ja: "韓国が愛する黒い豆味噌の麺は、仁川のチャイナタウンで生まれました。1883年の開港後、山東からの移民が炸醤麺を作り替えたのです。共和春がこれを港湾労働者に広め、その煉瓦造りの建物は今、登録文化財としてチャジャンミョン博物館になっています。",
     es: "El querido fideo coreano en salsa de judía negra nació en el barrio chino de Incheon, donde migrantes de Shandong adaptaron el zhajiangmian tras la apertura del puerto en 1883. El restaurante Gonghwachun lo popularizó entre los estibadores; su edificio de ladrillo, bien cultural registrado, alberga hoy el Museo del Jjajangmyeon.",
+    ko: "한국이 사랑하는 검은 콩 국수는 인천 차이나타운에서 태어났습니다. 1883년 개항 뒤 산둥 이주민들이 자장몐을 바꿔 만들었습니다. 공화춘이 부두 노동자들에게 널리 알렸고, 등록문화재인 그 벽돌 건물은 지금 짜장면박물관입니다.",
   },
   "Incheon::Sinpo dakgangjeong": {
     id: "Di Pasar Internasional Sinpo, ayam yang digoreng dua kali dibalut glasir manis-pedas lengket yang dipertajam cabai Cheongyang. Dijual di sana sejak awal 1970-an, hidangan ini menarik antrean panjang setiap hari dan menjadi camilan pasar penanda Incheon, hanya disaingi gang dakgangjeong Sokcho yang muncul kemudian.",
@@ -883,6 +991,7 @@ module.exports = {
     zh: "在新浦国际市场，两次油炸的鸡块裹上黏甜微辣、以青阳辣椒提味的酱汁。自1970年代初在此开卖，天天排长队，成了仁川最具代表性的市场小吃，只有后来兴起的束草炸鸡巷可与之相较。",
     ja: "新浦国際市場では、二度揚げした鶏に、青陽唐辛子を利かせた甘辛く粘りのあるたれをからめます。1970年代初めからここで売られ、毎日長い列ができ、仁川を代表する市場の軽食になりました。競えるのは、のちに生まれた束草のタッカンジョン通りくらいです。",
     es: "En el Mercado Internacional de Sinpo, el pollo frito dos veces se envuelve en un glaseado pegajoso, dulce y picante, avivado con chile cheongyang. Vendido allí desde principios de los setenta, atrae colas a diario y se volvió el bocado de mercado que define Incheon, con la sola rivalidad del posterior callejón del dakgangjeong de Sokcho.",
+    ko: "신포국제시장에서는 두 번 튀긴 닭을 청양고추를 넣은 달고 매운 끈적한 양념에 버무립니다. 1970년대 초부터 팔아 왔고 날마다 긴 줄이 서며, 뒤에 생긴 속초 닭강정 골목과 견주는 인천의 대표 시장 간식이 됐습니다.",
   },
   "Ipoh::Ipoh white coffee": {
     id: "Diciptakan di kopitiam kota tua Ipoh oleh perantau Hainan pada awal abad ke-20: biji kopi disangrai hanya dengan margarin minyak sawit, lalu disajikan dengan susu kental manis. TasteAtlas menempatkannya di antara kopi terbaik dunia, ikut menjadikan Ipoh kota kopi yang dirayakan.",
@@ -891,6 +1000,7 @@ module.exports = {
     zh: "二十世纪初由海南移民在怡保老城的咖啡店创出：豆子只用棕榈油人造牛油烘焙，冲好后加炼奶。TasteAtlas曾把它列入世界最佳咖啡，怡保也因此成为备受推崇的咖啡之城。",
     ja: "二十世紀初め、イポーの旧市街のコピティアムで海南系の移民が生み出しました。豆はパーム油のマーガリンだけで焙煎し、練乳を加えて供します。TasteAtlasが世界の名コーヒーに挙げ、イポーはコーヒーの街として名を高めました。",
     es: "Creado en los kopitiams del casco viejo de Ipoh por migrantes hainaneses a principios del siglo XX: los granos se tuestan solo con margarina de aceite de palma y se sirven con leche condensada. TasteAtlas lo situó entre los mejores cafés del mundo, lo que ayudó a hacer de Ipoh una celebrada ciudad cafetera.",
+    ko: "20세기 초 하이난 이민자들이 이포 구시가 코피티암에서 만들었습니다. 원두를 팜유 마가린만으로 볶아 연유와 함께 냅니다. 테이스트아틀라스가 세계 최고의 커피에 꼽았고, 이포를 커피의 도시로 만드는 데 한몫했습니다.",
   },
   "Ipoh::Kai si hor fun": {
     id: "Sarapan kesayangan Ipoh: kuetiau pipih yang luar biasa licin dalam kuah manis dari ayam dan udang, ditaburi suwiran ayam rebus, udang, dan daun kucai. Kelembutan mi itu secara setempat dikaitkan dengan air batu kapur Ipoh yang kaya mineral.",
@@ -899,6 +1009,7 @@ module.exports = {
     zh: "怡保人钟爱的早餐：格外滑溜的河粉浸在鸡与虾熬出的清甜汤里，铺上手撕鸡丝、虾仁和韭菜。粉的滑，当地人归因于怡保富含矿物质的石灰岩水。",
     ja: "イポーが愛してやまない朝食です。とりわけなめらかな平打ちの米麺を、鶏と海老の甘い出汁に浸し、ほぐした茹で鶏、海老、にらを散らします。麺の口当たりの良さは、ミネラルに富んだイポーの石灰岩の水によると地元では語られます。",
     es: "El desayuno querido de Ipoh: fideos planos de arroz de una sedosidad excepcional en un caldo dulce de pollo y gamba, coronados con pollo escalfado deshilachado, gambas y cebollino. La suavidad de los fideos se atribuye localmente al agua caliza y mineral de Ipoh.",
+    ko: "이포가 사랑하는 아침입니다. 유난히 매끄러운 넓적한 쌀국수를 달큰한 닭·새우 국물에 넣고 찢은 닭고기와 새우, 부추를 올립니다. 면의 매끄러움은 미네랄이 풍부한 이포의 석회암 물 덕이라고들 합니다.",
   },
   "Ipoh::Tauge ayam": {
     id: "Hidangan khas Ipoh memadukan ayam rebus yang lembut dengan tauge gemuk yang dicelur, dibumbui kecap asin dan minyak wijen, disantap bersama nasi atau kuetiau. Warga setempat mengaitkan tauge yang terkenal renyah itu dengan air Lembah Kinta yang tersaring batu kapur; Lou Wong, yang buka sejak 1957, mempopulerkannya.",
@@ -907,6 +1018,7 @@ module.exports = {
     zh: "怡保的招牌一餐，是滑嫩的白斩鸡配上饱满的烫豆芽，淋酱油与麻油，佐白饭或河粉。当地人把豆芽出了名的爽脆归功于近打谷经石灰岩过滤的水；1957年开业的老黄把这道菜带红。",
     ja: "イポーの看板は、しっとりと茹でた鶏と、ふっくら湯通しした豆もやしを醤油とごま油で和え、飯か河粉と合わせる一膳です。もやしの名高い歯ざわりは、石灰岩に濾されたキンタ渓谷の水のおかげだと地元では言われます。1957年開業の老黄がこの味を広めました。",
     es: "El plato insignia de Ipoh une pollo escalfado y sedoso con brotes de soja rollizos escaldados, aliñados con soja y aceite de sésamo, y se come con arroz o fideos hor fun. Los vecinos atribuyen el famoso crujido de los brotes al agua filtrada por caliza del valle de Kinta; Lou Wong, abierto en 1957, lo popularizó.",
+    ko: "이포의 대표 한 끼는 매끄럽게 삶은 닭과 통통하게 데친 숙주를 간장과 참기름에 버무려 밥이나 허펀과 함께 냅니다. 사람들은 그 아삭함을 석회암이 거른 킨타 계곡의 물 덕이라 하며, 1957년 문을 연 로웡이 널리 알렸습니다.",
   },
   "Jakarta::Gado-gado": {
     id: "Sayuran rebus, tahu, tempe, dan telur berbalut saus kacang — hidangan jalanan Betawi dari Jakarta masa kolonial, kini klasik nasional yang melambangkan keberagaman dalam keselarasan. Gado-gado Betawi ditetapkan sebagai Warisan Budaya Takbenda Indonesia pada 2016.",
@@ -915,6 +1027,7 @@ module.exports = {
     zh: "焯熟的蔬菜、豆腐、天贝与鸡蛋淋上花生酱——这是殖民时期雅加达的巴达维亚街食，如今已是象征「多元和谐」的全国经典。「巴达维亚加多加多」于2016年获定为印尼国家非物质文化遗产。",
     ja: "茹で野菜、豆腐、テンペ、卵にピーナッツソースをかけた一皿です。植民地期ジャカルタのブタウィの屋台料理で、今では多様性の調和を象徴する国民的定番となりました。ガドガド・ブタウィは2016年、インドネシアの無形文化遺産に指定されています。",
     es: "Verduras hervidas, tofu, tempeh y huevo aliñados con salsa de cacahuete: un plato callejero betawi de la Yakarta colonial, hoy un clásico nacional que simboliza la diversidad en armonía. El gado-gado betawi fue declarado Patrimonio Cultural Inmaterial de Indonesia en 2016.",
+    ko: "삶은 채소와 두부, 템페, 달걀을 땅콩 소스에 버무립니다. 식민지 시대 자카르타의 브타위 길거리 음식이었고 지금은 어우러진 다양성을 상징하는 국민 음식입니다. 가도가도 브타위는 2016년 인도네시아 무형문화유산으로 지정됐습니다.",
   },
   "Jakarta::Kerak telor": {
     id: "\"Kerak\" nasi dan telur khas Betawi yang dimasak di atas arang bersama ebi, bawang goreng, dan serundeng kelapa berbumbu, berasal dari masa kolonial Belanda. Terdaftar dalam Warisan Budaya Takbenda (WBTb) Indonesia — jajanan festival Jakarta yang dijual di Jakarta Fair setiap tahun.",
@@ -923,6 +1036,7 @@ module.exports = {
     zh: "巴达维亚人的米蛋「锅巴」，在炭火上与虾米、炸红葱和香料椰丝一同烙成，源自荷兰殖民时期。已列入印尼国家非物质文化遗产（WBTb）名录——这是雅加达的节庆街食，每年在雅加达博览会上出售。",
     ja: "ブタウィのご飯と卵の「おこげ」で、炭火の上で干し海老、揚げ赤わけぎ、香辛料をまとったココナッツと一緒に焼き上げます。オランダ植民地期にさかのぼる料理です。インドネシアの無形文化遺産（WBTb）に登録され、毎年のジャカルタ・フェアで売られる祭りの屋台食です。",
     es: "La «costra» betawi de arroz y huevo, hecha sobre carbón con gamba seca, chalota frita y coco especiado, que se remonta a la época colonial neerlandesa. Inscrita en el registro indonesio de patrimonio cultural inmaterial (WBTb): la comida callejera de fiesta de Yakarta, vendida en la Feria de Yakarta cada año.",
+    ko: "브타위식 밥과 달걀 '누룽지'로 건새우와 튀긴 샬롯, 향신 코코넛을 넣어 숯불에 굽습니다. 네덜란드 식민지 시대까지 거슬러 오릅니다. 인도네시아 공식 무형문화유산 목록에 올라 있으며, 해마다 자카르타 박람회에서 파는 이 도시의 축제 길거리 음식입니다.",
   },
   "Jakarta::Soto betawi": {
     id: "Soto daging sapi khas Jakarta dalam kuah kaya santan dan susu sapi, dengan jeroan, kentang, dan tomat — lahir dari pertemuan Betawi, Tionghoa, Arab, dan Eropa di Batavia awal 1900-an. Ditetapkan sebagai Warisan Budaya Takbenda Indonesia pada 2016.",
@@ -931,6 +1045,7 @@ module.exports = {
     zh: "雅加达的招牌牛肉汤，汤底同时用椰浆与牛奶，配内脏、马铃薯与番茄——生于1900年代初巴达维亚的巴达维亚人、华人、阿拉伯人与欧洲人交汇之处。2016年获定为印尼国家非物质文化遗产。",
     ja: "ジャカルタを代表する牛肉のスープで、ココナッツミルクと牛乳を合わせた濃厚な汁に、もつ、じゃがいも、トマトを加えます。1900年代初めのバタビアで、ブタウィ、華人、アラブ、ヨーロッパの交わりから生まれました。2016年、インドネシアの無形文化遺産に指定されています。",
     es: "El soto de ternera insignia de Yakarta, en un caldo denso de leche de coco y leche de vaca, con casquería, patata y tomate; nacido del intercambio betawi, chino, árabe y europeo en la Batavia de principios del siglo XX. Declarado Patrimonio Cultural Inmaterial de Indonesia en 2016.",
+    ko: "코코넛밀크와 우유로 진하게 낸 국물에 내장과 감자, 토마토를 넣은 자카르타의 대표 소토입니다. 1900년대 초 바타비아에서 브타위와 중국, 아랍, 유럽이 오가며 태어났습니다. 2016년 인도네시아 무형문화유산으로 지정됐습니다.",
   },
   "Jeju City::Gogi-guksu": {
     id: "Mi gandum dalam kaldu tulang babi berwarna susu, dimahkotai irisan babi rebus, lahir dari tradisi Jeju menyembelih seekor babi untuk pesta pernikahan dan pemakaman. Jalan Budaya Mi di Kota Jeju, dekat kuil Samseonghyeol, mengumpulkan rumah gogi-guksu paling termasyhur di pulau ini.",
@@ -939,6 +1054,7 @@ module.exports = {
     zh: "小麦面浸在乳白的猪骨汤里，铺上煮猪肉片。它源自济州办婚丧时宰一头猪的传统。济州市三姓穴附近的「面文化街」，集中了岛上最有名的猪肉面馆。",
     ja: "小麦の麺を乳白色の豚骨スープに沈め、茹で豚の薄切りをのせます。婚礼や葬儀のたびに豚を一頭つぶす済州の習わしから生まれました。済州市の三姓穴近くにある「麺文化通り」には、島で名高いコギグクスの店が集まっています。",
     es: "Fideos de trigo en un caldo lechoso de huesos de cerdo, coronados con lonchas de cerdo cocido, nacidos de la costumbre de Jeju de sacrificar un cerdo para bodas y funerales. La Calle de la Cultura del Fideo, cerca del santuario de Samseonghyeol, reúne las casas de gogi-guksu más conocidas de la isla.",
+    ko: "돼지뼈를 고아 뽀얗게 낸 국물에 밀면을 말고 삶은 돼지고기를 저며 올립니다. 혼례와 상례에 돼지를 잡던 제주의 전통에서 나왔습니다. 삼성혈 근처 제주시 국수문화거리에 이 섬에서 가장 이름난 고기국수집들이 모여 있습니다.",
   },
   "Jeju City::Jeju black pork BBQ": {
     id: "Potongan babi hitam asli Jeju yang dipanggang di atas arang, sebuah galur yang begitu khas sehingga ditetapkan sebagai Monumen Alam No. 550 pada 2015. Di Kota Jeju, rumah panggangan khusus berjajar di Jalan Babi Hitam dekat Lapangan Tapdong, tempat irisan tebal berkulit dicelup ke saus teri setempat.",
@@ -947,6 +1063,7 @@ module.exports = {
     zh: "炭火烤济州本地黑猪，这个品种独特到2015年被指定为天然纪念物第550号。在济州市，塔洞广场附近的「黑猪街」上排满专门的烤肉店，带皮厚切蘸本地鳀鱼酱同食。",
     ja: "済州在来の黒豚を炭火で焼きます。この品種は際立って独特で、2015年に天然記念物第550号に指定されました。済州市では塔洞広場そばの黒豚通りに専門店が並び、皮つきの厚切りを地元のイワシだれにつけて食べます。",
     es: "Cortes del cerdo negro autóctono de Jeju a la brasa, una raza tan singular que en 2015 fue declarada Monumento Natural n.º 550. En la ciudad de Jeju, las parrillas especializadas se alinean en la Calle del Cerdo Negro, junto a la plaza de Tapdong, donde las lonchas gruesas con corteza se mojan en salsa local de anchoa.",
+    ko: "제주 재래 흑돼지를 숯불에 굽습니다. 품종이 워낙 뚜렷해 2015년 천연기념물 제550호로 지정됐습니다. 제주시에서는 탑동 광장 근처 흑돼지거리에 전문점이 늘어서 있고, 껍질째 두툼하게 썬 고기를 제주 멜젓에 찍어 먹습니다.",
   },
   "Jeju City::Jeonbok-juk (haenyeo abalone porridge)": {
     id: "Bubur dari abalon yang dipetik tangan oleh haenyeo, para penyelam napas tahan asal Jeju yang budayanya masuk daftar Warisan Takbenda UNESCO pada 2016. Dimasak bersama jeroan abalon sehingga berwarna kehijauan dan berasa laut yang dalam, bubur ini disajikan di rumah makan koperasi haenyeo di sepanjang pesisir Kota Jeju.",
@@ -955,6 +1072,7 @@ module.exports = {
     zh: "用海女徒手采来的鲍鱼熬成的粥。济州的海女以闭气潜水为生，其文化于2016年列入联合国教科文组织非物质遗产名录。粥里连鲍鱼内脏一起煮，泛出青绿，带着深海的味道，在济州市沿岸的海女合作社食堂供应。",
     ja: "海女が素潜りで採ったアワビで炊く粥です。済州の海女文化は2016年、ユネスコの無形文化遺産に登録されました。アワビの肝ごと炊くので緑がかった色になり、海の深い味がします。済州市の海岸沿いに並ぶ海女の共同売店の食堂で味わえます。",
     es: "Gachas de oreja de mar recogida a mano por las haenyeo, las buceadoras a pulmón de Jeju, cuya cultura entró en la lista de patrimonio inmaterial de la UNESCO en 2016. Se cuecen con las vísceras del molusco, lo que les da un tono verdoso y un sabor de fondo marino; se sirven en los comedores cooperativos de las haenyeo a lo largo de la costa de Jeju.",
+    ko: "숨을 참고 물질하는 제주 해녀가 직접 캔 전복으로 쑨 죽입니다. 해녀 문화는 2016년 유네스코 무형유산에 올랐습니다. 전복 내장을 함께 끓여 초록빛이 돌고 바다의 깊은 맛이 나며, 제주시 해안의 해녀 공동 식당에서 냅니다.",
   },
   "Jiufen::Jiufen taro balls": {
     id: "Di Jiufen, kota bukit bekas tambang emas, bola talas dan ubi jalar yang digulung tangan — kenyal, sedikit manis, disajikan dalam kuah panas atau di atas es serut — menjadi ciri khas jalanannya. Kedai-kedai saingan A-Gan-Yi dan Lai A-Po telah menarik antrean menaiki tangga batu selama puluhan tahun.",
@@ -963,6 +1081,7 @@ module.exports = {
     zh: "在昔日的金矿山城九份，手搓的芋圆与地瓜圆——软糯微甜，可配热汤，也可铺在刨冰上——成了这条老街的招牌。阿柑姨与赖阿婆两家彼此较劲，数十年来让人龙沿石阶排上去。",
     ja: "かつての金鉱の山あいの町、九份では、手で丸めた芋圓とさつまいも団子が名物になりました。もちもちとほのかな甘みで、温かい汁にも、かき氷の上にも。競い合う阿柑姨と賴阿婆の二軒は、数十年にわたり石段の上まで行列を伸ばしてきました。",
     es: "En Jiufen, el viejo pueblo minero de la ladera, las bolas de taro y boniato hechas a mano —masticables, apenas dulces, en caldo caliente o sobre hielo raspado— se volvieron la seña de la calle. Los locales rivales A-Gan-Yi y Lai A-Po llevan décadas alargando colas escaleras de piedra arriba.",
+    ko: "옛 금광 산마을 주펀에서는 손으로 빚은 토란과 고구마 경단이 거리의 얼굴이 됐습니다. 쫄깃하고 은은히 달며 따뜻한 국물이나 빙수에 냅니다. 경쟁하는 아간이와 라이아포는 수십 년째 돌계단 위로 줄을 세웁니다.",
   },
   "Johor Bahru::Kacang pool": {
     id: "Tafsiran Johor Bahru atas ful Timur Tengah — kacang babi yang dilumatkan, daging sapi cincang, telur mentah, dan roti panggang.",
@@ -971,6 +1090,7 @@ module.exports = {
     zh: "新山版的中东豆泥：捣碎的蚕豆、牛肉碎、一颗生鸡蛋，配烤面包。",
     ja: "中東のフールをジョホールバルが読み替えた一皿。潰したそら豆に牛ひき肉、生卵、そしてトーストを添えます。",
     es: "La lectura de Johor Bahru del ful de Oriente Medio: habas machacadas, carne picada de ternera, un huevo crudo y pan tostado.",
+    ko: "중동의 풀을 조호르바루식으로 풀어낸 요리입니다. 으깬 잠두에 다진 소고기와 날달걀, 토스트를 곁들입니다.",
   },
   "Kangar::Laksa Perlis": {
     id: "Laksa negeri Perlis, termasyhur di kota nelayan Kuala Perlis dekat Kangar, memakai mi tepung beras buatan tangan dan kuah yang jauh lebih padat ikan giling — kembung dan selar dengan bunga kantan serta kesum — dibanding laksa utara lainnya, sehingga kental dan pucat, bukan merah.",
@@ -979,6 +1099,7 @@ module.exports = {
     zh: "玻璃市的州级叻沙，以近加央的渔镇瓜拉玻璃市最负盛名，用手工米粉，汤底掺入的鱼肉——鲛鱼与甘望鱼，配姜花与叻沙叶——比北马其他叻沙都多，因此浓稠偏白，而非红色。",
     ja: "ペルリス州のラクサは、カンガー近郊の漁町クアラ・ペルリスで名を馳せます。手打ちの米粉麺を使い、汁にはサバやムロアジのすり身をトーチジンジャーとクスムとともに、ほかの北部ラクサよりずっと多く溶かし込みます。だから赤くはならず、白く濃厚に仕上がります。",
     es: "La laksa del estado de Perlis, célebre en el pueblo pesquero de Kuala Perlis, cerca de Kangar, usa fideos de harina de arroz hechos a mano y una salsa cargada de mucho más pescado molido —caballa y jurel con jengibre antorcha y kesum— que las demás laksas del norte, lo que la deja espesa y pálida en vez de roja.",
+    ko: "캉가르 인근 어촌 쿠알라프를리스에서 이름난 프를리스의 락사입니다. 손으로 만든 쌀국수에 다른 북부 락사보다 훨씬 많은 생선살을 갈아 넣고, 고등어와 전갱이에 붕아 칸탄과 크숨을 더해 붉기보다 걸쭉하고 뽀얗습니다.",
   },
   "Kangar::Pulut Harumanis": {
     id: "Sajian musiman Perlis berupa ketan santan yang disantap dengan Harumanis, klon mangga MA 128 berdaging jingga dan harum yang tumbuh optimal hanya di iklim panas kering Perlis. Terilhami ketan mangga Thailand di seberang perbatasan, puncaknya pada panen April hingga Juni.",
@@ -987,6 +1108,7 @@ module.exports = {
     zh: "玻璃市的时令甜点：椰浆糯米配Harumanis——香气浓郁、果肉橙黄的芒果品系MA 128，只有在玻璃市炎热干燥的气候里才长得最好。灵感来自边境另一侧的泰式芒果糯米饭，每年四至六月产季最盛。",
     ja: "ペルリスの季節の楽しみで、ココナッツミルクのもち米にハルマニスを添えます。オレンジ色の果肉をもつ香り高いマンゴーの系統MA 128で、ペルリスの暑く乾いた気候でしか本領を発揮しません。すぐ国境の向こうのタイのマンゴーもち米に着想を得ており、四月から六月の収穫期が最盛期です。",
     es: "Un manjar de temporada de Perlis: arroz glutinoso al coco con harumanis, el clon de mango MA 128 de pulpa anaranjada y muy aromático que solo cuaja del todo en el clima cálido y seco de Perlis. Inspirado en el arroz glutinoso con mango tailandés al otro lado de la frontera, tiene su punto álgido en la cosecha de abril a junio.",
+    ko: "코코넛 찰밥을 하루마니스와 함께 먹는 프를리스의 제철 별미입니다. 하루마니스는 과육이 주황빛인 향긋한 망고 품종 MA 128로 덥고 건조한 프를리스에서만 제대로 자랍니다. 국경 너머 태국의 망고 찰밥에서 영감을 얻었고 해마다 4월에서 6월에 절정입니다.",
   },
   "Kaohsiung::Papaya milk": {
     id: "Pepaya segar yang diblender dengan susu dingin menjadi minuman penanda Kaohsiung di selatan yang tropis, dengan kedai Zheng Lao Pai berusia puluhan tahun di Pasar Malam Liuhe sebagai penjual paling termasyhur. Tamu negara maupun wisatawan sama-sama mengantre untuk segelas kental yang terasa masih berbutir segar.",
@@ -995,6 +1117,7 @@ module.exports = {
     zh: "新鲜木瓜打进冰牛奶，成了热带南台湾高雄的代表饮品，六合夜市开了数十年的郑老牌是最有名的一摊。来访贵宾与游客同样为那杯浓稠带果粒的木瓜牛奶排队。",
     ja: "熟れた青パパイヤを冷たい牛乳とともに攪拌したこの一杯は、熱帯の南部・高雄を代表する飲みものです。六合夜市で数十年続く「鄭老牌」がもっとも名高く、来賓も観光客も、とろりと果肉の粒立つグラスを求めて列をつくります。",
     es: "La papaya fresca batida con leche fría se volvió la bebida emblema de Kaohsiung, en el sur tropical, y su vendedor más famoso es el puesto Zheng Lao Pai, con décadas de historia, en el mercado nocturno de Liuhe. Dignatarios y turistas hacen cola por igual por ese vaso espeso y de textura fresca.",
+    ko: "생파파야를 찬 우유에 갈아 낸 음료가 열대의 남부 가오슝을 대표하게 됐고, 류허 야시장의 수십 년 된 정라오파이 노점이 가장 이름났습니다. 방문한 귀빈도 여행자도 걸쭉하고 알갱이가 살아 있는 한 잔을 위해 줄을 섭니다.",
   },
   "Kaohsiung::Qijin harbour seafood": {
     id: "Kaohsiung menyantap pelabuhannya sendiri: warga menyeberang dengan feri ke pulau Qijin, tempat jalan makanan laut di Miaoqian Road menjajarkan tangki tangkapan hidup — kerang, udang, ikan — dimasak sesuai pesanan hanya beberapa menit dari perahu. Inilah ritual makanan laut segar pelabuhan yang klasik di Taiwan selatan.",
@@ -1003,6 +1126,7 @@ module.exports = {
     zh: "高雄吃的是自家的港：市民搭渡轮过旗津，庙前路的海产街一缸缸摆着活货——蛤蜊、虾、鱼——现点现煮，离渔船不过几分钟。这是南台湾最经典的港边现流海鲜仪式。",
     ja: "高雄は自らの港を食べる街です。市民はフェリーで旗津島へ渡り、廟前路の海鮮通りに並ぶ生け簀から、貝、海老、魚を選んでその場で調理してもらいます。船からわずか数分。南台湾の、港の鮮度を味わう古典的な作法です。",
     es: "Kaohsiung se come su propio puerto: los vecinos cruzan en ferri a la isla de Qijin, donde la calle marisquera de Miaoqian alinea tanques con la captura viva —almejas, gambas, pescado— cocinada al momento a minutos de las barcas. Es el ritual clásico del marisco recién desembarcado del sur de Taiwán.",
+    ko: "가오슝은 자기 항구를 먹습니다. 사람들은 배를 타고 치진섬으로 건너가 먀오첸로의 해산물 거리에 늘어선 수조에서 조개와 새우, 생선을 골라 즉석에서 조리해 먹습니다. 남부 대만의 전형적인 항구 해산물 의식입니다.",
   },
   "Keelung::Dingbiancuo": {
     id: "Di Pasar Malam Miaokou Keelung, dingbiancuo dibuat dengan mengalirkan adonan beras di sepanjang tepi wajan panas hingga mengeras menjadi lembaran licin, lalu direbus bersama cumi, jamur, udang kering, dan kubis. Hidangan berakar Fuzhou ini disempurnakan kedai-kedai keluarga berusia seabad.",
@@ -1011,6 +1135,7 @@ module.exports = {
     zh: "在基隆庙口夜市，鼎边趖是把米浆沿滚烫的锅边淋下，凝成滑嫩的薄片，再与鱿鱼、香菇、虾米和高丽菜同煮。这道源自福州的小吃，由百年家传摊子磨到极致。",
     ja: "基隆の廟口夜市の鼎邊趖は、熱した鍋の縁に米の生地を回しかけ、なめらかな薄い層に固めてから、イカ、椎茸、干し海老、キャベツとともに煮ます。福州に根をもつ料理を、百年続く家族の屋台が磨き上げました。",
     es: "En el mercado nocturno de Miaokou, en Keelung, el dingbiancuo se hace vertiendo masa de arroz por el borde caliente del wok hasta que cuaja en láminas sedosas, que luego se guisan con calamar, setas, gamba seca y col. Un plato de raíz fuzhounesa, perfeccionado por puestos familiares centenarios.",
+    ko: "지룽 먀오커우 야시장의 딩볜추오는 쌀 반죽을 뜨거운 웍 가장자리에 둘러 부어 매끄러운 판으로 굳힌 뒤, 오징어와 버섯, 건새우, 양배추와 함께 끓입니다. 푸저우에 뿌리를 두고 백 년 된 가족 노점들이 다듬었습니다.",
   },
   "Khon Kaen::Kai yang khao suan kwang": {
     id: "Ayam kampung panggang dari distrik Khao Suan Kwang, dijual di samping stasiun sejak zaman kereta api. Ayam utuh berumur 55 hari dijepit bambu di atas tungku tanah liat; lebih dari 120 pemanggang menghasilkan sekitar 5.000 ekor setiap hari, beberapa di antaranya masuk daftar Michelin.",
@@ -1019,6 +1144,7 @@ module.exports = {
     zh: "考素广县的放养烤鸡，自铁路时代起就在车站旁开卖。整只五十五日龄的鸡夹在竹夹里，架在陶炉上烤；一百二十多个烤摊每天出鸡约五千只，其中数家获米其林收录。",
     ja: "カオスワンクワーン郡の地鶏の炭火焼きで、鉄道の時代から駅のかたわらで売られてきました。生後五十五日の鶏を丸ごと竹に挟み、土のかまどで焼きます。百二十を超える焼き手が日に五千羽ほどを出し、ミシュランに載る屋台もあります。",
     es: "Pollo de corral a la brasa del distrito de Khao Suan Kwang, vendido junto a la estación desde los tiempos del ferrocarril. Aves enteras de cincuenta y cinco días sujetas en pinzas de bambú sobre hornos de barro; más de ciento veinte asadores sacan unos cinco mil pollos al día, y algunos puestos figuran en Michelin.",
+    ko: "카오수언콰앙군에서 방목해 기른 닭을 구우며, 철도 시절부터 역 옆에서 팔았습니다. 55일 된 닭을 통째로 대나무 집게에 끼워 흙 화덕에 굽습니다. 120명이 넘는 구이꾼이 하루 5천 마리쯤을 내며 미슐랭에 오른 노점도 있습니다.",
   },
   "Klang::Bak kut teh (Klang)": {
     id: "Dibawa buruh pelabuhan Hokkien abad ke-19 sebagai tonik herbal; Lee Boon Teh membuka kedainya di Klang pada 1938 — satu versi menyebut \"Teh\" berasal dari namanya. Ditetapkan sebagai Warisan Kebangsaan Malaysia pada 2024.",
@@ -1027,6 +1153,7 @@ module.exports = {
     zh: "十九世纪由福建籍码头工人当作药膳带来；李文地1938年在巴生开档，有一说「肉骨茶」的「茶」即取自他的名字。2024年获列为马来西亚国家文化遗产。",
     ja: "十九世紀に福建系の港湾労働者が薬膳として持ち込みました。李文地が1938年にクランで店を開き、「茶（テー）」は彼の名に由来するとの説もあります。2024年にマレーシアの国家遺産に指定されました。",
     es: "Lo trajeron estibadores hokkien del siglo XIX como tónico de hierbas; Lee Boon Teh abrió su puesto en Klang en 1938 y una versión dice que el «teh» viene de su nombre. Declarado Patrimonio Nacional de Malasia en 2024.",
+    ko: "19세기 호키엔 부두 노동자들이 보양식으로 들여왔습니다. 리분테가 1938년 클랑에 노점을 열었고, '테'가 그의 이름이라는 설도 있습니다. 2024년 말레이시아 국가유산 음식으로 지정됐습니다.",
   },
   "Klang::Dry bak kut teh": {
     id: "Temuan Klang: kuahnya disusutkan menjadi saus claypot yang gelap dan asam pedas dengan cabai kering dan cumi — lebih dekat ke semur herbal daripada sup.",
@@ -1035,6 +1162,7 @@ module.exports = {
     zh: "巴生的创造：把汤收成深色带酸香的瓦煲酱汁，加干辣椒与鱿鱼——与其说是汤，不如说是药膳焖锅。",
     ja: "クラン発祥の一皿。スープを煮詰めて、乾燥唐辛子とイカを加えた黒く酸味のある土鍋の煮汁に仕立てます。スープというより薬膳の煮込みに近い料理です。",
     es: "Un invento de Klang: el caldo reducido hasta una salsa oscura y ácida en cazuela de barro, con chiles secos y calamar; más un guiso de hierbas que una sopa.",
+    ko: "클랑에서 만들어졌습니다. 국물을 졸여 말린 고추와 오징어를 넣은 짙고 새콤한 뚝배기 소스로 바꾼 것으로, 국이라기보다 약재 스튜에 가깝습니다.",
   },
   "Koh Samui::Samui coconut foodways": {
     id: "Sebelum pariwisata, Samui adalah pulau kelapa Thailand; kebun berumur lebih dari seabad masih berdiri. Masakan setempat — kari krim kelapa, es krim kathi, air kelapa segar — dibangun di atas tanaman ini, yang aktif dilestarikan warganya.",
@@ -1043,6 +1171,7 @@ module.exports = {
     zh: "在旅游业到来之前，苏梅是泰国的椰子岛；百年以上的椰林至今仍在。当地饮食——椰浆咖喱、椰奶冰淇淋、鲜椰水——都建立在这一作物上，岛民也在主动保护它。",
     ja: "観光が来る前、サムイはタイの椰子の島でした。樹齢百年を超える林が今も残っています。ココナッツクリームのカレー、カティのアイスクリーム、生の椰子水——土地の料理はこの作物の上に成り立ち、島の人びとは今もその保全に努めています。",
     es: "Antes del turismo, Samui era la isla del coco de Tailandia; aún quedan palmerales de más de un siglo. La cocina local —curris con crema de coco, helado de kathi, agua de coco fresca— se apoya en ese cultivo, que los habitantes trabajan activamente por conservar.",
+    ko: "관광 이전의 사무이는 태국의 코코넛 섬이었고 백 년 넘은 숲이 지금도 서 있습니다. 코코넛크림 카레와 까티 아이스크림, 생코코넛 워터 같은 이곳의 요리는 이 작물 위에 세워졌으며 주민들은 이를 지키려 애쓰고 있습니다.",
   },
   "Kota Bharu::Ayam percik": {
     id: "Ayam dipanggang sambil berulang kali disiram (\"percik\") saus santan manis yang kaya rempah hingga meresap. Versi Kelantan lebih manis daripada di tempat lain dan menjadi pasangan klasik nasi kerabu, dipopulerkan gerai-gerai lama di Kota Bharu.",
@@ -1051,6 +1180,7 @@ module.exports = {
     zh: "鸡在炭火上边烤边一次次淋（percik）上香料丰富的甜椰浆酱，直到入味。吉兰丹版本比别处更甜，是nasi kerabu的经典搭档，由哥打峇鲁多年老摊带红。",
     ja: "鶏を焼きながら、香辛料を利かせた甘いココナッツソースを何度も「はねかけ（プルチッ）」て染み込ませます。クランタン式はほかより甘く、ナシ・クラブの定番の相棒です。コタバルの長く続く屋台が広めました。",
     es: "Pollo asado mientras se le salpica una y otra vez («percik») con una salsa dulce de leche de coco y muchas especias hasta que la absorbe. La versión kelantanesa es más dulce que en otros sitios y acompaña clásicamente al nasi kerabu, popularizada por puestos veteranos de Kota Bharu.",
+    ko: "닭을 구우면서 달콤하고 향신료가 진한 코코넛밀크 소스를 거듭 끼얹어('프르칙') 배어들게 합니다. 클란탄식은 다른 곳보다 달고 나시 크라부의 고전적인 짝이며, 오래된 코타바루 노점들이 널리 알렸습니다.",
   },
   "Kota Bharu::Budu": {
     id: "Saus ikan bilis fermentasi dari pesisir timur Malaysia, dibuat dengan menggarami ikan bilis lalu mematangkannya lima hingga enam bulan dalam tempayan. Kerajinan pengawetan Kelantan yang berumur generasi ini disantap dengan nasi, ikan, dan sayur mentah, dan diakui sebagai makanan warisan kebangsaan.",
@@ -1059,6 +1189,7 @@ module.exports = {
     zh: "马来西亚东海岸的发酵鳀鱼酱：把ikan bilis腌盐后，在陶瓮中熟成五到六个月。这是吉兰丹世代相传的保存手艺，配饭、鱼与生菜同食，并获认定为国家遗产食品。",
     ja: "マレーシア東海岸の発酵カタクチイワシ醤です。イカン・ビリスを塩漬けにし、甕で五、六か月ねかせます。クランタンで代々受け継がれてきた保存の技で、飯や魚、生野菜とともに食べられ、国家遺産食品に認定されています。",
     es: "Salsa de anchoa fermentada de la costa este de Malasia: se salan los ikan bilis y se dejan madurar cinco o seis meses en tinajas. Un oficio de conservación kelantanés transmitido durante generaciones, comido con arroz, pescado y verdura cruda, y reconocido como alimento patrimonial nacional.",
+    ko: "말레이시아 동해안의 발효 멸치 소스입니다. 이칸 빌리스를 소금에 절여 항아리에서 다섯에서 여섯 달 숙성시킵니다. 대를 이어 온 클란탄의 저장 기술로 밥과 생선, 생채소와 함께 먹으며 국가유산 음식으로 인정받았습니다.",
   },
   "Kota Bharu::Nasi kerabu": {
     id: "Nasi yang dibirukan dengan bunga telang, disantap bersama ulam segar, sambal, ikan, dan keropok. Diyakini sudah ada sekitar abad ke-15 di lingkungan campuran Melayu-Tionghoa-Thai Kelantan, dan diwartakan di antara 213 makanan warisan kebangsaan Malaysia.",
@@ -1067,6 +1198,7 @@ module.exports = {
     zh: "以蝶豆花染蓝的饭，配新鲜生菜香草（ulam）、参峇、鱼与虾饼。一般认为约在十五世纪成形于吉兰丹马来、华人与泰人杂处的环境，并已列入马来西亚213项国家遗产美食名录。",
     ja: "バタフライピーの花で青く染めた飯を、生の香草ウラム、サンバル、魚、揚げせんべいとともに食べます。十五世紀ごろ、マレー・華人・タイが混じり合うクランタンの土壌で生まれたとされ、マレーシアの213の国家遺産料理の一つに数えられています。",
     es: "Arroz teñido de azul con flor de guisante mariposa, comido con hierbas frescas ulam, sambal, pescado y crujientes de gamba. Se cree que data de en torno al siglo XV en el medio mixto malayo-chino-tailandés de Kelantan, y figura entre las 213 comidas patrimoniales nacionales de Malasia.",
+    ko: "나비완두꽃으로 파랗게 물들인 밥을 신선한 울람 허브와 삼발, 생선, 크로폭과 함께 먹습니다. 말레이와 중국, 태국이 섞인 클란탄에서 대략 15세기부터 있었다고 보며, 말레이시아의 213개 국가유산 음식에 들어 있습니다.",
   },
   "Kota Kinabalu::Hinava": {
     id: "Hinava adalah salad ikan mentah khas Kadazan-Dusun di Sabah: ikan kembung segar dimatangkan dengan air jeruk nipis bersama cabai, jahe, bawang merah, peria, dan biji bambangan parut. Ditetapkan sebagai makanan warisan kebangsaan Malaysia pada 2009, hidangan ini menjadi bintang perayaan panen Kaamatan di sekitar Kota Kinabalu.",
@@ -1075,6 +1207,7 @@ module.exports = {
     zh: "Hinava是沙巴卡达山—杜顺族的生鱼沙拉：新鲜鲛鱼以青柠汁「腌熟」，拌辣椒、姜、红葱、苦瓜与磨碎的bambangan果核。2009年获列为马来西亚国家遗产美食，是亚庇一带Kaamatan丰收节的主角。",
     ja: "ヒナヴァはサバ州カダザン・ドゥスンの生魚サラダです。新鮮なサバをライム果汁で締め、唐辛子、生姜、赤わけぎ、ゴーヤ、すりおろしたバンバンガンの種を合わせます。2009年にマレーシアの国家遺産料理に指定され、コタキナバル周辺のカアマタン収穫祭の主役となっています。",
     es: "El hinava es la ensalada de pescado crudo kadazan-dusun de Sabah: caballa fresca curada en zumo de lima con chile, jengibre, chalota, melón amargo y semilla rallada de bambangan. Declarada comida patrimonial nacional de Malasia en 2009, protagoniza las fiestas de la cosecha Kaamatan en torno a Kota Kinabalu.",
+    ko: "히나바는 사바 카다잔두순족의 생선회 샐러드입니다. 생고등어를 라임즙에 절여 고추와 생강, 샬롯, 여주, 간 밤방간 씨를 넣습니다. 2009년 말레이시아 국가유산 음식에 올랐고, 코타키나발루 일대의 카마탄 추수 축제의 주인공입니다.",
   },
   "Kota Kinabalu::Ngiu chap": {
     id: "Ngiu chap (\"daging sapi campur\") adalah sup mi daging sapi kesayangan Sabah, ditelusuri ke perantau Tionghoa yang memakai seluruh bagian hewan — irisan daging, bakso, babat, dan lidah dalam kuah yang kaya. Kopitiam Kota Kinabalu menjadikannya semangkuk paling ikonik dalam keseharian kota.",
@@ -1083,6 +1216,7 @@ module.exports = {
     zh: "牛杂（ngiu chap，意为「牛什」）是沙巴人钟爱的牛肉面汤，源自把整头牛都用尽的华人移民——牛肉片、牛丸、牛肚与牛舌同在一锅浓汤里。亚庇的咖啡店把它变成这座城市最具代表性的日常一碗。",
     ja: "ンギウチャップ（「牛の寄せ集め」の意）はサバ州が愛する牛肉麺のスープです。牛を余さず使った華人移民に由来し、薄切り肉、団子、ハチノス、舌が濃いスープに集います。コタキナバルのコピティアムが、この街の日常を象徴する一椀に育てました。",
     es: "El ngiu chap («ternera mezclada») es la querida sopa de fideos con ternera de Sabah, rastreada hasta los inmigrantes chinos que aprovechaban el animal entero: lonchas, albóndigas, callos y lengua en un caldo sustancioso. Los kopitiams de Kota Kinabalu lo convirtieron en el cuenco cotidiano más icónico de la ciudad.",
+    ko: "'뉴찹'은 섞은 소고기라는 뜻으로 사바가 사랑하는 소고기 국수입니다. 소의 모든 부위를 쓰던 중국 이민자들에게서 이어져 저민 소고기와 완자, 양, 혀를 진한 국물에 넣습니다. 코타키나발루의 코피티암이 이 도시의 가장 상징적인 한 그릇으로 만들었습니다.",
   },
   "Kota Kinabalu::Tuaran mee": {
     id: "Tuaran mee adalah mi telur keemasan ciptaan komunitas Hakka di Tuaran, dekat Kota Kinabalu. Mi yang kaya kuning telur itu ditumis di wajan dengan api besar sampai bagian dasarnya renyah, lalu dihias dengan babi panggang manis ala Tionghoa dan gulungan telur goreng — kesayangan pesisir barat Sabah.",
@@ -1091,6 +1225,7 @@ module.exports = {
     zh: "斗亚兰面是亚庇附近斗亚兰客家人做出的金黄蛋面。蛋黄丰厚的面条以猛火快炒到锅底焦香，再铺上甜口叉烧与煎蛋卷——沙巴西海岸的心头好。",
     ja: "トゥアラン麺は、コタキナバル近郊トゥアランの客家の人びとが生んだ黄金色の卵麺です。卵黄をたっぷり含んだ麺を強火の中華鍋で底が香ばしくなるまで焼き、甘い焼き豚と卵焼きの細巻きをのせます。サバ州西海岸の愛される一皿です。",
     es: "El tuaran mee es un fideo de huevo dorado creado por la comunidad hakka de Tuaran, cerca de Kota Kinabalu. Los fideos, ricos en yema, se saltean al wok a fuego vivo hasta que la base queda crujiente y se coronan con cerdo asado chino dulce y rollitos de tortilla: un favorito de la costa oeste de Sabah.",
+    ko: "투아란 미는 코타키나발루 인근 투아란의 객가 사람들이 만든 노란 달걀면입니다. 노른자가 진한 면을 센 불에 볶아 바닥을 바삭하게 만든 뒤 달콤한 중국식 구운 돼지고기와 달걀말이 튀김을 올리는 사바 서해안의 별미입니다.",
   },
   "Krabi::Hoi chak teen": {
     id: "Siput gonggong direbus sebentar sampai \"kakinya\" menyembul dari cangkang — penyantap menariknya keluar dan mencelupkannya ke saus makanan laut yang pedas menyengat. Dipanen di hamparan pasang surut Krabi, inilah ritual meja paling khas provinsi ini.",
@@ -1099,6 +1234,7 @@ module.exports = {
     zh: "把凤螺略煮至螺「脚」探出壳外——食客把它拽出来，蘸上呛辣的海鲜酱。这些螺采自甲米的潮间带滩涂，是本府最有特色的餐桌仪式。",
     ja: "スイジガイの仲間をさっと茹で、殻から「足」がのぞいたところを引き抜き、辛いシーフードだれにつけます。クラビーの干潟で採れるもので、この県のもっとも独特な食卓の作法です。",
     es: "Se hierve brevemente el caracol cobo hasta que el «pie» asoma de la concha: los comensales tiran de él y lo mojan en una salsa marinera ardiente. Recogido en los llanos mareales de Krabi, es el ritual de mesa más característico de la provincia.",
+    ko: "소라를 살짝 삶아 발이 껍데기 밖으로 나오게 하면 손님이 그것을 잡아 빼 매운 해산물 소스에 찍어 먹습니다. 끄라비의 갯벌에서 잡으며 이 주에서 가장 독특한 식탁 의식입니다.",
   },
   "Krabi::Khanom jeen nam ya tai": {
     id: "Mi beras fermentasi di bawah kari selatan yang garang — nam ya bersantan, kari kepiting, kaeng tai pla — disantap bersama setumpuk sayuran mentah. Makanan pokok kawasan selatan yang oleh Krabi diperlakukan sebagai sarapan definitifnya, dengan rumah mi termasyhur di seluruh kota.",
@@ -1107,6 +1243,7 @@ module.exports = {
     zh: "发酵米线浇上凶猛的南部咖喱——椰浆nam ya、蟹肉咖喱、kaeng tai pla——配大堆生菜同吃。这是整个南部的主食，甲米却把它当作自己最正统的早餐，城里名店林立。",
     ja: "発酵させた米麺に、南部の強烈なカレー——ココナッツのナムヤー、蟹カレー、ケーンタイプラー——をかけ、生野菜を山ほど添えて食べます。南部全体の常食ですが、クラビーはこれを自らの朝食の定番として扱い、街じゅうに名店があります。",
     es: "Fideos de arroz fermentado bajo curris meridionales feroces —nam ya de coco, curri de cangrejo, kaeng tai pla— comidos con montones de verdura cruda. Un básico de todo el sur que Krabi trata como su desayuno definitivo, con casas de fideos famosas por toda la ciudad.",
+    ko: "발효 쌀국수에 코코넛 남야와 게 카레, 깽 따이쁠라 같은 남부의 강한 카레를 끼얹고 생채소를 수북이 곁들입니다. 남부 전역의 주식이지만 끄라비는 이를 확실한 아침으로 삼으며 시내 곳곳에 이름난 국숫집이 있습니다.",
   },
   "Kuala Belait::Ambuyat": {
     id: "Tak ada hidangan terverifikasi yang berasal dari Kuala Belait sendiri; kota minyak ini menyantap meja nasional. Ambuyat — pati sagu yang dililitkan pada chandas dan dicelup ke cacah — adalah hidangan yang patut dicari di sini, dengan Pasar Tudung Saji disebut sebagai tempat ambuyat paling dikenal di distrik ini.",
@@ -1115,6 +1252,7 @@ module.exports = {
     zh: "没有哪道菜可确证源自马来奕本地；这座石油城吃的是全国共同的一桌。要找的应是ambuyat——缠在竹筷上、蘸cacah酱的西谷米淀粉——本区最有名的去处，一般公认是Tudung Saji市场。",
     ja: "クアラ・ブライト自体を発祥とする料理は、確かなものがありません。この石油の町は国の食卓を共有しています。ここで求めるべきはアンブヤット——チャンダスに巻き、チャチャにつけるサゴ澱粉——で、地区でもっとも知られた店はトゥドン・サジ市場だとされます。",
     es: "Ningún plato verificado se origina en Kuala Belait; la ciudad petrolera come de la mesa nacional. El ambuyat —almidón de sagú enrollado en chandas y mojado en cacah— es lo que hay que buscar aquí, y el mercado de Tudung Saji está citado como el sitio de ambuyat más conocido del distrito.",
+    ko: "쿠알라블라잇 자체에서 비롯됐다고 확인되는 요리는 없으며, 이 석유 도시는 나라의 식탁을 함께 먹습니다. 사고 전분을 찬다스에 감아 차차에 찍는 암부얏이 이곳에서 찾을 음식이며, 투둥 사지 시장이 이 지역에서 가장 이름난 암부얏 자리로 꼽힙니다.",
   },
   "Kuala Lumpur::KL Hokkien mee": {
     id: "Lahir di Kuala Lumpur tahun 1920-an — mi tebal dimasak dengan kecap gelap dan remahan lemak babi, dikaitkan dengan Kim Lian Kee di Petaling Street.",
@@ -1123,6 +1261,7 @@ module.exports = {
     zh: "诞生于1920年代的吉隆坡：粗面以黑酱油焖煮，撒上炸猪油渣，一般归功于茨厂街的金莲记。",
     ja: "1920年代のクアラルンプールで生まれた一品。太麺を濃口醤油で煮込み、揚げた豚脂を散らします。ペタリン通りの金蓮記が考案したと伝えられます。",
     es: "Nacido en el Kuala Lumpur de los años veinte: fideos gruesos guisados en salsa de soja oscura con chicharrones de manteca, atribuidos a Kim Lian Kee, en Petaling Street.",
+    ko: "1920년대 쿠알라룸푸르에서 생겼습니다. 굵은 면을 진간장에 조리고 라드 튀김을 올리며, 프탈링 거리의 킴리안키가 만들었다고 전해집니다.",
   },
   "Kuala Lumpur::Nasi lemak": {
     id: "Hidangan nasional Malaysia berbahan nasi santan — dulu sarapan petani yang dibungkus daun pisang, kini disantap kapan saja, di mana saja.",
@@ -1131,6 +1270,7 @@ module.exports = {
     zh: "马来西亚的椰浆饭国菜——从前是包在香蕉叶里的农人早餐，如今随时随地都能吃到。",
     ja: "ココナッツミルクで炊いた飯を主役にしたマレーシアの国民食。かつてはバナナの葉に包んだ農民の朝食でしたが、今ではいつでもどこでも食べられています。",
     es: "El plato nacional malasio de arroz al coco: antaño el desayuno del campesino envuelto en hoja de plátano, hoy se come a cualquier hora y en cualquier sitio.",
+    ko: "말레이시아의 국민 음식인 코코넛 밥입니다. 한때는 바나나잎에 싸 먹던 농부의 아침이었지만, 지금은 어느 때 어디서나 먹습니다.",
   },
   "Kuala Lumpur::Wanton mee (KL style)": {
     id: "Kuala Lumpur membanjiri mi pangsitnya dengan kecap gelap berkaramel dan lemak babi — kebalikan visual dari versi Singapura yang pucat.",
@@ -1139,6 +1279,7 @@ module.exports = {
     zh: "吉隆坡的云吞面浸在焦糖化的黑酱油与猪油里，与新加坡的浅色版本形成鲜明对比。",
     ja: "クアラルンプールの雲吞麺は、カラメル状の濃口醤油とラードをたっぷりまとわせます。色の淡いシンガポール版とは見た目からして正反対です。",
     es: "Kuala Lumpur baña sus fideos wantán en salsa de soja oscura caramelizada y manteca de cerdo: el opuesto visual de la versión pálida de Singapur.",
+    ko: "쿠알라룸푸르는 완탕면에 캐러멜빛 진간장과 라드를 듬뿍 두릅니다. 싱가포르의 옅은 버전과 보기부터 정반대입니다.",
   },
   "Kuala Terengganu::Keropok lekor": {
     id: "\"Kerupuk\" ikan dan sagu yang kenyal, lahir di komunitas nelayan Terengganu lebih dari seabad lalu — \"lekor\" dari lingkar, gulungan. Kampung Losong, hanya beberapa menit dari pusat Kuala Terengganu, diakui sebagai tempat perdagangan ini bermula dan menarik pembeli dari seluruh negeri sejak 1970-an.",
@@ -1147,6 +1288,7 @@ module.exports = {
     zh: "以鱼肉与西谷米做成的弹牙「鱼饼」，一百多年前生于登嘉楼的渔村——lekor取自lingkar，意为「卷」。距瓜拉登嘉楼市中心只几分钟的Kampung Losong被认为是这门生意的起点，自1970年代起吸引全国买家。",
     ja: "魚とサゴでつくる歯ごたえのある「せんべい」で、百年以上前にトレンガヌの漁村で生まれました。「レコール」は「巻き」を意味するリンカルに由来します。クアラ・トレンガヌ中心部から数分のカンポン・ロソンが商いの発祥地とされ、1970年代から全国の客を集めています。",
     es: "«Crujientes» correosos de pescado y sagú, nacidos hace más de un siglo en las comunidades pesqueras de Terengganu; «lekor» viene de lingkar, espiral. Kampung Losong, a minutos del centro de Kuala Terengganu, está reconocido como donde empezó el oficio y atrae compradores de todo el país desde los años setenta.",
+    ko: "백 년도 더 전에 트렝가누 어촌에서 태어난 쫄깃한 생선 사고 과자입니다. '르코르'는 감는다는 뜻의 링카르에서 왔습니다. 쿠알라트렝가누 도심에서 몇 분 거리의 캄풍 로송이 그 시작으로 꼽히며 1970년대부터 전국의 손님을 불러 왔습니다.",
   },
   "Kuala Terengganu::Nasi dagang": {
     id: "Beras pulut dan beras wangi dikukus dua kali dalam santan bersama halba, disantap dengan gulai ikan tongkol dan acar — sarapan penanda Kuala Terengganu. Asalnya diperdebatkan: Terengganu menyebut bekal melaut para nelayan, Kelantan mengaitkannya dengan Puteri Saadong. Makanan warisan kebangsaan sejak 2009.",
@@ -1155,6 +1297,7 @@ module.exports = {
     zh: "糯米与香米在椰浆中加葫芦巴籽蒸两次，配金枪鱼咖喱与腌菜同食——这是瓜拉登嘉楼的招牌早餐。来历有争议：登嘉楼说是渔民出海的干粮，吉兰丹则搬出莎东公主的典故。2009年起列为国家遗产美食。",
     ja: "もち米と香り米をココナッツミルクとフェヌグリークで二度蒸し、ツナのカレーと漬物を添えます。クアラ・トレンガヌを代表する朝食です。由来は争われ、トレンガヌは漁師の船上の携行食を挙げ、クランタンはプトゥリ・サアドン妃の逸話を持ち出します。2009年から国家遺産料理です。",
     es: "Arroz glutinoso y aromático cocido dos veces al vapor en leche de coco con fenogreco, comido con curri de atún y encurtidos: el desayuno que define Kuala Terengganu. El origen se discute: Terengganu habla del avituallamiento de los pescadores, Kelantan invoca a la reina Puteri Saadong. Comida patrimonial nacional desde 2009.",
+    ko: "찹쌀과 향미를 코코넛밀크에 호로파를 넣고 두 번 쪄서 참치 카레와 절임을 곁들입니다. 쿠알라트렝가누를 대표하는 아침입니다. 유래는 논쟁 중으로 트렝가누는 어부의 뱃길 식량을, 클란탄은 푸테리 사동 왕비를 듭니다. 2009년부터 국가유산 음식입니다.",
   },
   "Kuala Terengganu::Sata": {
     id: "Ikan segar diuli dengan kelapa parut, bawang merah, cabai, dan rempah, dibungkus daun pisang lalu dipanggang di atas bara sehingga beraroma asap. Tradisi Melayu pesisir timur yang diklaim baik oleh Terengganu maupun Kelantan, dihidangkan pada kenduri dan di panggangan tepi jalan Kuala Terengganu.",
@@ -1163,6 +1306,7 @@ module.exports = {
     zh: "鲜鱼与椰丝、红葱、辣椒和香料揉合，包进香蕉叶在炭火上烤出烟熏气。这是东海岸马来人的传统，登嘉楼与吉兰丹都自认是主人；宴席上有，瓜拉登嘉楼的路边炭烤摊也有。",
     ja: "新鮮な魚をココナッツの削り身、赤わけぎ、唐辛子、香辛料と練り合わせ、バナナの葉に包んで炭火で燻し焼きにします。東海岸のマレーの伝統で、トレンガヌとクランタンの双方が自らのものと主張します。祝宴でも、クアラ・トレンガヌの路傍の炭火でも供されます。",
     es: "Pescado fresco amasado con coco rallado, chalota, chile y especias, envuelto en hoja de plátano y asado sobre brasas hasta ahumarse. Una tradición malaya de la costa este que reclaman tanto Terengganu como Kelantan, servida en banquetes y en las parrillas de carretera de Kuala Terengganu.",
+    ko: "생선살에 간 코코넛과 샬롯, 고추, 향신료를 치대 바나나잎에 싸서 잿불에 구워 훈향을 입힙니다. 트렝가누와 클란탄이 함께 주장하는 동해안 말레이의 전통으로, 잔치와 쿠알라트렝가누 길가 그릴에서 냅니다.",
   },
   "Kuantan::Ikan bakar petai Tanjung Lumpur": {
     id: "Tanjung Lumpur, kawasan nelayan Kuantan, menjadikan ikan bakar bertimbun sambal cabai petai sebagai cara makannya yang khas; para pengulas menyebutnya kreasi Kuantan sendiri, dengan panggangan tepi laut yang beroperasi sejak 1970-an dan cabang yang kini melampaui Pahang.",
@@ -1171,6 +1315,7 @@ module.exports = {
     zh: "关丹的渔业区丹绒龙布（Tanjung Lumpur）把烤鱼堆上臭豆参峇辣酱，做成自家的吃法；评论者称这是关丹的原创。海边烧烤摊自1970年代营业至今，分店如今已开出彭亨州外。",
     ja: "クアンタンの漁業地区タンジュン・ルンプールは、焼き魚にプタイ（臭豆）入りのサンバルを山盛りにする食べ方を自らの流儀にしました。評者はこれをクアンタン独自の創作と呼びます。海沿いの炭火の店は1970年代から続き、支店はパハン州の外にも広がっています。",
     es: "Tanjung Lumpur, el barrio pesquero de Kuantan, hizo del pescado a la brasa colmado de sambal de chile con petai —el «haba apestosa»— su manera propia de comer; los comentaristas lo llaman una creación kuantanesa. Las parrillas del paseo marítimo funcionan desde los años setenta y hoy tienen sucursales fuera de Pahang.",
+    ko: "쿠안탄의 어촌 탄중룸푸르는 구운 생선에 프타이 고추 삼발을 수북이 올려 먹는 방식을 자기 것으로 만들었습니다. 이곳에서 만들어졌다고 보며, 1970년대부터 바닷가 그릴이 이어져 왔고 지금은 파항 밖에도 분점이 있습니다.",
   },
   "Kuantan::Ikan patin masak tempoyak": {
     id: "Ikan patin dari Sungai Pahang direbus dalam durian fermentasi (tempoyak), gulai tanpa santan yang diakui sebagai Warisan Kebangsaan Malaysia sejak 2009. Jantungnya ada di Temerloh dan Jerantut di Pahang barat, tetapi hidangan ini lazim di meja seluruh Pahang, termasuk Kuantan.",
@@ -1179,6 +1324,7 @@ module.exports = {
     zh: "彭亨河的银鲶以发酵榴梿（tempoyak）烹煮，是一道不放椰浆的咖喱，2009年起获认定为马来西亚国家遗产美食。腹地在西彭亨的淡马鲁与而连突，但整个彭亨——包括关丹——的餐桌上都少不了它。",
     ja: "パハン川の銀ナマズを発酵ドリアン（テンポヤ）で煮込んだ、ココナッツを使わないグライです。2009年からマレーシアの国家遺産料理に認定されています。中心地は西パハンのテメルロとジェラントゥットですが、クアンタンを含む州じゅうの食卓に上ります。",
     es: "Baga plateada del río Pahang guisada en durián fermentado (tempoyak), un gulai sin leche de coco reconocido como Patrimonio Nacional de Malasia desde 2009. Su corazón está en Temerloh y Jerantut, al oeste de Pahang, pero se come en mesas de todo el estado, Kuantan incluida.",
+    ko: "파항강의 은메기를 발효 두리안 템포약에 끓인 코코넛 없는 굴라이로, 2009년부터 말레이시아 국가유산입니다. 본거지는 서파항의 트메를로와 제란툿이지만 쿠안탄을 포함한 파항의 식탁에 늘 오릅니다.",
   },
   "Kuantan::Mee calong": {
     id: "Sup mi bakso ikan buatan rumahan yang berakar di Beserah, kampung nelayan Kuantan: ikan segar direbus, dilumatkan, dan diikat dengan tepung jagung, lalu disajikan dengan mi, tahu goreng, dan kuah berlada. Dirintis pedagang Cik Kadir, hidangan ini menjadi daya tarik wisata Beserah.",
@@ -1187,6 +1333,7 @@ module.exports = {
     zh: "一碗手作鱼丸汤面，根在关丹的渔村白沙罗（Beserah）：鲜鱼煮熟捣烂、以玉米粉黏合，再配面条、炸豆腐与胡椒汤。由摊商Cik Kadir开创，成了白沙罗的旅游卖点。",
     ja: "クアンタンの漁村ブセラに根ざす、手づくり魚団子の汁麺です。新鮮な魚を茹でて潰し、コーンスターチでつなぎ、麺、揚げ豆腐、胡椒のスープと合わせます。行商のチェッ・カディルが始め、ブセラを訪ねる楽しみのひとつになりました。",
     es: "Una sopa casera de fideos con bolas de pescado arraigada en Beserah, la aldea pesquera de Kuantan: el pescado fresco se hierve, se machaca y se liga con harina de maíz, y se sirve con fideos, tofu frito y caldo a la pimienta. La fundó el comerciante Cik Kadir y se volvió un reclamo turístico de Beserah.",
+    ko: "쿠안탄의 어촌 브세라에 뿌리를 둔 집에서 만드는 어묵 국수입니다. 생선을 삶아 으깨 옥수수 전분으로 뭉친 뒤 국수와 튀긴 두부, 후추 국물과 함께 냅니다. 상인 칙 카디르가 시작해 브세라의 관광 명물이 됐습니다.",
   },
   "Kuching::Kek lapis Sarawak": {
     id: "Kek lapis Sarawak adalah kue lapis bermotif rumit khas negeri ini, sajian wajib di bazar Kuching saat perayaan. Asalnya diperdebatkan: turunan lapis legit Indonesia yang dibawa orang Betawi pada 1970-an, atau diklaim sebagai resep Melayu Sarawak-Brunei. Dilindungi secara geografis di Malaysia sejak 2010.",
@@ -1195,6 +1342,7 @@ module.exports = {
     zh: "砂拉越千层糕是本州图案繁复的层糕，节庆时古晋集市上的必备。来历有争议：一说源自1970年代betawi人带入的印尼lapis legit，一说本就是砂拉越—文莱马来人的方子。2010年起在马来西亚获地理标志保护。",
     ja: "ケク・ラピス・サラワクは、緻密な模様をもつ州のレイヤーケーキで、祝祭期のクチンのバザールに欠かせません。由来には二説あり、1970年代にブタウィの人びとが持ち込んだインドネシアのラピス・レギット由来とも、サラワク・ブルネイのマレー系の菓子とも言われます。2010年からマレーシアで地理的表示の保護を受けています。",
     es: "El kek lapis Sarawak es el pastel de capas con dibujos intrincados del estado, básico de fiesta en los bazares de Kuching. Su origen se discute: derivado del lapis legit indonesio traído por los betawi en los años setenta, o reivindicado como receta malaya de Sarawak y Brunéi. Protegido geográficamente en Malasia desde 2010.",
+    ko: "켁 라피스 사라왁은 정교한 무늬의 층 케이크로 쿠칭 시장의 명절 단골입니다. 유래는 논쟁 중입니다. 1970년대 브타위 사람들이 들여온 인도네시아 라피스 르깃에서 왔다는 설과 사라왁·브루나이 말레이의 조리법이라는 주장이 있습니다. 2010년부터 말레이시아 지리적 표시로 보호받습니다.",
   },
   "Kuching::Kolo mee": {
     id: "Kolo mee adalah mi kering khas Kuching, turunan mi Hakka yang dibawa perantau seperti Kiew Shao Nyap, yang datang dari Guangdong pada 1920-an. Mi kenyal diaduk dengan bumbu ringan bawang merah dan lemak babi; versi halal kini menghidangi semua komunitas.",
@@ -1203,6 +1351,7 @@ module.exports = {
     zh: "干捞面（kolo mee）是古晋的招牌，源自1920年代自广东南来的移民如邱绍业带来的客家面。面条弹牙，以红葱与猪油调成的清淡酱汁拌开；如今的清真版本让各族群都能吃上。",
     ja: "コロミーはクチンを代表する汁なし麺で、1920年代に広東から渡ったキュー・シャオニャップら移民が伝えた客家麺の系譜にあります。腰のある麺を、赤わけぎとラードの軽いたれで和えます。今ではハラール版もあり、あらゆる共同体が口にします。",
     es: "El kolo mee es el fideo seco insignia de Kuching, descendiente de los fideos hakka traídos por inmigrantes como Kiew Shao Nyap, llegado de Cantón en los años veinte. Fideos elásticos salteados en un aliño ligero de chalota y manteca; las versiones halal alimentan hoy a todas las comunidades.",
+    ko: "콜로 미는 쿠칭을 대표하는 비빔국수로, 1920년대 광둥에서 건너온 키우샤오냡 같은 이민자들이 들여온 객가 국수에서 이어졌습니다. 탱탱한 면을 샬롯과 라드로 가볍게 버무리며, 지금은 할랄로 바꾼 것이 모든 공동체를 먹입니다.",
   },
   "Kuching::Sarawak laksa": {
     id: "Laksa Sarawak lahir di Kuching, mula-mula dijual sekitar 1945 oleh perantau Teochew Goh Lik Teck di Carpenter Street; pasta merek Swallow milik keluarga Tan mempopulerkannya sejak 1960-an. Kuah santan sambal belacannya membuat Bourdain menyebutnya \"Sarapan Para Dewa\", dan kini berstatus warisan kebangsaan.",
@@ -1211,6 +1360,7 @@ module.exports = {
     zh: "砂拉越叻沙生于古晋，约1945年由潮州移民吴力德在亚答街开卖；陈家「燕子牌」叻沙酱自1960年代把它推广开来。参峇虾酱椰浆汤头让波登称之为「众神的早餐」，如今更列为国家遗产美食。",
     ja: "サラワク・ラクサはクチンで生まれました。1945年ごろ、潮州系移民の呉力徳がカーペンター街で売り始め、陳家の「スワロー」印のペーストが1960年代から広めました。サンバル・ブラチャンを効かせたココナッツのスープは、ボーデインに「神々の朝食」と呼ばれ、今では国家遺産料理です。",
     es: "La laksa de Sarawak nació en Kuching, vendida por primera vez hacia 1945 por el inmigrante teochew Goh Lik Teck en Carpenter Street; la pasta de marca Swallow de la familia Tan la popularizó desde los años sesenta. Su caldo de coco con sambal belacan le valió el «desayuno de los dioses» de Bourdain y la condición de patrimonio nacional.",
+    ko: "사라왁 락사는 쿠칭에서 태어났습니다. 1945년경 조주 이민자 고릭텍이 카펜터 거리에서 처음 팔았고, 탄 집안의 스왈로 페이스트가 1960년대부터 널리 퍼뜨렸습니다. 삼발 블라찬 코코넛 국물로 보데인의 '신들의 아침'이라는 말과 국가유산 지위를 얻었습니다.",
   },
   "Kyoto::Kyo-kaiseki": {
     id: "Penghalusan Kyoto atas santapan upacara teh menjadi masakan adiluhung — musiman, menahan diri, dan menjadi acuan santap mewah di seluruh Jepang.",
@@ -1219,6 +1369,7 @@ module.exports = {
     zh: "京都把茶会料理提炼成高级料理：讲究时令、克制内敛，成为日本各地精致餐饮的范本。",
     ja: "茶事の膳を京都が磨き上げた高級料理。季節を映し、抑制を利かせたその型は、日本各地の会席の手本となりました。",
     es: "El refinamiento kiotense de la comida de la ceremonia del té hasta convertirla en alta cocina: estacional, contenida y modelo del buen comer en todo Japón.",
+    ko: "다도의 식사를 고급 요리로 다듬은 교토의 방식입니다. 계절을 따르고 절제되어 있으며, 일본 전역 파인다이닝의 본이 되었습니다.",
   },
   "Kyoto::Obanzai": {
     id: "Masakan rumahan Kyoto yang diwariskan turun-temurun — sayur musiman, dashi, tanpa ada yang terbuang; kini disajikan di meja bar di seluruh kota.",
@@ -1227,6 +1378,7 @@ module.exports = {
     zh: "代代相传的京都家常菜：时令蔬菜、出汁，物尽其用；如今在全城的柜台前都吃得到。",
     ja: "代々受け継がれてきた京の家庭料理です。旬の野菜と出汁を使い、無駄を出しません。今では市中のカウンターでも供されます。",
     es: "La cocina casera de Kioto transmitida de generación en generación: verduras de temporada, dashi y nada que se desperdicie; hoy se sirve en barras por toda la ciudad.",
+    ko: "대를 이어 전해 온 교토의 가정식입니다. 제철 채소와 다시를 쓰고 버리는 것이 없으며, 지금은 도시 곳곳의 카운터에서 냅니다.",
   },
   "Kyoto::Saba-zushi": {
     id: "Lahir dari geografi: makerel asin dipikul dari Teluk Wakasa lewat \"saba-kaidō\", matang sempurna begitu tiba di Kyoto yang terkurung daratan. Izuu telah menekannya sejak 1781.",
@@ -1235,6 +1387,7 @@ module.exports = {
     zh: "地理造就的菜：盐渍鲭鱼由若狭湾沿「鲭街道」挑运，抵达不临海的京都时恰好熟成。老铺Izuu自1781年起便压制此味。",
     ja: "地理が生んだ一品です。若狭湾から「鯖街道」を運ばれるあいだに塩鯖はちょうどよく熟れ、海のない京に届きました。いづうは1781年から押し続けています。",
     es: "Hija de la geografía: la caballa en sal se traía desde la bahía de Wakasa por el «saba-kaidō» y llegaba a Kioto, sin mar, curada en su punto. Izuu la prensa desde 1781.",
+    ko: "지리가 낳은 음식입니다. 소금에 절인 고등어가 '사바 가도'를 따라 와카사만에서 걸어 들어와, 바다 없는 교토에 닿을 무렵 알맞게 숙성됐습니다. 이즈우는 1781년부터 이 초밥을 눌러 왔습니다.",
   },
   "Kyoto::Yudofu": {
     id: "Masakan kuil: tahu direbus dalam kaldu kombu, disempurnakan dapur Zen di sekitar Nanzen-ji — air lunak Kyoto disebut sebagai kuncinya.",
@@ -1243,6 +1396,7 @@ module.exports = {
     zh: "寺院菜：豆腐以昆布高汤慢煮，由南禅寺一带的禅寺厨房臻于完善——据说关键在京都的软水。",
     ja: "寺の料理です。昆布だしで豆腐を炊き、南禅寺界隈の禅寺の台所が完成させました。決め手は京都の軟水だといわれます。",
     es: "Comida de templo: tofu cocido a fuego lento en caldo de kombu, perfeccionado por las cocinas zen de los alrededores de Nanzen-ji; se dice que el agua blanda de Kioto marca la diferencia.",
+    ko: "사찰 음식입니다. 다시마 국물에 두부를 끓이며 난젠지 주변 선종 사찰의 부엌에서 완성됐고, 교토의 연수가 차이를 만든다고들 합니다.",
   },
   "Macau::Macanese minchi": {
     id: "Lahir dari pelaut Portugis yang selama 400 tahun berbaur dengan dapur Afrika, India, Melayu, dan Kanton, masakan Makau — minchi berbahan daging cincang, ayam Afrika dengan kelapa dan kacang tanah — kerap disebut makanan fusion pertama di dunia. Tekniknya masuk daftar warisan takbenda nasional Tiongkok pada 2021.",
@@ -1251,6 +1405,7 @@ module.exports = {
     zh: "四百年间，葡萄牙水手与非洲、印度、马来和广东的厨房彼此联姻，孕育出澳门土生菜——免治肉、椰香花生的非洲鸡——常被称作世界上最早的融合菜。其技艺于2021年列入中国国家级非物质文化遗产名录。",
     ja: "四百年にわたりポルトガルの船乗りがアフリカ、インド、マレー、広東の台所と結び合って生まれたマカオ料理は、ひき肉のミンチィやココナッツと落花生のアフリカンチキンで知られ、世界最初の融合料理としばしば呼ばれます。その技法は2021年、中国の国家級無形文化遺産に登録されました。",
     es: "Nacida de cuatrocientos años en que los marineros portugueses se emparentaron con las cocinas africana, india, malaya y cantonesa, la cocina macaense —el minchi de carne picada, el pollo africano con coco y cacahuete— suele llamarse la primera comida fusión del mundo. Sus técnicas entraron en la lista nacional de patrimonio inmaterial de China en 2021.",
+    ko: "400년에 걸쳐 포르투갈 선원들이 아프리카와 인도, 말레이, 광둥의 부엌과 맺어지며 태어났습니다. 다진 고기 민치와 코코넛 땅콩 아프리칸 치킨 같은 마카오 요리는 세계 최초의 퓨전 음식이라 불립니다. 그 기법은 2021년 중국 국가 무형유산 목록에 올랐습니다.",
   },
   "Macau::Pork chop bun": {
     id: "Jawaban Makau atas burger berasal dari bifana Portugis: iga babi yang dimarinasi, sering masih bertulang, digoreng lalu diselipkan ke dalam \"roti babi\" yang garing di luar dan lembut di dalam. Kedai legendaris Taipa seperti Tai Lei Loi Kei menjadikan panggangan sore sesuatu yang layak diantre.",
@@ -1259,6 +1414,7 @@ module.exports = {
     zh: "澳门版汉堡源自葡萄牙的bifana：腌过的猪扒常带骨下锅煎香，夹进外脆内软的「猪仔包」。氹仔的老字号如大利来记，把下午出炉那一批变成了值得排队的仪式。",
     ja: "マカオ流のバーガーはポルトガルのビファナに連なります。下味をつけた豚のロース、しばしば骨つきのまま揚げ焼きにし、外は香ばしく中はふんわりした「豚仔包」に挟みます。タイパの老舗、大利來記などが、午後に焼き上がる一回分を並ぶ価値のある行事に変えました。",
     es: "La respuesta de Macao a la hamburguesa desciende de la bifana portuguesa: una chuleta de cerdo marinada, a menudo con hueso, frita y metida en un «panecillo de cerdito» de corteza crujiente y miga blanda. Locales míticos de Taipa como Tai Lei Loi Kei convirtieron la hornada de la tarde en una cola que merece la pena.",
+    ko: "마카오가 내놓은 버거의 답으로 포르투갈 비파나에서 왔습니다. 양념한, 흔히 뼈째인 돼지고기를 튀겨 겉은 바삭하고 속은 부드러운 '돼지빵'에 끼웁니다. 타이파의 타이레이로이케이 같은 노포가 오후에 굽는 시간을 줄 서서 기다릴 만한 의식으로 만들었습니다.",
   },
   "Macau::Portuguese egg tart": {
     id: "Pada 1989, orang Inggris Andrew Stow dari Lord Stow's Bakery di Coloane menafsir ulang pastel de nata Lisbon dengan custard yang lebih lembut dan kaya kuning telur, dibiarkan menggelembung kecokelatan di atas pastri puff yang renyah. Tart Makau menaklukkan Asia dan tetap menjadi gigitan paling diantre di wilayah ini.",
@@ -1267,6 +1423,7 @@ module.exports = {
     zh: "1989年，英国人安德鲁·史斗在路环的安德鲁饼店重新演绎里斯本的葡式蛋挞：蛋浆更浓、蛋黄更足，表面焦糖起泡，底下是酥脆的千层皮。澳门蛋挞就此征服亚洲，至今仍是这里排队最长的一口。",
     ja: "1989年、コロアネのロード・ストウズ・ベーカリーを営むイギリス人アンドリュー・ストウが、リスボンのパステル・デ・ナタを作り替えました。卵黄を利かせた濃厚な卵液の表面をカラメル色に焦がし、パリッとしたパイ生地にのせたのです。マカオのタルトはアジアを席巻し、今もこの街でもっとも並ぶ一口です。",
     es: "En 1989 el inglés Andrew Stow, de Lord Stow's Bakery en Coloane, reinventó el pastel de nata lisboeta con una crema más untuosa y rica en yema, ampollada de caramelo sobre un hojaldre crujiente. El pastel de Macao conquistó Asia y sigue siendo el bocado por el que más se hace cola en el territorio.",
+    ko: "1989년 콜로안 로드 스토스 베이커리의 영국인 앤드루 스토가 리스본의 파스텔 드 나타를 다시 만들었습니다. 노른자가 진한 크리미한 커스터드를 바삭한 퍼프 위에 올려 캐러멜빛으로 그을렸습니다. 마카오 타르트는 아시아를 정복했고 이 지역에서 가장 줄이 긴 한입입니다.",
   },
   "Makassar::Coto makassar": {
     id: "Sup daging sapi dan jeroan berumur berabad-abad dari Makassar, direbus dalam kuah sarat rempah yang dikentalkan kacang tanah, disantap bersama ketupat atau burasa. Secara historis terikat pada tradisi Makassar yang berpusat pada kerbau, dan ditetapkan sebagai Warisan Budaya Takbenda Indonesia pada 2015.",
@@ -1275,6 +1432,7 @@ module.exports = {
     zh: "望加锡传承数百年的牛肉与内脏汤，汤底香料浓重、以花生打稠，配棕叶米糕ketupat或burasa同食。它与望加锡以水牛为中心的传统一脉相承，2015年获定为印尼国家非物质文化遗产。",
     ja: "マカッサルに何百年も伝わる牛肉ともつのスープで、香辛料を利かせ落花生でとろみをつけた汁に、ケトゥパットやブラサの米餅を添えます。水牛を中心に据えたマカッサルの伝統と結びつき、2015年にインドネシアの無形文化遺産に指定されました。",
     es: "La sopa centenaria de Makassar, de ternera y casquería cocidas en un caldo cargado de especias y espesado con cacahuete, comida con ketupat o burasa. Históricamente ligada a la tradición makasar centrada en el búfalo, fue declarada Patrimonio Cultural Inmaterial de Indonesia en 2015.",
+    ko: "소고기와 내장을 땅콩으로 걸쭉하게 하고 향신료를 듬뿍 넣은 국물에 끓인 마카사르의 수백 년 된 수프로, 크투팟이나 부라사 밥떡과 함께 먹습니다. 역사적으로 물소를 중심에 둔 마카사르 전통과 이어지며 2015년 인도네시아 무형문화유산으로 지정됐습니다.",
   },
   "Makassar::Pisang epe": {
     id: "Pisang setengah matang dipanggang, ditekan sampai pipih — epe berarti \"dijepit\" dalam bahasa Makassar — lalu ditenggelamkan dalam sirup gula aren, kerap bersama durian. Camilan Bugis-Makassar yang sejak 1970-an menjadi ritual senja di Pantai Losari.",
@@ -1283,6 +1441,7 @@ module.exports = {
     zh: "半熟的香蕉先烤后压扁——epe在望加锡语里就是「夹压」——再浇满棕榈糖浆，常配榴梿。这是布吉—望加锡的小吃，自1970年代起成了洛萨里海滩的黄昏仪式。",
     ja: "半熟のバナナを焼いて平たく押しつぶし——エペはマカッサル語で「挟む」の意——ヤシ砂糖のシロップに浸します。ドリアンを添えることも多い一品です。ブギス・マカッサルの軽食で、1970年代からロサリ海岸の夕暮れの習わしになりました。",
     es: "Plátanos medio maduros asados y prensados —epe significa «apretado» en makasar— y anegados en sirope de azúcar de palma, a menudo con durián. Un tentempié bugis-makasar que desde los años setenta se volvió el rito del atardecer en la playa de Losari.",
+    ko: "덜 익은 바나나를 구워 납작하게 눌러—마카사르어로 '에페'는 눌렀다는 뜻입니다—야자설탕 시럽에 흠뻑 적시고 흔히 두리안을 곁들입니다. 부기스·마카사르의 간식으로 1970년대부터 로사리 해변의 노을 의식이 됐습니다.",
   },
   "Malacca City::Asam pedas Melaka": {
     id: "Gulai ikan yang pedas dan masam oleh asam jawa, dengan cabai, serai, dan kunyit, terikat pada sejarah pelabuhan Melaka tempat pertukaran Melayu, Tionghoa, Peranakan, dan Portugis membentuk resepnya. Melaka dan Johor menjaganya sebagai warisan; dunia Melayu yang lebih luas, termasuk Riau, juga mengklaim asal-usulnya.",
@@ -1291,6 +1450,7 @@ module.exports = {
     zh: "以亚参酸底、加辣椒、香茅与姜黄炖的辣鱼，与马六甲的港口史紧紧相连——马来、华人、峇峇娘惹与葡萄牙的往来塑成了这道菜。马六甲与柔佛视之为遗产；包括廖内在内的更广大马来世界，也各自主张其起源。",
     ja: "タマリンドの酸味に唐辛子、レモングラス、ターメリックを重ねた辛い魚の煮込みで、マレー、華人、プラナカン、ポルトガルの往来がレシピを形づくったマラッカの港の歴史と結びついています。マラッカとジョホールは遺産として大切にし、リアウを含む広いマレー世界もまた発祥を主張します。",
     es: "Un guiso de pescado ardiente y ácido de tamarindo, con chile, hierba de limón y cúrcuma, ligado a la historia portuaria de Malaca, donde el intercambio malayo, chino, peranakan y portugués moldeó la receta. Malaca y Johor lo guardan como patrimonio; el mundo malayo más amplio, Riau incluido, también reclama su origen.",
+    ko: "고추와 레몬그라스, 강황을 넣어 타마린드로 새콤하게 낸 매운 생선찜입니다. 말레이와 중국, 프라나칸, 포르투갈이 오간 믈라카의 항구 역사가 조리법을 빚었습니다. 믈라카와 조호르가 유산으로 아끼며, 리아우를 비롯한 말레이 세계도 원조를 주장합니다.",
   },
   "Malacca City::Chicken rice balls": {
     id: "Perantau Hainan membawa nasi ayam ke Melaka, tempat para penjaja memadatkan nasinya menjadi bola-bola agar pekerja jeti dan dermaga yang sibuk bisa makan cepat. Bentuk bola itu kini bertahan terutama di Melaka dan Muar, dihidupkan kembali sebagai ikon pariwisata setelah Melaka masuk daftar UNESCO pada 2008.",
@@ -1299,6 +1459,7 @@ module.exports = {
     zh: "海南移民把鸡饭带到马六甲，摊贩把饭捏成紧实的饭团，好让忙碌的码头工人快点吃完。饭团这种形态如今主要留在马六甲与麻坡，2008年马六甲列入世界遗产后，又被重新捧成旅游标志。",
     ja: "海南からの移民がマラッカに鶏飯を伝えると、屋台は忙しい桟橋や港の労働者が手早く食べられるよう、飯を固く握って団子にしました。この団子の形はおもにマラッカとムアルに残り、2008年のユネスコ登録以後、観光の象徴としてよみがえりました。",
     es: "Los inmigrantes hainaneses llevaron el arroz con pollo a Malaca, donde los vendedores prensaban el arroz en bolas compactas para que los atareados trabajadores del muelle comieran deprisa. La forma de bola sobrevive sobre todo en Malaca y Muar, revivida como icono turístico tras la inscripción de Malaca en la UNESCO en 2008.",
+    ko: "하이난 이민자들이 믈라카에 치킨라이스를 들여왔고, 상인들은 바쁜 부두 노동자들이 빨리 먹도록 밥을 동그랗게 뭉쳤습니다. 이 공 모양은 주로 믈라카와 무아르에 남아 있으며, 2008년 믈라카의 유네스코 등재 뒤 관광의 상징으로 되살아났습니다.",
   },
   "Malacca City::Satay celup": {
     id: "Lahir di Melaka pada pertengahan 1950-an dan dikaitkan dengan Capitol Satay, satay celup memadukan sate Melayu dengan lok lok Tionghoa: penyantap mencelupkan tusuk berisi makanan laut, daging, dan sayuran — mentah maupun setengah matang — langsung ke dalam periuk bersama berisi kuah kacang kental yang mendidih.",
@@ -1307,6 +1468,7 @@ module.exports = {
     zh: "沙嗲朱律诞生于1950年代中期的马六甲，一般归功于「古城鸡场街沙嗲朱律」（Capitol Satay），把马来沙嗲与华人的乐乐（lok lok）合二为一：食客把串着生或半熟的海鲜、肉与蔬菜的竹签，直接浸进共用的一锅滚烫浓花生酱里。",
     ja: "1950年代半ばのマラッカで生まれ、キャピトル・サテの創案とされるサテ・チェルップは、マレーのサテと華人のロッロッを一つにした料理です。生や半生の海鮮、肉、野菜を刺した串を、共用の鍋で煮立つ濃いピーナッツだれに直接くぐらせます。",
     es: "Nacido en Malaca a mediados de los años cincuenta y atribuido al Capitol Satay, el satay celup funde el satay malayo con el lok lok chino: los comensales mojan brochetas de marisco, carne y verduras crudos o semicocidos directamente en una olla comunal de espesa salsa de cacahuete hirviendo.",
+    ko: "1950년대 중반 믈라카에서 태어났고 캐피톨 사테가 만들었다고 전해집니다. 말레이 사테와 중국식 록록을 잇습니다. 손님이 날것이나 반쯤 익힌 해산물과 고기, 채소 꼬치를 걸쭉한 땅콩 소스가 끓는 공용 냄비에 직접 담급니다.",
   },
   "Manila::Adobo": {
     id: "Daging dibraise dalam cuka, kecap asin, bawang putih, dan daun salam, turunan dari cara pengawetan dengan cuka sebelum masa kolonial. Hidangan nasional tak resmi — tak ada undang-undang yang menetapkannya, dan pendukung sinigang menyanggah gelar itu. Setiap rumah tangga Manila menyajikannya, tetapi ia milik seluruh kepulauan.",
@@ -1315,6 +1477,7 @@ module.exports = {
     zh: "肉在醋、酱油、蒜与月桂叶中焖煮，源自殖民以前用醋保存食物的做法。它是非官方的国菜——并无法律指定，酸汤sinigang的拥趸也不服气。马尼拉家家都做，但它属于整个群岛。",
     ja: "肉を酢、醤油、にんにく、月桂樹の葉で煮込む料理で、植民地以前の酢による保存法に連なります。事実上の国民食ですが、法で定められたわけではなく、シニガン派は異を唱えます。マニラのどの家庭でも作られますが、これは群島全体のものです。",
     es: "Carne guisada en vinagre, salsa de soja, ajo y laurel, heredera de la conservación precolonial en vinagre. El plato nacional oficioso: ninguna ley designa uno, y los partidarios del sinigang disputan el título. Todas las casas de Manila lo cocinan, pero pertenece a todo el archipiélago.",
+    ko: "고기를 식초와 간장, 마늘, 월계수잎에 조린 요리로 식민지 이전의 식초 저장법에서 이어졌습니다. 사실상의 국민 음식이지만 법으로 정한 것은 없고 시니강 편이 그 자리를 다툽니다. 마닐라의 모든 집이 내지만 이 요리는 군도 전체의 것입니다.",
   },
   "Manila::Halo-halo": {
     id: "Hidangan penutup nasional tak resmi Filipina berupa es serut, susu, dan aneka manisan, ditelusuri ke perantau Jepang di Pasar Quinta, Quiapo, pada Manila sebelum perang, yang menyesuaikan kakigori dengan kacang hijau setempat; orang Filipina lalu menambahkan ube, leche flan, dan manisan asli.",
@@ -1323,6 +1486,7 @@ module.exports = {
     zh: "菲律宾非官方的国民甜品，由刨冰、牛奶与各式甜料组成，可追溯到战前马尼拉基阿波区Quinta市场的日本移民：他们用本地绿豆改造刨冰，菲律宾人此后陆续加上紫薯、焦糖布丁与各种蜜饯。",
     ja: "フィリピンの事実上の国民的デザートで、かき氷に牛乳と多彩な甘味を重ねます。戦前マニラ、キアポのキンタ市場の日本人移民が、かき氷を地元の緑豆で作り替えたのが始まりとされ、その後フィリピンの人びとが紫芋、レチェフラン、土地の砂糖漬けを加えていきました。",
     es: "El postre nacional oficioso de Filipinas, de hielo raspado, leche y dulces variados, se remonta a los migrantes japoneses del mercado de Quinta, en Quiapo, en la Manila de anteguerra, que adaptaron el kakigōri con judía mungo local; los filipinos fueron añadiendo ube, leche flan y conservas autóctonas.",
+    ko: "간 얼음과 우유, 여러 단것을 넣은 필리핀의 사실상 국민 디저트입니다. 전쟁 전 마닐라 키아포 킨타 시장의 일본인 이주민들이 가키고리를 현지 녹두로 바꾼 데서 이어졌고, 필리핀 사람들이 우베와 레체 플란, 토종 절임을 차츰 더했습니다.",
   },
   "Medan::Bika ambon": {
     id: "Kue keemasan yang kenyal dengan sarang lebah dari fermentasi tuak nira, harum daun pandan — temuan Medan yang dinamai dari simpang Jalan Ambon tempat ia pertama dijual. Masuk daftar Warisan Budaya Takbenda Indonesia pada 2025; oleh-oleh penanda Medan.",
@@ -1331,6 +1495,7 @@ module.exports = {
     zh: "金黄有弹性的糕点，靠棕榈酒发酵撑出蜂窝状气孔，带香兰叶清香——这是棉兰的发明，名字取自最初开卖的安汶路路口。2025年列入印尼国家非物质文化遗产名录；也是棉兰最具代表性的伴手礼。",
     ja: "黄金色をした弾力のある菓子で、ヤシ酒の発酵によって蜂の巣状の気泡が生まれ、パンダンの香りをまといます。棉蘭（メダン）の発明で、最初に売られたアンボン通りの交差点にちなむ名です。2025年、インドネシアの無形文化遺産に登録された、メダンを代表する土産菓子です。",
     es: "Un bizcocho dorado y elástico, agujereado como un panal por la fermentación del vino de palma y perfumado con pandan: un invento de Medan bautizado por el cruce de la Jalan Ambon donde se vendió primero. Entró en la lista de Patrimonio Cultural Inmaterial de Indonesia en 2025; el souvenir comestible por excelencia de Medan.",
+    ko: "야자술 발효로 벌집처럼 구멍이 나고 판단 향이 나는 노랗고 쫄깃한 케이크입니다. 처음 팔던 잘란 암본 교차로에서 이름을 딴 메단의 발명품입니다. 2025년 인도네시아 무형문화유산 목록에 올랐고 메단을 대표하는 기념 음식입니다.",
   },
   "Medan::Soto medan": {
     id: "Soto Medan berisi ayam atau daging sapi dalam kuah santan kental yang sarat rempah — jinten, ketumbar, kayu manis menyingkap pengaruh India — disajikan dengan perkedel kentang, telur rebus, dan tauge. Muncul pada awal abad ke-20, mencerminkan dapur multikultural kota pelabuhan ini.",
@@ -1339,6 +1504,7 @@ module.exports = {
     zh: "棉兰的soto以鸡肉或牛肉入浓稠的椰浆汤，香料下得极重——孜然、芫荽、肉桂透着印度影响——配马铃薯饼、水煮蛋与豆芽。它成形于二十世纪初，映出这座港城多元交汇的厨房。",
     ja: "メダンのソトは、鶏か牛の肉を香辛料をたっぷり効かせた濃いココナッツスープで供します。クミン、コリアンダー、シナモンにインドの影が差します。じゃがいものプルクデル、ゆで卵、もやしを添えます。二十世紀初頭に現れ、港町の多文化な台所を映しています。",
     es: "El soto de Medan, de pollo o ternera en un caldo de coco espeso y cargado de especias —comino, cilantro y canela delatan la influencia india—, servido con perkedel de patata, huevo cocido y brotes de soja. Surgido a principios del siglo XX, refleja la cocina multicultural de la ciudad portuaria.",
+    ko: "닭이나 소고기를 향신료가 진한 걸쭉한 코코넛 국물에 넣은 메단의 소토입니다. 커민과 고수, 계피에서 인도의 영향이 드러나며 감자 프르크델과 삶은 달걀, 숙주를 곁들입니다. 20세기 초에 나타나 이 항구 도시의 다문화 부엌을 보여 줍니다.",
   },
   "Melbourne::Chicken parma night": {
     id: "Schnitzel ayam bertepung roti di bawah sugo tomat, ham, dan keju leleh, disajikan dengan kentang goreng dan segelas bir. Bukan lahir di Melbourne, tetapi pub-pub kota ini mengubah \"malam parma\" menjadi ritual warga mingguan dan pranata yang diperingkatkan dengan sengit.",
@@ -1347,6 +1513,7 @@ module.exports = {
     zh: "裹粉炸鸡排上盖番茄酱汁、火腿与融化的芝士，配薯条和一杯啤酒。它并非生于墨尔本，但这座城的酒吧把「parma之夜」变成了每周一次的市民仪式，还要为高下争个不休。",
     ja: "衣をつけて揚げた鶏肉に、トマトのソース、ハム、とろけたチーズを重ね、フライドポテトとビールを添えます。メルボルン生まれではありませんが、この街のパブが「パルマの夜」を週に一度の市民の習わしに変え、順位を激しく争う定番に育てました。",
     es: "Un escalope de pollo empanado bajo sugo de tomate, jamón y queso fundido, con patatas y una pinta. No nació en Melbourne, pero los pubs de la ciudad convirtieron la «parma night» en un rito cívico semanal y en una institución ferozmente clasificada.",
+    ko: "빵가루를 입힌 닭 슈니첼에 토마토 수고와 햄, 녹인 치즈를 올려 감자튀김과 맥주 한 잔과 함께 냅니다. 멜버른에서 태어나지는 않았지만 이 도시의 펍이 '파르마의 밤'을 주간의 시민 의식이자 치열하게 순위를 매기는 제도로 만들었습니다.",
   },
   "Melbourne::Dim sim": {
     id: "Pangsit milik Melbourne sendiri: William Chen Wing Young mengomersialkan siu mai berisi daging sapi yang lebih padat pada 1945, cukup kokoh untuk dibekukan dan digoreng. Versi kukus berukuran lebih besar buatan Ken Cheng, dijual di South Melbourne Market sejak 1949, masih menjadi makanan ziarah.",
@@ -1355,6 +1522,7 @@ module.exports = {
     zh: "墨尔本自家的点心：1945年，William Chen Wing Young把加重牛肉、更为结实的烧卖做成商品，耐冷冻也耐油炸。Ken Cheng的大号蒸制版本自1949年起在南墨尔本市场出售，至今仍是值得专程去吃的一味。",
     ja: "メルボルンならではの点心です。1945年、ウィリアム・チェン・ウィンヤンが牛肉を効かせた厚みのある焼売を商品化しました。冷凍にも揚げにも耐える丈夫さでした。ケン・チェンの大ぶりの蒸し版は1949年からサウス・メルボルン・マーケットで売られ、今も足を運ぶ価値のある一品です。",
     es: "La empanadilla propia de Melbourne: William Chen Wing Young comercializó en 1945 un siu mai reforzado con ternera, bastante robusto para congelarse y freírse. La versión al vapor más grande de Ken Cheng, vendida en el South Melbourne Market desde 1949, sigue siendo comida de peregrinación.",
+    ko: "멜버른만의 만두입니다. 윌리엄 첸윙영이 1945년에 소고기를 넉넉히 넣은 시우마이를 상품화해 얼리고 튀길 만큼 단단하게 만들었습니다. 1949년부터 사우스멜버른 마켓에서 파는 켄 청의 더 큰 찐 만두는 지금도 순례하듯 찾는 음식입니다.",
   },
   "Melbourne::Flat white & laneway coffee": {
     id: "Espresso dengan busa mikro selembut beludru, pesanan baku di kafe-kafe gang Melbourne. Penemuannya diperdebatkan lintas Laut Tasman antara pengklaim Sydney (1985), Auckland, dan Wellington; klaim Melbourne yang sungguh sahih adalah budaya espresso Italia pascaperang yang menyempurnakannya.",
@@ -1363,6 +1531,7 @@ module.exports = {
     zh: "浓缩咖啡配丝绒般的细密奶泡，是墨尔本小巷咖啡馆里最标准的一杯。发明权是一场跨塔斯曼海的争论：悉尼（1985）、奥克兰与惠灵顿各有说法；墨尔本真正站得住的功劳，是战后把它打磨成型的意大利浓缩咖啡文化。",
     ja: "ビロードのような細かな泡を重ねたエスプレッソで、メルボルンの路地のカフェでは定番の注文です。考案地はタスマン海をまたいで争われ、シドニー（1985年）、オークランド、ウェリントンが名乗りを上げます。メルボルンが確かに言えるのは、戦後のイタリア系エスプレッソ文化がこれを磨き上げたということです。",
     es: "Espresso con microespuma aterciopelada, el pedido estándar en los cafés de callejón de Melbourne. Su invención se disputa a ambos lados del mar de Tasmania —Sídney (1985), Auckland y Wellington—; la reivindicación genuina de Melbourne es la cultura del espresso italiano de posguerra que lo perfeccionó.",
+    ko: "벨벳 같은 미세 거품을 올린 에스프레소로 멜버른 뒷골목 카페의 기본 주문입니다. 그 발명은 시드니(1985)와 오클랜드, 웰링턴이 다투는 태즈먼 해협의 논쟁입니다. 멜버른의 진짜 몫은 이를 다듬어 낸 전후 이탈리아 에스프레소 문화입니다.",
   },
   "Muara::Ambuyat": {
     id: "Muara, kota pelabuhan dan pantai Brunei, tak punya hidangan yang oleh sumber-sumber dikaitkan khusus dengannya. Yang jujur ditawarkan adalah meja nasional: ambuyat, pati sagu untuk disantap bersama dengan sumpit chandas dan celupan cacah yang asam, tersedia di rumah makan se-distrik Brunei-Muara.",
@@ -1371,6 +1540,7 @@ module.exports = {
     zh: "文莱的港口与海滨小镇姆阿拉，并没有哪道菜被资料明确归到它名下。诚实的答案是全国共有的一桌：ambuyat——用chandas竹筷共食、蘸酸香cacah酱的西谷米淀粉——在文莱—姆阿拉区的食肆都吃得到。",
     ja: "ブルネイの港と浜の町ムアラには、資料がこの地に固有と認める料理がありません。正直に差し出せるのは国の食卓です。チャンダスの箸で分け合い、酸味のあるチャチャにつけて食べるサゴ澱粉のアンブヤットは、ブルネイ・ムアラ地区の食堂で味わえます。",
     es: "Muara, el pueblo portuario y playero de Brunéi, no tiene ningún plato que las fuentes le atribuyan en concreto. Lo honesto es ofrecer la mesa nacional: el ambuyat, el almidón de sagú comunal comido con palillos chandas y salsas cacah ácidas, disponible en los locales de todo el distrito de Brunéi-Muara.",
+    ko: "브루나이의 항구이자 해변 마을인 무아라에는 자료가 이곳의 것이라 인정하는 요리가 없습니다. 정직한 답은 나라의 식탁입니다. 찬다스로 함께 먹는 사고 전분 암부얏과 새콤한 차차 소스를 브루나이무아라 지역의 식당에서 맛볼 수 있습니다.",
   },
   "Nakhon Pathom::Khao lam nakhon pathom": {
     id: "Ketan dengan krim kelapa dan kacang hitam yang dipanggang dalam ruas bambu, dijual di sekitar Phra Pathom Chedi selama kira-kira 150 tahun. Pembuat keluarga berusia seabad seperti Mae Luk Chan menjaganya tetap menjadi camilan ziarah penanda Nakhon Pathom.",
@@ -1379,6 +1549,7 @@ module.exports = {
     zh: "糯米拌椰浆与黑豆，塞进竹筒烤熟，在佛统大塔一带已卖了约一百五十年。像Mae Luk Chan这样百年家族作坊，让它至今仍是佛统的朝圣点心。",
     ja: "もち米にココナッツクリームと黒豆を合わせ、竹筒に詰めて焼いた菓子です。プラ・パトム・チェディの周辺でおよそ百五十年売られてきました。メー・ルックチャンのような百年続く家族の作り手が、ナコンパトム参りの定番として守っています。",
     es: "Arroz glutinoso con crema de coco y alubias negras asado en cañas de bambú, vendido en torno al Phra Pathom Chedi desde hace unos ciento cincuenta años. Obradores familiares centenarios como Mae Luk Chan lo mantienen como el bocado de peregrinación de Nakhon Pathom.",
+    ko: "코코넛크림과 검은콩을 넣은 찰밥을 대나무 통에 넣어 구우며, 프라파톰 체디 일대에서 150년쯤 팔아 왔습니다. 매룩찬 같은 백 년 된 집안이 이어 가며 나콘빠톰을 대표하는 순례길 간식입니다.",
   },
   "Nakhon Pathom::Som-o nakhon chai si": {
     id: "Jeruk bali yang tumbuh di sepanjang Sungai Nakhon Chai Si, terdaftar sebagai indikasi geografis sejak 2004. Kultivar Thong Di dan Khao Nam Phueng manis-asam tanpa rasa pahit, digemari istana sejak pesiar sungai Raja Rama V, dan dirayakan dalam festival tahunan.",
@@ -1387,6 +1558,7 @@ module.exports = {
     zh: "沿佛统猜西河种植的柚子，自2004年起获地理标志登记。Thong Di与Khao Nam Phueng两个品种酸甜不带苦味，自拉玛五世泛舟巡游以来便深受宫廷喜爱，如今每年都有专门的节庆。",
     ja: "ナコンチャイシー川沿いで育つポメロで、2004年から地理的表示に登録されています。トンディー種とカオナムプン種は苦みがなく甘酸っぱく、ラーマ五世の川遊びの時代から宮中に好まれ、今も毎年の祭りでたたえられます。",
     es: "Pomelo cultivado a lo largo del río Nakhon Chai Si, con registro de indicación geográfica desde 2004. Los cultivares Thong Di y Khao Nam Phueng son agridulces y sin amargor, favoritos de la corte desde las excursiones fluviales del rey Rama V, y celebrados en un festival anual.",
+    ko: "나콘차이시강을 따라 기르는 포멜로로 2004년부터 지리적 표시에 등록됐습니다. 통디와 카오남프엉 품종은 쓴맛 없이 달고 새콤하며, 라마 5세의 뱃놀이 이래 왕실이 아꼈고 해마다 축제로 기립니다.",
   },
   "Nakhon Ratchasima::Pad mee korat": {
     id: "Mi beras kenyal yang ditumis, dibuat dari panen padi Korat yang melimpah, dibalut saus lokal manis-asin. Warga setempat bilang kamu belum benar-benar sampai di Korat kalau belum menyantapnya; hidangan perayaan yang didokumentasikan kantor kebudayaan provinsi.",
@@ -1395,6 +1567,7 @@ module.exports = {
     zh: "用呵叻丰收的稻米做成的弹牙米粉下锅快炒，裹上当地甜咸酱汁。当地人说，没吃过就不算真到过呵叻；府文化厅也把它记录为节庆常备。",
     ja: "コーラートの豊かな米から作る腰のある米麺を炒め、土地の甘じょっぱいたれをからめます。これを食べずしてコーラートに来たとは言えない、と地元では言われます。県文化事務所も記録する祝いの一品です。",
     es: "Fideos de arroz correosos salteados, hechos con la abundante cosecha de arroz de Korat y aliñados con una salsa local dulce y salada. Aquí dicen que no has llegado de verdad a Korat hasta comerlos; un básico festivo documentado por la oficina de cultura provincial.",
+    ko: "코랏에서 넉넉히 나는 쌀로 만든 쫄깃한 쌀국수를 이 지방의 달고 짭짤한 소스에 볶습니다. 사람들은 이것을 먹지 않고서는 코랏에 온 것이 아니라고 말하며, 주 문화청이 기록한 명절 음식입니다.",
   },
   "Nanjing::Nanjing saltwater duck": {
     id: "Bebek dingin penanda Nanjing: digosok garam berbumbu panas, direndam dalam air garam tua yang dijaga turun-temurun, diangin-anginkan, lalu direbus perlahan — \"kulit putih, daging kemerahan, garam yang seimbang\". Tekniknya masuk daftar warisan takbenda provinsi Jiangsu yang pertama pada 2007.",
@@ -1403,6 +1576,7 @@ module.exports = {
     zh: "南京的招牌冷盘鸭：先以热花椒盐擦身，再浸入珍藏的老卤，风干后文火煮熟——「皮白、肉微红、咸淡得宜」。此技艺于2007年入选江苏省首批非物质文化遗产名录。",
     ja: "南京を代表する冷たい鴨料理です。熱した香辛料入りの塩をすり込み、大切に受け継がれた古い塩水に漬け、風で干してから静かに茹でます。「皮は白く、肉はほのかに紅く、塩加減は程よく」。この技法は2007年、江蘇省の第一次無形文化遺産名録に入りました。",
     es: "El pato frío insignia de Nankín: frotado con sal caliente especiada, macerado en una salmuera vieja celosamente guardada, oreado al aire y escalfado con suavidad: «piel blanca, carne rosada, sal en equilibrio». La técnica entró en la primera lista provincial de patrimonio inmaterial de Jiangsu en 2007.",
+    ko: "난징을 대표하는 차가운 오리입니다. 뜨거운 향신 소금을 문질러 오래 쓴 소금물에 재우고 바람에 말려 은근히 데칩니다. '껍질은 희고 살은 발그레하며 간이 맞다'고 합니다. 그 기법은 2007년 장쑤성 첫 무형유산 목록에 올랐습니다.",
   },
   "Napier::Hawke's Bay wine": {
     id: "Napier tak punya hidangan asli; mejanya adalah Hawke's Bay di sekitarnya, kawasan anggur tertua dan kedua terbesar di Selandia Baru. Lebih dari 70 kilang anggur di Gimblett Gravels dan dataran pesisir menuangkan racikan gaya Bordeaux dan Syrah di samping kota bergaya Art Deco ini.",
@@ -1411,6 +1585,7 @@ module.exports = {
     zh: "内皮尔没有自己的菜；它的餐桌是周边的霍克斯湾——新西兰最古老、规模第二大的葡萄酒产区。金布利特砾石带与沿海平原上的七十多家酒庄，就在这座装饰艺术风格的小城旁，倒出波尔多风格的混酿与西拉。",
     ja: "ネイピアに固有の料理はありません。この街の食卓は周囲のホークスベイ、ニュージーランド最古にして二番目に大きなワイン産地です。ギムレット・グラヴェルズと海沿いの平野に七十を超えるワイナリーが並び、アールデコの街のかたわらでボルドー風のブレンドやシラーを注いでいます。",
     es: "Napier no tiene un plato autóctono; su mesa es la Hawke's Bay circundante, la región vinícola más antigua y la segunda más grande de Nueva Zelanda. Más de setenta bodegas en los Gimblett Gravels y las llanuras costeras sirven ensamblajes al estilo bordelés y syrah junto a la ciudad art déco.",
+    ko: "네이피어에는 고유한 요리가 없고, 그 식탁은 둘러싼 호크스베이입니다. 뉴질랜드에서 가장 오래되고 두 번째로 큰 와인 산지로, 김블렛 그래블스와 해안 평원의 70곳 넘는 와이너리가 아르데코 도시 곁에서 보르도식 블렌드와 시라를 따릅니다.",
   },
   "Napier::Stone fruit & apples": {
     id: "Dataran Heretaunga di sekitar Napier menumbuhkan sebagian besar apel, pir, dan buah berbiji keras Selandia Baru. Musim panas berarti persik Golden Queen, plum Black Doris, dan aprikot yang dibeli dari gerai pinggir jalan — ritual pangan kawasan ini yang menentukan sekaligus tanpa upacara.",
@@ -1419,6 +1594,7 @@ module.exports = {
     zh: "内皮尔周围的赫雷唐加平原，出产新西兰大部分的苹果、梨与核果。夏天就意味着Golden Queen蜜桃、Black Doris李子与杏，从路边摊上买了就吃——这是本地最具代表、也最不讲究排场的饮食仪式。",
     ja: "ネイピアを囲むヘレタウンガ平野は、ニュージーランドの林檎、洋梨、核果の大半を産します。夏といえば、ゴールデンクイーンの桃、ブラックドリスの李、そして杏を路傍の売店で買うこと。これがこの地方を象徴する、まったく気取らない食の習わしです。",
     es: "Las llanuras de Heretaunga, en torno a Napier, producen la mayor parte de las manzanas, peras y frutas de hueso de Nueva Zelanda. Verano significa melocotones Golden Queen, ciruelas Black Doris y albaricoques comprados en puestos de carretera: el rito alimentario definitorio y sin ceremonias de la región.",
+    ko: "네이피어를 둘러싼 헤레타운가 평원은 뉴질랜드 사과와 배, 핵과의 대부분을 기릅니다. 여름이면 골든 퀸 복숭아와 블랙 도리스 자두, 살구를 길가 노점에서 사는 것이 이 지역의 격식 없는 대표적인 음식 의식입니다.",
   },
   "Nara::Kakinoha-zushi": {
     id: "Sushi penanda Nara yang terkurung daratan: makerel yang diasinkan ditekan di atas nasi cuka lalu dibungkus daun kesemek, yang taninnya mengawetkan sekaligus mengharumkannya. Lahir pada zaman Edo ketika nelayan Kishu menggarami makerel musim panas dan menjualnya menyusuri Sungai Yoshino untuk jamuan perayaan.",
@@ -1427,6 +1603,7 @@ module.exports = {
     zh: "不临海的奈良的招牌寿司：盐渍鲭鱼压在醋饭上，用柿叶包裹，叶中的单宁既防腐又添香。它生于江户时代，纪州渔民把夏天的鲭鱼腌好，沿吉野川运上来，供节庆宴席之用。",
     ja: "海のない奈良を代表する寿司です。塩で締めた鯖を酢飯にのせ、柿の葉で包みます。葉のタンニンが日持ちさせ、香りも移します。江戸期、紀州の漁師が夏鯖を塩でしめ、吉野川をさかのぼって売り、祭りの馳走となりました。",
     es: "El sushi insignia de la Nara sin mar: caballa curada en sal prensada sobre arroz avinagrado y envuelta en hoja de caqui, cuyos taninos la conservan y la perfuman. Nació en el periodo Edo, cuando los pescadores de Kishu salaban la caballa de verano y la vendían río Yoshino arriba para los banquetes de fiesta.",
+    ko: "바다가 없는 나라를 대표하는 초밥입니다. 소금에 절인 고등어를 초밥에 눌러 감잎에 싸면 잎의 타닌이 보존하고 향을 입힙니다. 에도 시대에 기슈 어부들이 여름 고등어를 절여 요시노강을 거슬러 팔아 축제 상에 올리면서 태어났습니다.",
   },
   "Nara::Narazuke": {
     id: "Acar yang menyandang nama Nara: labu air, timun, dan melon dipendam dalam ampas sake dan berulang kali diganti bantalannya selama bertahun-tahun, keluar berwarna kuning kecokelatan, beraroma arak, dan sangat gurih. Berakar pada kuil-kuil pembuat sake di ibu kota kuno ini, inilah salah satu tradisi pengacaran tertua yang terdokumentasi di Jepang dan oleh-oleh klasik kota ini.",
@@ -1435,6 +1612,7 @@ module.exports = {
     zh: "以奈良为名的腌菜：瓠瓜、黄瓜与甜瓜埋进酒粕，多年间反复换粕，最后变得琥珀色、带酒香、味极醇厚。它的根在这座古都酿酒的寺院里，是日本有文献可考的最古老腌渍传统之一，也是奈良经典的伴手礼。",
     ja: "奈良の名を負う漬物です。夕顔、胡瓜、瓜を酒粕に埋め、幾年もかけて何度も粕を替えていくと、琥珀色を帯び、酒の香を含み、深い旨味をたたえます。古都の酒を醸す寺院に根をもち、日本で記録に残るもっとも古い漬物の系譜の一つであり、この街の定番の土産です。",
     es: "El encurtido que da nombre a Nara: calabaza de peregrino, pepino y melón enterrados en heces de sake y recolocados una y otra vez durante años, hasta salir ambarinos, alcohólicos y profundamente sabrosos. Arraigado en los templos cerveceros de sake de la antigua capital, es una de las tradiciones de encurtido documentadas más antiguas de Japón y el souvenir clásico de la ciudad.",
+    ko: "나라의 이름을 딴 절임입니다. 박과 오이, 참외를 술지게미에 묻고 여러 해에 걸쳐 거듭 갈아 주면 호박빛이 돌고 술 향이 나며 감칠맛이 깊어집니다. 옛 도읍의 술 빚는 절에 뿌리를 두고, 일본에서 가장 오래 기록된 절임 전통이자 이 도시의 고전적인 기념품입니다.",
   },
   "Nara::Yoshino kuzumochi": {
     id: "Penganan bening yang bergetar, dibuat dari hon-kuzu — pati akar kudzu murni yang dicuci berulang dengan susah payah dalam air pegunungan Yoshino yang dingin — disajikan dingin dengan kinako dan sirup gula merah. Prefektur Nara mempromosikan kuzu Yoshino sebagai salah satu dari tiga pusaka budaya pangan andalannya.",
@@ -1443,6 +1621,7 @@ module.exports = {
     zh: "颤巍巍的半透明甜点，用本葛粉——在吉野的冷冽山泉里反复淘洗、费工制成的纯葛根淀粉——做成，冰镇后撒黄豆粉、浇黑糖蜜。奈良县把吉野葛列为本县三大饮食文化珍宝之一加以推广。",
     ja: "ふるふると透きとおる菓子で、吉野の冷たい山の水で幾度も晒す手間をかけた純粋な本葛から作ります。冷やして黄粉と黒蜜を添えます。奈良県は吉野葛を、食文化を代表する三つの宝の一つとして掲げています。",
     es: "Un dulce tembloroso y translúcido hecho con hon-kuzu —almidón puro de raíz de kudzu, lavado con esfuerzo en el agua fría de montaña de Yoshino—, servido frío con kinako y sirope de azúcar moreno. La prefectura de Nara promueve el kuzu de Yoshino como uno de sus tres tesoros emblemáticos de cultura alimentaria.",
+    ko: "요시노의 찬 산물에 공들여 씻어 낸 순수한 칡 전분 혼쿠즈로 만든, 떨리고 반투명한 과자입니다. 차게 식혀 콩가루와 흑설탕 시럽과 함께 냅니다. 나라현은 요시노 칡을 세 가지 대표 음식 문화 보물의 하나로 알리고 있습니다.",
   },
   "New Taipei::Tamsui agei": {
     id: "Agei, dari kata Jepang \"abura-age\", diciptakan sekitar 1965 oleh Yang Cheng Chin-wen di Tamsui: kantong tahu goreng diisi soun berbumbu, ditutup pasta ikan, dikukus, lalu disiram saus. Tak ada di tempat lain, dan menjadi penanda kuliner Jalan Tua Tamsui.",
@@ -1451,6 +1630,7 @@ module.exports = {
     zh: "阿给（agei）取自日语的「abura-age」（油炸豆皮），约1965年由杨郑锦文在淡水创出：油豆腐皮包入调味冬粉，以鱼浆封口，蒸熟后淋酱。别处没有，它定义了淡水老街的吃食。",
     ja: "「阿給（アゲイ）」は日本語の油揚げに由来し、1965年ごろ淡水で楊鄭錦文が考案しました。油揚げの袋に味つけした春雨を詰め、すり身で封をして蒸し、たれをかけます。ほかのどこにもなく、淡水老街の食を象徴する一品です。",
     es: "El agei, del japonés «abura-age», lo creó hacia 1965 Yang Cheng Chin-wen en Tamsui: una bolsita de tofu frito rellena de fideos de cristal condimentados, sellada con pasta de pescado, cocida al vapor y napada con salsa. No existe en ningún otro sitio y define el comer de la calle antigua de Tamsui.",
+    ko: "일본어 '아부라아게'에서 온 아게이는 1965년경 단수이에서 양청친원이 만들었습니다. 튀긴 유부에 양념한 당면을 채우고 생선살로 봉해 쪄서 소스를 끼얹습니다. 다른 어디에도 없으며 단수이 옛거리의 먹거리를 정의합니다.",
   },
   "New Taipei::Tamsui iron eggs": {
     id: "Telur besi lahir dari kebetulan yang beruntung di kedai Apo, Tamsui, sekitar 1980, ketika telur yang terlalu lama direbus berubah gelap, padat, dan kenyal. Ditim berulang kali dalam kecap dan rempah lalu diangin-anginkan, telur ini menjadi oleh-oleh khas New Taipei dari jalan tua di tepi sungai.",
@@ -1459,6 +1639,7 @@ module.exports = {
     zh: "铁蛋是1980年前后淡水阿婆摊上的美丽错误：蛋卤过了头，变得又黑又紧实有嚼劲。经反复卤煮与风干后，它成了新北最具代表性的伴手礼零嘴，出自河边的老街。",
     ja: "鉄蛋は1980年ごろ、淡水の阿婆の屋台で生まれた幸運な失敗でした。煮込みすぎた卵が黒く締まり、噛みごたえのある姿になったのです。醤油と香辛料で幾度も煮ては風で乾かし、川沿いの老街を代表する新北の土産菓子になりました。",
     es: "Los huevos de hierro fueron un accidente afortunado en el puesto de Apo, en Tamsui, hacia 1980: unos huevos guisados demasiado tiempo quedaron oscuros, densos y correosos. Estofados una y otra vez en soja y hierbas y luego secados al aire, se volvieron el recuerdo comestible de Nuevo Taipéi salido de la calle antigua junto al río.",
+    ko: "철란은 1980년경 단수이 아포 노점에서 달걀을 너무 오래 조리다 우연히 생겼습니다. 검고 조밀하고 쫄깃해진 달걀을 간장과 약재에 거듭 조려 바람에 말리며, 강가 옛거리에서 온 신베이의 대표 기념품 간식이 됐습니다.",
   },
   "Nha Trang::Nem nướng Nha Trang": {
     id: "Sosis babi panggang yang digulung di meja dengan kertas beras bersama pisang hijau, belimbing, dan aneka herba, lalu dicelup ke saus fermentasi kental — ciri khas Khánh Hòa yang dibawa ke Nha Trang dari Ninh Hòa di dekatnya.",
@@ -1467,6 +1648,7 @@ module.exports = {
     zh: "炭烤猪肉肠在桌边用米纸卷起，夹上青香蕉、杨桃与香草，蘸浓稠的发酵酱汁——庆和省的招牌，从邻近的宁和传入芽庄。",
     ja: "炭火で焼いた豚肉のソーセージを、卓上でライスペーパーに青バナナ、スターフルーツ、香草とともに巻き、とろりとした発酵だれにつけます。カインホア省の名物で、隣のニンホアからニャチャンへ伝わりました。",
     es: "Salchicha de cerdo a la brasa que se enrolla en la mesa en papel de arroz con plátano verde, carambola y hierbas, y se moja en una salsa fermentada espesa: la seña de Khánh Hòa, llegada a Nha Trang desde la vecina Ninh Hòa.",
+    ko: "구운 돼지고기 소시지를 식탁에서 라이스페이퍼에 풋바나나와 스타프루트, 허브와 함께 말아 진한 발효 소스에 찍어 먹습니다. 칸호아의 얼굴이며 인근 닌호아에서 냐짱으로 건너왔습니다.",
   },
   "Ningde::Fuding pork slices": {
     id: "Sup jalanan kesayangan Fujian timur: daging babi tanpa lemak ditumbuk tangan bersama pati ubi jalar menjadi serpihan kenyal, lalu direbus dalam kuah asam pedas dari cuka, lada, dan cabai. Legenda dari Fuding pada masa Ming, kini warisan takbenda kota dan jajanan termasyhur tingkat nasional.",
@@ -1475,6 +1657,7 @@ module.exports = {
     zh: "闽东人钟爱的街头汤食：瘦肉与番薯粉一同手工捶打成弹牙的薄片，下进醋、胡椒与辣椒调的酸辣汤里。相传起于明代的福鼎，如今已是市级非物质文化遗产与全国名小吃。",
     ja: "閩東の人びとに愛される街の汁物です。赤身の豚肉をさつまいも澱粉とともに手で叩き、弾力のある薄片にして、酢と胡椒と唐辛子の酸辣スープで煮ます。明代の福鼎に伝わる由緒をもち、今は市の無形文化遺産であり、全国的な名物軽食でもあります。",
     es: "La sopa callejera más querida del este de Fujian: carne magra de cerdo majada a mano con almidón de boniato hasta formar jirones elásticos, escalfados en un caldo agripicante de vinagre, pimienta y chile. Una leyenda de época Ming procedente de Fuding, hoy patrimonio inmaterial municipal y aperitivo de fama nacional.",
+    ko: "푸젠 동부가 사랑하는 길거리 국물입니다. 살코기를 손으로 두드려 고구마 전분과 섞어 탱탱한 조각으로 만들고 식초와 후추, 고추로 낸 새콤매콤한 국물에 데칩니다. 푸딩의 명나라 시절 전설에서 왔고 지금은 시 무형유산이자 전국 명물 간식입니다.",
   },
   "Nonthaburi::Durian non": {
     id: "Kebun-kebun tepi sungai Nonthaburi telah menumbuhkan durian pilihan selama beberapa generasi, dengan lebih dari 40 kultivar seperti Kan Yao dan Mon Thong. Terdaftar sebagai indikasi geografis dan dirayakan dalam moto provinsi, satu buahnya bisa mencapai hampir sepuluh ribu baht.",
@@ -1483,6 +1666,7 @@ module.exports = {
     zh: "暖武里的河畔果园世代培育名品榴梿，品种逾四十，如长柄（Kan Yao）与金枕（Mon Thong）。它已获地理标志登记，并写进府徽铭文；一颗好果可卖到近万铢。",
     ja: "ノンタブリーの川沿いの果樹園は、代々にわたり名高いドリアンを育ててきました。カンヤオやモントーンなど四十を超える品種があります。地理的表示に登録され、県の標語にもうたわれ、一玉が一万バーツ近くで取引されることもあります。",
     es: "Los huertos ribereños de Nonthaburi llevan generaciones criando durianes muy cotizados, con más de cuarenta cultivares como el Kan Yao y el Mon Thong. Registrado con indicación geográfica y celebrado en el lema provincial, un solo fruto puede alcanzar casi diez mil bats.",
+    ko: "논타부리의 강가 과수원은 대를 이어 귀한 두리안을 길러 왔고, 칸야오와 몬통을 비롯해 마흔 가지가 넘는 품종이 있습니다. 지리적 표시로 등록되어 주의 표어에도 등장하며, 한 알이 만 바트에 가까운 값에 팔리기도 합니다.",
   },
   "Nonthaburi::Thot man no kala": {
     id: "Perkedel kari goreng yang dicampur no kala, tunas kerabat lengkuas yang asli dari pulau Koh Kret. Komunitas Mon di pulau itu telah memasak dengan tanaman ini selama berabad-abad, menjadikan hidangan ini lambang kuliner warisan Mon di Nonthaburi.",
@@ -1491,6 +1675,7 @@ module.exports = {
     zh: "炸咖喱鱼饼里拌入no kala——一种原生于Koh Kret岛、属高良姜家族的嫩芽。岛上的孟族社群用这种植物入馔已有数百年，这道菜也因此成了暖武里孟族传承的可食徽章。",
     ja: "ナンキョウの仲間の若芽ノーカラーを混ぜ込んだ、揚げカレーのすり身団子です。この植物はコークレット島に自生し、島のモン族は何世紀も料理に使ってきました。この一皿はノンタブリーのモン文化を映す、食べられる紋章です。",
     es: "Pastelillos de curri fritos mezclados con no kala, un brote de la familia de la galanga autóctono de la isla de Koh Kret. La comunidad mon de la isla lleva siglos cocinando con esta planta, lo que hace del plato un emblema comestible de la herencia mon de Nonthaburi.",
+    ko: "코끄렛섬에 자생하는 갈랑갈속 새순 노깔라를 섞어 튀긴 카레 어묵입니다. 이 섬의 몬족은 수백 년 동안 이 식물로 요리해 왔고, 그래서 이 음식은 논타부리 몬 유산의 먹을 수 있는 상징입니다.",
   },
   "Osaka::Kushikatsu": {
     id: "Tusuk sate daging sapi, sayuran, dan makanan laut yang dibalur adonan lalu digoreng — diciptakan sekitar 1929 di Shinsekai untuk mengenyangkan buruh dengan murah. Aturan suci di bejana saus bersama: celup sekali saja, jangan pernah dua kali. Daruma, kedai pendirinya, mengklaim asal-usul aturan itu.",
@@ -1499,6 +1684,7 @@ module.exports = {
     zh: "牛肉、蔬菜与海鲜串上竹签，裹粉油炸——约1929年生于新世界，为的是让工人吃得便宜又饱。共用酱缸前有条铁律：只准蘸一次，绝不二次蘸。元祖店达摩自认是这条规矩的源头。",
     ja: "牛肉、野菜、魚介を串に刺し、衣をつけて揚げます。1929年ごろ、新世界で労働者の腹を安く満たすために生まれました。共用のソース壺での鉄則は、二度づけ禁止。元祖の店だるまが、この決まりの発祥を名乗ります。",
     es: "Brochetas de ternera, verduras y marisco rebozadas y fritas, inventadas hacia 1929 en Shinsekai para llenar barato el estómago de los obreros. La regla sagrada ante el recipiente comunal de salsa: mojar una sola vez, nunca dos. Daruma, la casa fundadora, reclama el origen de la norma.",
+    ko: "소고기와 채소, 해산물을 꼬치에 꿰어 튀김옷을 입혀 튀깁니다. 1929년경 신세카이에서 노동자의 배를 값싸게 채우려 만들었습니다. 공용 소스 통 앞의 신성한 규칙은 한 번만 찍고 절대 두 번 찍지 않는 것입니다. 원조 가게 다루마가 그 규칙의 유래를 주장합니다.",
   },
   "Osaka::Okonomiyaki (Osaka style)": {
     id: "Panekuk gurih Osaka mencampur kubis, telur, dan babi langsung ke dalam adonan sebelum menyentuh wajan. Baik Osaka maupun Hiroshima menelusurinya ke jajanan gaya Barat seharga satu sen sebelum perang, dan masing-masing kota mengklaim gayanya sendiri sah — Osaka mencampur, Hiroshima menyusun berlapis. Persaingannya nyata dan belum selesai.",
@@ -1507,6 +1693,7 @@ module.exports = {
     zh: "大阪的什锦烧把卷心菜、鸡蛋与猪肉直接拌进面糊，再下铁板。大阪与广岛都把源头追到战前的「一钱洋食」，两座城也各自认定自家的做法才正统——大阪拌，广岛叠。这场较劲是真的，至今未分胜负。",
     ja: "大阪のお好み焼きは、キャベツ、卵、豚肉を鉄板にのせる前から生地に混ぜ込みます。大阪も広島も戦前の一銭洋食に起源をたどり、それぞれ自らの流儀こそ正統だと主張します。大阪は混ぜ、広島は重ねる。この対立は本物で、決着はついていません。",
     es: "La torta salada de Osaka mezcla col, huevo y cerdo directamente en la masa antes de llegar a la plancha. Tanto Osaka como Hiroshima la remontan a los aperitivos occidentales de un sen de anteguerra, y cada ciudad reivindica su propio estilo como legítimo: Osaka mezcla, Hiroshima superpone. La rivalidad es real y sigue sin resolverse.",
+    ko: "오사카식 부침은 양배추와 달걀, 돼지고기를 반죽에 섞은 뒤 철판에 올립니다. 오사카와 히로시마 모두 전쟁 전 1전짜리 양식 간식에서 왔다고 보며 저마다 정당한 방식을 주장합니다. 오사카는 섞고 히로시마는 쌓습니다. 이 경쟁은 실재하며 아직 결판나지 않았습니다.",
   },
   "Osaka::Takoyaki": {
     id: "Bola panggang berisi gurita khas Osaka diciptakan pada 1935 oleh Endo Tomekichi dari Aizuya, yang menambahkan gurita Akashi ke \"radio-yaki\" buatannya sebelumnya. Kedai pendirinya masih menyajikannya tanpa saus, berasa dashi. Takoyaki menjadi jangkar budaya kuidaore Osaka — makan sampai jatuh.",
@@ -1515,6 +1702,7 @@ module.exports = {
     zh: "大阪的章鱼烧丸子由会津屋的远藤留吉在1935年创出：他把明石章鱼加进自己早先做的「收音机烧」。元祖店至今仍不浇酱，只以出汁调味。章鱼烧撑起了大阪「吃到倒」的食倒文化。",
     ja: "大阪のたこ焼きは1935年、会津屋の遠藤留吉が、それまでの「ラヂオ焼き」に明石のタコを入れて生み出しました。創業の店は今もソースをかけず、出汁の味で供します。たこ焼きは、大阪の「食い倒れ」の食文化を支えています。",
     es: "Las bolas de pulpo a la plancha de Osaka las inventó en 1935 Endo Tomekichi, del Aizuya, al añadir pulpo de Akashi a su anterior «radio-yaki». La casa fundadora las sirve aún sin salsa, sazonadas con dashi. El takoyaki ancla la célebre cultura kuidaore de Osaka: comer hasta caer.",
+    ko: "오사카의 문어 넣은 공 모양 구이는 1935년 아이즈야의 엔도 도메키치가 앞서 만들던 '라디오야키'에 아카시 문어를 넣으며 태어났습니다. 원조 가게는 지금도 소스 없이 다시 맛으로 냅니다. 다코야키는 오사카의 이름난 구이다오레 길거리 문화를 떠받칩니다.",
   },
   "Palawan::Chao long": {
     id: "Sup mi daging sapi yang khas Puerto Princesa, warisan kamp pengungsi Vietnam yang didirikan di sana pada 1979. Kios para pengungsi memberi makan kota itu; warga setempat mempertahankan namanya yang salah dengar dan mem-Filipina-kan kuahnya dengan saus tomat pisang, disantap bersama baguette yang garing.",
@@ -1523,6 +1711,7 @@ module.exports = {
     zh: "公主港独有的牛肉汤面，是1979年在此设立的越南难民营留下的遗产。难民的小摊喂饱了这座城；当地人保留了这个听岔了的名字，又用香蕉番茄酱把汤底菲律宾化，配硬皮法棍同吃。",
     ja: "プエルト・プリンセサにしかない牛肉の麺スープで、1979年にこの地に設けられたベトナム難民キャンプの遺産です。難民たちの屋台が街を養い、地元の人は聞き違えたままの名を残し、バナナケチャップでスープをフィリピン風に変えました。皮の固いバゲットを添えて食べます。",
     es: "Una sopa de fideos con ternera exclusiva de Puerto Princesa, legado del campo de refugiados vietnamitas instalado allí en 1979. Los quioscos de los refugiados alimentaron la ciudad; los vecinos conservaron el nombre mal oído y filipinizaron el caldo con kétchup de plátano, comiéndolo con baguette crujiente.",
+    ko: "푸에르토프린세사만의 소고기 국수로, 1979년 그곳에 세워진 베트남 난민촌이 남긴 유산입니다. 난민들의 노점이 도시를 먹였고, 사람들은 잘못 들은 이름을 그대로 쓰며 바나나 케첩으로 국물을 필리핀식으로 바꿔 바삭한 바게트와 함께 먹습니다.",
   },
   "Palawan::Tamilok": {
     id: "\"Cacing kayu\" termasyhur dari Palawan sebenarnya adalah kerang tanpa cangkang yang mengebor batang bakau. Disantap sebagai ritual cara makan: dicungkil hidup-hidup, dibilas, dicelup ke cuka berbumbu, lalu ditelan mentah seperti tiram — tantangan khas Puerto Princesa.",
@@ -1531,6 +1720,7 @@ module.exports = {
     zh: "巴拉望有名的「木虫」其实是一种无壳的蛤，专钻红树林的木头。吃法本身就是仪式：活着挖出、冲净、蘸香料醋，像吃生蚝那样整条吞下——这是公主港的招牌胆量测试。",
     ja: "パラワンで名高い「木の虫」は、実はマングローブの倒木に穴を穿つ殻のない二枚貝です。食べ方そのものが儀式で、生きたまま取り出し、すすぎ、香辛料入りの酢につけ、牡蠣のように生のまま飲み込みます。プエルト・プリンセサの度胸試しです。",
     es: "El famoso «gusano de madera» de Palawan es en realidad una almeja sin concha que perfora los troncos de manglar. Se come como un rito: extraído vivo, enjuagado, mojado en vinagre especiado y tragado crudo como una ostra: el desafío por antonomasia de Puerto Princesa.",
+    ko: "팔라완의 이름난 '나무벌레'는 사실 맹그로브 통나무를 파고드는 껍데기 없는 조개입니다. 먹는 방식 자체가 의식입니다. 산 채로 꺼내 헹군 뒤 향신 식초에 찍어 굴처럼 삼킵니다. 푸에르토프린세사의 대표적인 담력 시험입니다.",
   },
   "Pathum Thani::Kuaitiao ruea rangsit": {
     id: "Sup mi gelap yang dikentalkan darah, dulu dijual dari perahu dayung di sepanjang Khlong Rangsit. Pedagang legendaris Go Hub membuat Rangsit identik dengan mi perahu pada akhir 1950-an; kedai di darat masih menyajikannya dalam mangkuk mungil seukuran perahu.",
@@ -1539,6 +1729,7 @@ module.exports = {
     zh: "以猪血调浓的深色汤面，当年由划艇沿Khlong Rangsit运河叫卖。1950年代末，传奇摊主Go Hub让「兰实」几乎等同于船面；如今岸上的店仍用小小的一口船碗盛着卖。",
     ja: "血で濃度をつけた黒いスープの麺で、かつてはクローン・ランシット沿いを手漕ぎ舟が売り歩きました。1950年代末、伝説の売り手ゴー・ハップがランシットを「舟麺」の代名詞にしました。今も陸の店は、舟の椀ほどの小さな器で供します。",
     es: "Sopa de fideos oscura, ligada con sangre, que antaño se vendía desde botes de remo a lo largo del canal Khlong Rangsit. El legendario vendedor Go Hub hizo de Rangsit sinónimo de fideos de barca a finales de los años cincuenta; los locales en tierra la siguen sirviendo en cuencos diminutos del tamaño de una barca.",
+    ko: "클롱 랑싯을 따라 노 젓는 배에서 팔던 짙고 피를 넣은 국수입니다. 전설적인 상인 고홉이 1950년대 말 랑싯을 보트 누들과 같은 말로 만들었고, 뭍의 가게들도 여전히 배만 한 작은 그릇에 냅니다.",
   },
   "Pattaya::Naklua market seafood": {
     id: "Pengalaman makan paling lokal di Pattaya ada di pasar Lan Pho Naklua, di kawasan nelayan lama: pilih udang bakar, kepiting kukus, dan tiram segar langsung dari perahu, lalu minta kedai memasaknya — sebuah kebiasaan pesisir Teluk, bukan hidangan yang lahir di Pattaya.",
@@ -1547,6 +1738,7 @@ module.exports = {
     zh: "芭堤雅最接地气的一餐在老渔村的兰坡那克鲁市场：从渔船上挑烤虾、蒸蟹与鲜蚝，再交给摊子代煮——这是泰国湾沿岸的习惯，而非芭堤雅本地诞生的菜。",
     ja: "パタヤでもっとも土地に根ざした食の体験は、旧漁村のランポー・ナクルア市場です。船から揚がったばかりの海老、蟹、生牡蠣を選び、屋台に調理してもらいます。パタヤ生まれの料理というより、タイ湾岸の習わしです。",
     es: "La experiencia gastronómica más local de Pattaya está en el mercado de Lan Pho Naklua, en el viejo barrio pesquero: eliges gambas a la brasa, cangrejo al vapor y ostras frescas recién bajadas de las barcas y los puestos te las cocinan. Una costumbre de la costa del Golfo, no un plato nacido en Pattaya.",
+    ko: "파타야에서 가장 현지다운 경험은 옛 어촌의 란포 나클루아 시장입니다. 배에서 갓 올라온 구운 새우와 찐 게, 생굴을 골라 노점에 조리를 맡깁니다. 파타야에서 태어난 요리라기보다 걸프 연안의 관습입니다.",
   },
   "Pattaya::Som tam–kai yang–khao niao": {
     id: "Pattaya tak punya kanon hidangan asli; piring hariannya adalah set Isan nasional berupa salad pepaya, ayam panggang, dan ketan, yang dibawa masuk oleh tenaga kerja timur laut yang membangun kota resor ini dan kini menjadi dasar jajanan jalanannya.",
@@ -1555,6 +1747,7 @@ module.exports = {
     zh: "芭堤雅没有自己的传统菜谱；它的日常一餐是全国通行的伊善套餐——青木瓜沙拉、烤鸡与糯米饭，由建起这座度假城的东北部劳工带入，如今成了当地街头小吃的底色。",
     ja: "パタヤに固有の料理の系譜はありません。日常の一皿は全国的なイサーンの組み合わせ——パパイヤサラダ、焼き鶏、もち米——で、このリゾート都市を建てた東北部の労働者が持ち込み、今では街の屋台の基調になっています。",
     es: "Pattaya no tiene un canon de platos propios; su plato de diario es el conjunto isanés nacional de ensalada de papaya, pollo a la brasa y arroz glutinoso, traído por la mano de obra del noreste que levantó la ciudad turística y hoy base de su comida callejera.",
+    ko: "파타야에는 고유한 요리의 계보가 없습니다. 일상의 한 상은 파파야 샐러드와 구운 닭, 찰밥이라는 전국적인 이싼 조합으로, 이 휴양 도시를 지은 동북부 노동자들이 들여와 지금은 길거리 음식의 기본이 됐습니다.",
   },
   "Perth::Fremantle fish and chips": {
     id: "Ritual makan penanda Perth: ikan dan kentang goreng terbungkus kertas, disantap di papan jalan pelabuhan nelayan Fremantle yang masih bekerja, beroperasi sejak awal 1900-an. Cicerello's, berdiri pada 1903, menjadi jangkar pelabuhan itu bersama pabrik bir Little Creatures.",
@@ -1563,6 +1756,7 @@ module.exports = {
     zh: "珀斯最具代表性的一餐仪式：纸包的炸鱼薯条，就在弗里曼特尔仍在作业的渔港栈道上吃——这港自二十世纪初运作至今。1903年开张的Cicerello's与Little Creatures啤酒厂一同守着这片码头。",
     ja: "パースを象徴する食の作法です。紙に包んだフィッシュ・アンド・チップスを、今も現役のフリーマントル漁港の遊歩道で食べます。港は1900年代初頭から動き続けています。1903年創業のシチェレロズが、リトル・クリーチャーズの醸造所とともにこの波止場を支えています。",
     es: "El rito gastronómico que define Perth: pescado con patatas envuelto en papel, comido en el paseo del puerto pesquero en activo de Fremantle, operativo desde principios del siglo XX. Cicerello's, fundado en 1903, ancla el puerto junto a la cervecería Little Creatures.",
+    ko: "퍼스를 정의하는 음식 의식입니다. 1900년대 초부터 이어 온 프리맨틀의 현역 어항 산책로에서 종이에 싼 피시 앤드 칩스를 먹습니다. 1903년 문을 연 치체렐로스가 리틀 크리처스 양조장과 나란히 항구를 지킵니다.",
   },
   "Perth::Western rock lobster": {
     id: "Tangkapan paling dihargai di Australia Barat, dari perikanan spesies tunggal yang lestari di lepas Coral Coast. Menu-menu Perth memuliakannya dipanggang dengan mentega; di utara kota, Lobster Shack di Cervantes menyajikannya langsung dari perahu ke piring.",
@@ -1571,6 +1765,7 @@ module.exports = {
     zh: "西澳最受推崇的渔获，来自珊瑚海岸外可持续的单一物种渔业。珀斯的菜单最爱以黄油炙烤；城北的塞万提斯，Lobster Shack就在渔船边把它从捕笼直送上桌。",
     ja: "西オーストラリアでもっとも尊ばれる漁獲で、コーラル・コースト沖の単一種の持続可能な漁業に支えられています。パースの店ではバターで焼くのが定番。市の北、セルバンテスのロブスター・シャックでは、船のかたわらで籠から皿へと供されます。",
     es: "La captura más estimada de Australia Occidental, de una pesquería sostenible de una sola especie frente a la Coral Coast. Las cartas de Perth lo celebran a la plancha con mantequilla; al norte de la ciudad, el Lobster Shack de Cervantes lo sirve de la nasa al plato, junto a los barcos.",
+    ko: "서호주에서 가장 귀히 여기는 어획으로, 코럴 코스트 앞바다의 지속가능한 단일종 어업에서 옵니다. 퍼스의 식당은 버터에 구워 내는 것을 최고로 치고, 도시 북쪽 세르반테스의 랍스터 섁은 배 곁에서 잡아 바로 접시에 올립니다.",
   },
   "Phang-Nga::Mee phad kati takua pa": {
     id: "Bihun ditumis dengan krim kelapa kental sampai kering dan harum, hidangan pagi lambang kawasan Baba tua di Takua Pa. Disantap di ruko-ruko warisan, hidangan ini mengungkapkan budaya kuliner Peranakan Phang-Nga di era timah, berbeda dari mi Phuket.",
@@ -1579,6 +1774,7 @@ module.exports = {
     zh: "米粉与浓椰浆一同炒到收干出香，是达瓜巴老峇峇街区标志性的早餐。人们在老店屋里吃它，这道菜道出攀牙锡矿时代的峇峇娘惹饮食，与普吉的面食判然有别。",
     ja: "ビーフンを濃いココナッツクリームで水気がとぶまで炒め、香りを立たせます。タクアパの古いババ地区を象徴する朝の一皿です。歴史ある店屋で食べられ、プーケットの麺とは異なる、錫の時代のパンガーのプラナカン食文化を映しています。",
     es: "Fideos de arroz salteados con crema de coco espesa hasta quedar secos y aromáticos, el plato matinal emblemático del viejo barrio baba de Takua Pa. Comidos en shophouses históricas, expresan la cultura peranakan de Phang-Nga en la era del estaño, distinta de los fideos de Phuket.",
+    ko: "쌀국수를 진한 코코넛크림에 국물이 마르고 향이 오를 때까지 볶습니다. 타쿠아빠 옛 바바 거리의 상징적인 아침 음식으로, 옛 숍하우스에서 먹으며 푸껫의 국수와는 다른 팡응아의 주석 시대 프라나칸 음식 문화를 보여 줍니다.",
   },
   "Phang-Nga::Tao so takua pa": {
     id: "Pastri Hokkien kecil berlapis dengan isian kacang hijau atau kuning telur asin, penganan pembawa berkah di kota-kota Baba penambang timah. Rumah-rumah Takua Pa seperti Tuangrat telah memanggangnya lebih dari 110 tahun; Phuket ikut berbagi sekaligus mengklaim tradisi ini.",
@@ -1587,6 +1783,7 @@ module.exports = {
     zh: "小巧的福建酥饼，内馅是绿豆或咸蛋黄，是锡矿峇峇小城里的吉祥点心。达瓜巴的Tuangrat等老铺已烤了一百一十多年；普吉既共享这一传统，也自认是源头。",
     ja: "緑豆や塩漬け卵黄を包んだ、小ぶりで層のある福建菓子です。錫鉱で栄えたババの町々で縁起物とされてきました。タクアパのトゥアンラットなどの店は百十年以上焼き続けています。プーケットもこの伝統を分かち合い、同時に自らのものだと主張します。",
     es: "Pequeños pasteles hojaldrados hokkien rellenos de judía mungo o yema salada, un dulce propiciatorio de las ciudades baba del estaño. Casas de Takua Pa como Tuangrat llevan más de ciento diez años horneándolos; Phuket comparte la tradición y también la reclama.",
+    ko: "녹두나 소금 달걀 소를 넣은 작고 겹겹인 호키엔 과자로, 주석 광산 시절 바바 마을의 길한 단것입니다. 타쿠아빠의 투앙랏 같은 집이 110년 넘게 구워 왔고, 푸껫도 이 전통을 나누며 원조를 주장합니다.",
   },
   "Phu Quoc::Gỏi cá trích": {
     id: "Ikan haring mentah diaduk dengan kelapa, jeruk nipis, dan bawang, lalu digulung dalam kertas beras — tangkapan harian nelayan pulau yang disantap dengan kecap ikan setempat. Justru pasangannya yang penting: nước mắm ber-IG, beberapa meter dari perahu.",
@@ -1595,6 +1792,7 @@ module.exports = {
     zh: "生鲱鱼拌上椰丝、青柠与洋葱，卷进米纸——岛上渔民当日的渔获，配本地鱼露同食。妙就妙在这组合：受产地保护的鱼露，就在离渔船几步之遥处。",
     ja: "生のニシンをココナッツ、ライム、玉ねぎと和え、ライスペーパーで巻きます。島の漁師のその日の獲物を、地元の魚醤で食べる一皿です。要はこの取り合わせで、原産地保護のヌクマムが船からほんの数メートルの場所にあります。",
     es: "Arenque crudo mezclado con coco, lima y cebolla y enrollado en papel de arroz: la captura diaria de los pescadores de la isla, comida con la salsa de pescado local. La gracia está en el maridaje: nước mắm con DOP a metros de las barcas.",
+    ko: "생청어를 코코넛과 라임, 양파에 버무려 라이스페이퍼에 말아 먹습니다. 섬 어부들이 그날의 어획을 이 지역 피시소스와 함께 먹던 것으로, 배에서 몇 걸음 거리의 원산지 보호 느억맘과의 조합이 핵심입니다.",
   },
   "Phu Quoc::Nước mắm Phú Quốc": {
     id: "Kecap ikan dari teri hitam pulau ini, difermentasi dalam tong lebih dari setahun. Memegang Indikasi Geografis Terlindungi Uni Eropa sejak 2012 — produk Asia Tenggara pertama yang meraihnya — dan menjadi warisan budaya takbenda nasional sejak 2021. Kunjungilah rumah tongnya.",
@@ -1603,6 +1801,7 @@ module.exports = {
     zh: "本岛以黑鳀鱼酿造的鱼露，在木桶中发酵一年以上。2012年获欧盟原产地名称保护——东南亚首例——并自2021年起列为国家级非物质文化遗产工艺。不妨去看看酿造木桶房。",
     ja: "島の黒いカタクチイワシでつくる魚醤で、樽で一年以上発酵させます。2012年にEUの原産地呼称保護を取得し、東南アジアの産品としては初の例となりました。2021年からは国家無形文化遺産の技でもあります。樽蔵をのぞいてみてください。",
     es: "La salsa de pescado de la isla, de anchoa negra, fermentada en barrica más de un año. Denominación de Origen Protegida de la UE desde 2012 —el primer producto del Sudeste Asiático en lograrla— y oficio de patrimonio inmaterial nacional desde 2021. Visita una nave de barricas.",
+    ko: "섬의 검은 멸치를 통에 넣어 일 년 넘게 발효시킨 피시소스입니다. 2012년 동남아시아 최초로 유럽연합 원산지 명칭 보호를 받았고, 2021년부터 국가 무형문화유산 기술입니다. 통 창고를 둘러보세요.",
   },
   "Phuket::Mee hokkien phuket": {
     id: "Mi gandum kuning yang kenyal, dimasak dengan cara keluarga Tionghoa Hokkien di Kota Phuket, tiang penyangga masakan yang membuat Phuket meraih status Kota Kreatif Gastronomi UNESCO pada 2015 — yang pertama di ASEAN — dan berbagi akar dengan hokkien mee Penang.",
@@ -1611,6 +1810,7 @@ module.exports = {
     zh: "普吉城福建华人家庭做法的弹牙黄面，是让普吉在2015年获得联合国教科文组织「美食创意城市」称号——东盟首例——的基石之一，与槟城福建面同源。",
     ja: "プーケット・タウンの福建系華人の家庭の流儀でつくる、腰のある黄色い小麦麺です。プーケットが2015年にユネスコ創造都市ネットワークの「食文化」分野に、ASEANで初めて認定される礎となった料理で、ペナンの福建麺と根を同じくします。",
     es: "Fideos de trigo amarillos y elásticos cocinados al estilo de las familias hokkien-chinas de Phuket Town, piedra angular de la cocina que valió a Phuket el título de Ciudad Creativa de la Gastronomía de la UNESCO en 2015 —la primera de la ASEAN— y emparentada con el hokkien mee de Penang.",
+    ko: "푸껫 타운의 호키엔계 화교 집안 방식으로 지은 탱탱한 노란 밀면입니다. 2015년 푸껫이 아세안 최초로 유네스코 미식 창의도시가 되게 한 요리의 주춧돌이며, 페낭의 호키엔 미와 뿌리를 나눕니다.",
   },
   "Phuket::Moo hong": {
     id: "Perut babi dibraise perlahan dengan bawang putih, lada, dan kecap gelap sampai mengilap dan empuk — ciri khas rumah tangga Baba Peranakan Phuket, dihidangkan pada perayaan dan meja keluarga, serta ditampilkan dalam berkas kota gastronomi UNESCO milik pulau ini.",
@@ -1619,6 +1819,7 @@ module.exports = {
     zh: "五花肉与蒜、胡椒和黑酱油慢炖至油亮软烂——这是普吉峇峇娘惹家庭的招牌，节庆与家宴上都有，也写进了本岛申报联合国教科文组织美食之城的材料。",
     ja: "豚バラ肉をにんにく、胡椒、濃口醤油でつやが出るまでじっくり煮込みます。プーケットのババ・プラナカンの家庭を代表する一皿で、祝いの席にも家族の食卓にも並び、島がユネスコ食文化都市に申請した資料にも取り上げられました。",
     es: "Panceta de cerdo estofada lentamente con ajo, pimienta y salsa de soja oscura hasta quedar brillante y tierna: una seña de los hogares baba peranakan de Phuket, servida en fiestas y mesas familiares, y presente en el expediente de ciudad gastronómica UNESCO de la isla.",
+    ko: "삼겹살을 마늘과 후추, 진간장에 윤기 나고 부드러워질 때까지 조립니다. 푸껫 바바 프라나칸 집안의 대표 요리로 명절과 가족 식탁에 오르며, 이 섬의 유네스코 미식도시 포트폴리오에도 담겼습니다.",
   },
   "Phuket::O-tao": {
     id: "Hidangan wajan datar khas Phuket berisi tiram kecil, talas lembut, telur, dan kerupuk kulit babi, turunan telur dadar tiram Hokkien tetapi berbeda dari hoi tod Thailand tengah. Pedagang kota tua memperlakukannya sebagai lembaga malam yang menceritakan kisah Sino-Peranakan Phuket.",
@@ -1627,6 +1828,7 @@ module.exports = {
     zh: "普吉独有的铁板小食：小生蚝、软芋头、蛋与猪油渣同煎，源自福建蚵仔煎，却与泰国中部的hoi tod不同。老城摊贩把它当成夜晚的定制，讲述普吉的华人—峇峇娘惹身世。",
     ja: "プーケットにしかない鉄板料理で、小ぶりの牡蠣、やわらかいタロイモ、卵、豚脂の揚げかすを合わせます。福建の牡蠣オムレツの系譜にありながら、タイ中部のホイトートとは別物です。旧市街の売り手たちは、これを夜の定めごととして守り、プーケットの華人・プラナカンの物語を語ります。",
     es: "Un plato de plancha exclusivo de Phuket con ostras pequeñas, taro blando, huevo y chicharrones, descendiente de la tortilla de ostras hokkien pero distinto del hoi tod del centro de Tailandia. Los vendedores del casco viejo lo tratan como una institución nocturna que cuenta la historia sinoperanakan de Phuket.",
+    ko: "작은 굴과 부드러운 토란, 달걀, 돼지껍질 튀김을 철판에 부치는 푸껫만의 요리입니다. 호키엔 굴전에서 이어졌지만 중부 태국의 호이톳과는 다릅니다. 구시가 노점들은 푸껫의 화교 프라나칸 이야기를 들려주는 저녁의 제도로 여깁니다.",
   },
   "Putrajaya::Nasi lemak": {
     id: "Hidangan nasional Malaysia berbahan nasi santan — dulu sarapan petani yang dibungkus daun pisang, kini disantap kapan saja, di mana saja.",
@@ -1635,6 +1837,7 @@ module.exports = {
     zh: "马来西亚的椰浆饭国菜——从前是包在香蕉叶里的农人早餐，如今随时随地都能吃到。",
     ja: "ココナッツミルクで炊いた飯を主役にしたマレーシアの国民食。かつてはバナナの葉に包んだ農民の朝食でしたが、今ではいつでもどこでも食べられています。",
     es: "El plato nacional malasio de arroz al coco: antaño el desayuno del campesino envuelto en hoja de plátano, hoy se come a cualquier hora y en cualquier sitio.",
+    ko: "말레이시아의 국민 음식인 코코넛 밥입니다. 한때는 바나나잎에 싸 먹던 농부의 아침이었지만, 지금은 어느 때 어디서나 먹습니다.",
   },
   "Putrajaya::Patin tempoyak": {
     id: "Ikan patin dari Sungai Pahang dimasak dengan tempoyak — durian yang difermentasi. Tempoyak sudah disebut dalam Hikayat Abdullah (1836); Temerloh resmi berjuluk \"Bandar Ikan Patin\".",
@@ -1643,6 +1846,7 @@ module.exports = {
     zh: "彭亨河的银鲶以tempoyak（发酵榴梿）烹煮。发酵榴梿早见于《阿都拉传》（1836）；淡马鲁的官方称号正是「Bandar Ikan Patin」——鲶鱼城。",
     ja: "パハン川の銀ナマズを、発酵させたドリアン「テンポヤ」で煮た料理。テンポヤは『ヒカヤット・アブドゥッラー』（1836年）にすでに登場し、テメルロは「バンダル・イカン・パティン（パティンの町）」を正式な愛称としています。",
     es: "Baga plateada del río Pahang cocinada con tempoyak, durián fermentado. El tempoyak ya aparece en el Hikayat Abdullah (1836); Temerloh lleva oficialmente el sobrenombre de «Bandar Ikan Patin», la ciudad del patin.",
+    ko: "파항강의 은메기를 발효 두리안 템포약에 익힙니다. 템포약은 1836년 히카얏 압둘라에 나오며, 트메를로는 공식적으로 '반다르 이칸 파틴', 곧 파틴의 도시로 불립니다.",
   },
   "Quanzhou::Mianxian hu": {
     id: "Semangkuk fajar Quanzhou: bihun gandum setipis rambut yang meleleh ke dalam kaldu tulang dan makanan laut yang mengilap, disesuaikan dengan babi cuka, usus, atau tiram, ditambah sedikit arak beras. Berumur dua abad, terdaftar sebagai warisan kota, dan kini dibakukan dalam standar resmi.",
@@ -1651,6 +1855,7 @@ module.exports = {
     zh: "泉州破晓的一碗：细如发丝的面线化进油亮的海鲜骨汤，随口味加醋肉、大肠或海蛎，再点几滴米酒。两百年历史，已列入市级非遗，如今更有官方标准把做法定了下来。",
     ja: "泉州の夜明けの一椀です。髪のように細い麺線が、艶やかな魚介と骨のスープに溶け込み、酢豚肉やもつ、牡蠣を好みで加え、米酒をひとたらし。二百年の歴史をもち、市の無形文化遺産に指定され、今では市の基準にも定められています。",
     es: "El cuenco del amanecer en Quanzhou: fideos de trigo finos como un cabello que se deshacen en un caldo brillante de huesos y marisco, personalizado con cerdo al vinagre, callos u ostras y un chorrito de vino de arroz. Dos siglos de historia, catalogado como patrimonio municipal y hoy fijado en una norma de la ciudad.",
+    ko: "취안저우의 새벽 한 그릇입니다. 머리카락처럼 가는 밀 소면을 윤기 나는 해산물 사골 국물에 풀어 식초 돼지고기나 곱창, 굴을 골라 넣고 청주를 한 술 두릅니다. 200년 된 음식으로 시 무형유산이며 지금은 시의 표준으로 정리돼 있습니다.",
   },
   "Quanzhou::Tusun dong": {
     id: "Gigitan paling berani di Quanzhou: cacing kacang dari hamparan pasang surut direbus sampai kolagennya mengeras menjadi agar-agar dingin yang bening kristal, disantap dengan bawang putih, mustar, dan cuka. Lahir di Anhai, teknik Minnan ini masuk daftar warisan takbenda provinsi Fujian pada 2022.",
@@ -1659,6 +1864,7 @@ module.exports = {
     zh: "泉州最有胆量的一口：滩涂上的沙虫（土笋）熬到胶质凝成晶莹的冻，蘸蒜泥、芥末与醋同食。它出自安海，这套闽南技艺于2022年列入福建省级非物质文化遗产名录。",
     ja: "泉州でもっとも大胆な一口です。干潟のホシムシを、コラーゲンが固まって透きとおる煮こごりになるまで炊き、にんにく、辛子、酢を添えて食べます。安海に生まれた閩南の技で、2022年に福建省の無形文化遺産に登録されました。",
     es: "El bocado más atrevido de Quanzhou: gusanos cacahuete de los llanos mareales cocidos hasta que su colágeno cuaja en una gelatina fría y cristalina, comida con ajo, mostaza y vinagre. Nacida en Anhai, la técnica minnan entró en la lista provincial de patrimonio inmaterial de Fujian en 2022.",
+    ko: "취안저우에서 가장 대담한 한입입니다. 갯벌의 개불을 콜라겐이 굳을 때까지 끓여 맑은 묵으로 만들어 마늘과 겨자, 식초와 함께 차게 먹습니다. 안하이에서 태어난 이 민난 기법은 2022년 푸젠성 무형유산 목록에 올랐습니다.",
   },
   "Queenstown::Central Otago Pinot Noir": {
     id: "Queenstown berada di jantung Central Otago, kawasan anggur besar paling selatan di dunia, tempat tanah sekis, cahaya alpine, dan musim panas yang kering menghasilkan Pinot Noir dengan kemurnian yang langka. Ruang cicip di \"Lembah Pokok Anggur\" Gibbston terdekat menjadi pusat meja setempat.",
@@ -1667,6 +1873,7 @@ module.exports = {
     zh: "皇后镇位于中奥塔哥的心脏地带，这是世界最南的主要葡萄酒产区：片岩土壤、高山日照与干燥的夏天，酿出纯净罕见的黑皮诺。近旁吉布斯顿「葡萄藤之谷」的酒庄品酒室，正是本地餐桌的中心。",
     ja: "クイーンズタウンはセントラル・オタゴの中心にあります。世界最南の主要ワイン産地で、片岩の土壌、山岳の光、乾いた夏が、稀なほど澄んだピノ・ノワールを生みます。すぐ近く、ギブストンの「葡萄の谷」に並ぶ試飲室が、この土地の食卓の要です。",
     es: "Queenstown se asienta en el corazón de Central Otago, la gran región vinícola más austral del mundo, donde los suelos de esquisto, la luz alpina y los veranos secos dan un pinot noir de rara pureza. Las salas de cata del vecino Gibbston, el «valle de las viñas», son el centro de la mesa local.",
+    ko: "퀸스타운은 세계 최남단의 주요 와인 산지 센트럴 오타고의 한복판에 있습니다. 편암 토양과 알프스의 빛, 건조한 여름이 보기 드물게 맑은 피노 누아를 냅니다. 가까운 깁스턴 '포도나무 골짜기'의 셀러 도어가 이곳 식탁의 중심입니다.",
   },
   "Queenstown::Fergburger": {
     id: "Penanda kuliner Queenstown adalah sebuah kedai burger, bukan sebuah resep: Fergburger telah menyajikan burger rumahan berukuran besar dari daging sapi, domba, dan rusa Selandia Baru selama seperempat abad, dan antreannya yang tak pernah putus sendiri menjadi bagian dari ritual kota petualangan ini.",
@@ -1675,6 +1882,7 @@ module.exports = {
     zh: "皇后镇的美食地标是一家汉堡店，而非一道食谱：Fergburger用新西兰的牛肉、羊肉与鹿肉做超大手工汉堡，已卖了四分之一个世纪；那条昼夜不断的队伍，本身就是这座冒险之都的仪式。",
     ja: "クイーンズタウンの食の目印はレシピではなく、一軒のバーガー店です。ファーグバーガーは四半世紀にわたり、ニュージーランド産の牛、仔羊、鹿肉で特大の自家製バーガーを出し続け、昼夜途切れぬ行列そのものが、この冒険の都の儀式になっています。",
     es: "El hito comestible de Queenstown es una hamburguesería, no una receta: Fergburger lleva un cuarto de siglo sirviendo hamburguesas caseras descomunales de ternera, cordero y venado neozelandeses, y su cola a todas horas forma parte del propio rito de la capital de la aventura.",
+    ko: "퀸스타운의 먹을 수 있는 랜드마크는 조리법이 아니라 버거 가게입니다. 퍼그버거는 25년째 뉴질랜드산 소고기와 양고기, 사슴고기로 만든 큼직한 수제 버거를 내며, 밤낮없이 이어지는 그 줄 자체가 모험의 수도가 지닌 의식의 한 부분입니다.",
   },
   "Rotorua::Geothermal hāngī": {
     id: "Pesta oven tanah Māori — daging, kūmara, dan labu dikukus berjam-jam di bawah tanah — adalah santapan penanda Rotorua, dan menjadi unik di sini karena iwi setempat memasak dengan uap panas bumi alami kawasan itu. Pātaka Kai di Te Puia menyajikan hāngī setiap hari dari lubangnya sendiri.",
@@ -1683,6 +1891,7 @@ module.exports = {
     zh: "毛利地灶宴——肉、kūmara与南瓜在地下焖蒸数小时——是罗托鲁瓦的代表一餐；此地独有之处，在于当地iwi（部族）用的是天然地热蒸汽。Te Puia的Pātaka Kai每天都从自家的地坑里端出hāngī。",
     ja: "肉とクマラ、かぼちゃを地中で何時間も蒸すマオリの地面のかまどの宴は、ロトルアを象徴する食事です。ここが特別なのは、土地のイウィ（部族）が一帯の天然の地熱蒸気で調理するからです。テ・プイアのパータカ・カイでは、自前の穴から毎日ハンギが供されます。",
     es: "El festín maorí del horno de tierra —carne, kūmara y calabaza cocidos al vapor durante horas bajo tierra— es la comida que define Rotorua, y aquí es única porque los iwi locales cocinan con el vapor geotérmico natural de la zona. El Pātaka Kai de Te Puia sirve hāngī a diario desde su propio hoyo.",
+    ko: "고기와 쿠마라, 호박을 땅속에서 여러 시간 찌는 마오리의 땅화덕 잔치는 로토루아를 정의하는 한 끼이며, 이곳 이위가 이 지역의 천연 지열 증기로 익힌다는 점에서 특별합니다. 테 푸이아의 파타카 카이가 자체 구덩이에서 날마다 항이를 냅니다.",
   },
   "Rotorua::Kai cultural feast": {
     id: "Di Rotorua, kai (makanan) tak terpisahkan dari manaakitanga (keramahan): pengalaman malam di Te Puia dan Mitai Māori Village menggabungkan upacara penyambutan, haka, dan hidangan prasmanan hāngī, menjadikan pesta Māori bersama sebagai format bersantap penanda kota ini.",
@@ -1691,6 +1900,7 @@ module.exports = {
     zh: "在罗托鲁瓦，kai（食物）与manaakitanga（好客之道）密不可分：Te Puia和Mitai毛利村的夜间体验把迎宾仪式、哈卡舞与hāngī自助餐合在一起，让共享的毛利盛宴成为这座城市标志性的用餐形式。",
     ja: "ロトルアでは、カイ（食）はマナアキタンガ（もてなし）と切り離せません。テ・プイアやミタイ・マオリ・ヴィレッジの夜の催しは、歓迎の儀式、ハカ、ハンギのビュッフェを一つに束ね、皆で囲むマオリの饗宴をこの街を代表する食事の形にしています。",
     es: "En Rotorua, el kai (la comida) es inseparable del manaakitanga (la hospitalidad): las experiencias nocturnas de Te Puia y del Mitai Māori Village combinan ceremonia de bienvenida, haka y bufé de hāngī, haciendo del festín maorí compartido el formato gastronómico insignia de la ciudad.",
+    ko: "로토루아에서 카이(음식)는 마나키탕가(환대)와 떼어 놓을 수 없습니다. 테 푸이아와 미타이 마오리 빌리지의 저녁 체험은 환영 의식과 하카, 항이 뷔페를 함께 엮어, 함께 나누는 마오리의 잔치를 이 도시의 대표적인 식사 형식으로 만듭니다.",
   },
   "Samut Sakhon::Mahachai seafood": {
     id: "\"Mahachai\" adalah sebutan singkat untuk makanan laut di Thailand tengah. Di pasar Mahachai tepi sungai, di samping muara Tha Chin, kepiting, udang mantis, ikan kembung, dan hasil laut kering datang langsung dari perahu — makan di sini memang tujuan perjalanannya.",
@@ -1699,6 +1909,7 @@ module.exports = {
     zh: "在泰国中部，「马哈猜」几乎就是海鲜的代称。塔真河口旁的马哈猜河畔市场里，螃蟹、虾蛄、鲛鱼与干货直接从渔船卸下——来这里吃，本身就是行程的目的。",
     ja: "タイ中部で「マハーチャイ」といえば海鮮のことです。ターチン川の河口に面した川べりのマハーチャイ市場では、蟹、シャコ、サバ、干物が船から直に揚がります。ここで食べること自体が旅の目的になります。",
     es: "«Mahachai» es, en el centro de Tailandia, sinónimo de marisco. En el mercado ribereño de Mahachai, junto al estuario del Tha Chin, cangrejos, galeras, caballas y salazones bajan directamente de las barcas: comer aquí es el motivo del viaje.",
+    ko: "'마하차이'는 태국 중부에서 해산물을 가리키는 말입니다. 타친강 어귀 옆 강가 마하차이 시장에서는 게와 갯가재, 고등어, 건해산물이 배에서 곧바로 올라옵니다. 여기서 먹는 것 자체가 이 여정의 목적입니다.",
   },
   "Sapporo::Jingisukan": {
     id: "Domba dipanggang di atas wajan cembung yang konon menyerupai helm Jenghis Khan (begitu ceritanya) — berakar pada dorongan peternakan domba Hokkaido tahun 1918; taman bir Sapporo menjadikannya pesta pulau ini.",
@@ -1707,6 +1918,7 @@ module.exports = {
     zh: "羊肉在拱形铁锅上烤，据说锅形似成吉思汗的头盔（只是传说）——源头是1918年北海道的养羊政策；札幌的啤酒园把它变成全岛的盛宴。",
     ja: "ドーム型の鉄鍋で焼く羊肉。鍋の形がジンギスカンの兜に似ているからだと語られます。1918年の北海道の緬羊増殖政策に根があり、札幌のビヤガーデンが島の宴に育てました。",
     es: "Cordero asado en una sartén abombada que, según cuentan, recuerda al casco de Gengis Kan; arraiga en el impulso ovino de Hokkaidō de 1918, y las cervecerías al aire libre de Sapporo lo convirtieron en la fiesta de la isla.",
+    ko: "칭기즈 칸의 투구를 닮았다는 둥근 판에 양고기를 굽습니다. 1918년 홋카이도의 양 사육 장려에 뿌리를 두고, 삿포로 맥주 가든이 이 섬의 잔치 음식으로 만들었습니다.",
   },
   "Sapporo::Miso ramen": {
     id: "Diciptakan tahun 1954 di Aji no Sanpei oleh Morito Ōmiya, yang yakin \"miso baik untuk tubuh\" dan membangun ramen dari logika sup miso — lengkap dengan mi keriting Nishiyama dan tauge.",
@@ -1715,6 +1927,7 @@ module.exports = {
     zh: "1954年由大宫守人在「味之三平」创出。他相信「味噌对身体好」，便照味噌汤的思路做出这碗拉面——配西山制面的卷曲面条与豆芽。",
     ja: "1954年、味の三平の大宮守人が生み出しました。「味噌は身体によい」という信念から味噌汁の理屈でつくった一杯で、西山製麺の縮れ麺ともやしが欠かせません。",
     es: "Creado en 1954 en el Aji no Sanpei por Morito Ōmiya, convencido de que «el miso es bueno para el cuerpo»: construyó un ramen con la lógica de la sopa de miso, con fideos ondulados Nishiyama y brotes de soja.",
+    ko: "1954년 아지노산페이에서 오미야 모리토가 만들었습니다. '된장은 몸에 좋다'는 믿음으로 된장국의 논리에서 라멘을 세웠고, 니시야마의 꼬불면과 숙주까지 함께 왔습니다.",
   },
   "Sapporo::Soup curry": {
     id: "Bermula tahun 1971 sebagai kuah kari obat \"yakuzen\" di Ajanta; nama \"soup curry\" dicetuskan Magic Spice pada 1993 — dan kota ini menjadikannya milik sendiri.",
@@ -1723,6 +1936,7 @@ module.exports = {
     zh: "1971年始于「Ajanta」的药膳咖喱汤；「汤咖喱」这个名字由Magic Spice在1993年定下——札幌把它变成了自家的招牌。",
     ja: "1971年、アジャンタの薬膳カレースープが始まりでした。「スープカレー」という名は1993年にマジックスパイスが名づけ、札幌はこれを自分の味にしました。",
     es: "Empezó en 1971 como caldo de curri medicinal «yakuzen» en el Ajanta; el nombre «soup curry» lo acuñó Magic Spice en 1993, y la ciudad lo hizo suyo.",
+    ko: "1971년 아잔타의 약선 카레 국물에서 시작됐습니다. '수프 카레'라는 이름은 1993년 매직 스파이스가 붙였고, 도시는 이를 제 것으로 만들었습니다.",
   },
   "Semarang::Bandeng presto": {
     id: "Bandeng dimasak bertekanan bersama bawang putih, kunyit, dan garam sampai durinya yang termasyhur menjadi bisa dimakan — dirancang pada 1977 oleh Hanna Budimulya, juru masak rumahan dari Juwana, Pati, lalu masyhur sebagai oleh-oleh khas Semarang. Pati dan Semarang sama-sama mengklaimnya.",
@@ -1731,6 +1945,7 @@ module.exports = {
     zh: "虱目鱼与蒜、姜黄和盐一同高压烹煮，直到那出了名的细刺也能入口——1977年由帕蒂县朱瓦纳的家庭厨师Hanna Budimulya想出，后来以三宝垄伴手礼之名声大噪。帕蒂与三宝垄都自认是主人。",
     ja: "サバヒーをにんにく、ターメリック、塩とともに圧力をかけて炊き、悪名高い小骨まで食べられるようにします。1977年、パティ県ジュワナの家庭料理人ハンナ・ブディムルヤが考案し、スマランの土産として名を上げました。パティとスマラン、双方が本家を名乗ります。",
     es: "El pez leche se cocina a presión con ajo, cúrcuma y sal hasta que sus famosas espinas se vuelven comestibles: lo ideó en 1977 Hanna Budimulya, cocinera casera de Juwana, en Pati, y se hizo célebre como el souvenir de Semarang. Pati y Semarang reclaman ambos el plato.",
+    ko: "밀크피시를 마늘과 강황, 소금과 함께 압력으로 쪄서 악명 높은 잔가시까지 먹을 수 있게 만듭니다. 1977년 파티주 주와나의 가정 요리사 한나 부디물야가 고안했고 스마랑의 대표 기념 음식으로 이름났습니다. 파티와 스마랑이 모두 원조를 주장합니다.",
   },
   "Semarang::Lumpia semarang": {
     id: "Lumpia berisi rebung muda, ebi, telur, dan ayam, disantap segar atau digoreng dengan saus bawang putih manis — lahir dari pernikahan abad ke-19 antara pedagang Tionghoa dan perempuan Jawa. Resmi ditetapkan sebagai Warisan Budaya Takbenda Indonesia.",
@@ -1739,6 +1954,7 @@ module.exports = {
     zh: "内馅是嫩笋、虾米、鸡蛋与鸡肉的春卷，可生食也可油炸，蘸甜蒜酱——源自十九世纪一位华人小贩与爪哇女子的婚姻。已正式列为印尼国家非物质文化遗产。",
     ja: "若い筍、干し海老、卵、鶏肉を包んだ春巻きで、生のままでも揚げても、甘いにんにくだれを添えて食べます。十九世紀、華人の行商とジャワの女性の結婚から生まれました。インドネシアの無形文化遺産に正式指定されています。",
     es: "Rollito relleno de brotes tiernos de bambú, gamba seca, huevo y pollo, comido fresco o frito con salsa dulce de ajo: nació del matrimonio, en el siglo XIX, entre un vendedor chino y una mujer javanesa. Declarado oficialmente Patrimonio Cultural Inmaterial de Indonesia.",
+    ko: "어린 죽순과 건새우, 달걀, 닭고기를 채운 스프링롤로 생으로나 튀겨 달콤한 마늘 소스와 함께 먹습니다. 19세기에 중국 상인과 자바 여성이 혼인하며 태어났습니다. 인도네시아 무형문화유산으로 공식 지정됐습니다.",
   },
   "Seoul::Gwangjang bindaetteok": {
     id: "Di Gwangjang, pasar permanen pertama Korea yang dibuka pada 1905, kacang hijau yang baru digiling digoreng menjadi bindaetteok renyah di gerai-gerai terbuka. Panekuk ini berakar pada tradisi Hwanghae-do, tetapi menyantapnya panas dari wajan bersama makgeolli di tengah hiruk-pikuk pasar adalah ritual khas Seoul.",
@@ -1747,6 +1963,7 @@ module.exports = {
     zh: "在1905年开设、韩国第一座常设市场的广藏市场，现磨的绿豆在露天摊上被煎成酥脆的绿豆煎饼。这种煎饼源自黄海道的传统，但在市场的喧闹中就着马格利酒吃刚出锅的一张，则是地道的首尔仪式。",
     ja: "1905年に開いた韓国初の常設市場、広蔵市場では、挽きたての緑豆が露店でカリッとしたピンデトクに焼かれます。この煎餅は黄海道の伝統に連なりますが、市場の喧噪のなか、焼きたてをマッコリとともに食べることこそ、ソウルならではの作法です。",
     es: "En Gwangjang, el primer mercado permanente de Corea, abierto en 1905, la judía mungo recién molida se fríe en crujientes bindaetteok en puestos al aire libre. La torta procede de la tradición de Hwanghae-do, pero comerla recién salida de la plancha con makgeolli entre el bullicio del mercado es un rito netamente seulés.",
+    ko: "1905년 문을 연 한국 최초의 상설 시장 광장에서는 갓 간 녹두를 노점에서 바삭한 빈대떡으로 부칩니다. 이 전은 황해도 전통에서 왔지만, 시장의 북적임 속에서 철판에서 갓 나온 것을 막걸리와 함께 먹는 일은 서울다운 의식입니다.",
   },
   "Seoul::Joseon royal court cuisine": {
     id: "Masakan harian dan jamuan istana Seoul pada masa Dinasti Joseon, dijaga tetap hidup lewat dayang istana Han Hui-sun dan para pemegang warisan berikutnya. Diakui pada 1970 sebagai Warisan Budaya Takbenda Nasional Korea No. 38, masakan ini menjadi jangkar tradisi santap hanjeongsik Seoul yang halus.",
@@ -1755,6 +1972,7 @@ module.exports = {
     zh: "朝鲜王朝时期首尔宫阙的日常与宴席料理，经宫女韩熙顺及历代传承人保存下来。1970年获认定为韩国国家无形文化遗产第38号，也是首尔精致「韩定食」传统的根基。",
     ja: "朝鮮王朝のソウルの宮廷で供された日常と宴の料理で、宮女・韓熙順とその後の保持者たちによって受け継がれてきました。1970年に韓国の国家無形文化財第38号に指定され、ソウルの洗練された韓定食の伝統を支えています。",
     es: "La cocina diaria y de banquete de los palacios seuleses de la dinastía Joseon, mantenida viva por la dama de corte Han Hui-sun y sucesivas portadoras designadas. Reconocida en 1970 como Patrimonio Cultural Inmaterial Nacional de Corea n.º 38, ancla la refinada tradición del hanjeongsik en Seúl.",
+    ko: "조선 왕조 서울 궁궐의 일상과 잔치 음식으로, 상궁 한희순과 뒤이은 보유자들을 통해 이어져 왔습니다. 1970년 국가무형문화재 제38호로 지정됐고, 서울의 격조 있는 한정식 전통을 떠받칩니다.",
   },
   "Seoul::Seolleongtang": {
     id: "Sup tulang sapi yang berwarna susu, sejak lama dikaitkan dengan Seoul, yang menurut legenda bermula di altar Seonnongdan ketika para raja membagikan kaldu sapi seusai ritus pertanian kerajaan. Kisah itu baru tercatat pada 1924, tetapi hidangan ini tetap khas Seoul dan terdaftar sebagai Warisan Masa Depan Seoul.",
@@ -1763,6 +1981,7 @@ module.exports = {
     zh: "乳白色的牛骨汤，历来与首尔相连。传说它始于先农坛：君王在亲耕之礼后与臣民分食牛肉汤。这一说法迟至1924年才见诸文字，但雪浓汤仍是首尔的家常，并列入「首尔未来遗产」。",
     ja: "乳白色の牛骨スープで、古くからソウルと結びついてきました。伝説では先農壇に始まり、王が親耕の儀のあと牛の汁を分け与えたといいます。この話が記録に現れるのは1924年ですが、ソルロンタンはソウルの日常であり続け、「ソウル未来遺産」に登録されています。",
     es: "Una sopa lechosa de huesos de buey largamente identificada con Seúl, que según la leyenda nació en el altar de Seonnongdan, donde los reyes compartían caldo de vaca tras los ritos agrícolas reales. El relato se registra por primera vez en 1924, pero el plato sigue siendo seulés y figura como Patrimonio Futuro de Seúl.",
+    ko: "오랫동안 서울과 이어져 온 뽀얀 사골 국물입니다. 임금이 선농단에서 친경 의례를 마친 뒤 소고기 국물을 나눠 준 데서 시작했다는 이야기가 전합니다. 그 전설은 1924년에 처음 기록됐지만 요리는 서울에서 난 주식으로 남아 서울미래유산에 올라 있습니다.",
   },
   "Seremban::Cendol Haji Shariff": {
     id: "Cendol adalah klasik nasional, tetapi Haji Shariff's di Seremban — dimulai pada 1930-an oleh pendiri India-Muslim Abdullah Mohamed Ibrahim, yang mempelajari resepnya dari pemukim Jawa di Lorong Jawa — tumbuh dari dua bakul menjadi penanda kota, termasyhur karena cendol pulut dengan ketannya.",
@@ -1771,6 +1990,7 @@ module.exports = {
     zh: "煎蕊本是全国经典，但芙蓉的Haji Shariff——1930年代由印度穆斯林创办人Abdullah Mohamed Ibrahim起家，配方学自Lorong Jawa的爪哇移民——从两只提篮做成了城市地标，尤以加糯米的cendol pulut闻名。",
     ja: "チェンドルは全国的な定番ですが、スレンバンのハジ・シャリフは別格です。1930年代、インド系ムスリムのアブドラ・モハメド・イブラヒムが、ロロン・ジャワのジャワ系移民から製法を学んで始めました。二つの籠から始まり、今では街の名所。もち米を添えたチェンドル・プルットで知られます。",
     es: "El cendol es un clásico nacional, pero el Haji Shariff's de Seremban —iniciado en los años treinta por el fundador indomusulmán Abdullah Mohamed Ibrahim, que aprendió la receta de colonos javaneses en Lorong Jawa— creció de dos cestas a hito de la ciudad, célebre por su cendol pulut con arroz glutinoso.",
+    ko: "첸돌은 국민 음식이지만 스름반의 하지 샤리프는 1930년대에 인도계 무슬림 압둘라 모하메드 이브라힘이 로롱 자와의 자바 정착민에게 배워 시작했습니다. 바구니 둘에서 시작해 도시의 명소가 됐고 찰밥을 넣은 첸돌 풀룻으로 이름났습니다.",
   },
   "Seremban::Seremban beef noodles": {
     id: "Gaya yang hanya ada di Seremban, dirintis perantau Hainan Goh Hian Hai di pasar lama Seremban sekitar 1930-an–40-an: mi lai fun yang kenyal berselimut kuah daging sapi rebus gelap dan kental, dengan sandung lamur serta jeroan. Kedai keturunannya di Pasar Besar Seremban masih menarik peziarah kuliner.",
@@ -1779,6 +1999,7 @@ module.exports = {
     zh: "只在芙蓉见得到的做法，约1930至40年代由海南移民吴显海在芙蓉旧巴刹开创：弹牙的濑粉裹上浓稠的黑色炖牛肉汁，配牛腩与牛杂。后人在芙蓉大巴刹的摊子至今仍引来食客朝圣。",
     ja: "スレンバンにしかない流儀で、1930〜40年代ごろ、海南系移民の呉顕海が旧市場で始めました。腰のあるライフン麺に、濃く黒い牛肉の煮込み汁をたっぷりかけ、バラ肉ともつを添えます。子孫の屋台は今もパサール・ブサール・スレンバンで巡礼者を集めています。",
     es: "Un estilo que solo existe en Seremban, iniciado por el migrante hainanés Goh Hian Hai en el viejo mercado hacia los años treinta y cuarenta: fideos lai fun elásticos cubiertos de una espesa salsa oscura de ternera estofada, con falda y casquería. Los puestos de sus descendientes en el Pasar Besar Seremban siguen atrayendo peregrinos.",
+    ko: "1930~40년대 무렵 하이난 이민자 고히안하이가 옛 스름반 시장에서 시작한 스름반만의 방식입니다. 탱탱한 라이펀 면에 양지와 내장을 넣은 짙고 걸쭉한 소고기 조림 소스를 끼얹습니다. 파사르 브사르 스름반의 후손 노점들이 지금도 순례객을 부릅니다.",
   },
   "Seremban::Seremban siew pau": {
     id: "Roti panggang berlapis khas Seremban dengan isian daging manis-gurih ini dikaitkan dengan Teh Yoke Keng, yang pada 1970-an–80-an mengubah chan pau bertekstur roti buatan ibunya, yang dijual dekat pasar lama Seremban, menjadi siew pau berkulit pastri seperti sekarang. Satu keluarga pendiri masih menjalankan merek besar kota ini.",
@@ -1787,6 +2008,7 @@ module.exports = {
     zh: "芙蓉这款外皮酥层、内藏咸甜肉馅的烤包，一般归功于郑玉琼：1970至80年代，她把母亲在芙蓉旧巴刹旁卖的面包状「叉包」，改造成今天酥皮的烧包。创始家族之一至今仍经营着这座城市的大品牌。",
     ja: "スレンバンの、甘じょっぱい肉餡を包んだ層のある焼き饅頭は、テー・ヨッケンの功績とされます。1970年代から80年代にかけ、彼女は旧スレンバン市場のそばで母が売っていたパン状のチャンパオを、今日のパイ皮のシウパオに作り替えました。創業家の一つは今も市を代表するブランドを営んでいます。",
     es: "El bollo hojaldrado al horno de Seremban, con relleno de carne dulce y salado, se atribuye a Teh Yoke Keng, que en los años setenta y ochenta transformó el chan pau panificado de su madre, vendido junto al viejo mercado de Seremban, en el actual siew pau de corteza de hojaldre. Una de las familias fundadoras dirige aún las grandes marcas de la ciudad.",
+    ko: "달콤짭짤한 고기 소를 넣은 스름반의 겹겹 구운 빵은 테욕켕이 만들었다고 전해집니다. 1970~80년대에 옛 스름반 시장 근처에서 팔던 어머니의 빵 같은 찬 파우를 오늘날의 페이스트리 껍질 시우 파우로 바꿨습니다. 창업 집안 하나가 여전히 이 도시의 큰 브랜드를 운영합니다.",
   },
   "Seria::Seria kolomee": {
     id: "Klaim ketenaran yang sederhana dari kota minyak ini: mi telur kenyal yang diaduk gaya kolo, disajikan di gerai-gerai makanan Seria dan disebut secara nasional sebagai \"Seria kolomee\". Hidangan Tionghoa berasal Sarawak yang dilokalkan oleh gerai-gerai kota ladang minyak selama puluhan tahun — satu-satunya penanda kuliner Seria yang bisa diverifikasi.",
@@ -1795,6 +2017,7 @@ module.exports = {
     zh: "这座石油城不张扬的名头：弹牙的蛋面按干捞的手法拌开，在诗里亚的熟食摊上出售，全国都叫它「诗里亚干捞面」。这道源自砂拉越的华人面食，被油田小城的摊子本地化了数十年——也是诗里亚唯一可查证的饮食标记。",
     ja: "石油の町のささやかな誇りです。腰のある卵麺をコロ式に和えたもので、スリアの食堂で供され、全国的にも「スリアのコロミー」と呼ばれます。サラワク由来の華人の麺料理が、油田の町の屋台で数十年かけて土地の味になりました。スリアで確かめられる唯一の食の看板です。",
     es: "La modesta fama de la ciudad petrolera: fideos de huevo elásticos salteados al estilo kolo, servidos en los puestos de Seria y citados en todo el país como «kolomee de Seria». Un plato chino de origen sarawakense localizado durante décadas por los puestos del pueblo petrolero: la única seña culinaria verificable de Seria.",
+    ko: "이 석유 도시의 소박한 자랑입니다. 탱탱한 달걀면을 콜로 방식으로 비벼 스리아의 노점에서 내며 전국적으로 '스리아 콜로미'라 불립니다. 사라왁에서 온 중국 요리를 수십 년의 유전 마을 노점이 현지화한, 스리아의 유일하게 확인되는 음식의 얼굴입니다.",
   },
   "Shah Alam::Nasi ambeng": {
     id: "Nampan nasi putih Jawa-Melayu yang disantap bersama-sama oleh empat sampai enam orang dari satu talam, lengkap dengan ayam, sambal goreng jawa, serunding kelapa, dan mi goreng. Diwartakan sebagai makanan warisan resmi Selangor pada 2022, berakar di daerah-daerah bermukim Jawa dan dihidangkan pada kenduri.",
@@ -1803,6 +2026,7 @@ module.exports = {
     zh: "一盘爪哇—马来风味的共食白饭，四到六人围着同一托盘分食，配鸡肉、爪哇炒参巴、椰丝serunding和炒面。2022年获宪报公告为雪兰莪官方遗产美食，根在州内的爪哇裔聚居区，常见于kenduri宴席。",
     ja: "ジャワとマレーが交わる大皿料理で、白飯を一枚の盆から四人から六人で分け合います。鶏肉、サンバル・ゴレン・ジャワ、ココナッツのスルンディン、焼きそばを添えます。2022年にスランゴール州の公式遺産料理として告示され、州内のジャワ系集落に根をもち、クンドゥリの集いで供されます。",
     es: "Una bandeja comunal javanesa-malaya: arroz blanco que cuatro a seis personas comparten de una misma fuente, con pollo, sambal goreng jawa, serunding de coco y fideos fritos. Declarada comida patrimonial oficial de Selangor en 2022, arraiga en los distritos de poblamiento javanés y se sirve en las reuniones kenduri.",
+    ko: "네댓에서 여섯 사람이 쟁반 하나에서 나눠 먹는 자바계 말레이의 흰밥 상차림입니다. 닭고기와 삼발 고렝 자와, 코코넛 스룬딩, 볶음면을 곁들입니다. 2022년 슬랑오르의 공식 유산 음식으로 지정됐고, 자바 이주민이 정착한 지역에 뿌리를 두며 큰 잔치에 냅니다.",
   },
   "Shah Alam::Sate Kajang": {
     id: "Gaya sate Selangor yang termasyhur dari Kajang, dimulai pada 1917 oleh perantau Jawa Tasmin bin Sakiban dan diteruskan Haji Samuri sejak 1992. Dikenal karena potongan dagingnya yang lebih besar dan berair serta saus kacangnya yang manis, sate ini membuat Kajang dijuluki \"Kota Sate\".",
@@ -1811,6 +2035,7 @@ module.exports = {
     zh: "雪兰莪最出名的加影沙嗲，1917年由爪哇移民Tasmin bin Sakiban开创，1992年起由Haji Samuri接续。肉块更大更多汁、花生酱偏甜，也让加影得了「沙嗲城」（Kota Sate）的名号。",
     ja: "スランゴール州カジャンに伝わる名高いサテです。1917年にジャワ系移民のタスミン・ビン・サキバンが始め、1992年からはハジ・サムリが受け継ぎました。肉が大ぶりで汁気に富み、ピーナッツだれが甘いのが特徴で、カジャンは「コタ・サテ（サテの町）」と呼ばれるようになりました。",
     es: "El célebre estilo de satay de Selangor procedente de Kajang, iniciado en 1917 por el migrante javanés Tasmin bin Sakiban y continuado por Haji Samuri desde 1992. Conocido por trozos de carne más grandes y jugosos y una salsa de cacahuete dulce, le valió a Kajang el apodo de «Kota Sate», la ciudad del satay.",
+    ko: "카장에서 온 슬랑오르의 이름난 사테입니다. 1917년 자바 이주민 타스민 빈 사키반이 시작했고 1992년부터 하지 사무리가 이었습니다. 큼직하고 육즙 많은 고기와 달콤한 땅콩 소스로 이름나 카장에 '코타 사테', 곧 사테의 도시라는 별명을 안겼습니다.",
   },
   "Shanghai::Benbang red-braised pork": {
     id: "Perut babi dibraise perlahan sampai berwarna mahoni mengilap dalam kecap dan gula — inti dari mazhab benbang Shanghai yang \"berminyak tebal, bersaus merah\". Teknik memasaknya yang tradisional, dijaga oleh Shanghai Lao Fandian sejak 1875, adalah warisan budaya takbenda nasional.",
@@ -1819,6 +2044,7 @@ module.exports = {
     zh: "五花肉以酱油和糖慢煨至红亮如老红木——这正是上海本帮菜「浓油赤酱」的精髓。其传统技艺由1875年创立的上海老饭店守着，已列入国家级非物质文化遗产。",
     ja: "豚バラ肉を醤油と砂糖でゆっくり煮込み、艶やかな紅褐色に仕上げます。「濃い油、赤い醤（たれ）」を旨とする上海本幇料理の真髄です。1875年創業の上海老飯店が守るこの伝統技法は、国家級無形文化遺産に登録されています。",
     es: "Panceta de cerdo estofada lentamente hasta un caoba brillante en soja y azúcar: la esencia de la escuela benbang de Shanghái, de «aceite espeso y salsa roja». Su técnica tradicional, custodiada por el Shanghai Lao Fandian desde 1875, es patrimonio cultural inmaterial nacional.",
+    ko: "삼겹살을 간장과 설탕에 윤기 나는 적갈색이 될 때까지 조립니다. '기름은 진하게 소스는 붉게'라는 상하이 번방 요리의 정수이며, 1875년 문을 연 상하이 라오판뎬이 지켜 온 전통 기법은 국가 무형문화유산입니다.",
   },
   "Shanghai::Nanxiang xiaolongbao": {
     id: "Pangsit kukus berkulit tipis yang lahir di Nanxiang pada 1871, dihargai karena lipatannya yang halus dan semburan kaldu panas di dalamnya. Teknik pembuatannya, diwariskan melalui enam generasi, menjadi warisan budaya takbenda nasional pada 2014.",
@@ -1827,6 +2053,7 @@ module.exports = {
     zh: "1871年生于南翔的薄皮蒸包，讲究褶子细密、一口爆出滚烫的汤汁。这门手艺经六代传承，2014年列入国家级非物质文化遗产。",
     ja: "1871年に南翔で生まれた薄皮の蒸し点心で、細かなひだと、噛んだ瞬間にあふれる熱いスープが身上です。六代にわたり受け継がれてきたその技は、2014年に国家級無形文化遺産となりました。",
     es: "Empanadillas al vapor de piel fina nacidas en Nanxiang en 1871, apreciadas por sus pliegues delicados y el chorro de caldo caliente que guardan dentro. La técnica de elaboración, transmitida durante seis generaciones, pasó a ser patrimonio cultural inmaterial nacional en 2014.",
+    ko: "1871년 난샹에서 태어난 얇은 피의 찐만두로, 섬세한 주름과 안에서 터지는 뜨거운 육즙으로 이름났습니다. 6대를 이어 온 그 기법은 2014년 국가 무형문화유산이 됐습니다.",
   },
   "Shenzhen::Shajing oysters": {
     id: "Identitas kuliner tertua Shenzhen: tiram muara yang gemuk, dibudidayakan di Shajing sejak Dinasti Song, termasyhur karena \"perut kacanya\" yang bening, disantap kering, dibraise, atau dalam bubur. Adat budidayanya berstatus warisan takbenda provinsi Guangdong sejak 2022.",
@@ -1835,6 +2062,7 @@ module.exports = {
     zh: "深圳最古老的饮食身份：沙井自宋代养起的河口肥蚝，以晶莹的「玻璃肚」闻名，可做蚝豉、可焖、也可煮粥。其养殖习俗自2022年起列为广东省级非物质文化遗产。",
     ja: "深圳のもっとも古い食のアイデンティティです。宋代から沙井で養殖されてきた河口の肥えた牡蠣で、透きとおる「ガラスの腹」で知られ、干して、煮込んで、あるいは粥にして食べます。その養殖の習俗は2022年から広東省の無形文化遺産です。",
     es: "La identidad culinaria más antigua de Shenzhen: ostras de estuario carnosas, criadas en Shajing desde la dinastía Song y famosas por sus «vientres de vidrio» translúcidos, comidas secas, estofadas o en gachas. Sus costumbres de cultivo son patrimonio inmaterial de Guangdong desde 2022.",
+    ko: "선전에서 가장 오래된 음식의 정체성입니다. 송나라 때부터 사징에서 기른 통통한 강어귀 굴로, 속이 비치는 '유리 배'로 이름났고 말리거나 조리거나 죽에 넣어 먹습니다. 그 양식 관습은 2022년부터 광둥성 무형유산입니다.",
   },
   "Shenzhen::Xiasha poon choi feast": {
     id: "Jamuan bersama saat Festival Lampion dari desa Xiasha: lima belas bahan — tiram, belut, babi, jamur — masing-masing dimasak terpisah lalu ditumpuk dalam satu baskom besar yang dibagi seluruh marga. Berasal dari masa Song Selatan, dan kini warisan takbenda provinsi Guangdong.",
@@ -1843,6 +2071,7 @@ module.exports = {
     zh: "下沙村的元宵大盆宴：十五种材料——蚝、鳝、猪肉、香菇——各自烹好，再层层叠进一只大盆，全族围坐分食。此俗上溯南宋，现为广东省级非物质文化遗产。",
     ja: "下沙村に伝わる元宵節の共食の宴です。牡蠣、鰻、豚肉、椎茸など十五の食材をそれぞれ別に調理し、大きな盆に層に重ねて一族で分け合います。南宋にさかのぼる習わしで、広東省の無形文化遺産に指定されています。",
     es: "Un banquete comunal de la Fiesta de los Faroles en la aldea de Xiasha: quince ingredientes —ostras, anguila, cerdo, setas— cocinados por separado y luego apilados en un gran barreño que comparte todo el clan. Se remonta a la dinastía Song del Sur y es patrimonio inmaterial de la provincia de Guangdong.",
+    ko: "샤샤촌의 정월대보름 공동 잔치입니다. 굴과 장어, 돼지고기, 버섯 등 열다섯 가지를 따로 익힌 뒤 커다란 대야 하나에 켜켜이 쌓아 온 문중이 나눕니다. 남송까지 거슬러 오르며 광둥성 무형유산입니다.",
   },
   "Singapore::Bak kut teh (Teochew)": {
     id: "Bahan bakar kuli pelabuhan di tepi Sungai Singapura: gaya Teochew — kuah bening, lada putih, bawang putih. Singapura dan Klang sama-sama mengklaim hidangan ini.",
@@ -1851,6 +2080,7 @@ module.exports = {
     zh: "新加坡河码头苦力的力气饭：潮州式做法，清汤、白胡椒、蒜头。新加坡与巴生都自认是发源地。",
     ja: "シンガポール川の波止場で働く苦力の力の源でした。潮州式は澄んだスープに白胡椒とにんにく。発祥はシンガポールともクランともいわれます。",
     es: "Combustible de los estibadores de los muelles del río de Singapur: el estilo teochew, de caldo claro, pimienta blanca y ajo. Singapur y Klang reclaman ambos el plato.",
+    ko: "싱가포르 강가 부두 노동자들의 끼니였습니다. 조주식은 맑은 국물에 흰 후추와 마늘을 씁니다. 싱가포르와 클랑이 저마다 원조를 주장합니다.",
   },
   "Singapore::Hainanese chicken rice": {
     id: "Dibawa oleh imigran Hainan dari Wenchang, lalu diadaptasi di kopitiam Singapura tahun 1930-an menjadi hidangan nasional: ayam rebus dengan nasi yang harum.",
@@ -1859,6 +2089,7 @@ module.exports = {
     zh: "由文昌的海南移民带来，1930年代在新加坡咖啡店演变成白斩鸡配香饭的国菜。",
     ja: "文昌から渡ってきた海南系移民がもたらし、1930年代のシンガポールのコピティアムで、茹で鶏と香り高いご飯という国民食に姿を変えました。",
     es: "Traído por inmigrantes hainaneses de Wenchang y adaptado en los kopitiams de Singapur de los años treinta hasta convertirse en el plato nacional: pollo escalfado con arroz aromático.",
+    ko: "원창에서 건너온 하이난 이민자들이 들여왔고, 1930년대 싱가포르 코피티암에서 삶은 닭과 향긋한 밥이라는 국민 음식으로 자리 잡았습니다.",
   },
   "Singapore::Laksa (Katong)": {
     id: "Gaya Katong: kuah santan kental, mi dipotong pendek dan disantap dengan sendok — hidangan Peranakan dari deretan ruko Joo Chiat/Katong.",
@@ -1867,6 +2098,7 @@ module.exports = {
     zh: "加东风味：浓郁椰浆汤头，面条剪短用汤匙食用——出自如切／加东一带店屋的土生华人菜式。",
     ja: "カトン式は、濃厚なココナッツの汁に短く切った麺を合わせ、スプーンで食べます。ジョーチアット／カトンのショップハウス街に伝わるプラナカン料理です。",
     es: "El estilo Katong: salsa espesa de coco y fideos cortados cortos que se comen con cuchara, un plato peranakan del barrio de shophouses de Joo Chiat y Katong.",
+    ko: "카통식은 코코넛 국물이 걸쭉하고 면을 짧게 잘라 숟가락으로 떠먹습니다. 주치앗과 카통의 숍하우스 거리에서 나온 프라나칸 요리입니다.",
   },
   "Singapore::Wanton mee (SG style)": {
     id: "Mi pangsit Kanton yang dilokalkan: versi Singapura tetap ringan — sedikit atau tanpa kecap manis pekat — berbeda dari gaya KL yang bertumpu pada lemak babi dan kecap gelap.",
@@ -1875,6 +2107,7 @@ module.exports = {
     zh: "本地化的广东云吞面：新加坡版本清淡，几乎不加或不加黑酱油，与吉隆坡的猪油黑酱风格恰恰相反。",
     ja: "広東の雲吞麺が現地化したもので、シンガポール版はあっさり。濃口醤油はほとんど、あるいはまったく使わず、ラードと濃口醤油を利かせるクアラルンプール式とは対照的です。",
     es: "Fideos wantán cantoneses localizados: la versión de Singapur se mantiene ligera, con poca o ninguna salsa de soja oscura, al contrario del estilo de Kuala Lumpur con manteca de cerdo.",
+    ko: "광둥식 완탕면을 현지화한 것으로, 싱가포르식은 진간장을 거의 쓰지 않아 담백합니다. 라드와 진간장을 듬뿍 쓰는 쿠알라룸푸르식과 대비됩니다.",
   },
   "Sun Moon Lake::Auntie's tea eggs": {
     id: "Di Dermaga Xuanguang, Nenek Zou Jin-pen merebus telur selama enam jam dalam teh Assam Danau Matahari Bulan dan kaldu jamur shiitake Puli, menciptakan camilan penanda danau ini — ribuan butir terjual setiap hari. Badan Pengelola Kawasan Wisata Nasional memberinya kedai khusus, dan legenda itu pun mengeras.",
@@ -1883,6 +2116,7 @@ module.exports = {
     zh: "在玄光码头，邹金盆阿婆用日月潭阿萨姆红茶与埔里香菇高汤把蛋卤足六小时，做出这处湖畔的招牌小吃，一天卖出数千颗。国家风景区管理处为她设了专属摊位，传奇就此坐实。",
     ja: "玄光埠頭で、鄒金盆おばあさんは日月潭のアッサム紅茶と埔里産椎茸の出汁で六時間かけて卵を煮込み、湖を代表する軽食を生みました。一日に数千個が売れます。国家風景区管理処が専用の売店を用意し、伝説は揺るぎないものになりました。",
     es: "En el embarcadero de Xuanguang, la abuela Zou Jin-pen guisaba huevos durante seis horas en té assam del lago del Sol y la Luna y caldo de shiitake de Puli, creando el bocado emblema del lago: miles vendidos cada día. La Administración del Área Escénica Nacional le dio un puesto propio y afianzó la leyenda.",
+    ko: "쉬안광 선착장에서 저우진펀 할머니가 르웨탄 아삼차와 푸리 표고 국물에 달걀을 여섯 시간 조려 호수의 명물 간식을 만들었고, 하루에도 수천 개가 팔립니다. 국가풍경구관리처가 전용 노점을 내주며 전설을 굳혔습니다.",
   },
   "Sun Moon Lake::Ruby black tea (No. 18)": {
     id: "Di sekitar Danau Matahari Bulan, kecamatan Yuchi menanam teh hitam Ruby yang termasyhur di Taiwan, kultivar No. 18, dirilis pada 1999 dari persilangan teh berdaun besar Burma dengan teh liar Taiwan. Seduhannya yang merah cerah membawa aroma alami kayu manis dan mint; meminumnya di tepi danau adalah ritual setempat.",
@@ -1891,6 +2125,7 @@ module.exports = {
     zh: "在日月潭一带，鱼池乡种出台湾著名的红玉红茶，即台茶十八号，1999年由缅甸大叶种与台湾野生山茶杂交育成。茶汤艳红，带天然的肉桂与薄荷香；坐在湖边喝上一杯，是当地的仪式。",
     ja: "日月潭のまわり、魚池郷では台湾自慢の紅玉紅茶、すなわち台茶十八号が育てられています。ビルマの大葉種と台湾の野生茶を掛け合わせ、1999年に世に出た品種です。鮮やかな紅い水色に、天然の肉桂と薄荷の香りが立ちます。湖畔で味わうのが土地の作法です。",
     es: "En torno al lago del Sol y la Luna, el municipio de Yuchi cultiva el celebrado té negro Ruby de Taiwán, cultivar n.º 18, presentado en 1999 de un cruce entre té birmano de hoja grande y té silvestre taiwanés. Su licor rojo brillante trae notas naturales de canela y menta; beberlo a orillas del lago es el rito local.",
+    ko: "르웨탄 일대 위츠향에서는 대만이 자랑하는 홍옥 홍차, 곧 18호 품종을 기릅니다. 1999년 미얀마 대엽종과 대만 야생차를 교배해 내놓았습니다. 밝은 붉은 찻물에 계피와 민트 향이 감돌며, 호숫가에서 마시는 것이 이곳의 의식입니다.",
   },
   "Surabaya::Lontong balap": {
     id: "Lontong dengan tauge, tahu goreng, dan lentho (perkedel kacang berbumbu) dalam kuah bening bersaus petis. Namanya berasal dari penjaja yang setengah berlari, \"balapan\" memikul kuali agar lebih dulu sampai ke pembeli — legenda jalanan Surabaya sejak awal abad ke-20.",
@@ -1899,6 +2134,7 @@ module.exports = {
     zh: "米糕配豆芽、炸豆腐与lentho（香料豆饼），浇上清汤与虾酱汁。名字来自那些半跑着「赛跑」的小贩：他们挑着陶罐抢在别人前头找到买主——这是二十世纪初以来泗水的街头传奇。",
     ja: "ロントン（押し固めた米）にもやし、揚げ豆腐、レント（香辛料入りの豆の揚げ団子）を合わせ、澄んだ汁とプティスのたれをかけます。名の由来は、天秤で壺を担ぎ、客のもとへ先に着こうと半ば駆けて「競走」した売り子たち。二十世紀初頭からのスラバヤの街の伝説です。",
     es: "Pasteles de arroz con brotes de soja, tofu frito y lentho —buñuelos especiados de legumbre— en un caldo ligero con salsa de petis. El nombre viene de los vendedores que iban medio corriendo, «compitiendo» con las tinajas al hombro por llegar antes a los compradores: una leyenda callejera de Surabaya desde principios del siglo XX.",
+    ko: "밥떡에 숙주와 튀긴 두부, 향신 콩 튀김 른토를 넣고 맑은 국물에 프티스 소스를 더합니다. 상인들이 항아리를 지고 손님에게 먼저 닿으려 반쯤 뛰며 '경주'한 데서 이름이 왔습니다. 20세기 초까지 거슬러 오르는 수라바야 거리의 전설입니다.",
   },
   "Surabaya::Rawon": {
     id: "Sup daging sapi hitam pekat yang diwarnai buah keluak, hidangan warisan Jawa Timur yang pencatatannya dalam WBTb menghormati Rawon Nguling dari Probolinggo. Surabaya adalah panggung paling termasyhurnya, rumah bagi warung legendaris seperti Rawon Setan dan Rawon Kalkulator (sejak 1975).",
@@ -1907,6 +2143,7 @@ module.exports = {
     zh: "以黑果（keluak）染成墨黑的牛肉汤，是东爪哇的传承菜；它在印尼非遗名录上的登记，尊的是普罗博林戈的Rawon Nguling。泗水是它最著名的舞台，Rawon Setan与1975年开张的Rawon Kalkulator都是传奇小馆。",
     ja: "クルアックの実で漆黒に染まる牛肉のスープで、東ジャワの伝承料理です。インドネシア無形文化遺産への登録は、プロボリンゴのラウォン・ングリンをたたえるものです。スラバヤはその最も名高い舞台であり、ラウォン・スタンや1975年創業のラウォン・カルクラトルといった伝説的な食堂があります。",
     es: "Sopa de ternera de un negro intenso teñida por la nuez de keluak, un plato patrimonial de Java Oriental cuya inscripción en el registro WBTb honra al Rawon Nguling de Probolinggo. Surabaya es su escenario más famoso, con warungs legendarios como Rawon Setan y Rawon Kalkulator (desde 1975).",
+    ko: "클루악 열매로 새까맣게 물든 소고기 국으로, 동자바의 유산 음식이며 그 등재는 프로볼링고의 라원 응울링을 기립니다. 수라바야는 가장 이름난 무대로 1975년부터 이어 온 라원 세탄과 라원 칼쿨라토르 같은 전설적인 노점이 있습니다.",
   },
   "Surabaya::Rujak cingur": {
     id: "Salad penanda Surabaya: irisan moncong sapi (cingur) bersama buah, sayuran, tahu, tempe, dan lontong, diikat saus ulek dari petis udang hitam dan kacang tanah. Diakui sebagai Warisan Budaya Takbenda Indonesia pada 2021; tercatat di kota ini sejak 1938.",
@@ -1915,6 +2152,7 @@ module.exports = {
     zh: "泗水的招牌沙拉：切片的牛鼻唇（cingur）与水果、蔬菜、豆腐、天贝和米糕同拌，用黑虾酱（petis）与花生舂成的酱汁调和。2021年获认定为印尼国家非物质文化遗产；这座城里的记载可上溯1938年。",
     ja: "スラバヤを象徴するサラダです。薄切りの牛の鼻先（チングル）を果物、野菜、豆腐、テンペ、ロントンと合わせ、黒い海老のペースト（プティス）と落花生をすり合わせたたれで和えます。2021年にインドネシアの無形文化遺産に認定され、この街での記録は1938年にさかのぼります。",
     es: "La ensalada que define Surabaya: lonchas de morro de vaca (cingur) con fruta, verdura, tofu, tempeh y lontong, ligadas por una salsa majada de pasta negra de gambas (petis) y cacahuete. Reconocida como Patrimonio Cultural Inmaterial de Indonesia en 2021; documentada en la ciudad desde 1938.",
+    ko: "수라바야를 정의하는 샐러드입니다. 저민 소 코(칭우르)에 과일과 채소, 두부, 템페, 론통을 넣고 검은 새우장(프티스)과 땅콩을 간 소스로 버무립니다. 2021년 인도네시아 무형문화유산으로 인정받았고 1938년부터 이 도시에 기록돼 있습니다.",
   },
   "Surat Thani::Khai khem chaiya": {
     id: "Telur bebek asin dari distrik Chaiya, dibuat sejak 1923 ketika perantau Kanton Nai Kee mulai mengasinkan telur setempat. Terdaftar sebagai indikasi geografis, dihargai karena kuning telurnya yang merah, berpasir, dan berminyak serta putihnya yang asin lembut — oleh-oleh penanda Surat Thani.",
@@ -1923,6 +2161,7 @@ module.exports = {
     zh: "猜也县的咸鸭蛋，自1923年广东移民Nai Kee开始腌制本地蛋起沿袭至今。已登记地理标志，以红润起沙流油的蛋黄与咸味柔和的蛋白著称——素叻他尼最具代表性的伴手礼。",
     ja: "チャイヤー郡の塩漬け鴨卵で、1923年に広東系移民のナイキーが地元の卵を漬け始めたのが起こりです。地理的表示に登録され、赤く砂のようにほろりと崩れて油の浮く黄身と、やわらかな塩気の白身で知られる、スラートターニーを代表する土産です。",
     es: "Huevos de pato en salazón del distrito de Chaiya, elaborados desde 1923, cuando el colono cantonés Nai Kee empezó a curar huevos locales. Registrados con indicación geográfica y apreciados por su yema roja, arenosa y aceitosa y su clara suavemente salada: el souvenir por excelencia de Surat Thani.",
+    ko: "차이야군의 소금에 절인 오리알로, 1923년 광둥 정착민 나이키가 이 지역 달걀을 절이기 시작하면서 만들어졌습니다. 지리적 표시에 등록됐고 모래처럼 부슬거리며 기름진 붉은 노른자와 은은히 짠 흰자로 귀하게 여겨지는 수랏타니의 대표 기념 음식입니다.",
   },
   "Surat Thani::Surat Thani oysters": {
     id: "Tiram jenis asli yang dibudidayakan di sepanjang Teluk Ban Don, terdaftar sebagai indikasi geografis Thailand. Bercangkang tipis, luar biasa besar dan manis, tiram ini menjadi jangkar identitas Surat Thani — moto provinsinya sendiri memuji tiramnya yang termasyhur.",
@@ -1931,6 +2170,7 @@ module.exports = {
     zh: "在班东湾一带养殖的本土品种生蚝，已登记为泰国地理标志。壳薄、个头特别大、味道清甜，它撑起了素叻他尼的身份认同——府徽铭文本身就在赞美这里的名蚝。",
     ja: "バンドン湾一帯で養殖される在来種の牡蠣で、タイの地理的表示に登録されています。殻が薄く、際立って大ぶりで甘く、スラートターニーの自己像そのもの。県の標語自体が、この名高い牡蠣をたたえています。",
     es: "Ostras de raza autóctona criadas a lo largo de la bahía de Ban Don, registradas como indicación geográfica tailandesa. De concha fina, inusualmente grandes y dulces, sostienen la identidad de Surat Thani: el propio lema provincial celebra sus famosas ostras.",
+    ko: "반돈만을 따라 기르는 토종 굴로 태국 지리적 표시에 등록돼 있습니다. 껍데기가 얇고 유난히 크며 달아 수랏타니의 정체성을 떠받칩니다. 주의 표어 자체가 이 이름난 굴을 기립니다.",
   },
   "Suzhou::Squirrel-shaped mandarin fish": {
     id: "Ikan mandarin dikerat menjadi kelopak-kelopak presisi, digoreng sampai menegak seperti tupai, lalu disiram saus asam-manis panas yang membuatnya \"berdecit\". Lambang keterampilan pisau yang gemilang dari masakan Suban di Suzhou, dan teknik warisan takbenda provinsi Jiangsu.",
@@ -1939,6 +2179,7 @@ module.exports = {
     zh: "鳜鱼剞成整齐的花瓣，炸至昂首如松鼠，再浇滚烫的糖醋汁，发出「吱吱」声。这是苏州苏帮菜刀工的看家本领，其技艺已列入江苏省级非物质文化遗产。",
     ja: "鱖魚（ケツギョ）に精緻な花びらの切れ目を入れ、リスが身を起こしたような形に揚げ、熱い甘酢あんをかけると「きゅっ」と音を立てます。蘇州の蘇幇料理が誇る包丁さばきの象徴で、江蘇省の無形文化遺産に登録された技法です。",
     es: "Pez mandarín entallado en pétalos precisos, frito de modo que se yergue como una ardilla y bañado en una salsa agridulce caliente que lo hace «chillar». El emblema del virtuosismo con el cuchillo de la cocina suban de Suzhou y una técnica inscrita en el patrimonio inmaterial de Jiangsu.",
+    ko: "쏘가리에 정교하게 칼집을 넣어 꽃잎처럼 벌리고 다람쥐가 일어선 모양으로 튀긴 뒤, 뜨거운 새콤달콤한 소스를 부어 '찍' 소리를 내게 합니다. 쑤저우 쑤방 요리의 칼솜씨를 상징하며 장쑤성 무형유산 기법입니다.",
   },
   "Suzhou::Su-style noodle morning ritual": {
     id: "Ritual fajar Suzhou: mi halus ditata seperti kipas terlipat dalam kaldu tua yang bening — merah atau putih — dipesan dengan jargon bersandi tentang lauk atas dan penyesuaian kuah. Teknik mi Songhelou masuk daftar warisan takbenda kota Suzhou pada 2024.",
@@ -1947,6 +2188,7 @@ module.exports = {
     zh: "苏州的清晨仪式：细面如折扇般卧在清澈的老汤里——红汤或白汤——点单时用一套关于浇头与汤水的行话。松鹤楼的面点技艺于2024年列入苏州市级非物质文化遗产名录。",
     ja: "蘇州の朝の作法です。細い麺を畳んだ扇のように整え、澄んだ古いスープ——紅湯か白湯——に沈めます。注文は、具や汁の加減を表す符牒めいた言い回しで告げます。松鶴楼の麺の技は2024年、蘇州市の無形文化遺産に登録されました。",
     es: "El rito del amanecer en Suzhou: fideos finos dispuestos como un abanico plegado en un caldo claro y añejo —rojo o blanco— pedidos en una jerga cifrada de coberturas y ajustes del caldo. La técnica de fideos del Songhelou entró en la lista municipal de patrimonio inmaterial de Suzhou en 2024.",
+    ko: "쑤저우의 새벽 의식입니다. 가는 면을 접은 부채처럼 맑고 오래 우린 붉은 국물이나 흰 국물에 눕히고, 고명과 국물을 손보는 은어로 주문합니다. 쑹허러우의 국수 기법은 2024년 쑤저우 시 무형유산 목록에 올랐습니다.",
   },
   "Sydney::Meat pie": {
     id: "Makanan genggam paling Australia — lapangan sepak bola, toko roti, larut malam.",
@@ -1955,6 +2197,7 @@ module.exports = {
     zh: "最具澳洲味的手拿食物——球场、面包店、深夜时分。",
     ja: "もっともオーストラリアらしい片手の食べ物です。競技場で、ベーカリーで、そして夜更けに。",
     es: "La comida de mano más australiana que existe: campos de fútbol, panaderías, madrugadas.",
+    ko: "호주를 대표하는 손에 드는 음식입니다. 축구장과 빵집, 늦은 밤의 음식입니다.",
   },
   "Sydney::Pavlova": {
     id: "Hidangan penutup meringue yang dinamai dari lawatan balerina Anna Pavlova pada 1920-an — Australia dan Selandia Baru berselisih soal penciptanya selama seabad. Keduanya dicantumkan; tidak ada yang dimenangkan di sini.",
@@ -1963,6 +2206,7 @@ module.exports = {
     zh: "以芭蕾舞者安娜·帕夫洛娃1920年代巡演命名的蛋白霜甜点——澳大利亚与新西兰为发明权争了一个世纪。两方都列出，此处不作裁定。",
     ja: "1920年代のバレリーナ、アンナ・パヴロワの巡演にちなむメレンゲの菓子です。考案地をめぐってオーストラリアとニュージーランドが一世紀争ってきました。両者を併記し、ここでは決着をつけません。",
     es: "Un postre de merengue bautizado por la gira de la bailarina Anna Pávlova en los años veinte; Australia y Nueva Zelanda llevan un siglo disputándose la invención. Se citan ambas; aquí no gana ninguna.",
+    ko: "1920년대 발레리나 안나 파블로바의 순회공연에서 이름을 딴 머랭 디저트입니다. 호주와 뉴질랜드가 한 세기 동안 원조를 다퉈 왔습니다. 둘 다 적어 두고 어느 쪽 손도 들지 않습니다.",
   },
   "Sydney::Sydney rock oyster": {
     id: "Spesies asli (Saccostrea glomerata) yang menyandang nama kota ini — asin, bermineral, paling nikmat dibuka tepat di tepi pelabuhan.",
@@ -1971,6 +2215,7 @@ module.exports = {
     zh: "以城市为名的本土品种（Saccostrea glomerata），咸鲜带矿物味，最宜在港边现开现吃。",
     ja: "市の名を冠する在来種（Saccostrea glomerata）です。潮の香りとミネラル感があり、港のそばで剥きたてを食べるのが一番です。",
     es: "Una especie autóctona (Saccostrea glomerata) que lleva el nombre de la ciudad: salina, mineral, mejor abierta al borde del puerto.",
+    ko: "이 도시의 이름을 단 토종 굴입니다. 짭짤하고 미네랄 향이 나며, 항구 앞에서 갓 까서 먹을 때가 가장 좋습니다.",
   },
   "Tagaytay::Bulalo": {
     id: "Sup sengkel sapi dan sumsum tulang yang direbus berjam-jam. Batangas, negeri sapi yang bersejarah, mengklaim kelahirannya; Tagaytay mengklaim jiwanya — udara sejuk punggung bukit di atas Taal menjadikan bulalo yang mengepul sebagai hidangan penanda kota, disajikan sepanjang hari bagi pelancong akhir pekan dari Manila.",
@@ -1979,6 +2224,7 @@ module.exports = {
     zh: "牛腱与骨髓熬上数小时的汤。历史上的牛乡八打雁自认是它的出生地，大雅台则自认是它的魂——塔尔火山之上山脊的凉爽空气，让热气腾腾的bulalo成了这座城的代表，全天候供应给从马尼拉来的周末客。",
     ja: "牛すねと骨髄を何時間も煮出したスープです。歴史ある牛の産地バタンガスは誕生の地を名乗り、タガイタイは魂の在り処を名乗ります。タール湖を見下ろす尾根の涼しい空気が、湯気の立つブラロをこの街の看板に変え、マニラからの週末客のために昼夜を問わず供されています。",
     es: "Sopa de morcillo de ternera y tuétano cocida durante horas. Batangas, tierra ganadera histórica, reclama su nacimiento; Tagaytay reclama su alma: el aire fresco de la cresta sobre el Taal convirtió el humeante bulalo en la comida que define la ciudad, servida a todas horas a los visitantes de fin de semana llegados de Manila.",
+    ko: "소 사태와 사골을 여러 시간 끓인 국입니다. 소를 기르던 바탕가스가 그 탄생을 주장하고, 타가이타이는 그 정신을 주장합니다. 타알 호수 위 서늘한 능선의 공기가 김 오르는 불랄로를 이 도시의 대표 한 끼로 만들었고, 마닐라에서 온 주말 손님에게 하루 종일 냅니다.",
   },
   "Taichung::Bubble tea": {
     id: "Minuman Taiwan yang mendunia ini lahir pada 1980-an: Chun Shui Tang di Taichung menyebut karyawannya, Lin Hsiu-hui, menjatuhkan tapioka ke dalam teh susu pada 1987, sementara Hanlin Tea Room di Tainan mengklaim 1986. Setelah gugatan sepuluh tahun, pengadilan memutuskan pada 2019 bahwa tak satu pun memiliki hak atas penemuannya.",
@@ -1987,6 +2233,7 @@ module.exports = {
     zh: "台湾风靡世界的饮料诞生于1980年代：台中春水堂说是员工林秀慧1987年把粉圆倒进奶茶，台南翰林茶馆则主张1986年。历经十年诉讼，法院2019年判定，发明权不归任何一方。",
     ja: "世界に広がった台湾の飲みものは1980年代に生まれました。台中の春水堂は1987年に従業員の林秀慧がタピオカをミルクティーに落としたと語り、台南の翰林茶館は1986年を主張します。十年に及ぶ訴訟の末、裁判所は2019年、発明はどちらのものでもないと判断しました。",
     es: "La bebida global de Taiwán nació en los años ochenta: el Chun Shui Tang de Taichung dice que su empleada Lin Hsiu-hui echó tapioca al té con leche en 1987, mientras que el Hanlin Tea Room de Tainan reclama 1986. Tras un pleito de diez años, los tribunales dictaminaron en 2019 que la invención no pertenece a ninguno.",
+    ko: "대만의 세계적 음료는 1980년대에 태어났습니다. 타이중의 춘수이탕은 1987년 직원 린슈후이가 밀크티에 타피오카를 넣었다고 하고, 타이난의 한린차관은 1986년을 주장합니다. 십 년의 소송 끝에 법원은 2019년 어느 쪽도 소유하지 않는다고 판결했습니다.",
   },
   "Taichung::Sun cake": {
     id: "Kue matahari — pastri bundar berlapis dengan lemak babi yang menyembunyikan isian maltosa lembut — berkembang dari kue maltosa Shengang dan disempurnakan oleh Master Wei Ching-hai. Dijual dari toko-toko Taiyang-tang yang bersaing di Jalan Freedom sejak 1950-an, inilah oleh-oleh khas Taichung.",
@@ -1995,6 +2242,7 @@ module.exports = {
     zh: "太阳饼——圆形酥皮猪油点心，内藏软麦芽糖馅——由神冈的麦芽糖饼演变而来，经魏清海师傅之手臻于完善。自1950年代起在自由路上几家彼此竞争的太阳堂发售，是台中最具代表性的伴手礼。",
     ja: "太陽餅は、ラードを折り込んだ丸い薄皮の中に柔らかな麦芽糖の餡を隠した菓子です。神岡の麦芽糖餅から発展し、魏清海の手で完成しました。1950年代から自由路の競い合う太陽堂各店で売られ、台中を代表する食べる土産となっています。",
     es: "El pastel del sol —una pieza redonda y hojaldrada de manteca que esconde un relleno blando de maltosa— evolucionó de los pasteles de maltosa de Shengang y lo perfeccionó el maestro Wei Ching-hai. Vendido desde los años cincuenta por las rivales tiendas Taiyang-tang de la calle Freedom, es el souvenir comestible por excelencia de Taichung.",
+    ko: "겉은 겹겹이 바삭하고 속에는 부드러운 물엿 소가 든 둥근 태양병은 선강의 물엿 과자에서 발전했고 웨이칭하이 장인이 완성했습니다. 1950년대부터 자유로의 경쟁하는 타이양탕 가게들이 팔아 온 타이중의 대표 기념품입니다.",
   },
   "Tainan::Coffin bread": {
     id: "Roti peti mati, diciptakan di Tainan pada 1940-an, adalah bongkah tebal roti panggang yang digoreng, dikeruk isinya, diisi sup kental ayam dan makanan laut, lalu ditutup kembali dengan \"tutup\" garingnya sendiri. Nama yang seram itu melekat, dan camilan ini tetap khas pasar malam Tainan.",
@@ -2003,6 +2251,7 @@ module.exports = {
     zh: "棺材板诞生于1940年代的台南：厚片吐司下锅炸酥，挖空后填入奶油鸡肉海鲜浓汤，再盖回自己那片酥脆的「盖子」。这个瘆人的名字就此留下，至今仍是台南夜市的原创小吃。",
     ja: "棺材板（かんざいばん）は1940年代の台南で生まれました。厚切りのトーストを揚げて中身をくり抜き、鶏と魚介のクリームシチューを詰め、自らの香ばしい「蓋」をかぶせます。不吉な名はそのまま定着し、今も台南の夜市が誇る独自の軽食です。",
     es: "El «pan ataúd», inventado en el Tainan de los años cuarenta, es una rebanada gruesa de pan de molde frito, ahuecada, rellena de una crema de pollo y marisco y tapada con su propia «tapa» crujiente. El nombre macabro cuajó, y el bocado sigue siendo un original de los mercados nocturnos de Tainan.",
+    ko: "1940년대 타이난에서 만들어진 관재판은 두툼한 토스트를 튀겨 속을 파내고 크리미한 닭고기 해산물 차우더를 채운 뒤 제 뚜껑을 덮습니다. 섬뜩한 이름이 그대로 굳었고, 타이난 야시장의 오리지널로 남아 있습니다.",
   },
   "Tainan::Danzai noodles": {
     id: "Pada 1895, nelayan Hong Yu-tou menggantung lampion merah bertuliskan \"Du Hsiao Yueh\" — bertahan melewati bulan-bulan paceklik — di dekat Kuil Shuixian di Tainan, dan menjual mangkuk-mangkuk kecil mi berkuah udang dengan babi yang direbus perlahan. Empat generasi kemudian, mi danzai menjadi penanda ibu kota kuliner Taiwan.",
@@ -2011,6 +2260,7 @@ module.exports = {
     zh: "1895年，渔民洪芋头在台南水仙宫旁挂起写着「度小月」的红灯笼——熬过淡季之意——卖起一小碗一小碗的虾汤肉燥面。四代之后，担仔面成了台湾美食之都的标志。",
     ja: "1895年、漁師の洪芋頭が台南の水仙宮のかたわらに「度小月」と記した赤い提灯を掲げ、海老のだしと煮込んだ肉そぼろの小さな麺を売り始めました。閑散期を凌ぐという意味です。四代を経て、担仔麺は台湾の美食の都を象徴する一杯になりました。",
     es: "En 1895 el pescador Hong Yu-tou colgó junto al templo Shuixian de Tainan un farolillo rojo con la inscripción «Du Hsiao Yueh» —sobrevivir a los meses flojos— y vendía cuencos pequeños de fideos con caldo de gamba y cerdo guisado a fuego lento. Cuatro generaciones después, los fideos danzai definen la capital gastronómica de Taiwán.",
+    ko: "1895년 어부 훙위터우가 '두샤오웨', 곧 보릿고개를 넘긴다는 뜻의 붉은 등을 타이난 수이셴궁 옆에 걸고 새우 국물과 오래 조린 돼지고기를 얹은 작은 국수를 팔았습니다. 4대가 지난 지금 단짜이몐은 대만 미식의 수도를 정의합니다.",
   },
   "Tainan::Milkfish congee": {
     id: "Budidaya bandeng di Taiwan berpusat di Tainan, tempat \"ikan nasional\" yang lembut itu menjadi ritual fajar: bubur nasi dalam kaldu rebusan kepala dan tulang bandeng, dimahkotai perut ikan dan tiram. Warga menyantapnya untuk sarapan sebelum udara memanas.",
@@ -2019,6 +2269,7 @@ module.exports = {
     zh: "台湾的虱目鱼养殖以台南为中心，这条肉质细嫩的「国宝鱼」在此化作清晨的仪式：以鱼头鱼骨熬汤煮粥，上面铺鱼肚与蚵仔。当地人趁暑气未起时当早餐吃。",
     ja: "台湾のサバヒー養殖は台南を中心に営まれ、この柔らかな「国民の魚」は朝の習慣になっています。頭と骨で取った出汁で炊いた粥に、腹身と牡蠣をのせるのです。地元の人は暑くなる前の朝食にこれを食べます。",
     es: "La cría del pez leche en Taiwán se concentra en Tainan, donde el tierno «pez nacional» se vuelve un rito del amanecer: gachas de arroz en un caldo cocido con cabezas y espinas, coronadas con ventresca y ostras. Los vecinos lo desayunan antes de que apriete el calor.",
+    ko: "대만의 밀크피시 양식은 타이난이 중심입니다. 부드러운 '국민 생선'이 새벽의 의식이 되어, 머리와 뼈로 우린 국물에 쌀죽을 끓이고 뱃살과 굴을 올립니다. 사람들은 더위가 오르기 전 아침으로 먹습니다.",
   },
   "Taipei::Beef noodle soup": {
     id: "Lahir di perkampungan veteran pasca-1949 yang memadukan teknik braising Sichuan dengan daging sapi setempat, sup mi daging sapi merah Taipei menjadi hidangan penanda kota. Sejak 2005 pemerintah kota menggelar Festival Mi Daging Sapi Internasional tahunan yang menobatkan mangkuk terbaik, baik yang berkuah merah maupun bening.",
@@ -2027,6 +2278,7 @@ module.exports = {
     zh: "起于1949年后的眷村，把川味红烧手法与本地牛肉结合，台北的红烧牛肉面成了这座城市的代表。自2005年起，市政府每年举办台北国际牛肉面节，评选红烧与清炖两派的最佳一碗。",
     ja: "1949年以降の眷村で、四川の煮込みの技と地元の牛肉が出会って生まれました。台北の紅焼牛肉麺は、この街を象徴する一杯です。2005年からは市が毎年、国際牛肉麺フェスティバルを開き、紅焼と清燉それぞれの最高の一杯を選んでいます。",
     es: "Nacida en las aldeas de veteranos posteriores a 1949, donde el guiso sichuanés se encontró con la ternera local, la sopa de fideos con ternera estofada en rojo se volvió el plato emblema de Taipéi. Desde 2005 el ayuntamiento celebra un Festival Internacional del Fideo con Ternera que corona los mejores cuencos, tanto rojos como de caldo claro.",
+    ko: "1949년 이후 퇴역군인 마을에서 쓰촨식 조림과 현지 소고기가 만나 태어났고, 타이베이의 붉게 조린 소고기 국수는 도시를 대표하게 됐습니다. 2005년부터 시가 해마다 국제 우육면 축제를 열어 최고의 한 그릇을 뽑습니다.",
   },
   "Taipei::Stinky tofu": {
     id: "Tahu yang direndam air garam fermentasi lalu digoreng garing dan disajikan dengan asinan kubis serta saus bawang putih adalah aroma yang mengumumkan setiap pasar malam Taiwan. Di Taipei, Pasar Malam Shilin menjadikan menyantapnya sambil berdiri di tengah keramaian sebagai ritus wajib wisatawan.",
@@ -2035,6 +2287,7 @@ module.exports = {
     zh: "以发酵卤水泡过的豆腐炸到酥脆，配泡菜与蒜蓉酱，这股气味几乎就是台湾夜市的宣告。在台北，士林夜市让「站在人群里吃臭豆腐」成了观光客的必经仪式。",
     ja: "発酵させた漬け汁に浸した豆腐をカリッと揚げ、漬け白菜とにんにくだれを添えます。この匂いこそ、台湾の夜市の合図です。台北では士林夜市が、人混みに立って食べることを観光客の通過儀礼に変えました。",
     es: "El tofu macerado en salmuera fermentada, frito hasta quedar crujiente y servido con col encurtida y salsa de ajo, es el olor que anuncia cualquier mercado nocturno taiwanés. En Taipéi, el mercado de Shilin convirtió comerlo de pie entre la multitud en un rito turístico de paso.",
+    ko: "발효 소금물에 담근 두부를 바삭하게 튀겨 절인 배추와 마늘 소스를 곁들입니다. 대만의 모든 야시장을 알리는 냄새이며, 타이베이 스린 야시장에서는 인파 속에 서서 먹는 일이 여행자의 통과의례가 됐습니다.",
   },
   "Taipei::Xiaolongbao (Taipei style)": {
     id: "Pangsit berkuah berasal dari sekitar Shanghai, tetapi Din Tai Fung di Taipei, yang berdiri di Jalan Xinyi, membakukan xiaolongbao berkulit tipis dengan delapan belas lipatan dan meraih pengakuan Michelin — mengubah pangsit itu menjadi pengalaman meja Taipei yang paling dikenal dunia.",
@@ -2043,6 +2296,7 @@ module.exports = {
     zh: "小笼包源自上海一带，但台北信义路起家的鼎泰丰把薄皮十八褶定为标准，并获米其林肯定，让这颗包子成为台北最广为世界所知的餐桌体验。",
     ja: "小籠包は上海周辺に生まれましたが、信義路で創業した台北の鼎泰豊が薄皮十八ひだという型を定め、ミシュランの評価も得ました。こうしてこの点心は、世界にもっとも知られた台北の食卓体験になりました。",
     es: "Las empanadillas de sopa nacieron cerca de Shanghái, pero el Din Tai Fung de Taipéi, fundado en la calle Xinyi, codificó el xiaolongbao de piel fina y dieciocho pliegues y se ganó el reconocimiento Michelin, convirtiendo el bocado en la experiencia de mesa taipéi más conocida del mundo.",
+    ko: "육즙 만두는 상하이 인근에서 왔지만, 신이로에서 시작한 타이베이의 딘타이펑이 얇은 피와 열여덟 주름의 샤오룽바오를 정립하고 미슐랭의 인정을 받아, 이 만두를 타이베이에서 가장 널리 알려진 식탁 경험으로 만들었습니다.",
   },
   "Taizhou::Ginger-broth noodles": {
     id: "Semangkuk penghangat dari Taizhou di Zhejiang: mi dalam kaldu pekat dari jahe kuning setempat yang direbus bersama udang, kerang, dan hasil laut kering — santapan tradisional bagi ibu yang baru melahirkan, untuk musim dingin dan hari hujan, terdaftar sebagai warisan tingkat distrik di Huangyan.",
@@ -2051,6 +2305,7 @@ module.exports = {
     zh: "浙江台州的暖身一碗：面浸在本地黄姜与虾、蛤蜊、干海货同煨出的浓汤里——传统上给产妇、给冬天、给雨天准备的吃食，已在黄岩列入区级非物质文化遗产。",
     ja: "浙江省台州の、体を温める一椀です。地元の黄生姜を海老や蛤、干した海の幸とともに煮出した濃いスープに麺を沈めます。産後の女性に、冬に、雨の日に供されてきた伝統食で、黄巌では区級の無形文化遺産に登録されています。",
     es: "El cuenco que calienta de Taizhou, en Zhejiang: fideos en un caldo intenso de jengibre amarillo local cocido con gambas, almejas y marisco seco, comida tradicional para las recién paridas, para el invierno y los días de lluvia, catalogada como patrimonio de distrito en Huangyan.",
+    ko: "저장 타이저우의 몸을 데우는 한 그릇입니다. 이 지역 노란 생강을 새우와 조개, 건해산물과 함께 진하게 끓인 국물에 면을 넣습니다. 산모와 겨울, 비 오는 날의 전통 음식으로 황옌구의 구 단위 무형유산입니다.",
   },
   "Taizhou::Shibingtong": {
     id: "Ritual perayaan bersama di Taizhou: setiap orang menggulung selembar besar krep gandum tipis mengelilingi selusin isian yang dibagi bersama — mi goreng, babi, belut, sayuran — menjadi tabung gemuk. Disantap saat Festival Perahu Naga, ia menjadikan meja makan sebagai jalur perakitan ingatan keluarga.",
@@ -2059,6 +2314,7 @@ module.exports = {
     zh: "台州的节庆共食仪式：各人取一张薄薄的大麦饼，把桌上十来样共享的馅料——炒面、猪肉、鳝鱼、时蔬——卷成粗粗一筒。端午时吃，一张桌子就成了家族记忆的流水线。",
     ja: "台州の、皆で作って皆で食べる祭りの作法です。大きく薄い小麦の生地に、卓に並んだ十数種の具——焼きそば、豚肉、鰻、野菜——を各自が巻き込み、太い筒に仕立てます。端午の節句に食べるもので、食卓はそのまま家族の記憶の組み立て場になります。",
     es: "El rito festivo comunal de Taizhou: cada comensal enrolla una crepe grande y fina de trigo alrededor de una docena de rellenos compartidos —fideos fritos, cerdo, anguila, verduras— hasta formar un cilindro grueso. Comido en la Fiesta de los Botes Dragón, convierte la mesa en la cadena de montaje de la memoria familiar.",
+    ko: "타이저우의 공동 명절 의식입니다. 각자 크고 얇은 밀전병에 볶음국수와 돼지고기, 장어, 채소 등 열두 가지 남짓을 함께 올려 굵은 통으로 맙니다. 단오에 먹으며, 식탁을 가족 기억의 조립 라인으로 만듭니다.",
   },
   "Tokyo::Edomae sushi": {
     id: "\"Gaya Teluk Edo\" — nigiri lahir sebagai jajanan cepat saji jalanan Tokyo tahun 1820-an (dikaitkan dengan Hanaya Yohei), memakai ikan yang diawetkan langsung dari teluk.",
@@ -2067,6 +2323,7 @@ module.exports = {
     zh: "所谓「江户前」：握寿司起于1820年代的东京街头快食（一般归功于华屋与兵卫），用的是直接取自江户湾并加以处理的鱼。",
     ja: "「江戸前」とは江戸湾の流儀のこと。握り寿司は1820年代の江戸で屋台の手早い食べ物として始まり、華屋与兵衛が考案したと伝えられます。魚は湾から揚がったものに仕事を施しました。",
     es: "«Estilo de la bahía de Edo»: el nigiri nació en la década de 1820 como comida rápida callejera de Tokio, atribuida a Hanaya Yohei, con pescado curado recién sacado de la bahía.",
+    ko: "'에도만 방식'이라는 뜻입니다. 니기리는 1820년대 도쿄의 길거리 즉석 음식으로 시작됐고, 하나야 요헤이가 만들었다고 전해지며 만에서 갓 잡은 생선을 절여 썼습니다.",
   },
   "Tokyo::Monjayaki": {
     id: "Dari \"mojiyaki\" zaman Edo — anak-anak menuliskan huruf dengan adonan encer di atas wajan datar. Tsukishima tumbuh menjadi pusatnya, dengan asosiasi monja resmi dan satu jalan berisi lebih dari 50 kedai.",
@@ -2075,6 +2332,7 @@ module.exports = {
     zh: "源自江户时代的「文字烧」——孩子们用稀面糊在铁板上写字。月岛成了它的大本营，设有正式的文字烧协会，一条街上有五十多家店。",
     ja: "江戸期の「もじ焼き」が始まりで、子どもがゆるい生地で鉄板に文字を書いて遊びました。月島がその本場となり、正式なもんじゃ振興会と五十軒を超える店の並ぶ通りがあります。",
     es: "Del «mojiyaki» de la era Edo, cuando los niños dibujaban letras con masa líquida sobre la plancha. Tsukishima se convirtió en su capital, con una asociación oficial del monja y una calle con más de cincuenta locales.",
+    ko: "에도 시대의 '모지야키'에서 왔습니다. 아이들이 묽은 반죽으로 철판에 글자를 그리던 데서 비롯됐고, 쓰키시마가 그 본거지로 자라 공식 협회와 50곳 넘는 가게가 늘어선 거리를 두고 있습니다.",
   },
   "Tokyo::Tsukemen": {
     id: "Ramen celup, diciptakan tahun 1955 di Taishoken, Tokyo, oleh Kazuo Yamagishi — mi disajikan dingin di samping kuah panas yang pekat.",
@@ -2083,6 +2341,7 @@ module.exports = {
     zh: "沾面，1955年由山岸一雄在东京大胜轩创出——面条冷着上桌，旁边配一碗滚烫的浓缩汤汁。",
     ja: "つけ麺は1955年、東京の大勝軒で山岸一雄が生み出しました。冷たい麺を、熱く濃いつけ汁と並べて供します。",
     es: "Ramen de mojar, inventado en 1955 en el Taishoken de Tokio por Kazuo Yamagishi: los fideos se sirven fríos junto a un caldo caliente y concentrado.",
+    ko: "찍어 먹는 라멘입니다. 1955년 도쿄 다이쇼켄에서 야마기시 가즈오가 만들었고, 차게 씻은 면을 진한 뜨거운 국물 옆에 냅니다.",
   },
   "Tutong::Ambuyat": {
     id: "Di Tutong, hidangan sagu nasional itu juga menjadi warisan setempat: badan pariwisata mencantumkan ambuyat di antara keistimewaan distrik ini, mencerminkan pedalaman Tutong yang menghasilkan sagu. Disantap dengan cara nasional — dililitkan pada chandas, dicelup ke cacah, ditelan utuh, dinikmati bersama di meja.",
@@ -2091,6 +2350,7 @@ module.exports = {
     zh: "在都东，这道全国性的西谷米菜同时也是本地遗产：旅游局把ambuyat列入本区特色，呼应都东盛产西谷米的腹地。吃法与全国一致——缠上竹筷、蘸cacah酱、整口吞下，一桌人共享。",
     ja: "トゥトンでは、この国民的なサゴ料理が土地の遺産でもあります。観光局はアンブヤットを地区の名物に挙げており、サゴを産する後背地を映しています。食べ方は全国と同じで、チャンダスに巻き、チャチャにつけ、丸ごと飲み込み、卓を囲んで分け合います。",
     es: "En Tutong el plato nacional de sagú es también patrimonio local: la junta de turismo incluye el ambuyat entre las especialidades del distrito, reflejo del interior sagüero de Tutong. Se come a la manera nacional: enrollado en chandas, mojado en cacah, tragado entero y compartido en la mesa.",
+    ko: "투통에서는 나라의 사고 요리가 지역의 유산이기도 합니다. 관광청은 사고를 생산하는 투통의 배후지를 반영해 암부얏을 이 지역 고유의 별미로 올려 두었습니다. 찬다스에 감아 차차에 찍어 통째로 삼키며 상에서 함께 나누는, 나라의 방식 그대로 먹습니다.",
   },
   "Tutong::Kuih mor": {
     id: "Penganan bernama khas Tutong menurut badan pariwisata resmi: kuih mor, kue tradisional yang rapuh, dicantumkan bersama ambuyat dan serunding daging Sungkai sebagai keistimewaan distrik ini. Pasar Tamu Tutong pada Kamis pagi adalah tempat para pedagang menjualnya bersama pisang goreng dan kerajinan anyaman.",
@@ -2099,6 +2359,7 @@ module.exports = {
     zh: "据官方旅游局所列，都东点名的特产是kuih mor——一种酥松的传统小饼，与ambuyat和双溪牛肉椰丝serunding并列为本区特色。每周四早上的Tamu Tutong集市，小贩把它与炸香蕉和编织手工艺一起摆卖。",
     ja: "公式の観光局が名指しするトゥトンの名物は、ほろりと崩れる伝統菓子クイ・モールです。アンブヤット、スンカイの牛肉スルンディンと並び、この地区の特産に挙げられています。木曜の朝に立つタム・トゥトン市場で、揚げバナナや編み細工とともに売られています。",
     es: "La delicia que la junta oficial de turismo nombra para Tutong: el kuih mor, un dulce tradicional quebradizo, listado junto al ambuyat y el serunding de ternera de Sungkai como especialidad del distrito. El mercado de Tamu Tutong, los jueves por la mañana, es donde los vendedores lo ofrecen con buñuelos de plátano y cestería.",
+    ko: "공식 관광청이 꼽는 투통의 명물은 쿠이 모르입니다. 부슬부슬한 전통 과자로, 암부얏과 숭카이 소고기 스룬딩과 함께 이 지역의 특산으로 올라 있습니다. 목요일 아침 타무 투통 장터에서 상인들이 바나나 튀김과 수공예품과 함께 팝니다.",
   },
   "Ubon Ratchathani::Kuay jab yuan": {
     id: "Mi tapioka-beras yang kenyal dalam kuah babi bening berlada, dimahkotai moo yor Ubon — perpaduan Vietnam-Isan yang begitu lekat dengan kota ini sampai orang menyebutnya \"kuay jab Ubon\" saja, sarapan lokal yang lazim.",
@@ -2107,6 +2368,7 @@ module.exports = {
     zh: "弹牙的木薯米粉浸在清澈的胡椒猪汤里，铺上乌汶的猪肉肠moo yor——这道越南与伊善融合的小吃与城市绑得太紧，人们干脆叫它「乌汶粿汁」，是寻常的本地早餐。",
     ja: "タピオカと米で作る歯ごたえのある麺を、澄んだ胡椒のきいた豚のスープに沈め、ウボンのムーヨーをのせます。ベトナムとイサーンが溶け合った一品で、街と結びつきすぎて単に「ウボンのクイジャップ」と呼ばれます。ごく普通の朝食です。",
     es: "Fideos correosos de tapioca y arroz en un caldo de cerdo claro y pimentado, coronados con el moo yor de Ubon: una fusión vietnamita-isanesa tan identificada con la ciudad que se la llama sencillamente «kuay jab de Ubon». Un desayuno local de todos los días.",
+    ko: "쫄깃한 타피오카 쌀국수를 맑고 후추 향 나는 돼지 국물에 넣고 우본의 무여를 올립니다. 베트남과 이싼이 만난 이 음식은 도시와 워낙 붙어 있어 흔히 '우본 꾸어이짭'이라 부르며 이곳의 평범한 아침입니다.",
   },
   "Ubon Ratchathani::Moo yor ubon": {
     id: "Sosis babi kukus yang halus dalam daun pisang, diadaptasi dari giò lụa Vietnam oleh komunitas Vietnam yang besar di Ubon. Kini menjadi buah tangan penanda provinsi ini, disantap goreng, dalam salad pedas, atau diiris ke dalam semangkuk mi pagi.",
@@ -2115,6 +2377,7 @@ module.exports = {
     zh: "包在香蕉叶里的细腻蒸猪肉肠，由乌汶庞大的越南裔社群自越南的giò lụa改造而来。如今是本府代表性的手信，可煎、可拌成辣沙拉，也可切片放进清晨那碗面里。",
     ja: "バナナの葉に包んで蒸した、きめ細かな豚肉のソーセージです。ウボンの大きなベトナム系住民が、ベトナムのゾールアから作り替えました。今では県を代表する贈答品で、焼いても、辛いサラダにしても、朝の麺に薄く切って入れてもよく合います。",
     es: "Salchicha de cerdo al vapor, de textura fina, envuelta en hoja de plátano y adaptada del giò lụa vietnamita por la nutrida comunidad vietnamita de Ubon. Hoy es el regalo típico de la provincia: se come frita, en ensaladas picantes o en rodajas dentro del cuenco de fideos del desayuno.",
+    ko: "바나나잎에 싸서 쪄낸 매끄러운 돼지고기 소시지로, 우본의 큰 베트남계 공동체가 지오 루아를 바탕으로 바꾼 것입니다. 지금은 주를 대표하는 선물 음식으로 튀기거나 매운 샐러드에 넣거나 아침 국수에 저며 넣습니다.",
   },
   "Udon Thani::Naem nueang udon": {
     id: "Sosis babi panggang yang digulung bersama sayuran segar dan saus celup khasnya, dibawa oleh komunitas Vietnam yang besar di Udon Thani. Kedai berusia puluhan tahun seperti Arunee yang masuk daftar Michelin menjadikannya oleh-oleh penanda kota.",
@@ -2123,6 +2386,7 @@ module.exports = {
     zh: "炭烤猪肉肠与新鲜蔬菜同卷，蘸上招牌酱汁，由乌隆他尼庞大的越南裔社群带入。开了数十年、并获米其林收录的Arunee等店，把它变成这座城市的代表伴手礼。",
     ja: "炭火で焼いた豚肉のソーセージを、生野菜と一緒に巻き、独特のたれにつけます。ウドーンターニーの大きなベトナム系住民がもたらしました。ミシュランに載るアルニーなど数十年続く店が、この街を代表する土産の味に育てました。",
     es: "Salchicha de cerdo a la brasa enrollada con verduras frescas y una salsa de mojar característica, traída por la nutrida comunidad vietnamita de Udon Thani. Locales con décadas a cuestas como Arunee, recogido por Michelin, la convirtieron en el souvenir comestible de la ciudad.",
+    ko: "구운 돼지고기 소시지를 생채소와 함께 싸서 특유의 소스에 찍어 먹습니다. 우돈타니의 큰 베트남계 공동체가 들여왔습니다. 미슐랭에 오른 아루니 같은 수십 년 된 가게들이 이 도시의 대표 기념 음식으로 만들었습니다.",
   },
   "Udon Thani::Som tam–kai yang–khao niao": {
     id: "Trio Isan — salad pepaya tumbuk, ayam panggang, dan ketan yang dikepal tangan — lebih merupakan cara makan daripada satu hidangan. Meja som tam di Udon Thani, penuh dengan lauk pendamping, termasyhur di seluruh timur laut.",
@@ -2131,6 +2395,7 @@ module.exports = {
     zh: "伊善三件套——舂青木瓜沙拉、烤鸡与手捏糯米饭——与其说是一道菜，不如说是一种吃法。乌隆他尼摆满配菜的凉拌木瓜桌，在整个东北部都出了名。",
     ja: "イサーンの三点セット——搗いた青パパイヤのサラダ、焼き鶏、手で握るもち米——は、一皿というより食べ方そのものです。副菜が所狭しと並ぶウドーンターニーのソムタムの卓は、東北部じゅうに知られています。",
     es: "El trío isanés —ensalada de papaya majada, pollo a la brasa y arroz glutinoso amasado a mano— es más una manera de comer que un plato. Las mesas de som tam de Udon Thani, cargadas de acompañamientos, son famosas en todo el noreste.",
+    ko: "빻은 파파야 샐러드와 구운 닭, 손으로 뭉친 찰밥이라는 이싼의 세 짝은 한 가지 요리라기보다 먹는 방식입니다. 곁들임이 가득 오르는 우돈타니의 쏨땀 상은 동북부 전역에서 이름났습니다.",
   },
   "Wellington::Craft beer": {
     id: "Minuman penanda Wellington yang lain: diperkirakan 40–50% bir kerajinan Selandia Baru diminum di ibu kota, yang menjuluki dirinya ibu kota bir kerajinan negeri ini dan memetakan jalur mandiri melintasi pabrik bir, taproom, dan bar di gang-gangnya.",
@@ -2139,6 +2404,7 @@ module.exports = {
     zh: "惠灵顿另一样标志性的饮品：据估计，新西兰四到五成的精酿啤酒都在首都喝掉。这座城自称全国精酿之都，还画出一条自助路线，串起各家酒厂、品酒室与小巷酒吧。",
     ja: "ウェリントンを象徴するもう一つの飲みものです。ニュージーランドのクラフトビールの四割から五割が首都で消費されると見られ、街はみずからを国のクラフトビールの都と称し、醸造所やタップルーム、路地のバーをめぐる自由散策の地図まで用意しています。",
     es: "La otra bebida que define Wellington: se estima que entre el 40 y el 50 % de la cerveza artesanal de Nueva Zelanda se consume en la capital, que se presenta como la capital cervecera artesanal del país y traza una ruta autoguiada por sus fábricas, taprooms y bares de callejón.",
+    ko: "웰링턴을 정의하는 또 하나의 음료입니다. 뉴질랜드 크래프트 맥주의 40~50퍼센트가 이 수도에서 소비된다고 추정되며, 도시는 스스로를 나라의 크래프트 맥주 수도로 내세우고 양조장과 탭룸, 뒷골목 바를 잇는 자율 탐방로를 안내합니다.",
   },
   "Wellington::Flat white & café culture": {
     id: "Wellington mengklaim flat white lewat barista Fraser McInnes dan \"cappuccino gagal\"-nya pada 1989, berhadapan dengan klaim Sydney dan Auckland. Di luar perselisihan itu, budaya kafe kota ini yang padat pemanggang kopi, berakar pada milk bar tahun 1950-an, membuatnya masuk delapan besar kota kopi dunia versi CNN.",
@@ -2147,6 +2413,7 @@ module.exports = {
     zh: "惠灵顿主张flat white出自咖啡师Fraser McInnes在1989年那杯「失手的卡布奇诺」，与悉尼、奥克兰的说法相争。撇开争论，这座城烘豆坊密集的咖啡馆文化——根在1950年代的奶吧——让它进了CNN评出的世界八大咖啡城市。",
     ja: "ウェリントンは、1989年にバリスタのフレイザー・マキネスが淹れた「失敗したカプチーノ」をフラットホワイトの起源だと主張し、シドニーやオークランドと争っています。論争はさておき、1950年代のミルクバーに根をもつ焙煎所だらけのカフェ文化が、CNNの世界のコーヒー都市八選に名を連ねさせました。",
     es: "Wellington reclama el flat white a través del barista Fraser McInnes y su «capuchino fallido» de 1989, frente a las reivindicaciones de Sídney y Auckland. Más allá de la disputa, la densa cultura de cafés y tostadores de la ciudad, arraigada en las barras de leche de los años cincuenta, le valió un puesto entre las ocho mejores ciudades cafeteras del mundo según CNN.",
+    ko: "웰링턴은 1989년 바리스타 프레이저 매키니스의 '실패한 카푸치노'를 들어 플랫 화이트를 주장하며 시드니와 오클랜드의 주장에 맞섭니다. 논쟁을 떠나, 1950년대 밀크바에 뿌리를 둔 조밀한 로스터 카페 문화가 CNN 세계 커피 8대 도시에 이 도시를 올렸습니다.",
   },
   "Wenzhou::Wenzhou fish balls": {
     id: "Sama sekali bukan bola: potongan tak beraturan dari pasta ikan kuning segar yang dipilin tangan langsung ke air mendidih, disajikan dalam kuah cabai dan cuka. Camilan Wenzhou berumur seabad, warisan takbenda kota, dan salah satu \"jajanan termasyhur\" pertama yang resmi dinamai di Tiongkok.",
@@ -2155,6 +2422,7 @@ module.exports = {
     zh: "其实并不成球：新鲜黄鱼肉打成浆后，用手撕成不规则的条直接下滚水，浇上胡椒醋汤。这是温州百年的小吃，市级非物质文化遗产，也是中国最早获正式命名的「名小吃」之一。",
     ja: "実のところ団子ではありません。新鮮なイシモチのすり身を、手で不揃いに千切って直接熱湯へ落とし、胡椒と酢のきいたスープで供します。百年続く温州の軽食で、市の無形文化遺産であり、中国で最初に「名物小吃」と正式に認定された一つでもあります。",
     es: "No son bolas en absoluto: tiras irregulares de pasta de corvina fresca pellizcadas a mano directamente en agua hirviendo y servidas en un caldo de pimienta y vinagre. Un tentempié centenario de Wenzhou, patrimonio inmaterial municipal y uno de los primeros «aperitivos famosos» oficialmente nombrados de China.",
+    ko: "완자가 아닙니다. 생조기 살 반죽을 손으로 뜯어 끓는 물에 넣어 들쭉날쭉한 가닥으로 만들고 고추와 식초 국물에 냅니다. 백 년 된 원저우 간식으로 시 무형유산이며 중국이 처음 공식 지정한 '명물 간식'에 듭니다.",
   },
   "Wenzhou::Wenzhou glutinous rice breakfast": {
     id: "Konstanta pagi Wenzhou sejak akhir Dinasti Qing: ketan yang dikukus dalam kain, ditaburi remah adonan goreng yang renyah dan disiram kuah kental jamur serta daging babi cincang, ditemani susu kedelai manis. Lebih dari sekadar hidangan, ini cara bersama kota ini memulai hari.",
@@ -2163,6 +2431,7 @@ module.exports = {
     zh: "自清末以来温州清晨的常数：布蒸的糯米饭撒上酥脆的油条碎，浇一勺香菇肉末浓卤，再配一碗甜豆浆。与其说是一道菜，不如说是这座城共同的开日方式。",
     ja: "清末以来、温州の朝の定めごとです。布で蒸したもち米に、揚げパンの砕いたものをたっぷりかけ、椎茸と豚ひき肉の濃いあんを回しかけ、甘い豆乳を添えます。料理というより、街全体に共通する一日の始め方です。",
     es: "La constante matinal de Wenzhou desde el final de los Qing: arroz glutinoso cocido al vapor en tela, cubierto de migas crujientes de masa frita y una salsa espesa de setas y carne picada de cerdo, con leche de soja dulce al lado. Menos un plato que la manera compartida que tiene la ciudad de empezar el día.",
+    ko: "청나라 말부터 이어진 원저우의 아침입니다. 천에 쪄낸 찰밥에 바삭한 유탸오 부스러기를 뿌리고 뜨거운 버섯 돼지고기 소스를 끼얹어 달콤한 두유와 함께 듭니다. 요리라기보다 이 도시가 하루를 여는 공통의 방식입니다.",
   },
   "Xiamen::Oyster omelette": {
     id: "Tiram \"mutiara\" setempat yang gemuk dilipat bersama pati ubi jalar, telur, dan kucai, digoreng menjadi telur dadar bertepi renda — asin gurih di dalam, renyah di luar. Klasik pesisir Minnan yang dibagi dengan Quanzhou dan Taiwan, tetapi tetap tetap hadir di setiap pasar malam Xiamen.",
@@ -2171,6 +2440,7 @@ module.exports = {
     zh: "本地肥美的「珍珠蚝」拌上番薯粉、鸡蛋与韭菜，煎成边缘起花的蚵仔煎——内里鲜咸，外沿酥脆。这是闽南沿海的经典，与泉州、台湾共享，却是厦门每个夜市的固定角色。",
     ja: "地元の肥えた「真珠牡蠣」をさつまいも澱粉、卵、ニラと合わせ、縁がレースのように焼けたオムレツにします。中は潮の香り、外は香ばしく。閩南の海岸に共通する定番で、泉州や台湾とも分かち合いますが、厦門の夜市には必ずあります。",
     es: "Ostras «perla» locales y carnosas mezcladas con almidón de boniato, huevo y cebollino chino, fritas en una tortilla de bordes de encaje: salina por dentro, crujiente por fuera. Un clásico de la costa minnan compartido con Quanzhou y Taiwán, pero fijo en todos los mercados nocturnos de Xiamen.",
+    ko: "이 지역의 통통한 '진주' 굴을 고구마 전분과 달걀, 부추와 함께 부쳐 가장자리가 레이스처럼 되게 합니다. 속은 짭조름하고 겉은 바삭합니다. 취안저우와 대만이 함께 나눈 민난 해안의 고전이지만 샤먼의 모든 야시장에 붙박이로 있습니다.",
   },
   "Xiamen::Shacha noodles": {
     id: "Mi dalam kuah jingga yang kaya kacang tanah, dibangun di atas shacha — pasta sate yang dibawa pulang dari Malaya oleh perantau Tionghoa Xiamen lalu diracik ulang dengan udang asin. Ditaburi cumi, babi, atau tahu; tekniknya menjadi warisan takbenda kota Xiamen (2021).",
@@ -2179,6 +2449,7 @@ module.exports = {
     zh: "面浸在橙红、花生味浓的汤里，底子是沙茶——厦门华侨从马来亚带回的沙嗲酱，再以虾油重新调配。上头配鱿鱼、猪肉或豆腐；其技艺于2021年列入厦门市级非物质文化遗产。",
     ja: "橙色をした落花生の濃いスープに麺を沈めます。土台は沙茶（サーチャー）——厦門の華僑がマラヤから持ち帰ったサテのペーストを、塩漬け海老で作り替えたものです。イカや豚肉、豆腐をのせます。その技法は2021年、厦門市の無形文化遺産になりました。",
     es: "Fideos en un caldo anaranjado y cargado de cacahuete construido sobre el shacha, una pasta de satay que los chinos de ultramar de Xiamen trajeron de Malaya y rehicieron con gamba en salmuera. Se corona con calamar, cerdo o tofu; la técnica es patrimonio inmaterial municipal de Xiamen desde 2021.",
+    ko: "말라야에서 화교들이 가지고 돌아온 사테 페이스트를 새우젓으로 다시 만든 사차를 바탕으로, 땅콩 향 짙은 주황빛 국물에 면을 넣습니다. 오징어와 돼지고기, 두부를 올리며 그 기법은 2021년 샤먼 시 무형유산입니다.",
   },
   "Yangzhou::Fuchun morning-tea ritual": {
     id: "Pranata pagi santai Yangzhou sejak 1885: teh racikan \"Kuilongzhu\" di Kedai Teh Fuchun bersama kue minyak seribu lapis, shaomai giok, dan bakpao tiga isian. Tekniknya adalah warisan takbenda nasional dan ikut masuk dalam pencatatan teh oleh UNESCO pada 2022.",
@@ -2187,6 +2458,7 @@ module.exports = {
     zh: "自1885年起，扬州早茶的慢时光就有了去处：富春茶社的拼配「魁龙珠」，配千层油糕、翡翠烧卖与三丁包。其技艺是国家级非物质文化遗产，并于2022年随中国传统制茶技艺列入联合国教科文组织名录。",
     ja: "1885年以来、揚州のゆったりした朝を支えてきた場所です。富春茶社のブレンド茶「魁龍珠」に、千層油糕、翡翠焼売、三丁包を合わせます。その技は国家級無形文化遺産であり、2022年のユネスコの茶の登録にも含まれました。",
     es: "La institución de la mañana lenta de Yangzhou desde 1885: el té de mezcla «Kuilongzhu» de la Casa de Té Fuchun con pastel de aceite de mil capas, shaomai de jade y bollos de tres rellenos. La técnica es patrimonio inmaterial nacional y entró en la inscripción del té de la UNESCO en 2022.",
+    ko: "1885년부터 이어진 양저우의 느린 아침입니다. 푸춘 찻집이 섞어 만든 '쿠이룽주' 차에 천 겹 유병과 옥빛 사오마이, 싼딩 만두를 곁들입니다. 그 기법은 국가 무형유산이며 2022년 유네스코 차 등재에도 포함됐습니다.",
   },
   "Yangzhou::Lion's head meatball": {
     id: "Satu bola sebesar jeruk bali dari daging babi yang dicincang tangan, direbus begitu perlahan sampai bergetar di ujung sendok, dan pada musim gugur diperkaya telur kepiting. Raksasa lembut masakan Huaiyang, lahir dari tradisi jamuan Yangzhou dan diakui sebagai Hidangan Termasyhur Tiongkok.",
@@ -2195,6 +2467,7 @@ module.exports = {
     zh: "一颗柚子大小的肉圆，猪肉全靠手工细切，煨得极轻柔，舀起时颤巍巍的，入秋再添蟹粉提味。这是淮扬菜里温柔的巨物，出自扬州的宴席传统，并获评「中国名菜」。",
     ja: "手切りの豚肉でこしらえた、文旦ほどもある大きな肉団子です。ごく静かに煮るので、匙にのせると揺れます。秋には蟹味噌を加えて豊かにします。揚州の宴席の伝統が生んだ淮揚料理のやさしい巨人で、中国の名菜に数えられます。",
     es: "Una única albóndiga del tamaño de un pomelo, de cerdo picado a cuchillo, escalfada con tal suavidad que tiembla en la cuchara y enriquecida en otoño con hueva de cangrejo. El gigante tierno de la cocina huaiyang, nacido de la tradición de banquete de Yangzhou y honrado como plato famoso de China.",
+    ko: "손으로 다진 돼지고기를 자몽만 하게 빚어 숟가락에 떨릴 만큼 은근히 데치고, 가을에는 게알을 더해 진하게 냅니다. 화이양 요리의 부드러운 거인으로 양저우의 연회 전통에서 태어났고 중국의 명요리로 꼽힙니다.",
   },
   "Yangzhou::Yangzhou fried rice": {
     id: "Nasi goreng Tionghoa paling dikenal di dunia, dibela di tempat asalnya: pada 2015 biro mutu Yangzhou menerbitkan standar resmi yang menyebutkan delapan bahan pelengkap — teripang, ham, udang, kerang kering — dan menuntut butiran nasi yang terpisah serta berkilau telur.",
@@ -2203,6 +2476,7 @@ module.exports = {
     zh: "全世界最有名的中式炒饭，在原产地立了规矩：2015年扬州质监部门发布官方标准，点名八样配料——海参、火腿、虾仁、干贝——并要求米粒粒粒分明、蛋色金黄。",
     ja: "世界でもっとも知られた中華の炒飯を、本場が守りました。2015年、揚州の品質管理部門が公式基準を出し、海参、金華ハム、海老、干し貝柱など八つの具材を名指しし、米粒が一粒ずつほぐれ、卵で黄金色に輝くことを求めたのです。",
     es: "El arroz frito chino más conocido del mundo, defendido en su origen: en 2015 la oficina de calidad de Yangzhou publicó una norma oficial que nombra ocho guarniciones —pepino de mar, jamón, gambas, vieira seca— y exige granos sueltos y dorados por el huevo.",
+    ko: "세계에서 가장 잘 알려진 중국식 볶음밥으로, 그 고향이 직접 지켜 냅니다. 2015년 양저우 품질감독국이 공식 표준을 내어 해삼과 햄, 새우, 말린 관자 등 여덟 가지 고명을 명시하고 달걀을 입은 밥알이 낱낱이 살아 있을 것을 요구했습니다.",
   },
   "Yogyakarta::Bakpia": {
     id: "Kue bundar kecil berisi kacang hijau manis, diadaptasi dari tou luk pia Tionghoa oleh perantau Kwik Sun Kwok dan dipanggang di Kampung Pathuk sejak sekitar 1948 — lemak babinya ditiadakan agar semua orang bisa ikut menikmati. Ditetapkan sebagai Warisan Budaya Takbenda pada 2016 dan menjadi oleh-oleh khas Yogyakarta.",
@@ -2211,6 +2485,7 @@ module.exports = {
     zh: "小圆酥饼裹着甜绿豆馅，由移民郭顺国自华人的「豆六饼」改造而来，约1948年起在Pathuk村烘制——去掉猪油，好让所有人都能吃。2016年获定为非物质文化遗产，也是日惹最具代表性的伴手礼。",
     ja: "甘い緑豆の餡を包んだ小さな丸い焼き菓子で、移民のクウィッ・スン・クオッが中国の豆六餅を作り替え、1948年ごろからパトゥッ村で焼かれてきました。誰もが分かち合えるよう、豚脂は外されています。2016年に無形文化遺産に指定された、ジョグジャカルタを代表する土産です。",
     es: "Un pastelillo redondo relleno de judía mungo dulce, adaptado del tou luk pia chino por el migrante Kwik Sun Kwok y horneado en Kampung Pathuk desde alrededor de 1948, con la manteca de cerdo suprimida para que todos pudieran compartirlo. Declarado Patrimonio Cultural Inmaterial en 2016 y souvenir insignia de Yogyakarta.",
+    ko: "달콤한 녹두를 채운 작고 둥근 과자로, 이주민 콱순콱이 중국의 터우룩피아를 바꿔 1948년경부터 캄풍 파툭에서 구웠습니다. 모두가 나눌 수 있도록 돼지기름을 뺐습니다. 2016년 무형문화유산으로 지정된 욕야카르타의 대표 기념품입니다.",
   },
   "Yogyakarta::Gudeg": {
     id: "Nangka muda direbus berjam-jam bersama santan, gula aren, dan daun jati sampai manis dan berwarna cokelat mahoni, dihidangkan dengan krecek dan opor. Tercatat dalam daftar Warisan Budaya Takbenda nasional, berakar pada Yogyakarta masa Mataram — hidangan yang membuat kota ini dijuluki \"Kota Gudeg\".",
@@ -2219,6 +2494,7 @@ module.exports = {
     zh: "青菠萝蜜与椰浆、棕榈糖和柚木叶同煨数小时，直至甜香、色如红木，配krecek与opor同食。它已列入印尼国家非物质文化遗产名录，根在马打兰时代的日惹——这座城被叫作「古德城」，正是因为它。",
     ja: "若いジャックフルーツをココナッツミルク、ヤシ砂糖、チークの葉とともに何時間も煮込み、甘く紅褐色に仕上げ、クレチェクやオポールを添えます。国の無形文化遺産に登録され、マタラム期のジョグジャカルタに根をもちます。この街が「グドゥッの都」と呼ばれるゆえんです。",
     es: "Yaca joven cocida durante horas con leche de coco, azúcar de palma y hojas de teca hasta quedar dulce y de un pardo caoba, servida con krecek y opor. Inscrita en el registro nacional de patrimonio inmaterial, con raíces en la Yogyakarta de la era Mataram: el plato que da a la ciudad el apodo de «Kota Gudeg».",
+    ko: "어린 잭프루트를 코코넛밀크와 야자설탕, 티크잎과 함께 여러 시간 끓여 달고 짙은 적갈색으로 만들고 크르첵과 오포르를 곁들입니다. 국가 무형문화유산 목록에 올라 있고 마타람 시대 욕야카르타에 뿌리를 두며, 이 도시를 '구득의 도시'라 부르게 한 음식입니다.",
   },
   "Yokohama::Chinatown butaman": {
     id: "Bakpao babi kukus berukuran raksasa adalah lambang makanan sambil jalan di Pecinan Yokohama. Edosei, yang berdiri pada 1894 sebagai tukang daging di permukiman asing, menyempurnakan \"butaman\"-nya seusai perang bersama juru masak yang diundang dari Wuhan, menjejalkan babi, udang, kepiting, dan sayuran ke dalam bakpao yang mengembang lembut.",
@@ -2227,6 +2503,7 @@ module.exports = {
     zh: "巨大的蒸猪肉包，是横滨中华街边走边吃的招牌。江户清1894年在外国人居留地以肉铺起家，战后请来武汉的师傅，把猪肉、虾、蟹与蔬菜塞进松软的包子里，才把这款「butaman」做到极致。",
     ja: "大ぶりの豚まんは、横浜中華街の食べ歩きを象徴します。江戸清は1894年、外国人居留地の精肉店として創業し、戦後は武漢から招いた料理人とともに豚肉、海老、蟹、野菜をふっくらした生地に詰め、その「豚まん」を完成させました。",
     es: "El bollo gigante de cerdo al vapor es el emblema del comer paseando en el barrio chino de Yokohama. Edosei, fundada en 1894 como carnicería en el asentamiento extranjero, perfeccionó su «butaman» tras la guerra con cocineros invitados de Wuhan, rellenando cerdo, gamba, cangrejo y verduras en una masa esponjosa.",
+    ko: "커다란 고기만두는 요코하마 차이나타운을 걸으며 먹는 상징입니다. 1894년 외국인 거류지의 정육점으로 시작한 에도세이가 전후 우한에서 초빙한 요리사들과 함께 '부타만'을 완성해, 돼지고기와 새우, 게, 채소를 폭신한 빵에 채웠습니다.",
   },
   "Yokohama::Gyunabe": {
     id: "Ketika pelabuhan Yokohama dibuka pada 1859, kebiasaan Barat menyantap daging sapi bertemu miso dan kecap asin Jepang. Gyunabe — potongan daging sapi yang direbus di meja — menjadi rasa \"peradaban dan pencerahan\" era Meiji. Kedai pendiri Ota Nawanoren (1868) dan Araiya (1895) masih menyajikannya sampai kini.",
@@ -2235,6 +2512,7 @@ module.exports = {
     zh: "1859年横滨开港，西方吃牛肉的习惯遇上了日本的味噌与酱油。牛锅——大块牛肉在桌边煮——成了明治「文明开化」的味道。太田绳暖簾（1868）与荒井屋（1895）两家元祖至今仍在做。",
     ja: "1859年の横浜開港で、西洋の牛肉食が日本の味噌と醤油に出会いました。卓上で煮る牛鍋は、明治の「文明開化」の味となったのです。創業店の太田なわのれん（1868年）と荒井屋（1895年）は、今もこれを供しています。",
     es: "Cuando el puerto de Yokohama abrió en 1859, la costumbre occidental de comer ternera se topó con el miso y la salsa de soja japoneses. El gyunabe —trozos gruesos de ternera guisados en la mesa— se convirtió en el sabor de la «civilización e ilustración» Meiji. Las casas fundadoras Ota Nawanoren (1868) y Araiya (1895) lo sirven aún hoy.",
+    ko: "1859년 요코하마가 개항하자 서양의 육식이 일본의 된장과 간장을 만났습니다. 큼직한 소고기를 식탁에서 끓이는 규나베는 메이지 '문명개화'의 맛이 됐습니다. 원조인 오타 나와노렌(1868)과 아라이야(1895)가 지금도 냅니다.",
   },
   "Yokohama::Sanma-men": {
     id: "Mi asli Yokohama: ramen bermahkota tumisan panas berkuah kental dari tauge, kubis, dan babi. Ia bermula sebagai makanan murah untuk pegawai di restoran Tionghoa kota ini, lalu menyebar ke seluruh Kanagawa sebagai santapan sehari-hari, tercatat dalam basis data warisan pangan kementerian pertanian Jepang.",
@@ -2243,5 +2521,6 @@ module.exports = {
     zh: "横滨土生的面：拉面上盖一层滚烫勾芡的豆芽、卷心菜与猪肉炒料。它起初是本市中华料理店的廉价员工餐，后来在神奈川各地成了家常吃食，并被日本农林水产省的乡土食遗产数据库收录。",
     ja: "横浜生まれの麺です。ラーメンの上に、もやし、キャベツ、豚肉をとろみをつけて炒めた熱い餡をのせます。市内の中華料理店のまかないとして始まり、やがて神奈川一円の日常食となり、農林水産省の郷土料理のデータベースにも収められています。",
     es: "El fideo propio de Yokohama: ramen coronado con un salteado caliente y espesado de brotes de soja, col y cerdo. Empezó como comida barata de personal en los restaurantes chinos de la ciudad, se extendió por toda Kanagawa como plato cotidiano y figura en la base de datos de patrimonio alimentario del ministerio de agricultura japonés.",
+    ko: "요코하마에서 자란 국수입니다. 라멘 위에 숙주와 양배추, 돼지고기를 전분으로 걸쭉하게 볶아 뜨겁게 올립니다. 이 도시 중화요리점의 값싼 직원 식사로 시작해 가나가와 전역의 일상 음식으로 퍼졌고, 농림수산성의 향토 음식 자료에 기록돼 있습니다.",
   },
 };

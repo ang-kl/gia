@@ -137,7 +137,7 @@ describe('shipped i18n translations', () => {
     // parsers that matched only quoted literals skipped them entirely — the two
     // longest and most sensitive strings in the file were outside every check.
     const SRC = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
-    const LANGS = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const LANGS = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
     const problems = [];
     for (const key of ['privacy.body', 'legal.body']) {
       const at = SRC.indexOf(`  '${key}': {`);

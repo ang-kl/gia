@@ -63,6 +63,7 @@ const DAY_LABELS = {
   zh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
   ja: ['日', '月', '火', '水', '木', '金', '土'],
   es: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+  ko: ['일', '월', '화', '수', '목', '금', '토'],
 };
 function dayLabel(day, lang) { return (DAY_LABELS[lang] || DAY_LABELS.en)[day]; }
 
@@ -130,6 +131,19 @@ const OH_PHRASES = {
     open24: 'Abierto · 24 horas', openPrefix: 'Abierto',
     closes: (t) => `Cierra ${t}`, closesDay: (d, t) => `Cierra ${d} ${t}`,
     reopens: (t) => `Reabre ${t}`,
+  },
+
+  // v0.62.883 (K6) — Korean is verb-final, so these are written to that order rather
+  // than re-ordered from English: the time comes first and the verb closes the phrase,
+  // as in ja. OH_LANGS is derived from this table's keys, so adding the block is what
+  // makes every caller — the Michelin path included — start speaking Korean.
+  ko: {
+    opensToday: (t) => `오늘 ${t} 영업 시작`, opensTomorrow: (t) => `내일 ${t} 영업 시작`,
+    opensDay: (d, t) => `${d} ${t} 영업 시작`,
+    closedNow: '지금 영업 종료', closedToday: '오늘 휴무', closed: '휴무',
+    open24: '영업 중 · 24시간', openPrefix: '영업 중',
+    closes: (t) => `${t} 영업 종료`, closesDay: (d, t) => `${d} ${t} 영업 종료`,
+    reopens: (t) => `${t} 영업 재개`,
   },
 };
 function phrases(lang) { return OH_PHRASES[lang] || OH_PHRASES.en; }

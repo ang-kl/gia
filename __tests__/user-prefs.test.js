@@ -23,7 +23,7 @@ describe('user-prefs.SUPPORTED', () => {
     // de (German) as supported UI + translation-target locales.
     // v0.62.480 — operator: "/language only has 2 language, please include the
     // rest". Extended to the Cuisine TMA's full set (added zh, ja, es).
-    expect(SUPPORTED).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
+    expect(SUPPORTED).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
   });
 });
 
@@ -38,7 +38,10 @@ describe('setUserLang / getUserLang', () => {
 
   it('rejects unsupported lang', async () => {
     // v0.62.480 — zh/ja/es are now supported; use ko (Korean, not in the set).
-    const r = await setUserLang(redis, 42, 'ko');
+    // v0.62.883 (K6) — 'ko' was this file's example of an unsupported code and is now
+    // the opposite of one. 'pt' takes its place: a real ISO code the app does not ship,
+    // which tests the same thing 'xx' cannot — that the guard rejects a PLAUSIBLE locale.
+    const r = await setUserLang(redis, 42, 'pt');
     expect(r).toBeNull();
     expect(await getUserLang(redis, 42)).toBeNull();
   });
@@ -76,7 +79,10 @@ describe('resolveLang', () => {
     // v0.62.480 — zh is now supported (a zh Telegram locale resolves to zh);
     // use ko (unsupported) to exercise the en fallback path.
     expect(await resolveLang(redis, 7, null)).toBe('en');
-    expect(await resolveLang(redis, 7, { from: { language_code: 'ko' } })).toBe('en');
+    // v0.62.883 (K6) — 'ko' was this file's example of an unsupported code and is now
+    // the opposite of one. 'pt' takes its place: a real ISO code the app does not ship,
+    // which tests the same thing 'xx' cannot — that the guard rejects a PLAUSIBLE locale.
+    expect(await resolveLang(redis, 7, { from: { language_code: 'pt' } })).toBe('en');
   });
 
   it('clears with del() reverts to fallback chain', async () => {

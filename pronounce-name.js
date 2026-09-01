@@ -61,7 +61,7 @@ const NONE = 'NONE';                     // the model's "no guide needed" sentin
 // The locales the app ships. A reader outside this set gets nothing rather than a
 // guess — the same lesson as prompt-locale.js, where gating on `langName()` being
 // truthy would have asked the model to write in "KR".
-const APP_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const APP_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 /**
  * Cache key. Keyed on the NAME, not the placeId: two venues called

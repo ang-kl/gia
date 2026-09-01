@@ -144,9 +144,27 @@ describe('script integrity, including the direction Korean adds', () => {
 });
 
 describe('K4 changes content only', () => {
-  it('ko is still not an app locale, which is what makes staging safe', () => {
-    expect(require('../i18n').SUPPORTED).not.toContain('ko');
-    expect(require('../user-prefs').SUPPORTED).not.toContain('ko');
+  it('ko IS an app locale now — the inverse of what this said through K2–K5', () => {
+    // This assertion is load-bearing in both directions. While the content was staged it read
+    // `.not.toContain('ko')` and guaranteed nothing here reached a user; K6 removes that
+    // guarantee deliberately, so the line proves the opposite fact rather than being deleted.
+    // A revert of the flip fails here instead of quietly re-hiding 1,684 overlay notes.
+    expect(require('../i18n').SUPPORTED).toContain('ko');
+    expect(require('../user-prefs').SUPPORTED).toContain('ko');
+  });
+
+  it('and a Korean reader actually reaches these notes', () => {
+    // The fold puts `ko` on the served dish; SUPPORTED carrying 'ko' is what lets a reader be in
+    // that locale at all. Both halves are needed, so both are asserted on one served dish.
+    const { SUPPORTED } = require('../i18n');
+    expect(SUPPORTED.includes('ko')).toBe(true);
+    const served = [];
+    for (const [slug, nation] of Object.entries(NATION_OVERLAY)) {
+      for (const d of nation?.iconicDishes || []) if (d?.note?.ko) served.push([slug, d]);
+    }
+    expect(served.length).toBeGreaterThanOrEqual(1500);
+    const [, dish] = served[0];
+    expect(dish.note.ko).not.toBe(dish.note.en);
   });
 
   it('and the fold loop carries ko without having been told about it', () => {

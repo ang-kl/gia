@@ -57,7 +57,7 @@ const SUPPORTED_LANGS = new Set(['en', 'fr', 'zh', 'ms', 'ta', 'ja', 'ko', 'th']
 // render time, and es was in neither set so deviceFactLang() never even asked
 // for it — roughly 5,300 written strings that no user could reach. Kept separate
 // from SUPPORTED_LANGS because `id` cannot be a flat key (identifier collision).
-const OVERLAY_LANGS = new Set(['id', 'ru', 'de', 'zh', 'ja', 'es']);
+const OVERLAY_LANGS = new Set(['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
 
 // v0.61.383 — the DEVICE language for the fact body. The app UI locale
 // (useLocale) is only en|fr, but the operator wants the fact in the user's

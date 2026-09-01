@@ -30,8 +30,8 @@ import { join } from 'path';
 
 const ROOT = join(__dirname, '..');
 const SRC = readFileSync(join(ROOT, 'web/transport/src/i18n.js'), 'utf8');
-const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
-const BLOCKS = { id: 'ID', ru: 'RU', de: 'DE', zh: 'ZH', ja: 'JA', es: 'ES' };
+const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
+const BLOCKS = { id: 'ID', ru: 'RU', de: 'DE', zh: 'ZH', ja: 'JA', es: 'ES', ko: 'KO' };
 
 const sliceBlock = (name) => {
   const start = SRC.indexOf(`const ${name} = {`);

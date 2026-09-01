@@ -81,7 +81,7 @@ describe('the Google Map label is translated, like its neighbours were', () => {
 
   it('and the key exists in all eight locales', async () => {
     const m = await import('../web/cuisine/src/v2/lib/i18n.js');
-    for (const l of ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']) {
+    for (const l of ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']) {
       const v = m.t('card.googleMap', l);
       expect(v, `card.googleMap missing for ${l}`).not.toBe('card.googleMap');
       expect(v.length).toBeGreaterThan(0);

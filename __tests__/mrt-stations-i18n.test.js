@@ -183,7 +183,7 @@ describe('transport TMA — Indonesian reads the Malay column (O-321)', () => {
     const gen = readFileSync(join(ROOT, 'web/_shared/lib/mrt-stations-i18n.generated.js'), 'utf8');
     expect(gen).toMatch(/const LANG_COLUMN = \{ id: 'ms' \};/);
     const i18n = readFileSync(join(ROOT, 'web/transport/src/i18n.js'), 'utf8');
-    expect(i18n).toMatch(/SUPPORTED_LOCALES = \['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'\]/);
+    expect(i18n).toMatch(/SUPPORTED_LOCALES = \['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'\]/);
   });
 });
 

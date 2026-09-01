@@ -30,7 +30,7 @@ const { t, tn } = require('./i18n');   // v0.62.859 — item 6: module-scope, be
 // v0.62.859 — item 6. `toLocaleDateString` was given `fr-FR` or `en-GB` and nothing else, so
 // six locales formatted dates in British English under their own chrome. Data, not a ternary,
 // so a ninth locale is one line rather than a hunt.
-const DATE_LOCALE = { en: 'en-GB', fr: 'fr-FR', id: 'id-ID', ru: 'ru-RU', de: 'de-DE', zh: 'zh-CN', ja: 'ja-JP', es: 'es-ES' };
+const DATE_LOCALE = { en: 'en-GB', fr: 'fr-FR', id: 'id-ID', ru: 'ru-RU', de: 'de-DE', zh: 'zh-CN', ja: 'ja-JP', es: 'es-ES', ko: 'ko-KR' };
 const {
   setUserLocation,
   getUserLocation,
@@ -7911,6 +7911,9 @@ async function runLanguageCommand(msg, arg) {
   // v0.62.480 — all 8 locales, two buttons per row so the keyboard stays
   // thumb-friendly on a phone (4 rows). Labels are flag + native name so a
   // speaker recognises their own language regardless of the prompt locale.
+  // v0.62.883 (K6) — nine now, so five rows and the last carries one button.
+  // The list is SUPPORTED itself, which is why adding Korean to that array and
+  // writing `language.btn.ko` was the whole of the change here.
   const langButtons = SUPPORTED.map((code) => (
     { text: t(`language.btn.${code}`, display), callback_data: `language:set:${code}` }
   ));

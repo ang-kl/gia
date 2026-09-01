@@ -19,7 +19,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const LANGS = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const LANGS = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 const mergedNotes = () => {
   const { NATION_OVERLAY } = require('../nation-overlay.js');

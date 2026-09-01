@@ -200,9 +200,24 @@ describe('script integrity, including the direction Korean adds', () => {
 });
 
 describe('K5 changes content only', () => {
-  it('ko is still not an app locale, which is what makes staging safe', () => {
-    expect(require('../i18n').SUPPORTED).not.toContain('ko');
-    expect(require('../user-prefs').SUPPORTED).not.toContain('ko');
+  it('ko IS an app locale now — the inverse of what this said through K2–K5', () => {
+    // This assertion is load-bearing in both directions. While the content was staged it read
+    // `.not.toContain('ko')` and guaranteed nothing here reached a user; K6 removes that
+    // guarantee deliberately, so the line proves the opposite fact rather than being deleted.
+    // A revert of the flip fails here instead of quietly re-hiding 1,670 classics notes.
+    expect(require('../i18n').SUPPORTED).toContain('ko');
+    expect(require('../user-prefs').SUPPORTED).toContain('ko');
+  });
+
+  it('and a Korean reader actually reaches these notes', () => {
+    // Same pairing as the overlay guard: the fold delivers `ko`, and SUPPORTED carrying 'ko' is
+    // what lets a reader be in that locale. Asserted together on a served note.
+    const { SUPPORTED } = require('../i18n');
+    expect(SUPPORTED.includes('ko')).toBe(true);
+    const served = servedNotes().filter(([, n]) => n.ko);
+    expect(served.length).toBe(1670);
+    const [, note] = served[0];
+    expect(note.ko).not.toBe(note.en);
   });
 
   it('and a hand-authored body still wins over the overlay', () => {
