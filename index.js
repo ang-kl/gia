@@ -7985,13 +7985,24 @@ async function runLanguageCommand(msg, arg) {
   // v0.62.883 (K6) — nine now, so five rows and the last carries one button.
   // The list is SUPPORTED itself, which is why adding Korean to that array and
   // writing `language.btn.ko` was the whole of the change here.
+  //
+  // v0.62.891 — AND THAT LAST SENTENCE WAS THE DEFECT, WRITTEN DOWN AS A FACT.
+  // Operator: "KR should be together with the rest." `i += 2` over nine items
+  // left row five carrying ONE button — Korean, alone, full width, with
+  // Telegram's own separators above it. The comment above described the orphan
+  // in v0.62.883 and nobody read it as a bug, including me when I wrote it.
+  //
+  // It was never a Korean problem: `i += 2` orphans the last button at every ODD
+  // count, and Korean merely made nine. So the rows are BALANCED rather than
+  // filled-then-remaindered, in a module a test can call — index.js exports
+  // nothing, which is why the loop was only ever reachable by grep.
+  // Longest label is "🇮🇩 Indonesia" at 12 characters, so three across is
+  // comfortable on a phone; the widest row is a cap, not a quota.
+  const { balancedRows } = require('./bot-keyboard');
   const langButtons = SUPPORTED.map((code) => (
     { text: t(`language.btn.${code}`, display), callback_data: `language:set:${code}` }
   ));
-  const keyboardRows = [];
-  for (let i = 0; i < langButtons.length; i += 2) {
-    keyboardRows.push(langButtons.slice(i, i + 2));
-  }
+  const keyboardRows = balancedRows(langButtons, 3);
   await bot.sendMessage(chatId, promptText, {
     reply_markup: { inline_keyboard: keyboardRows }
   });
