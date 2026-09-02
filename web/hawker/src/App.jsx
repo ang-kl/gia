@@ -14,7 +14,7 @@ import { nearestByDistance, shortDist } from '../../_shared/lib/temp-pin.js';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
-import { activeClosure, nextClosure, closureTill, closureFrom, CLOSURE_TAB_BG } from './closure.js';
+import { activeClosure, nextClosure, closureTill, closureFrom, closureKey, CLOSURE_TAB_BG } from './closure.js';
 import StationLocationField from '../../_shared/components/StationLocationField.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
@@ -684,7 +684,8 @@ export default function App() {
         {upcoming && (
           <div className="text-[10px] text-tg-hint leading-snug">
             {upcoming.kind === 'cleaning' ? '🧽 ' : upcoming.kind === 'redevelopment' ? '🚧 ' : '🔧 '}
-            {tn(upcoming.kind === 'cleaning' ? 'hawker.nextCleaning'
+            {tn(upcoming.partial ? 'hawker.partlyOpenNext'
+              : upcoming.kind === 'cleaning' ? 'hawker.nextCleaning'
               : upcoming.kind === 'redevelopment' ? 'hawker.nextRedevelopment'
               : 'hawker.nextRenovation', lang, { from: closureFrom(upcoming.start) })}
           </div>
@@ -707,8 +708,37 @@ export default function App() {
             dishes. Present for 123 of 123 in the source CSV and, until now, dropped by the
             builder — so the card's only answer to "what IS this place" was `status`, which reads
             "Existing" for 108 of them. Behind the toggle because it is a paragraph, not a fact. */}
+        {/* v0.62.914 — NEA's own photo of the centre, one per row for all 123. Loaded from
+            www.nea.gov.sg at view time; nothing is re-hosted here. `loading="lazy"` because a
+            region list renders dozens of cards, and the toggle already gates this behind a tap.
+            onError hides the frame rather than leaving a broken-image glyph — the URLs are a
+            third party's and this app cannot promise they resolve forever. The scheme was
+            upgraded http→https at build time; 88 of 123 arrive as http:// and a browser blocks
+            those as mixed content, so without that they would simply never appear. */}
+        {c.photo && (
+          <img
+            src={c.photo}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            className="w-full rounded-lg object-cover max-h-32"
+          />
+        )}
         {c.description && (
           <div className="text-[11px] text-tg-hint leading-snug">{c.description}</div>
+        )}
+        {/* v0.62.914 — who runs the centre. Parsed by hawker-vault.js:164 since v0.50 and rendered
+            nowhere until now. Operator's spec, verbatim: "in another line (italian bracket in
+            smaller by one font size, not black font colour unless is white background) as it may
+            confuse the foreigner to read this" — so: its own line, bracketed, italic, 10px against
+            the surrounding 11px, and `text-tg-hint`, which is the theme's muted colour and is
+            never black on a dark background. The name itself is a proper noun and is not
+            translated; only the brackets come from the string table. */}
+        {c.mgmt && (
+          <div className="text-[10px] text-tg-hint italic leading-snug">
+            {tn('hawker.managedBy', lang, { m: c.mgmt })}
+          </div>
         )}
         {/* v0.62.912 — Nearby alternatives. nearestByDistance / shortDist / nearbyCentreNode have
             all existed in _shared/lib/temp-pin.js for versions, tested, and nearbyCentreNode was
@@ -831,16 +861,28 @@ export default function App() {
     const till = closureTill(closure.end);
     // v0.62.596 — three kinds: red "Closed for cleaning", grey "Under Renovation",
     // near-black "Redevelopment" (operator: light text on black).
-    const closureKey = closure.kind === 'cleaning' ? 'hawker.closedCleaning'
+    // v0.62.914 — and a FOURTH, amber "Partly open", which outranks the kind. NEA's remark
+    // sometimes says only part of a centre shuts, and the tab used to claim the whole thing was
+    // closed: Haig Road's Q4 window runs 30 Nov → 3 Dec while Blk 13 shuts for the first half and
+    // Blk 14 for the second, so something is trading on all four days. Saying "Closed" there is
+    // not a rounding error, it is wrong in the direction that sends someone home hungry.
+    const key = closureKey(closure);
+    const tabKey = closure.partial ? 'hawker.partlyOpen'
+      : closure.kind === 'cleaning' ? 'hawker.closedCleaning'
       : closure.kind === 'redevelopment' ? 'hawker.redevelopment'
       : 'hawker.renovation';
-    const label = tn(closureKey, lang, { till });
+    const label = tn(tabKey, lang, { till });
     return (
       <div className="flex flex-col">
-        <div className={`ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg text-white text-[10px] font-bold leading-snug ${CLOSURE_TAB_BG[closure.kind] || 'bg-gray-500'}`}>
+        <div className={`ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg text-white text-[10px] font-bold leading-snug ${CLOSURE_TAB_BG[key] || 'bg-gray-500'}`}>
           {label}
         </div>
         {card}
+        {/* NEA's own words, verbatim and untranslated — they name specific blocks and dates, and
+            a paraphrase of "Blk 13 closed from 30/11 to 1/12" would be a worse thing to act on. */}
+        {closure.partial && (
+          <div className="ml-3 mt-1 text-[10px] text-tg-hint leading-snug">{closure.partial}</div>
+        )}
       </div>
     );
   };

@@ -67,6 +67,47 @@ function isRenovation(remarks) {
   return /repair|redecorat|renovat|\bworks\b|gas works/.test(r);
 }
 
+// v0.62.914 — PARTIALLY OPEN. A closure window says the centre is shut; the remark beside it
+// sometimes says only PART of it is.
+//
+// Measured across the 123 rows: 7 non-nil `remarks_qN` cells, on exactly two centres, plus one
+// `remarks_other_works`. Small, and wrong in the direction that matters — the card told a reader
+// a place was closed while half of it was trading:
+//
+//   Haig Road Blk 13/14, Q4: the window runs 30 Nov → 3 Dec, four days. The remark says
+//   "Blk 13 closed from 30/11 to 1/12, Blk 14 closed from 2/12 to 3/12" — so something is open on
+//   every one of those four days and the centre is never fully shut.
+//
+//   Bendemeer Blk 29: "Only Cooked Food Section is closed for Gas Works. Market is open and
+//   business as usual." — classified as a renovation, so the card read "Under Renovation" for a
+//   centre whose market was trading.
+//
+// ⚠ "BOTH CLOSED" IS NOT PARTIAL, and that distinction is the whole reason this is a parser and
+// not a regex for the word "Blk". Circuit Road's Q2 remark reads "Both closed from 22 June to 23
+// June 2026" — same shape, same centre, opposite meaning. Treating any per-block remark as partial
+// would mark that window open when the place really is shut, which is the worse error of the two.
+function partialFrom(remarks) {
+  const raw = String(remarks || '').trim();
+  if (!raw || /^(na|nil)$/i.test(raw)) return null;
+  const r = raw.toLowerCase();
+  // Explicitly whole-centre, however the blocks are named.
+  if (/\bboth\b[^.]*clos/.test(r)) return null;
+  // Something is stated to remain open.
+  const staysOpen = /\bis open\b|\bopen\b[^.]*\bas usual\b|\bonly\b[^.]*\bclos/.test(r);
+  // Two or more separately-dated blocks.
+  const blockMentions = (r.match(/\bblk\s*\d+[a-z]?/g) || []).length;
+  if (!staysOpen && blockMentions < 2) return null;
+  return raw;                 // NEA's own words; the card renders them verbatim
+}
+
+// Exported so __tests__/hawker-closure-card.test.js can exercise the PARSER rather than only its
+// output on today's 123 rows. That distinction has teeth: a mutation deleting the "both closed"
+// guard SURVIVED a data-only test, because NEA's current phrasing ("Both closed from 22 June to 23
+// June 2026") names no blocks and is already rejected by the two-block floor. The guard is real
+// defence for a phrasing NEA has not used YET — "Blk 79 and Blk 79A both closed on 30/3" — and
+// only a direct test can hold it.
+module.exports = { partialFrom, isRedevelopment, isRenovation, toISO };
+
 function main() {
   const rows = parseCsv(fs.readFileSync(CSV_PATH, 'utf8'));
   const header = rows.shift().map((h) => h.trim());
@@ -79,7 +120,10 @@ function main() {
     for (const q of [1, 2, 3, 4]) {
       const start = toISO(r[col(`q${q}_cleaningstartdate`)]);
       const end = toISO(r[col(`q${q}_cleaningenddate`)]);
-      if (start && end) cleaning.push({ start, end });
+      if (!start || !end) continue;
+      // v0.62.914 — the remark beside the dates, when it says only part of the centre shuts.
+      const partial = partialFrom(r[col(`remarks_q${q}`)]);
+      cleaning.push(partial ? { start, end, partial } : { start, end });
     }
     const renovation = [];
     const redevelopment = [];
@@ -87,8 +131,10 @@ function main() {
     const owEnd = toISO(r[col('other_works_enddate')]);
     const owRemarks = r[col('remarks_other_works')];
     if (owStart && owEnd) {
-      if (isRedevelopment(owRemarks)) redevelopment.push({ start: owStart, end: owEnd });
-      else if (isRenovation(owRemarks)) renovation.push({ start: owStart, end: owEnd });
+      const owPartial = partialFrom(owRemarks);
+      const win = owPartial ? { start: owStart, end: owEnd, partial: owPartial } : { start: owStart, end: owEnd };
+      if (isRedevelopment(owRemarks)) redevelopment.push(win);
+      else if (isRenovation(owRemarks)) renovation.push(win);
     }
     // v0.62.596 — carry the NEA lat/lng so the vault can place coord-less centres
     // (e.g. Bukit Timah, redevelopment, absent from hawker-coords.json) on the map.
@@ -104,6 +150,19 @@ function main() {
     // to "what IS this place" and `status` gave it only "Existing", which 108 of 123 share.
     // Whitespace is squeezed because the source has double spaces after full stops.
     const description = (r[col('description_myenv')] || '').replace(/\s+/g, ' ').trim();
+    // v0.62.914 — NEA's own photo of the centre, present on all 123 rows. Carried as the URL
+    // only; nothing is downloaded or re-hosted, so the image loads from NEA at view time and
+    // this repo stores no third-party binary.
+    //
+    // ⚠ 88 OF THE 123 URLS ARE http://, AND THE MINI APP IS SERVED OVER HTTPS — a browser blocks
+    // those as mixed content, so most photos would silently fail to load. Every one is on
+    // www.nea.gov.sg and that host serves the same paths over TLS: four of the http URLs were
+    // fetched over https before this line was written and all returned 200. So the scheme is
+    // upgraded, not hoped about. The host is pinned because rewriting the scheme on an ARBITRARY
+    // host would be a guess about someone else's server.
+    const photoRaw = (r[col('photourl')] || '').trim();
+    const photo = /^http:\/\/www\.nea\.gov\.sg\//i.test(photoRaw)
+      ? photoRaw.replace(/^http:/i, 'https:') : photoRaw;
     // Postal from address_myenv ("…, Singapore 289876") — the reliable join key
     // (name-folding alone misses ~70% because the CSV re-orders block/street tokens).
     const addr = (r[col('address_myenv')] || '').trim();
@@ -120,6 +179,7 @@ function main() {
       status: status || null,
       isNew: /\(new\)/i.test(status),
       description: description || null,
+      photo: /^https:\/\//i.test(photo) ? photo : null,   // https only — see above
     };
   }
   fs.writeFileSync(OUT_PATH, JSON.stringify(out, null, 0) + '\n');

@@ -29,7 +29,7 @@ import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
-import { activeClosure, nextClosure, closureTill, closureFrom, CLOSURE_PIN_COLOR } from '../closure.js';
+import { activeClosure, nextClosure, closureTill, closureFrom, closureKey, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
@@ -123,7 +123,10 @@ function hawkerPinNode(isNew, number, hasBib, closureKind, upcomingKind) {
   // currently closed; otherwise the existing navy "NEW" badge for new centres.
   if (closeColor || isNew) {
     const badge = document.createElement('div');
-    badge.textContent = closeColor ? 'CLOSE' : 'NEW';
+    // v0.62.914 — a partly-open centre says PART, not CLOSE. The colour alone would not carry it
+    // (and must not: the file's own convention pairs every colour with a non-colour cue), and
+    // "CLOSE" on a centre where half the stalls are trading is the error this state exists to fix.
+    badge.textContent = closureKind === 'partial' ? 'PART' : closeColor ? 'CLOSE' : 'NEW';
     badge.style.cssText =
       'position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);' +
       `background:${closeColor || '#1e3a8a'};color:#fff;font-size:9px;font-weight:700;line-height:1;` +
@@ -497,14 +500,20 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     const popActive = activeClosure(c.closures);
     const popNext = popActive ? null : nextClosure(c.closures);
     if (popActive) {
-      const k = popActive.kind === 'cleaning' ? 'hawker.closedCleaning'
+      const k = popActive.partial ? 'hawker.partlyOpen'
+        : popActive.kind === 'cleaning' ? 'hawker.closedCleaning'
         : popActive.kind === 'redevelopment' ? 'hawker.redevelopment' : 'hawker.renovation';
-      h += `<div style="color:${CLOSURE_PIN_COLOR[popActive.kind]};font-weight:700;margin-top:3px;">`
+      h += `<div style="color:${CLOSURE_PIN_COLOR[closureKey(popActive)]};font-weight:700;margin-top:3px;">`
         + `${escapeHtml(tn(k, lang, { till: closureTill(popActive.end) }))}</div>`;
+      // NEA's own words, verbatim — they name the blocks and dates a paraphrase would lose.
+      if (popActive.partial) {
+        h += `<div style="color:${p.sub};margin-top:1px;font-size:11px;">${escapeHtml(popActive.partial)}</div>`;
+      }
     } else if (popNext) {
-      const k = popNext.kind === 'cleaning' ? 'hawker.nextCleaning'
+      const k = popNext.partial ? 'hawker.partlyOpenNext'
+        : popNext.kind === 'cleaning' ? 'hawker.nextCleaning'
         : popNext.kind === 'redevelopment' ? 'hawker.nextRedevelopment' : 'hawker.nextRenovation';
-      const glyph = popNext.kind === 'cleaning' ? '🧽' : popNext.kind === 'redevelopment' ? '🚧' : '🔧';
+      const glyph = popNext.partial ? '⚠️' : popNext.kind === 'cleaning' ? '🧽' : popNext.kind === 'redevelopment' ? '🚧' : '🔧';
       h += `<div style="color:${p.sub};margin-top:3px;">${glyph} `
         + `${escapeHtml(tn(k, lang, { from: closureFrom(popNext.start) }))}</div>`;
     }
@@ -627,7 +636,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: hawkerPinNode(c.isNew, centreNo, Array.isArray(c.bibStalls) && c.bibStalls.length > 0, activeClosure(c.closures)?.kind || null, nextClosure(c.closures)?.kind || null),
+        content: hawkerPinNode(c.isNew, centreNo, Array.isArray(c.bibStalls) && c.bibStalls.length > 0, closureKey(activeClosure(c.closures)), closureKey(nextClosure(c.closures))),
         // v0.61.91 — centre droplets sit above every overlay layer
         // (train stations / pins) so they are never occluded.
         zIndex: 1000,

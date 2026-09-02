@@ -450,6 +450,9 @@ function loadAll() {
         if (Number.isFinite(z.marketStalls) && z.marketStalls > 0) c.marketStalls = z.marketStalls;
         // v0.62.912 — NEA's prose profile, present for all 123. See build-hawker-closures.js.
         if (z.description) c.description = z.description;
+        // v0.62.914 — NEA's photo URL (https-upgraded by the builder). `mgmt` needs no line
+        // here: it already comes off the MD vault at line ~164 and has simply never been sent.
+        if (z.photo) c.photo = z.photo;
         if (z.status) c.status = z.status;
         if (z.isNew) c.isNew = true;
         // v0.62.596 — coord fallback from the closure CSV for centres missing from
