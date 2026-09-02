@@ -53,6 +53,11 @@ const NARROWER_ON_PURPOSE = {
   'open-hours.js':
     'fmtTime branches on CLOCK CONVENTION — id uses dots, fr uses h, en uses 12-hour AM/PM, and '
     + 'the rest use a 24-hour colon. Grouping is the content, and the ko test below pins it.',
+  'web/_shared/lib/sg-nouns-i18n.generated.js':
+    'NOUN_READING_LOCALES is ru/ja/ko — the locales whose readers cannot read a Latin name, so a '
+    + 'proper noun needs a TRANSLITERATION for them and for nobody else. A French reader already '
+    + 'has the reading: "Whampoa" is "Whampoa". NOUN_TRANSLATION_LOCALES is the six non-English '
+    + 'locales, English being the key language. Neither is the app locale list.',
   'clip-store.js':
     'The v0.62.915 comment quotes the five-locale ladder it replaced; the clamp itself reads '
     + 'SUPPORTED. Masking removes the comment, so a hit here would be real.',

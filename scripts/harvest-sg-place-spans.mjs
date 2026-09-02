@@ -53,7 +53,12 @@ const FIELDS = new Set(['address', 'roadName', 'road_name', 'street', 'ADDRESS']
  */
 const NOISE = new Set(['and', 'or', 'of', 'at', 'by', 'the', 'along', 'to', 'from', 'near',
   'bounded', 'main', 'sites', 'via', 'km', 'lot', 'mile', 'no', 'unit', 'level', 'basement',
-  'annex', 'blvd', 'nil', 'na']);
+  'annex', 'blvd', 'nil', 'na',
+  // v0.62.917 - building interiors and comma-split leftovers the first pass let through. Each
+  // one reached the proper-noun inventory as something to author a Japanese READING for, which
+  // is how "Departure Hall" and "Tower A" ended up on a list of Singapore place names.
+  'tower', 'hall', 'departure', 'arrival', 'intersection', 'service', 'still', 'arts', 'ura',
+  'connexion', 'venture', 'unity', 'international', 'maritime', 'annexe', 'wing']);
 
 /**
  * Institution, building and campus names. Real places, but not the [position][noun][road-type]
@@ -61,7 +66,10 @@ const NOISE = new Set(['and', 'or', 'of', 'at', 'by', 'the', 'along', 'to', 'fro
  * translated or left alone, not decomposed. Named rather than silently dropped so their absence
  * from the proper-noun inventory reads as a decision.
  */
-const INSTITUTION = /\b(college|academy|complex|hospital|polyclinic|npc|plaza|reservoir|university|institute|school|mosque|temple|church|stadium|terminal|depot|camp|base|hq|headquarters)\b/i;
+// v0.62.917 - named buildings and attractions added. Real places, but not the
+// [position][noun][road-type] shape this vocabulary composes: "One Fullerton" needs the whole
+// name kept or translated, never decomposed into a noun plus a road word.
+const INSTITUTION = /\b(college|academy|complex|hospital|polyclinic|npc|plaza|reservoir|university|institute|school|mosque|temple|church|stadium|terminal|depot|camp|base|hq|headquarters|fullerton|northpoint|villa|community|landing|traffic|front|marina one)\b/i;
 
 /** Out-of-country references — Johor, the wider region, and a few stray foreign cities. */
 const OUT_OF_COUNTRY = new Set(['malaysia', 'johor bahru', "johor darul ta'zim", 'selangor',
