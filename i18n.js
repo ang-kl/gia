@@ -202,6 +202,24 @@ const STRINGS = {
                     ja: '「{q}」で検索しても、お近くのGoogleプレイスの結果は見つかりませんでした。ピッカーで /cuisine、近くのおすすめスポットで /hidden を試すか、検索語句を変更してください。',
                     ko: '"{q}" 에 대한 근처 Google Places 결과가 없습니다. 선택기는 /cuisine, 근처 숨은 맛집은 /hidden을 사용해 보세요.'
                   },
+  // v0.62.893 — the reply a command gives when it throws. Sixteen `bot.onText`
+  // handlers had no try/catch at all: a rejection escaped into
+  // `process.on('unhandledRejection')`, got logged to Sentry, and the user saw
+  // NOTHING. The worst failure a chat bot has is silence, and every one of those
+  // handlers opens with a Redis read, so a single blip was a dead command.
+  // Deliberately generic and actionable — the user does not need the stack, they
+  // need to know it failed and that trying again is worth it.
+  'bot.error.generic':         {
+    en: 'Sorry, that command hit an error. Please try again in a moment.',
+    fr: 'Désolé, cette commande a rencontré une erreur. Réessayez dans un instant.',
+    id: 'Maaf, perintah itu mengalami kesalahan. Coba lagi sebentar lagi.',
+    ru: 'Извините, эта команда завершилась ошибкой. Попробуйте ещё раз через минуту.',
+    de: 'Entschuldigung, dieser Befehl ist auf einen Fehler gestoßen. Bitte versuchen Sie es gleich noch einmal.',
+    zh: '抱歉，该指令出错了。请稍后再试一次。',
+    ja: '申し訳ありません、そのコマンドでエラーが発生しました。少し時間をおいてもう一度お試しください。',
+    es: 'Lo sentimos, ese comando ha dado un error. Vuelve a intentarlo en un momento.',
+    ko: '죄송합니다, 해당 명령에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+  },
   'bot.error.freetext':        {
     en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
     fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.',
