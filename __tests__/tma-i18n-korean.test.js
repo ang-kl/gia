@@ -1,11 +1,11 @@
 // __tests__/tma-i18n-korean.test.js — K2 of the Korean arc: the five Mini Apps.
 //
-// 919 base keys across cuisine (383), clipboard (251), transport (123), hawker (82) and menu (80).
+// 937 base keys across cuisine (401), clipboard (251), transport (123), hawker (82) and menu (80).
 // (916 → 919 at v0.62.900: the three ↻ review-refresh keys on the cuisine card.)
 // `ko` is NOT in any app's SUPPORTED list yet, so `tma-i18n-coverage.test.js` — which iterates a
 // hardcoded ALL_LOCALES — cannot see this column. That is deliberate: the arc stages content first
 // and flips the lists last, which keeps the suite green throughout. It also means the content
-// arrives unguarded unless this file guards it, and a 919-entry diff is not something a reviewer
+// arrives unguarded unless this file guards it, and a 937-entry diff is not something a reviewer
 // reads line by line, so the guard IS the review.
 //
 // TWO SHAPES, because these files do not agree with each other. cuisine/transport/hawker/menu keep
@@ -29,9 +29,10 @@ const APPS = {
 };
 // clipboard is the inline app: all eight locales sit inside the entry, so it has no blocks.
 const BLOCK_APPS = ['cuisine', 'hawker', 'menu', 'transport'];
+// v0.62.903 — cuisine 383 → 401 for the 18 taxonomy chip labels (see tma-i18n-coverage).
 // v0.62.900 — cuisine 380 → 383 for the ↻ review-refresh keys (see tma-i18n-coverage).
-const BASE_KEYS = { cuisine: 383, clipboard: 251, transport: 123, hawker: 82, menu: 80 };
-const KO_COUNT = { cuisine: 383, clipboard: 251, transport: 123, hawker: 82, menu: 78 };
+const BASE_KEYS = { cuisine: 401, clipboard: 251, transport: 123, hawker: 82, menu: 80 };
+const KO_COUNT = { cuisine: 401, clipboard: 251, transport: 123, hawker: 82, menu: 78 };
 
 // `menu|tile.sketchbook.label` and `menu|footer.brand` are pinned in tma-i18n-coverage.test.js as
 // absent from id/ru/de/zh/ja/es with reason 'proper-noun'. Korean matches its siblings by ALSO
@@ -77,7 +78,7 @@ const HANGUL = /[가-힣ᄀ-ᇿ㄰-ㆎ]/;
 describe('the Korean column is complete for all five Mini Apps', () => {
   it('the parser found the surface it claims — a broken one would pass everything below', () => {
     for (const [app, n] of Object.entries(BASE_KEYS)) expect(Object.keys(parsed[app]).length, `${app} base keys`).toBe(n);
-    expect(Object.values(BASE_KEYS).reduce((a, b) => a + b, 0), 'the measured Mini App surface is 919').toBe(919);
+    expect(Object.values(BASE_KEYS).reduce((a, b) => a + b, 0), 'the measured Mini App surface is 937').toBe(937);
     // The block apps must actually HAVE a block; finding Korean inline in one of them would mean
     // the insert took the wrong branch and the merge loop below folds nothing.
     for (const app of BLOCK_APPS) expect(sliceBlock(src(app), 'KO_STRINGS'), `${app} has no KO_STRINGS block`).toBeTruthy();
