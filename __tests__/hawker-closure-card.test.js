@@ -134,20 +134,47 @@ describe('the data the card needs actually ships', () => {
     }
   });
 
-  it('⚠ KNOWN GAP: the vault join misses nine centres, and this pins the number', () => {
-    // Nine multi-block centres ("Blks 79/79A Circuit Road") carry a name the NEA CSV writes the
-    // other way round ("Circuit Road Blk 79/79A"), and no postal match rescues them — so they get
-    // no closures, no description and no market stalls however good the rendering is. This is
-    // PRE-EXISTING and not fixed here; it is pinned so that fixing it is a deliberate act and
-    // regressing it further is loud. See the journal entry for the full list.
+  it('⚠ the vault join now reaches all 123 — it reached 114', () => {
+    // NINE multi-block centres used to join to nothing and so carried no closures, no description
+    // and no market stalls however good the rendering was: "Blks 79/79A Circuit Road",
+    // "Blks 13/14 Haig Road", "Blks 91/92 Whampoa Drive" and six more. NEA writes them the other
+    // way round ("Circuit Road Blk 79/79A"), which loadClosures' own comment already warned about.
+    //
+    // ⚠ SORTING THE TOKENS RESOLVED ONLY THREE OF THE NINE — measured before it was written, which
+    // is why it was not written. Chong Pang is "Yishun Ring Road Blk 104/105 (Chong Pang Market and
+    // Food Centre)" in the CSV: a different street with the real name in parentheses. Containment
+    // resolves all nine, each to exactly one record.
     const vault = require(path.join(ROOT, 'hawker-vault.js'));
     const all = vault.getAllCentres();
     expect(all.length).toBe(123);
     const missing = all.filter((c) => !c.closures).map((c) => c.name).sort();
-    expect(missing.length, 'the join hit rate moved — bump this deliberately').toBe(9);
-    // Every one of them is a multi-block centre; that IS the pattern, and naming it is the point.
-    expect(missing.every((n) => /blks?\s/i.test(n) || /Chong Pang/i.test(n)),
-      'the misses are no longer all multi-block — the cause changed').toBe(true);
+    expect(missing, 'a centre lost its closure join').toEqual([]);
+    expect(all.filter((c) => c.description).length, 'a centre lost its description').toBe(123);
+    // ⚠ AND NOT VACUOUSLY: the nine must carry the RIGHT record, not merely A record. Each of
+    // these descriptions names its own blocks or its own landmark, so the data self-verifies.
+    const by = (n) => all.find((c) => c.name === n);
+    expect(by('Blks 13/14 Haig Road').description).toMatch(/Haig Road/);
+    expect(by('Blks 91/92 Whampoa Drive').description).toMatch(/Whampoa/);
+    expect(by('Chong Pang Market & Food Centre').description).toMatch(/Chong Pang/);
+    expect(by('Blks 2 & 3 Changi Village Road').description).toMatch(/Changi/);
+    // The market-stall counts came with them, which is the other half of the gap.
+    expect(by('Chong Pang Market & Food Centre').marketStalls).toBe(123);
+    expect(by('Blks 13/14 Haig Road').marketStalls).toBe(79);
+  });
+
+  it('⚠ the containment fallback refuses to guess', () => {
+    // The reason findByName's edit-distance was deliberately avoided in this file (Jurong West 505
+    // → Jurong West Hawker Centre) applies here too: a fuzzy join that picks A candidate rather
+    // than THE candidate is worse than no join, because a wrong closure date is worse than none.
+    const vault = read('hawker-vault.js');
+    expect(vault, 'the ambiguity refusal is gone').toContain('if (hit) return null;');
+    expect(vault, 'the two-token floor is gone').toContain('if (want.length < 2) return null;');
+    // And it runs LAST — exact, postal and normalised all get first refusal, so it cannot
+    // displace a join that already worked. Measured when it landed: 114 unchanged, 9 gained,
+    // 0 altered.
+    const merge = vault.slice(vault.indexOf('const closures = loadClosures();'));
+    expect(merge.indexOf('closures.byPostal[')).toBeLessThan(merge.indexOf('_containMatch(c.name'));
+    expect(merge.indexOf('closures.normalised[norm]')).toBeLessThan(merge.indexOf('_containMatch(c.name'));
   });
 });
 

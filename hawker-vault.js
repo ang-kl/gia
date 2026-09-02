@@ -204,6 +204,47 @@ function _normaliseHawkerName(s) {
     .trim();
 }
 
+// v0.62.913 — TOKEN CONTAINMENT, the last resort after exact / postal / normalised all miss.
+//
+// Nine centres joined to NOTHING and so carried no closures, no description and no market stalls
+// however good the rendering was: "Blks 79/79A Circuit Road", "Blks 13/14 Haig Road",
+// "Blks 91/92 Whampoa Drive" and six more. Every one is a MULTI-BLOCK centre that NEA writes the
+// other way round — "Circuit Road Blk 79/79A" — which is exactly what loadClosures' own comment
+// warns about: "name-folding alone misses ~70% because the CSV re-orders block/street tokens".
+//
+// ⚠ SORTING THE TOKENS WAS THE OBVIOUS FIX AND IT ONLY RESOLVED THREE OF THE NINE — measured
+// before it was written. The rest differ by more than order: NEA calls Chong Pang "Yishun Ring
+// Road Blk 104/105 (Chong Pang Market and Food Centre)", a different street with the real name in
+// parentheses. What actually holds is CONTAINMENT — every distinctive token of the vault name
+// appears somewhere in the NEA name. Measured: 9 of 9, each matching exactly ONE record, no
+// ambiguity and no collision among the other 114.
+//
+// Two guards against the false positives `findByName`'s edit-distance produced (Jurong West 505 →
+// Jurong West Hawker Centre): at least TWO distinctive tokens must survive, and a candidate set of
+// any size other than one is refused outright rather than guessed at.
+const _JOIN_STOP = new Set(['blk', 'block', 'blks', 'centre', 'center', 'market', 'food', 'hawker',
+  'complex', 'cooked', 'stall', 'stalls', 'drive', 'road', 'rd', 'street', 'st', 'avenue', 'ave',
+  'lane', 'ln', 'the', 'of', 'at', 'and', 'place', 'village', 'court', 'square']);
+
+function _joinTokens(s) {
+  return String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/[.,()/\\-]/g, ' ')
+    .split(/\s+/).map((w) => w.replace(/[^a-z0-9]/g, ''))
+    .filter((w) => w && !_JOIN_STOP.has(w));
+}
+
+/** The one record whose tokens contain all of `name`'s, or null when zero or many match. */
+function _containMatch(name, entries) {
+  const want = _joinTokens(name);
+  if (want.length < 2) return null;
+  let hit = null;
+  for (const e of entries) {
+    if (!want.every((w) => e.tokens.has(w))) continue;
+    if (hit) return null;              // ambiguous — refuse rather than guess
+    hit = e.value;
+  }
+  return hit;
+}
+
 function loadCoords() {
   try {
     const raw = fs.readFileSync(COORDS_PATH, 'utf8');
@@ -268,6 +309,7 @@ function loadClosures() {
     const exact = {};
     const normalised = {};
     const byPostal = {};   // the reliable join key (name-folding alone misses ~70%)
+    const contains = [];   // v0.62.913 — last-resort token containment; see _containMatch
     for (const [k, v] of Object.entries(parsed || {})) {
       if (!v) continue;
       const lc = String(k).toLowerCase().trim();
@@ -275,13 +317,14 @@ function loadClosures() {
       const norm = _normaliseHawkerName(k);
       if (norm && !normalised[norm]) normalised[norm] = v;
       if (v.postal && !byPostal[v.postal]) byPostal[v.postal] = v;
+      contains.push({ tokens: new Set(_joinTokens(k)), value: v });
     }
-    return { exact, normalised, byPostal };
+    return { exact, normalised, byPostal, contains };
   } catch (err) {
     if (err.code !== 'ENOENT') {
       console.warn('[HawkerVault] closures load failed:', err.message);
     }
-    return { exact: {}, normalised: {}, byPostal: {} };
+    return { exact: {}, normalised: {}, byPostal: {}, contains: [] };
   }
 }
 
@@ -392,6 +435,8 @@ function loadAll() {
           const norm = _normaliseHawkerName(c.name || '');
           if (norm) z = closures.normalised[norm];
         }
+        // v0.62.913 — last, and only for the names the three keys above cannot reach.
+        if (!z) z = _containMatch(c.name || '', closures.contains || []);
         if (!z) continue;
         chits++;
         const cleaning = Array.isArray(z.cleaning) ? z.cleaning : [];
