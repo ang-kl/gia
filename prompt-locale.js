@@ -106,8 +106,31 @@ function proseLanguageLine(lang, field, keepField) {
   return `Write the "${field}" in ${langName(lang)}.${keep}`;
 }
 
+/**
+ * The language the narration will ACTUALLY be written in, for callers that have to
+ * name it rather than instruct it — cache keys, log lines, provenance fields.
+ *
+ * v0.62.897 — THE EIGHTH SITE. This file's header names seven prompt sites that each
+ * wrote `lang === 'fr' ? … : ''` and so gave six locales English prose. It missed an
+ * eighth of the same shape that is not a prompt at all: `index.js`'s Michelin enrich
+ * CACHE KEY, `michelin:enrich:v2:${csLang === 'fr' ? 'fr' : 'en'}`. v0.62.839 localised
+ * the narration and left the key at two, so seven locales began writing their output
+ * into one bucket labelled `en` — a Korean reader's Korean vibe line served to the next
+ * English reader, and the reverse. A key that says what language a blob is in has to be
+ * derived from the same function that decided the language, or it is a second opinion.
+ *
+ * Returns 'en' exactly when `narrationLocalisation` returns '' — same predicate, so the
+ * two cannot drift.
+ * @param {string} [lang]
+ * @returns {string} an APP_LOCALES code
+ */
+function narrationLang(lang) {
+  return needsLocalisation(lang) ? lang : 'en';
+}
+
 module.exports = {
   APP_LOCALES,
+  narrationLang,
   ICONIC_SG_DISHES,
   needsLocalisation,
   narrationLocalisation,

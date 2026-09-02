@@ -82,7 +82,8 @@ const { detectCountryHint } = require('./country-hints');
 // v0.62.896 — one mapping from the reader's app language to the Places `languageCode`,
 // replacing six hand-written `lang === 'fr' ? 'fr' : 'en'` ternaries. See that module's
 // header for what asking Places for Korean COSTS — it returns one language, not both.
-const { placesLanguage, isGenericTypeLabel } = require('./places-language');
+const { placesLanguage, isGenericTypeLabel, poolLanguages, cuisinePoolKey } = require('./places-language');
+const { narrationLang } = require('./prompt-locale');   // v0.62.897 — the enrich cache key
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
 const { yearsOffFromFilter, yearUniverse, makeMichelinYearMatcher } = require('./michelin-year-filter');
@@ -9358,7 +9359,15 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, 
     // single-line explainer pulled from NATION_OVERLAY.
     const { googleMapsUrl } = require('./maps-url');
     const overlayEntry = overlay.getNationOverlay(hit.slug);
-    const tourist = overlayEntry?.touristExplainer?.[lang === 'fr' ? 'fr' : 'en'] || '';
+    // v0.62.897 — was `[lang === 'fr' ? 'fr' : 'en']`, which is the shape prompt-locale.js's
+    // header names seven times over. Here it was not a missing translation but a DISCARDED
+    // one: nation-overlay.js:3166 merges id/ru/de/zh/ja/es onto all 66 explainers at load,
+    // and this line — the only place the bot reads them — asked for one of two. 396 authored
+    // strings, loaded into memory on every boot, never once shown. `?? ''` rather than `|| ''`
+    // is deliberate: an explainer deliberately set to an empty string stays empty instead of
+    // silently falling back to English.
+    const te = overlayEntry?.touristExplainer;
+    const tourist = (te && (te[lang] ?? te.en)) || '';
     const kindLabel = hit.kind === 'drink'
       ? (t('bot.index.drink', lang))
       : (t('bot.index.dish', lang));
@@ -9600,7 +9609,8 @@ function computeCriteriaHash(parts) {
 // different criteriaHash → a fresh empty set).
 const SEEN_SET_TTL_S = 12 * 60 * 60;  // 12 h hygiene — never resets mid-use
 // Per-chatId Places-result pool cache, keyed per query-variant
-// (cuisine:pool:{chatId}:{criteriaHash}:v{variantIdx}). Purely a
+// (cuisine:pool:{chatId}:{criteriaHash}:{placesLang}:v{variantIdx} — the language
+// segment added v0.62.897, see places-language.js). Purely a
 // "don't re-paginate the same 3-page query within the window" cache;
 // if it expires the next click re-paginates the same query → same
 // pool → dedup against the seen-set still works.
@@ -9664,8 +9674,15 @@ async function resetSeenSet(chatId, criteriaHash) {
     await redis.del(`cuisine:variant:${chatId}:${criteriaHash}`);
     // Drop the per-variant pool caches too so ↺ Start over re-fetches
     // a clean variant-0 pool. cuisineSearchVariants returns at most 4.
-    for (let v = 0; v < 8; v++) {
-      await redis.del(`cuisine:pool:${chatId}:${criteriaHash}:v${v}`);
+    // v0.62.897 — and once per LANGUAGE, because the pool key gained a language segment.
+    // This function does not know which languages this chat has used, and a reset that
+    // clears only the current one leaves the others to be served later as if fresh, which
+    // is the staleness ↺ Start over exists to end. Bounded: 9 codes × 8 variants, on a
+    // path the user reaches by tapping ↺.
+    for (const pl of poolLanguages()) {
+      for (let v = 0; v < 8; v++) {
+        await redis.del(cuisinePoolKey(chatId, criteriaHash, pl, v));
+      }
     }
   } catch (err) {
     console.warn('[Cuisine-Seen] reset failed:', err.message);
@@ -10653,8 +10670,26 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // but the old `michelin:enrich:<slug>` key had no lang, so French dishes
   // persisted after a switch to English. `v2:<lang>` fixes it (mirrors the
   // place-cache key above).
-  const enrichLang = csLang === 'fr' ? 'fr' : 'en';
-  const enrichSlugs = filteredVenues.map((v) => `michelin:enrich:v2:${enrichLang}:${slugify(v.michelinName || v.name || '')}`);
+  //
+  // v0.62.897 — AND IT ONLY SPOKE TWO, WHICH WAS WORSE THAN SPEAKING NONE. v0.62.839
+  // localised this narration for all nine locales (the prompt below passes `csLang`
+  // straight to `narrateMichelinVenues`), and this key stayed at fr-or-en — so a Korean
+  // reader's Korean vibe line was WRITTEN INTO the bucket named `en` and served to the
+  // next English reader, and the reverse. Seven locales sharing one key is not a missing
+  // translation; it is a translation delivered to the wrong person.
+  //
+  // `narrationLang` is the same predicate the prompt uses, from the same module, so the
+  // key and the prose cannot disagree about what language the blob is in.
+  //
+  // AND THE VERSION IS BUMPED TO v3, which the first draft of this fix got wrong. Adding
+  // the missing codes routes FUTURE writes correctly and does nothing about the `:en:`
+  // bucket that is already contaminated — it holds a week's worth of Korean, Japanese and
+  // Russian narration filed as English, and an English reader would have gone on being
+  // served it for the whole 7-day TTL while the commit message said the bug was fixed.
+  // v3 retires the poisoned bucket outright. It also discards the `:fr:` blobs, which were
+  // always correctly scoped; that costs one re-narration and is the cheaper mistake.
+  const enrichLang = narrationLang(csLang);
+  const enrichSlugs = filteredVenues.map((v) => `michelin:enrich:v3:${enrichLang}:${slugify(v.michelinName || v.name || '')}`);
   if (redis && redis.isOpen) {
     const cached = await Promise.all(
       enrichSlugs.map((k) => redis.get(k).catch(() => null))
@@ -16676,7 +16711,7 @@ async function cacheBotUsername() {
             for (let attempt = 0; attempt < (variants.length || 1); attempt++) {
               const vIdx = escalationOn ? Math.min(cuisineVariantIdx, variants.length - 1) : 0;
               const vOverride = variants[vIdx] ? variants[vIdx].queryOverride : null;
-              const poolKey = escalationOn ? `cuisine:pool:${csChatId}:${cuisineSearchHash}:v${vIdx}` : '';
+              const poolKey = escalationOn ? cuisinePoolKey(csChatId, cuisineSearchHash, placesLanguage(csLang), vIdx) : '';
               let pool = null;
               if (poolKey && redis.isOpen) {
                 try {

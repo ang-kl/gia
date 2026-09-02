@@ -1,10 +1,22 @@
 // nation-overlay-i18n.generated.js — GENERATED, do not hand-edit.
 //
-// id/ru/de translations of NATION_OVERLAY touristExplainer.en, produced by
-// scripts/translate-content.mjs via the Gemini API. Merged into nation-overlay.js
+// Translations of NATION_OVERLAY touristExplainer.en. Merged into nation-overlay.js
 // at load. Proper nouns preserved (see the script header).
 //
-// Keys: 66 · langs: id/ru/de/zh/ja/es
+// TWO PROVENANCES, AND THE DIFFERENCE MATTERS. id/ru/de/zh/ja/es were produced by
+// scripts/translate-content.mjs via the Gemini API. `ko` was NOT — it is hand-authored,
+// v0.62.897, because this project does not spend on translation APIs any more; the same
+// split classics-notes-i18n.generated.js already carries ("GENERATED SHAPE, HAND-FILLED
+// CONTENT"). Re-running the script would overwrite the Korean with nothing, since the
+// script does not know the locale exists. Anyone regenerating this file must add ko to
+// the script's locale list first, or preserve the column.
+//
+// WHY KOREAN WAS MISSING AT ALL. K6 (v0.62.883) flipped Korean on across every locale
+// TABLE it could find; this file is a generated overlay merged at load, so no completeness
+// guard reached it and no toggle listed it. 66 explainers, ko absent, measured — not one
+// of them would have shown a Korean reader anything but English.
+//
+// Keys: 66 · langs: id/ru/de/zh/ja/es/ko
 'use strict';
 
 module.exports = {
@@ -15,6 +27,7 @@ module.exports = {
     zh: "非洲美食涵盖 54 个国家 + 5 个烹饪区域：西非（jollof + suya + fufu）、东非（injera + nyama choma + ugali）、北非（couscous + tagine + harira）、南非（bobotie + biltong + bunny chow）、中非。泛非洲的共同点：炖菜 + 谷物主食 + 烤肉 + 发酵饮料。",
     ja: "アフリカ料理は、54か国 + 5つの料理地域にまたがります。西アフリカ（jollof + suya + fufu）、東アフリカ（injera + nyama choma + ugali）、北アフリカ（couscous + tagine + harira）、南アフリカ（bobotie + biltong + bunny chow）、中央アフリカ。汎アフリカの共通の要素：シチュー + 穀物主食 + グリル肉 + 発酵飲料。",
     es: "La cocina africana abarca 54 países + 5 regiones culinarias: África Occidental (jollof + suya + fufu), África Oriental (injera + nyama choma + ugali), África del Norte (couscous + tagine + harira), África del Sur (bobotie + biltong + bunny chow), África Central. Hilos comunes panafricanos: estofados + alimentos básicos de grano + carne a la parrilla + bebidas fermentadas.",
+    ko: "아프리카 요리는 54개국과 다섯 개 요리 권역에 걸쳐 있습니다. 서아프리카(졸로프 + 수야 + 푸푸), 동아프리카(인제라 + 니아마 초마 + 우갈리), 북아프리카(쿠스쿠스 + 타진 + 하리라), 남부 아프리카(보보티 + 빌통 + 버니 차우), 중앙아프리카. 범아프리카적으로 공통된 것은 스튜, 곡물 주식, 숯불 고기, 발효 음료입니다.",
   },
   "american": {
     id: "Masakan Amerika bersifat regional, didorong oleh imigran, dan pasca-kolonial. BBQ Selatan (Carolina/Memphis/Texas/KC adalah 4 aliran berbeda), Cajun-Creole Louisiana, deli NYC, makanan laut New England, Tex-Mex Barat Daya, soul food, dan hibrida Italia-Amerika + Tiongkok-Amerika + Meksiko-Amerika. Hamburger adalah duta global.",
@@ -23,6 +36,7 @@ module.exports = {
     zh: "美国菜具有地域性、移民驱动和后殖民特点。南部烧烤（卡罗来纳/孟菲斯/德克萨斯/堪萨斯城是4个不同的流派）、路易斯安那州卡真-克里奥尔菜、纽约熟食店、新英格兰海鲜、西南德州-墨西哥菜、灵魂食物，以及意大利裔美国人+华裔美国人+墨西哥裔美国人的混合菜。汉堡包是全球大使。",
     ja: "アメリカ料理は、地域性があり、移民によって発展し、ポストコロニアルな特徴を持っています。南部バーベキュー（カロライナ/メンフィス/テキサス/KCは4つの異なる流派）、ルイジアナのケイジャン・クレオール料理、ニューヨークのデリ、ニューイングランドのシーフード、南西部のテックス・メックス料理、ソウルフード、そしてイタリア系アメリカ人、中国系アメリカ人、メキシコ系アメリカ人のハイブリッド料理があります。ハンバーガーは世界的な大使です。",
     es: "La cocina estadounidense es regional, impulsada por inmigrantes y poscolonial. BBQ sureño (Carolina/Memphis/Texas/KC son 4 escuelas distintas), Cajun-Criolla de Luisiana, deli de Nueva York, mariscos de Nueva Inglaterra, Tex-Mex del Suroeste, soul food, e híbridos italoamericanos + chinoamericanos + mexicanoamericanos. La hamburguesa es el embajador global.",
+    ko: "미국 요리는 지역색이 강하고 이민자들이 만들어 왔으며 식민지 이후의 역사를 담고 있습니다. 남부 바비큐(캐롤라이나·멤피스·텍사스·캔자스시티는 서로 다른 네 유파), 루이지애나의 케이준·크레올, 뉴욕 델리, 뉴잉글랜드 해산물, 남서부의 텍스멕스, 소울 푸드, 그리고 이탈리아계·중국계·멕시코계 미국 요리가 있습니다. 세계적인 대표 주자는 햄버거입니다.",
   },
   "argentinian": {
     id: "Masakan Argentina adalah budaya parrilla (panggangan api terbuka): tira de asado, vacío, bife de chorizo, morcilla, choripán, semuanya disajikan dengan chimichurri. Diaspora Italia yang besar menjadikan pizza fugazzeta + milanesa sebagai makanan pokok. Mate adalah minuman sosial sepanjang hari; dulce de leche adalah obsesi manisnya.",
@@ -31,6 +45,7 @@ module.exports = {
     zh: "阿根廷菜是 parrilla（明火烧烤）文化：tira de asado, vacío, bife de chorizo, morcilla, choripán，均配 chimichurri。庞大的意大利侨民使 pizza fugazzeta + milanesa 成为主食。Mate 是全天候的社交饮品；dulce de leche 是甜食的痴迷。",
     ja: "アルゼンチン料理は parrilla（直火焼き）文化です。tira de asado, vacío, bife de chorizo, morcilla, choripán はすべて chimichurri と共に提供される。大規模なイタリア系移民が pizza fugazzeta + milanesa を定番料理にした。Mate は一日中楽しめる社交的な飲み物；dulce de leche は甘い執着。",
     es: "La cocina argentina es la cultura de la parrilla (parrilla de fuego abierto): tira de asado, vacío, bife de chorizo, morcilla, choripán, todo servido con chimichurri. La gran diáspora italiana hizo de la pizza fugazzeta + milanesa básicos. El mate es la bebida social de todo el día; el dulce de leche es la obsesión dulce.",
+    ko: "아르헨티나 요리는 파리야(장작 그릴) 문화입니다. 티라 데 아사도, 바시오, 비페 데 초리소, 모르시야, 초리판을 모두 치미추리와 함께 냅니다. 이탈리아계 이민이 많아 피자 푸가제타와 밀라네사가 주식이 되었습니다. 마테는 하루 종일 나누는 음료이고, 둘세 데 레체는 단맛에 대한 집착입니다.",
   },
   "australasia": {
     id: "Masakan Australasia / Pasifik meliputi Polinesia (Samoa, Tonga, Tahiti, Hawaii), Melanesia (Fiji, PNG), dan Mikronesia. Memasak dalam oven tanah bawah tanah (umu / lovo / hangi) adalah teknik yang umum. Kelapa + sukun + talas + ikan karang + babi guling mendefinisikan bahan-bahan ikonik.",
@@ -39,6 +54,7 @@ module.exports = {
     zh: "澳大拉西亚/太平洋美食涵盖波利尼西亚（萨摩亚、汤加、塔希提、夏威夷）、美拉尼西亚（斐济、巴布亚新几内亚）和密克罗尼西亚。地下土炉烹饪（umu / lovo / hangi）是共享技术。椰子 + 面包果 + 芋头 + 礁鱼 + 乳猪定义了标志性食材。",
     ja: "オーストララシア/太平洋料理は、ポリネシア（サモア、トンガ、タヒチ、ハワイ）、メラネシア（フィジー、PNG）、ミクロネシアにまたがります。地下土窯料理（umu / lovo / hangi）が共通の調理法です。ココナッツ + パンノキ + タロイモ + 礁魚 + 子豚が象徴的な食材を定義します。",
     es: "La cocina australiana / del Pacífico abarca Polinesia (Samoa, Tonga, Tahití, Hawái), Melanesia (Fiyi, PNG) y Micronesia. La cocina en horno de tierra subterráneo (umu / lovo / hangi) es la técnica compartida. El coco + el árbol del pan + el taro + el pescado de arrecife + el cochinillo definen los ingredientes icónicos.",
+    ko: "오스트랄라시아·태평양 요리는 폴리네시아(사모아, 통가, 타히티, 하와이), 멜라네시아(피지, 파푸아뉴기니), 미크로네시아에 걸쳐 있습니다. 땅속 화덕 조리(우무 / 로보 / 항이)가 공통된 기법입니다. 코코넛, 빵나무 열매, 타로, 산호초 물고기, 새끼돼지 통구이가 대표적인 재료입니다.",
   },
   "australian": {
     id: "Masakan Australia adalah fusi multikultural + substrat kolonial Inggris + bush-tucker asli. Australia Modern (\"Mod-Oz\") mengambil dari tradisi Asia, Mediterania, dan Pribumi — barramundi dengan native pepperberry, lamb roast, flat white coffee. Debat Pavlova vs NZ masih berlangsung.",
@@ -47,6 +63,7 @@ module.exports = {
     zh: "澳大利亚菜是多元文化融合+英国殖民基础+本土丛林食物。现代澳大利亚菜（“Mod-Oz”）汲取亚洲、地中海和原住民传统——用本土胡椒浆果烹制的barramundi、烤羊肉、澳白咖啡。关于Pavlova与新西兰的争论仍在进行。",
     ja: "オーストラリア料理は、多文化融合、イギリス植民地の影響、そして先住民のブッシュタッカーが特徴です。モダンオーストラリア料理（「Mod-Oz」）は、アジア、地中海、先住民の伝統を取り入れています。ネイティブペッパーベリーを添えたbarramundi、ラムロースト、フラットホワイトコーヒーなどがあります。パブロバを巡るニュージーランドとの議論は続いています。",
     es: "La cocina australiana es una fusión multicultural + sustrato colonial británico + alimentos nativos del monte. La cocina australiana moderna (\"Mod-Oz\") se inspira en tradiciones asiáticas, mediterráneas e indígenas — barramundi con pimienta nativa, cordero asado, café flat white. El debate Pavlova vs Nueva Zelanda sigue en curso.",
+    ko: "호주 요리는 다문화 융합에 영국 식민지 시대의 바탕과 원주민의 부시 터커가 더해진 것입니다. 모던 오스트레일리안('모드오즈')은 아시아, 지중해, 원주민 전통에서 가져옵니다. 원주민 후추열매를 곁들인 바라문디, 양고기 구이, 플랫 화이트 커피가 대표적입니다. 파블로바가 어느 나라 것인지를 두고 뉴질랜드와의 논쟁이 계속되고 있습니다.",
   },
   "austrian": {
     id: "Masakan Austria adalah penyempurnaan Habsburg dari tradisi Eropa Tengah — Wiener Schnitzel, Sachertorte, apfelstrudel sebagai ikon global. Budaya kedai kopi Wina (Kaffeehaus) adalah Warisan Budaya Takbenda UNESCO. Banyak menggunakan pangsit + kue manis.",
@@ -55,6 +72,7 @@ module.exports = {
     zh: "奥地利菜是哈布斯堡王朝对中欧传统的精炼——Wiener Schnitzel、Sachertorte、apfelstrudel是全球标志。维也纳咖啡馆文化（Kaffeehaus）是联合国教科文组织非物质文化遗产。以饺子+甜点为主。",
     ja: "オーストリア料理は、ハプスブルク家による中央ヨーロッパの伝統の洗練されたものです。Wiener Schnitzel、Sachertorte、apfelstrudelが世界的なアイコンです。ウィーンのコーヒーハウス文化（Kaffeehaus）はユネスコ無形文化遺産です。ダンプリングと甘いペストリーが豊富です。",
     es: "La cocina austriaca es un refinamiento de los Habsburgo de las tradiciones centroeuropeas — Wiener Schnitzel, Sachertorte, apfelstrudel como iconos globales. La cultura de los cafés vieneses (Kaffeehaus) es Patrimonio Cultural Inmaterial de la UNESCO. Abundante en dumplings + pasteles dulces.",
+    ko: "오스트리아 요리는 합스부르크 궁정이 중부 유럽의 전통을 다듬어 낸 것입니다. 비너 슈니첼, 자허토르테, 아펠슈트루델이 세계적인 상징입니다. 빈의 커피하우스 문화는 유네스코 무형문화유산입니다. 크뇌델과 단 과자를 많이 씁니다.",
   },
   "bengali": {
     id: "Masakan Bengali adalah ikan + nasi + moster, dengan hidangan penutup manis (rosogolla, mishti doi, sandesh) sebagai ciri khas yang dikenal dunia. Panch phoron (bumbu lima rempah: nigella, fenugreek, fennel, cumin, moster) adalah aroma dasar.",
@@ -63,6 +81,7 @@ module.exports = {
     zh: "孟加拉菜是鱼+米饭+芥末，以甜点（rosogolla, mishti doi, sandesh）闻名世界。Panch phoron（五香调料：黑种草、胡芦巴、茴香、孜然、芥末）是其基础香料。",
     ja: "ベンガル料理は、魚、米、マスタードが特徴で、甘いデザート（rosogolla, mishti doi, sandesh）が世界的に有名です。Panch phoron（5種類のスパイスのテンパリング：ニゲラ、フェヌグリーク、フェンネル、クミン、マスタード）が基本的な香り付けです。",
     es: "La cocina bengalí es pescado + arroz + mostaza, con postres dulces (rosogolla, mishti doi, sandesh) como su firma mundialmente conocida. El panch phoron (temple de 5 especias: nigella, fenogreco, hinojo, comino, mostaza) es el aromático fundamental.",
+    ko: "벵골 요리는 생선과 쌀과 겨자가 중심이며, 세계적으로 알려진 것은 단맛의 마무리(로소골라, 미슈티 도이, 산데시)입니다. 판츠 포론(니겔라, 페누그리크, 회향, 커민, 겨자의 다섯 가지 향신료를 기름에 볶아내는 것)이 기본 향의 뼈대입니다.",
   },
   "brazilian": {
     id: "Masakan Brasil adalah campuran regional + kolonial: moqueca + acarajé yang dipengaruhi Afro dari Bahia, pão de queijo + feijão tropeiro dari Minas Gerais, feijoada Rio (hidangan nasional). Churrasco rodízio adalah duta global. Caipirinha (cachaça + jeruk nipis) adalah koktail khasnya.",
@@ -71,6 +90,7 @@ module.exports = {
     zh: "巴西菜是区域性 + 殖民混合：巴伊亚受非洲影响的 moqueca + acarajé，米纳斯吉拉斯州的 pão de queijo + feijão tropeiro，里约的 feijoada（国菜）。Churrasco rodízio 是全球大使。Caipirinha（cachaça + 青柠）是招牌鸡尾酒。",
     ja: "ブラジル料理は、地域 + 植民地ミックスです。バイーアのアフリカ系影響を受けた moqueca + acarajé、ミナスジェライス州の pão de queijo + feijão tropeiro、リオの feijoada（国民料理）。Churrasco rodízio は世界的な大使。Caipirinha（cachaça + ライム）は代表的なカクテル。",
     es: "La cocina brasileña es una mezcla regional + colonial: moqueca + acarajé de Bahía con influencia afro, pão de queijo + feijão tropeiro de Minas Gerais, feijoada de Río (el plato nacional). Churrasco rodízio es el embajador global. Caipirinha (cachaça + lima) es el cóctel insignia.",
+    ko: "브라질 요리는 지역색과 식민지 시대의 혼합이 함께합니다. 바이아의 아프리카계 모케카와 아카라제, 미나스제라이스의 팡지케이주와 페이장 트로페이루, 리우의 페이조아다(국민 음식). 세계적인 대표 주자는 슈하스코 호디지오입니다. 상징적인 칵테일은 카이피리냐(카샤사 + 라임)입니다.",
   },
   "british": {
     id: "Masakan Inggris sedang mengalami kebangkitan — dulu diejek, kini dirayakan karena fish & chips, Sunday roast, the full English. Cream tea + afternoon tea adalah ekspor budaya global. Fusi Inggris-India (chicken tikka masala, balti) begitu tertanam sehingga diklaim sebagai masakan Inggris. Sticky toffee pudding adalah hidangan penutupnya.",
@@ -79,6 +99,7 @@ module.exports = {
     zh: "英国菜正在经历一场复兴——曾被嘲笑，如今因fish & chips、Sunday roast、the full English而备受赞誉。Cream tea + afternoon tea是全球文化输出。英印融合菜（chicken tikka masala, balti）已根深蒂固，甚至被认为是英国菜。Sticky toffee pudding是其甜点。",
     ja: "イギリス料理はルネサンス期を迎えています。かつては嘲笑されていましたが、今ではfish & chips、Sunday roast、the full Englishで称賛されています。Cream teaとafternoon teaは世界的な文化輸出品です。イギリスとインドの融合料理（chicken tikka masala, balti）は非常に定着しており、イギリス料理として主張されています。Sticky toffee puddingはデザートです。",
     es: "La cocina británica está experimentando un renacimiento — antes ridiculizada, ahora celebrada por el fish & chips, el Sunday roast, el full English. El cream tea y el afternoon tea son exportaciones culturales globales. La fusión anglo-india (chicken tikka masala, balti) está tan arraigada que se considera británica. El sticky toffee pudding es el postre.",
+    ko: "영국 요리는 한때 놀림감이었지만 지금은 피시앤칩스, 선데이 로스트, 풀 잉글리시로 재평가받고 있습니다. 크림 티와 애프터눈 티는 세계적인 문화 수출품입니다. 영국식 인도 요리(치킨 티카 마살라, 발티)는 너무 깊이 자리 잡아 영국 음식으로 여겨질 정도입니다. 디저트는 스티키 토피 푸딩입니다.",
   },
   "burmese": {
     id: "Masakan Burma berada di persimpangan India-Tiongkok-Thailand tetapi dengan identitasnya sendiri: salad daun teh fermentasi (lahpet thoke), mi beras kuah ikan (mohinga), kari yang dimasak dengan gaya minyak mengambang (htamin gyaw). Langka di SG tetapi semakin mudah ditemukan di sekitar Peninsula / North Bridge.",
@@ -87,6 +108,7 @@ module.exports = {
     zh: "缅甸菜位于印度-中华-泰国的十字路口，但有其独特的身份：发酵茶叶沙拉（lahpet thoke）、鱼汤米粉（mohinga）、油浮式烹制的咖喱（htamin gyaw）。在新加坡很少见，但在半岛/桥北一带越来越容易找到。",
     ja: "ビルマ料理は、インド、中国、タイの交差点に位置しながらも独自のアイデンティティを持っています。発酵茶葉サラダ（lahpet thoke）、魚出汁の米麺（mohinga）、油が浮くように調理されたカレー（htamin gyaw）などがあります。シンガポールでは珍しいですが、ペニンシュラ/ノースブリッジ周辺でますます見つけやすくなっています。",
     es: "La cocina birmana se encuentra en la encrucijada de las cocinas india, china y tailandesa, pero con su propia identidad: ensalada de hojas de té fermentadas (lahpet thoke), fideos de arroz en caldo de pescado (mohinga), curries cocinados al estilo de aceite flotante (htamin gyaw). Rara en SG, pero cada vez más fácil de encontrar alrededor de Peninsula / North Bridge.",
+    ko: "미얀마 요리는 인도·중국·태국이 만나는 길목에 있으면서도 고유한 정체성을 지닙니다. 발효 찻잎 샐러드(라펫 토), 생선 육수 쌀국수(모힝가), 기름을 넉넉히 띄워 끓이는 카레(타민 조). 싱가포르에서는 드물지만 페닌슐라와 노스브리지 일대에서 점점 찾기 쉬워지고 있습니다.",
   },
   "cantonese": {
     id: "Masakan Kanton menghargai wok hei (napas wok), pengukusan ringan, makanan laut segar, dan dim sum untuk sarapan. Keseimbangan manis-gurih, sedikit pedas. Masakan Tionghoa yang paling banyak diekspor secara global — apa yang kebanyakan orang maksud dengan \"makanan Tionghoa\" di Barat.",
@@ -95,6 +117,7 @@ module.exports = {
     zh: "粤菜珍视镬气（锅气）、清蒸、新鲜海鲜和点心早午餐。甜咸平衡，辣度极低。这是全球出口最多的中国菜——西方人所说的“中餐”大多指的就是它。",
     ja: "広東料理は、wok hei（鍋の息吹）、軽い蒸し料理、新鮮なシーフード、点心ブランチを重視します。甘味と塩味のバランスが良く、辛さは控えめです。世界で最も輸出されている中華料理であり、西洋で「中華料理」と言うときに多くの人が思い浮かべるものです。",
     es: "La cocina cantonesa valora el wok hei (aliento del wok), la cocción al vapor ligera, los mariscos frescos y el brunch de dim sum. Equilibrio agridulce, calor mínimo. La cocina china más exportada a nivel mundial — lo que la mayoría de la gente entiende por \"comida china\" en Occidente.",
+    ko: "광둥 요리는 웍헤이(웍의 숨결), 가벼운 찜, 신선한 해산물, 딤섬 브런치를 중시합니다. 단맛과 짠맛의 균형을 맞추고 매운맛은 거의 쓰지 않습니다. 세계로 가장 많이 퍼진 중국 요리로, 서양에서 말하는 '중국 음식'은 대개 이것을 가리킵니다.",
   },
   "chinese": {
     id: "Masakan Tiongkok adalah 8 Tradisi Besar (Kanton, Sichuan, Shanghai, Hunan, Hokkien, Anhui, Zhejiang, Shandong) + tak terhitung varian regional. Di Singapura \"restoran Tiongkok\" biasanya berarti cze char Kanton atau mi tarik tangan Tiongkok Utara. Sebutkan wilayahnya untuk hasil otentik.",
@@ -103,6 +126,7 @@ module.exports = {
     zh: "中国菜系有八大菜系（粤菜、川菜、上海菜、湘菜、闽菜、徽菜、浙菜、鲁菜）+ 无数地方变体。在新加坡，“中餐馆”通常指粤式 cze char 或北方手拉面。要获得正宗风味，请指明地区。",
     ja: "中国料理には8つの主要な伝統（Cantonese、Sichuan、Shanghai、Hunan、Hokkien、Anhui、Zhejiang、Shandong）と数え切れないほどの地域バリエーションがあります。シンガポールでは、「中華料理店」は通常、Cantonese cze charまたはNorthern Chinese hand-pulled-noodleを意味します。本格的な結果を得るには地域を指定してください。",
     es: "La cocina china tiene 8 Grandes Tradiciones (Cantonese, Sichuan, Shanghai, Hunan, Hokkien, Anhui, Zhejiang, Shandong) + innumerables variantes regionales. En Singapur, \"restaurante chino\" suele significar cze char cantonés o fideos estirados a mano del norte de China. Especifique la región para obtener resultados auténticos.",
+    ko: "중국 요리는 8대 전통(광둥, 쓰촨, 상하이, 후난, 호키엔, 안후이, 저장, 산둥)과 헤아릴 수 없이 많은 지역별 변형으로 이루어집니다. 싱가포르에서 '중식당'은 대개 광둥식 쯔차 아니면 북방식 수타면집을 뜻합니다. 제대로 찾으려면 지역을 지정해 검색하세요.",
   },
   "dessert": {
     id: "Makanan penutup sebagai kategori: kumpulan hidangan manis lintas-masakan yang dikurasi, dengan Prancis + Italia + Austria sebagai pilar haute-pâtisserie. Singapura menawarkan pilihan global — toko kue Prancis di Maison Kayser/Tiong Bahru Bakery, gelato Italia di Birds of Paradise, makanan penutup Asia yang disajikan di Janice Wong / 2am:dessertbar.",
@@ -111,6 +135,7 @@ module.exports = {
     zh: "甜点作为一个类别：精心策划的跨菜系摆盘甜点精选，以法国 + 意大利 + 奥地利为高级糕点支柱。新加坡提供全球选择——Maison Kayser/Tiong Bahru Bakery 的法式蛋糕店、Birds of Paradise 的意式冰淇淋、Janice Wong / 2am:dessertbar 的亚洲摆盘甜点。",
     ja: "カテゴリーとしてのデザート：フランス + イタリア + オーストリアを高級パティスリーの柱とする、厳選された、様々な料理の盛り付けられたスイーツの集まりです。シンガポールでは、Maison Kayser/Tiong Bahru Bakery のフランス菓子店、Birds of Paradise のイタリアンジェラート、Janice Wong / 2am:dessertbar の盛り付けられたアジアのデザートなど、世界的な品揃えを提供しています。",
     es: "El postre como categoría: una cuidada selección transcultural de dulces emplatados, con Francia + Italia + Austria como los pilares de la alta pastelería. Singapur ofrece la selección global: pastelerías francesas en Maison Kayser/Tiong Bahru Bakery, helado italiano en Birds of Paradise, postres asiáticos emplatados en Janice Wong / 2am:dessertbar.",
+    ko: "카테고리로서의 디저트는 여러 요리권에서 골라낸 플레이팅 디저트 모음이며, 프랑스·이탈리아·오스트리아가 고급 파티스리의 기둥입니다. 싱가포르에서는 세계의 선택지를 모두 만날 수 있습니다. Maison Kayser와 Tiong Bahru Bakery의 프랑스식 케이크, Birds of Paradise의 이탈리아식 젤라토, Janice Wong과 2am:dessertbar의 플레이팅 아시아 디저트.",
   },
   "egyptian": {
     id: "Masakan Mesir adalah trinitas kacang + nasi + sayuran hijau, berlabuh pada koshari (makanan jalanan nasional: nasi + makaroni + lentil + buncis + bawang karamel + saus tomat). Ful medames dan ta'meya (falafel Mesir) adalah makanan pokok sarapan; molokhia adalah sup hijau ikonik.",
@@ -119,6 +144,7 @@ module.exports = {
     zh: "埃及菜是豆类 + 米饭 + 蔬菜三位一体，以 koshari 为主（国菜街头小吃：米饭 + 通心粉 + 扁豆 + 鹰嘴豆 + 焦糖洋葱 + 番茄酱）。Ful medames 和 ta'meya（埃及沙拉三明治）是早餐主食；molokhia 是标志性的绿色汤。",
     ja: "エジプト料理は、豆 + 米 + 緑野菜の三位一体で、koshari（国民的な屋台料理：米 + マカロニ + レンズ豆 + ひよこ豆 + キャラメル玉ねぎ + トマトソース）が中心。Ful medames と ta'meya（エジプトのファラフェル）は朝食の定番；molokhia は象徴的な緑のスープ。",
     es: "La cocina egipcia es la trinidad de frijoles + arroz + verduras, anclada por el koshari (la comida callejera nacional: arroz + macarrones + lentejas + garbanzos + cebolla caramelizada + salsa de tomate). Ful medames y ta'meya (falafel egipcio) son los básicos del desayuno; molokhia es la icónica sopa verde.",
+    ko: "이집트 요리는 콩과 쌀과 채소의 삼총사이며, 그 중심에 코샤리(국민 길거리 음식 — 밥 + 마카로니 + 렌틸 + 병아리콩 + 캐러멜라이즈한 양파 + 토마토소스)가 있습니다. 풀 메다메스와 타메야(이집트식 팔라펠)가 아침 주식이고, 몰로키아가 대표적인 초록 수프입니다.",
   },
   "eurasian": {
     id: "Masakan Eurasia (Kristang / Serani) adalah warisan 500 tahun pemukim Portugis-Belanda-Inggris + pasangan Melayu-India di Melaka dan Singapura. Kari setan pedas cuka saat Natal, kue sugee saat pernikahan — langka di restoran, kebanyakan masakan rumahan.",
@@ -127,6 +153,7 @@ module.exports = {
     zh: "欧亚（克里斯坦/色拉尼）菜是葡萄牙-荷兰-英国定居者与马来-印度配偶在马六甲和新加坡500年的遗产。圣诞节的醋味魔鬼咖喱，婚礼上的苏吉蛋糕——在餐馆中罕见，多为家常菜。",
     ja: "ユーラシア（Kristang / Serani）料理は、マラッカとシンガポールにおけるポルトガル・オランダ・イギリスの入植者とマレー・インドの配偶者の500年にわたる遺産です。クリスマスには酢が効いた devil curry、結婚式には sugee cake が供されます。レストランでは珍しく、ほとんどが家庭料理です。",
     es: "La cocina euroasiática (Kristang / Serani) es la herencia de 500 años de colonos portugueses-holandeses-británicos + cónyuges malayos-indios en Melaka y Singapur. El devil curry con vinagre en Navidad, el sugee cake en las bodas — raro en restaurantes, mayormente cocina casera.",
+    ko: "유라시안(크리스탕/세라니) 요리는 말라카와 싱가포르에서 포르투갈·네덜란드·영국계 정착민과 말레이·인도계 배우자가 500년간 이어온 유산입니다. 크리스마스에는 식초 향이 강한 데빌 커리, 결혼식에는 수지 케이크. 식당에서는 보기 드물고 대부분 가정식입니다.",
   },
   "filipino": {
     id: "Masakan Filipina adalah perpaduan 4 arah Melayu-Tiongkok-Spanyol-Amerika — dominan cuka (adobo, kinilaw), berasal dari Spanyol (lechon, leche flan), pancit (Tiongkok-Hokkien), sinigang (asam jawa Melayu). Halo-halo adalah hidangan penutup nasional. Diremehkan dan sulit ditemukan yang enak di luar Filipina.",
@@ -135,6 +162,7 @@ module.exports = {
     zh: "菲律宾菜是马来-中华-西班牙-美式四方融合——以醋为主（adobo, kinilaw），源自西班牙（lechon, leche flan），pancit（中华-福建），sinigang（马来罗望子）。Halo-halo是国宝级甜点。在菲律宾以外的地方，它被低估且难以找到做得好的。",
     ja: "フィリピン料理は、マレー、中国、スペイン、アメリカの4つの融合です。酢を効かせた料理（adobo, kinilaw）、スペイン由来の料理（lechon, leche flan）、pancit（中国-福建）、sinigang（マレーのタマリンド）があります。Halo-haloは国民的デザートです。フィリピン国外では過小評価されており、美味しいものを見つけるのが難しいです。",
     es: "La cocina filipina es una fusión cuádruple de influencias malayas, chinas, españolas y americanas — con predominio del vinagre (adobo, kinilaw), de origen español (lechon, leche flan), pancit (chino-hokkien), sinigang (tamarindo malayo). El Halo-halo es el postre nacional. Subestimada y difícil de encontrar bien hecha fuera de Filipinas.",
+    ko: "필리핀 요리는 말레이·중국·스페인·미국이 4중으로 융합된 것입니다. 식초 향이 강한 음식(아도보, 키닐라우), 스페인에서 온 것(레촌, 레체 플란), 중국 호키엔에서 온 판싯, 말레이식 타마린드 국물의 시니강. 국민 디저트는 할로할로입니다. 저평가되어 있고, 필리핀 밖에서 제대로 하는 집을 찾기는 쉽지 않습니다.",
   },
   "french": {
     id: "Masakan Prancis adalah referensi dasar santapan mewah Barat (warisan UNESCO 2010). Regional: Provençal (minyak zaitun + rempah), Burgundian (rebusan anggur), Gascon (bebek + foie gras), Norman (krim + apel), Alsatian (Jerman-Prancis). Bistrot dan brasserie menangani sehari-hari; menu tasting yang mewah.",
@@ -143,6 +171,7 @@ module.exports = {
     zh: "法国菜是西方高级餐饮的基石（2010年联合国教科文组织遗产）。区域特色：Provençal（橄榄油 + 香草）、Burgundian（葡萄酒炖菜）、Gascon（鸭肉 + foie gras）、Norman（奶油 + 苹果）、Alsatian（德法融合）。Bistros 和 brasseries 供应日常餐点；品鉴菜单则面向高端市场。",
     ja: "フランス料理は西洋の高級料理の基礎的な基準です（2010年ユネスコ遺産）。地域別では、Provençal（オリーブオイル + ハーブ）、Burgundian（ワイン煮込み）、Gascon（鴨肉 + foie gras）、Norman（クリーム + リンゴ）、Alsatian（ドイツ・フランス風）があります。Bistrosやbrasseriesは日常使い、テイスティングメニューは高級志向です。",
     es: "La cocina francesa es la referencia fundamental de la alta cocina occidental (patrimonio UNESCO 2010). Regional: Provençal (aceite de oliva + hierbas), Burgundian (estofados de vino), Gascon (pato + foie gras), Norman (nata + manzana), Alsatian (franco-alemana). Los Bistros y brasseries se encargan del día a día; los menús degustación, del mercado de lujo.",
+    ko: "프랑스 요리는 서양 파인다이닝의 기준이 된 뿌리입니다(2010년 유네스코 유산). 지역별로는 프로방스(올리브유 + 허브), 부르고뉴(와인 스튜), 가스코뉴(오리 + 푸아그라), 노르망디(크림 + 사과), 알자스(독일-프랑스식)로 나뉩니다. 일상은 비스트로와 브라스리가, 고급은 테이스팅 메뉴가 맡습니다.",
   },
   "fusion": {
     id: "Fusion sebagai kategori: penyajian lintas budaya yang digerakkan oleh koki. Di Singapura, \"Mod-Sin\" (Singapura modern — Wild Rocket, Labyrinth, Andre, Burnt Ends) dan Asia-Prancis (Lerouy, Born, Esora) adalah gerakan terkuat. Sumbu Asia-Mediterania (Nouri, Meta) adalah gelombang kedua.",
@@ -151,6 +180,7 @@ module.exports = {
     zh: "融合菜作为一个类别：厨师主导的跨文化摆盘。在新加坡，“Mod-Sin”（现代新加坡菜——Wild Rocket, Labyrinth, Andre, Burnt Ends）和亚洲-法国菜（Lerouy, Born, Esora）是最强劲的潮流。亚洲-地中海轴心（Nouri, Meta）是第二波。",
     ja: "カテゴリーとしてのフュージョン：シェフ主導の異文化融合料理。シンガポールでは、「Mod-Sin」（モダンシンガポール料理 — Wild Rocket, Labyrinth, Andre, Burnt Ends）とアジア・フランス料理（Lerouy, Born, Esora）が最も強い動きです。アジア・地中海軸（Nouri, Meta）は第二の波です。",
     es: "La fusión como categoría: emplatado intercultural impulsado por chefs. En Singapur, \"Mod-Sin\" (singapurense moderno — Wild Rocket, Labyrinth, Andre, Burnt Ends) y asiático-francés (Lerouy, Born, Esora) son los movimientos más fuertes. El eje asiático-mediterráneo (Nouri, Meta) es la segunda ola.",
+    ko: "카테고리로서의 퓨전은 셰프가 이끄는 문화 간 플레이팅입니다. 싱가포르에서는 '모드신'(현대 싱가포르 요리 — Wild Rocket, Labyrinth, Andre, Burnt Ends)과 아시아-프렌치(Lerouy, Born, Esora)가 가장 강한 흐름입니다. 아시아-지중해 축(Nouri, Meta)이 그 다음 물결입니다.",
   },
   "georgian": {
     id: "Masakan Georgia adalah tempat lahir anggur (tradisi qvevri 8000 tahun) ditambah budaya supra (perjamuan). Khachapuri (roti keju, varian regional) dan khinkali (pangsit berlipat) adalah karbohidrat ikonik. Saus kenari (satsivi, bazha) dan rempah-rempah mendefinisikan ciri khasnya.",
@@ -159,6 +189,7 @@ module.exports = {
     zh: "格鲁吉亚菜是葡萄酒的摇篮（8000年 qvevri 传统），加上 supra（宴会）文化。Khachapuri（奶酪面包，地区变体）和 khinkali（褶皱饺子）是标志性的碳水化合物。核桃酱（satsivi, bazha）和香草定义了其特色。",
     ja: "ジョージア料理は、ワインの発祥地（8000年の qvevri の伝統）と supra（宴会）文化です。Khachapuri（チーズパン、地域変種）と khinkali（ひだ付き餃子）は象徴的な炭水化物。クルミソース（satsivi, bazha）とハーブが特徴を決定づける。",
     es: "La cocina georgiana es la cuna del vino (tradición qvevri de 8000 años) además de la cultura de la supra (banquete). Khachapuri (pan de queso, variantes regionales) y khinkali (empanadillas plisadas) son los carbohidratos icónicos. Las salsas de nuez (satsivi, bazha) y las hierbas definen la firma.",
+    ko: "조지아는 와인의 요람이며(8,000년에 이르는 크베브리 전통) 수프라(연회) 문화를 지니고 있습니다. 하차푸리(치즈 빵, 지역마다 다른 변형)와 힌칼리(주름 잡은 만두)가 대표적인 탄수화물입니다. 호두 소스(사치비, 바자)와 허브가 특징을 만듭니다.",
   },
   "german": {
     id: "Masakan Jerman adalah masakan yang mengenyangkan + kaya roti + dominan daging, beragam secara regional. Makanan aula bir Bavaria (schweinshaxe, weisswurst, pretzels) adalah ikon global; babi-dan-kentang Jerman utara adalah hidangan sehari-hari. Bir + sosis + roti adalah trinitas dasarnya.",
@@ -167,6 +198,7 @@ module.exports = {
     zh: "德国菜丰盛+富含面包+以肉类为主，地域多样。巴伐利亚啤酒馆美食（schweinshaxe, weisswurst, pretzels）是全球标志；德国北部的猪肉和土豆是日常食物。啤酒+香肠+面包是其基础三位一体。",
     ja: "ドイツ料理は、ボリュームがあり、パンが豊富で、肉が中心の、地域によって多様な料理です。バイエルンのビアホール料理（schweinshaxe, weisswurst, pretzels）は世界的なアイコンです。北ドイツの豚肉とジャガイモ料理は日常的なものです。ビール、ソーセージ、パンが基本的な三位一体です。",
     es: "La cocina alemana es contundente + rica en pan + centrada en la carne, regionalmente diversa. La comida de las cervecerías bávaras (schweinshaxe, weisswurst, pretzels) es el icono global; la carne de cerdo y patatas del norte de Alemania es el día a día. Cerveza + salchicha + pan son la trinidad fundamental.",
+    ko: "독일 요리는 든든하고 빵이 풍부하며 고기가 중심이고, 지역마다 다양합니다. 바이에른 맥주홀 음식(슈바이네학세, 바이스부르스트, 프레첼)이 세계적인 상징이고, 북부의 돼지고기와 감자 요리가 일상식입니다. 맥주 + 소시지 + 빵이 기본 삼총사입니다.",
   },
   "goan": {
     id: "Masakan Goa adalah fusion Portugis-India empat abad: vindaloo (vinha d'alhos = anggur + bawang putih), sorpotel (kari jeroan), xacuti (rempah kelapa panggang), bebinca (kue kelapa 16 lapis). Makanan laut Konkani pesisir + babi (jarang di India Hindu) + feni (distilat mete) adalah jangkar regional.",
@@ -175,6 +207,7 @@ module.exports = {
     zh: "果阿菜是四世纪的葡萄牙-印度融合：vindaloo（vinha d'alhos = 葡萄酒 + 大蒜）、sorpotel（内脏咖喱）、xacuti（烤椰子香料）、bebinca（16层椰子蛋糕）。沿海康坎海鲜 + 猪肉（在印度教印度罕见）+ feni（腰果蒸馏酒）是区域支柱。",
     ja: "ゴア料理は、4世紀にわたるポルトガルとインドの融合です。vindaloo（vinha d'alhos = ワイン + ニンニク）、sorpotel（内臓カレー）、xacuti（ローストココナッツスパイス）、bebinca（16層ココナッツケーキ）が代表的です。沿岸のコンカニシーフード + 豚肉（ヒンドゥー教のインドでは珍しい）+ feni（カシュー蒸留酒）が地域を支えるものです。",
     es: "La cocina de Goa es la fusión luso-india de cuatro siglos: vindaloo (vinha d'alhos = vino + ajo), sorpotel (curry de vísceras), xacuti (especias de coco tostado), bebinca (pastel de coco de 16 capas). Los mariscos costeros Konkani + el cerdo (raro en la India hindú) + el feni (destilado de anacardo) son los pilares regionales.",
+    ko: "고아 요리는 400년에 걸친 포르투갈-인도 융합입니다. 빈달루(vinha d'alhos = 와인 + 마늘), 소르포텔(내장 커리), 샤쿠티(볶은 코코넛 향신료), 베빙카(16겹 코코넛 케이크). 콘칸 해안의 해산물과 돼지고기(힌두 인도에서는 드뭅니다), 그리고 페니(캐슈 증류주)가 이 지역의 뿌리입니다.",
   },
   "greek": {
     id: "Masakan Yunani adalah contoh diet Mediterania — minyak zaitun, feta, domba, oregano, lemon. Budaya mezze (piring kecil dengan ouzo); moussaka dan souvlaki sebagai ikon ekspor; phyllo pies (spanakopita, tiropita) adalah hidangan sehari-hari. Yogurt Yunani dan feta memimpin ekspor produk susu global.",
@@ -183,6 +216,7 @@ module.exports = {
     zh: "希腊菜是地中海饮食的典范——橄榄油、羊乳酪、羊肉、牛至、柠檬。Mezze文化（搭配茴香酒的小盘菜）；moussaka和souvlaki是出口标志；千层酥派（spanakopita, tiropita）是日常食物。希腊酸奶和羊乳酪引领全球乳制品出口。",
     ja: "ギリシャ料理は、地中海ダイエットの典型です。オリーブオイル、フェタチーズ、ラム肉、オレガノ、レモンが特徴です。mezze文化（ウーゾと楽しむ小皿料理）、moussakaとsouvlakiは輸出の象徴です。フィロパイ（spanakopita, tiropita）は日常的に食べられています。ギリシャヨーグルトとフェタチーズは世界の乳製品輸出を牽引しています。",
     es: "La cocina griega es el ejemplo de la dieta mediterránea — aceite de oliva, feta, cordero, orégano, limón. Cultura de mezze (pequeños platos con ouzo); moussaka y souvlaki como iconos de exportación; los pasteles de phyllo (spanakopita, tiropita) son el día a día. El yogur griego y el feta lideran las exportaciones mundiales de lácteos.",
+    ko: "그리스 요리는 지중해 식단의 전형입니다. 올리브유, 페타 치즈, 양고기, 오레가노, 레몬. 우조와 함께 즐기는 메제 문화, 수출 대표 주자인 무사카와 수블라키, 그리고 일상식인 필로 파이(스파나코피타, 티로피타). 그리스 요구르트와 페타는 세계 유제품 수출을 이끕니다.",
   },
   "gujarati": {
     id: "Masakan Gujarati adalah tradisi vegetarian paling terkenal di India — keseimbangan manis-gurih, camilan tepung buncis kukus (dhokla, khandvi), budaya thali. Vegetarianisme ketat berakar pada warisan Jain; bahkan bawang putih + bawang bombay dihindari di banyak rumah tangga.",
@@ -191,6 +225,7 @@ module.exports = {
     zh: "古吉拉特菜是印度最著名的素食传统——甜咸平衡，蒸鹰嘴豆粉小吃（dhokla, khandvi），thali文化。严格的素食主义根植于耆那教传统；许多家庭甚至不吃大蒜和洋葱。",
     ja: "グジャラート料理は、インドで最も有名な菜食主義の伝統です。甘味と塩味のバランスが特徴で、蒸したひよこ豆粉のスナック（dhokla, khandvi）、ターリー文化があります。ジャイナ教の遺産に根ざした厳格な菜食主義で、多くの家庭ではニンニクと玉ねぎも避けています。",
     es: "La cocina gujarati es la tradición vegetariana más famosa de la India — equilibrio agridulce, aperitivos al vapor de harina de garbanzo (dhokla, khandvi), cultura del thali. Vegetarianismo estricto arraigado en la herencia jainista; incluso el ajo + la cebolla se omiten en muchos hogares.",
+    ko: "구자라트 요리는 인도에서 가장 유명한 채식 전통입니다. 단맛과 짠맛의 균형, 병아리콩 가루를 쪄 만든 간식(도클라, 칸드비), 그리고 탈리 문화가 특징입니다. 자이나교 전통에 뿌리를 둔 엄격한 채식이라 많은 가정에서는 마늘과 양파도 쓰지 않습니다.",
   },
   "hainanese": {
     id: "Pulau Hainan terletak di selatan Guangdong; diaspora mereka menjalankan kopitiam (kedai kopi) era kolonial Singapura + Malaysia, menciptakan nasi ayam Hainan, pork chop dengan saus cokelat (brown gravy), dan format sarapan roti kaya khas Singapura.",
@@ -199,6 +234,7 @@ module.exports = {
     zh: "海南岛位于广东南部；其散居群体在殖民时期的新加坡和马来西亚经营咖啡店（kopitiams），发明了海南鸡饭、带棕色肉汁的猪排，以及新加坡的咖椰吐司早餐模式。",
     ja: "海南島は広東省の南に位置し、そのディアスポラは植民地時代のシンガポールとマレーシアの kopitiams（喫茶店）を経営し、Hainanese chicken rice、ブラウンソースのポークチョップ、そしてシンガポールの kaya-toast 朝食スタイルを発明しました。",
     es: "La isla de Hainan se encuentra al sur de Guangdong; su diáspora dirigía los kopitiams (cafeterías) de la era colonial de Singapur + Malasia, inventando el Hainanese chicken rice, la chuleta de cerdo con salsa marrón y el formato de desayuno SG kaya-toast.",
+    ko: "하이난섬은 광둥성 남쪽에 있습니다. 이 섬 출신 이주민들이 식민지 시대 싱가포르와 말레이시아의 코피티암(커피숍)을 운영하면서 하이난식 치킨라이스, 브라운 그레이비를 얹은 포크찹, 그리고 싱가포르식 kaya toast 아침 식사 형식을 만들어 냈습니다.",
   },
   "hakka": {
     id: "Masakan Hakka (Kejia, \"orang tamu\") adalah sub-masakan Tiongkok yang paling banyak berkelana — orang Hakka bermigrasi ke selatan selama berabad-abad, membawa makanan mereka. Rasa sawi asin, teknik panggang garam, lei cha (nasi teh guntur), abacus seeds. Yong tau foo adalah ikon utama di SG.",
@@ -207,6 +243,7 @@ module.exports = {
     zh: "客家（Kejia，“客家人”）菜系是传播最广的中国子菜系——客家人几个世纪以来向南迁徙，带着他们的食物。腌芥菜风味、盐焗技术、lei cha（擂茶饭）、abacus seeds。Yong tau foo 是新加坡主流的标志性菜肴。",
     ja: "Hakka（Kejia、「客家」）料理は、最も広く伝播した中国のサブ料理です。Hakkaの人々は数世紀にわたって南へ移住し、その食文化を運びました。漬物マスタードの風味、塩焼きの技法、lei cha（thunder tea rice）、abacus seedsが特徴です。Yong tau fooはシンガポールの主流のアイコンです。",
     es: "La cocina Hakka (Kejia, \"gente invitada\") es la subcocina china más viajada: los Hakka migraron hacia el sur durante siglos, llevando su comida. Sabores de mostaza encurtida, técnicas de cocción en sal, lei cha (thunder tea rice), abacus seeds. El Yong tau foo es el icono principal de SG.",
+    ko: "하카(객가, '손님으로 온 사람들') 요리는 가장 많이 이동한 중국 지역 요리입니다. 하카족은 수백 년에 걸쳐 남쪽으로 이주하며 자신들의 음식을 가지고 갔습니다. 갓장아찌의 풍미, 소금가마 조리법, 레이차(뇌차밥), 주판알 국수가 특징입니다. 싱가포르에서 가장 널리 알려진 것은 용타우푸입니다.",
   },
   "hokkien": {
     id: "Masakan Hokkien (Fujian) melakukan perjalanan dari Tiongkok tenggara bersama diaspora Tionghoa terbesar ke Asia Tenggara. Di Singapura: mi kaldu udang, rebusan kecap hitam, pangsit nasi meriah. Banyak menggunakan udang kering, lemak babi, kecap manis.",
@@ -215,6 +252,7 @@ module.exports = {
     zh: "福建菜（闽菜）随最大规模的华人散居群体从中国东南部传至东南亚。在新加坡：虾汤面、黑酱油炖菜、节日粽子。大量使用虾米、猪油、甜酱油。",
     ja: "ホッケン（福建）料理は、中国南東部から東南アジアへの最大の華人ディアスポラとともに伝わりました。シンガポールでは、エビ出汁の麺、黒醤油煮込み、お祝いのちまきなどがあります。干しエビ、ラード、甘い醤油を多用します。",
     es: "La cocina Hokkien (Fujian) viajó desde el sureste de China con la mayor diáspora china al Sudeste Asiático. En Singapur: fideos con caldo de gambas, estofados de soja oscura, dumplings de arroz festivos. Abundante en camarones secos, manteca de cerdo, soja dulce.",
+    ko: "호키엔(푸젠) 요리는 중국 남동부에서 동남아시아로 향한 최대 규모의 중국인 이주와 함께 옮겨 왔습니다. 싱가포르에서는 새우 육수 국수, 진간장 조림, 명절 쫑쯔가 대표적입니다. 건새우, 라드, 단간장을 많이 씁니다.",
   },
   "hong-kong": {
     id: "Masakan Hong Kong adalah masakan Kanton yang disempurnakan + 156 tahun pengaruh kolonial Inggris. Cha chaan teng (restoran gaya HK) adalah ikonnya — milk tea, French toast, baked pork chop rice, macaroni soup. Dim sum + roast meat adalah warisannya; bubble tea + bingsu adalah impor modern.",
@@ -223,6 +261,7 @@ module.exports = {
     zh: "香港菜系是精致的粤菜 + 156年英国殖民影响的融合。Cha chaan teng（港式茶餐厅）是其标志——奶茶、西多士、焗猪扒饭、通粉汤。Dim sum + 烧味是其传统；bubble tea + bingsu 则是现代引进。",
     ja: "香港料理は、洗練されたCantoneseに156年間のイギリス植民地時代の影響が加わったものです。Cha chaan teng（香港式ダイナー）が象徴的で、milk tea、French toast、baked pork chop rice、macaroni soupなどがあります。Dim sumとroast meatは伝統的な料理で、bubble teaとbingsuは現代の輸入品です。",
     es: "La cocina de Hong Kong es Cantonese refinada + 156 años de influencia colonial británica. El Cha chaan teng (restaurante estilo HK) es el icono: milk tea, French toast, baked pork chop rice, macaroni soup. El Dim sum + roast meat son la herencia; el bubble tea + bingsu son las importaciones modernas.",
+    ko: "홍콩 요리는 정제된 광둥 요리에 156년간의 영국 식민지 영향이 더해진 것입니다. 차찬텡(홍콩식 분식점)이 상징으로 밀크티, 프렌치토스트, 구운 포크찹 라이스, 마카로니 수프를 냅니다. 딤섬과 소고기(로스트 미트)는 전통이고, 버블티와 빙수는 근래에 들어온 것입니다.",
   },
   "hunan": {
     id: "Masakan Hunan (Xiang) adalah cabang masakan Tiongkok yang pedas tetapi TIDAK membuat mati rasa. Rasa asap + diasinkan + acar mendominasi; hidangan favorit Ketua Mao adalah hong shao rou. Panasnya lebih agresif daripada Sichuan meskipun tanpa lada Sichuan.",
@@ -231,6 +270,7 @@ module.exports = {
     zh: "湖南（湘）菜系是中国菜系中以辣椒为主但不会麻的菜系。烟熏 + 腌制 + 泡菜风味占据主导；毛主席的最爱是 hong shao rou。尽管没有花椒，但其辣度比四川菜更猛烈。",
     ja: "湖南（Xiang）料理は、唐辛子を多用しますが、しびれる辛さではない中国料理の一派です。燻製、塩漬け、漬物の風味が支配的で、毛沢東主席のお気に入りはhong shao rouでした。Sichuan peppercornがないにもかかわらず、四川料理よりも攻撃的な辛さです。",
     es: "La cocina Hunan (Xiang) es la rama de la cocina china picante pero NO adormecedora. Predominan los sabores ahumados + curados + encurtidos; el favorito del Presidente Mao era el hong shao rou. Un picor más agresivo que el Sichuan a pesar de no llevar Sichuan peppercorn.",
+    ko: "후난(샹) 요리는 고추의 매운맛은 강하지만 화자오의 얼얼함은 쓰지 않는 갈래입니다. 훈제·염장·절임의 풍미가 지배적이며, 마오쩌둥이 즐겼다는 훙사오러우가 유명합니다. 화자오를 쓰지 않는데도 매운 강도는 쓰촨보다 더 공격적입니다.",
   },
   "indonesian": {
     id: "Masakan Indonesia mencakup 17.000 pulau — 6 tradisi regional utama (Padang/Minang, Jawa, Bali, Sunda, Manado, Aceh). Padang adalah yang paling banyak diekspor (rendang, gulai); Bali adalah satu-satunya masakan Indonesia Hindu (babi guling, babi). Sambal adalah fondasi — setiap daerah memiliki sambalnya sendiri.",
@@ -239,6 +279,7 @@ module.exports = {
     zh: "印尼菜肴遍布17,000个岛屿——拥有6大主要地区传统（巴东/米南、爪哇、巴厘、巽他、万鸦老、亚齐）。巴东菜出口最多（仁当、古莱）；巴厘岛是唯一的印度教印尼菜（烤乳猪，猪肉）。参巴酱是基础——每个地区都有自己的版本。",
     ja: "インドネシア料理は17,000の島々に広がり、6つの主要な地域伝統（パダン/ミナン、ジャワ、バリ、スンダ、マナド、アチェ）があります。パダン料理が最も輸出されています（ルンダン、グライ）。バリは唯一のヒンドゥー・インドネシア料理です（バビグリン、豚肉）。サンバルは基礎であり、各地域に独自のサンバルがあります。",
     es: "La cocina indonesia abarca 17.000 islas — 6 grandes tradiciones regionales (Padang/Minang, Java, Bali, Sundanesa, Manado, Aceh). Padang es la más exportada (rendang, gulai); Bali es la única cocina hindú-indonesia (babi guling, cerdo). El sambal es fundamental — cada región tiene el suyo propio.",
+    ko: "인도네시아 요리는 17,000개 섬에 걸쳐 있으며 여섯 개의 주요 지역 전통(파당/미낭, 자바, 발리, 순다, 마나도, 아체)으로 나뉩니다. 가장 널리 퍼진 것은 파당(른당, 굴라이)이고, 발리는 유일한 힌두계 인도네시아 요리입니다(바비 굴링, 돼지고기). 삼발은 기본이며 지역마다 고유한 삼발이 있습니다.",
   },
   "israeli": {
     id: "Masakan Israel memadukan makanan pokok Levantine (hummus, falafel, shakshuka) dengan tradisi Yahudi Eropa Timur (challah, cholent, latkes), Yaman (jachnun, kubaneh, schug), dan Irak-Mizrahi (sabich, amba). Sarapan Israel (telur + keju + salad + roti) adalah institusi budaya.",
@@ -247,6 +288,7 @@ module.exports = {
     zh: "以色列菜融合了黎凡特主食（hummus, falafel, shakshuka）与东欧犹太（challah, cholent, latkes）、也门（jachnun, kubaneh, schug）和伊拉克米兹拉希（sabich, amba）传统。以色列早餐（鸡蛋 + 奶酪 + 沙拉 + 面包）是一种文化机构。",
     ja: "イスラエル料理は、レバントの定番料理（hummus, falafel, shakshuka）に、東欧ユダヤ（challah, cholent, latkes）、イエメン（jachnun, kubaneh, schug）、イラク・ミズラヒ（sabich, amba）の伝統を融合させている。イスラエルの朝食（卵 + チーズ + サラダ + パン）は文化的な制度。",
     es: "La cocina israelí fusiona los básicos levantinos (hummus, falafel, shakshuka) con tradiciones judías de Europa del Este (challah, cholent, latkes), yemenitas (jachnun, kubaneh, schug) e iraquí-mizrahi (sabich, amba). El desayuno israelí (huevos + quesos + ensaladas + panes) es una institución cultural.",
+    ko: "이스라엘 요리는 레반트의 기본(후무스, 팔라펠, 샥슈카)에 동유럽 유대(할라, 촐렌트, 라트케), 예멘계(자흐눈, 쿠바네, 스쿠그), 이라크·미즈라히계(사비흐, 암바) 전통이 어우러진 것입니다. 이스라엘식 아침 식사(달걀 + 치즈 + 샐러드 + 빵)는 하나의 문화적 제도입니다.",
   },
   "italian": {
     id: "Masakan Italia bersifat regional, bukan nasional — 20 wilayah, masing-masing dengan bentuk pasta, saus, roti, dan hidangan penutupnya sendiri. Utara adalah mentega + risotto + polenta; Tengah (Romawi + Tuscan) adalah pecorino + guanciale + Chianti; Selatan adalah tomat + minyak zaitun + makanan laut. Pizza Napoletana adalah warisan UNESCO.",
@@ -255,6 +297,7 @@ module.exports = {
     zh: "意大利菜系是区域性的，而非全国性的——20个大区，每个大区都有自己独特的意面形状、酱汁、面包和甜点。北部以黄油 + risotto + polenta 为主；中部（罗马 + 托斯卡纳）以 pecorino + guanciale + Chianti 为主；南部以番茄 + 橄榄油 + 海鲜为特色。Pizza Napoletana 是联合国教科文组织遗产。",
     ja: "イタリア料理は地域性が高く、全国的ではありません。20の地域それぞれに独自のパスタの形、ソース、パン、デザートがあります。北部はバター + risotto + polenta、中央部（ローマ + トスカーナ）はpecorino + guanciale + Chianti、南部はトマト + オリーブオイル + シーフードが特徴です。Pizza Napoletanaはユネスコ遺産です。",
     es: "La cocina italiana es regional, no nacional: 20 regiones, cada una con sus propias formas de pasta, salsas, panes y postres. El Norte es mantequilla + risotto + polenta; el Centro (romana + toscana) es pecorino + guanciale + Chianti; el Sur es tomate + aceite de oliva + mariscos. La Pizza Napoletana es patrimonio de la UNESCO.",
+    ko: "이탈리아 요리는 국가 단위가 아니라 지역 단위입니다. 20개 주가 각각 고유한 파스타 모양, 소스, 빵, 디저트를 갖고 있습니다. 북부는 버터 + 리조토 + 폴렌타, 중부(로마·토스카나)는 페코리노 + 관찰레 + 키안티, 남부는 토마토 + 올리브유 + 해산물입니다. 나폴리 피자는 유네스코 유산입니다.",
   },
   "japanese": {
     id: "Masakan Jepang menekankan musiman, umami, dan kemurnian bahan. Sushi di kelas atas, ramen sehari-hari — Singapura memiliki konsentrasi restoran Jepang tertinggi di luar Jepang. Cari omakase atau ramen-ya generasi ke-2 untuk yang asli.",
@@ -263,6 +306,7 @@ module.exports = {
     zh: "日本料理强调时令、鲜味和食材的纯粹。高端有寿司，日常有拉面——新加坡拥有日本以外最高密度的日本餐厅。寻找厨师发办（omakase）或第二代拉面店（ramen-ya），品尝地道风味。",
     ja: "日本料理は、旬、うま味、素材の純粋さを重視します。高級な寿司から日常のラーメンまで、シンガポールは日本国外で最も日本食レストランが集中している場所です。本物を求めるなら、おまかせや2代目ラーメン屋を探してみてください。",
     es: "La cocina japonesa enfatiza la estacionalidad, el umami y la pureza de los ingredientes. Sushi en la gama alta, ramen para el día a día — Singapur tiene la mayor concentración de restaurantes japoneses fuera de Japón. Busque omakase o ramen-ya de segunda generación para lo auténtico.",
+    ko: "일본 요리는 제철, 감칠맛, 재료 본연의 맛을 중시합니다. 최고급은 스시, 일상식은 라멘 — 싱가포르는 일본을 제외하면 일식당 밀도가 가장 높은 곳입니다. 제대로 맛보려면 오마카세나 2세대 라멘집을 찾아보세요.",
   },
   "jordanian": {
     id: "Masakan Yordania adalah budaya domba + nasi + jameed (yogurt fermentasi), dengan mansaf (nasi domba saffron dengan saus jameed) sebagai hidangan nasional yang tak tertandingi. Tradisi memasak lambat Badui (oven bawah tanah zarb) bertahan dalam keramahan formal. Knafeh nabulsiya adalah puncak hidangan penutup.",
@@ -271,6 +315,7 @@ module.exports = {
     zh: "约旦菜是羊肉 + 米饭 + jameed（发酵酸奶）文化，mansaf（藏红花羊肉饭配 jameed 酱）是无与伦比的国菜。贝都因人的慢炖传统（zarb 地下烤箱）在正式待客中得以保留。Knafeh nabulsiya 是甜点之巅。",
     ja: "ヨルダン料理は、ラム肉 + 米 + jameed（発酵ヨーグルト）の文化で、mansaf（サフラン風味のラム肉と米に jameed ソースを添えたもの）は比類なき国民料理。ベドウィンのスロークッキングの伝統（zarb 地下オーブン）は、正式なもてなしの中で生き残っている。Knafeh nabulsiya はデザートの頂点。",
     es: "La cocina jordana es la cultura de cordero + arroz + jameed (yogur fermentado), con el mansaf (arroz con cordero y azafrán con salsa jameed) como plato nacional inigualable. Las tradiciones beduinas de cocción lenta (horno subterráneo zarb) sobreviven en la hospitalidad formal. Knafeh nabulsiya es el ápice del postre.",
+    ko: "요르단 요리는 양고기와 쌀과 자미드(발효 요구르트)의 문화이며, 만사프(사프란 양고기 밥에 자미드 소스)가 견줄 데 없는 국민 음식입니다. 베두인의 느린 조리 전통(자르브라는 땅속 화덕)이 격식 있는 손님맞이에 남아 있습니다. 디저트의 정점은 크나페 나불시야입니다.",
   },
   "korean": {
     id: "Masakan Korea banyak menggunakan fermentasi (kimchi, gochujang, doenjang) dengan budaya banchan yang kuat: setiap hidangan disajikan dengan 4-12 hidangan kecil. BBQ adalah makanan sosial; rebusan jjigae dan ayam goreng Korea adalah kenyamanan larut malam.",
@@ -279,6 +324,7 @@ module.exports = {
     zh: "韩国料理以发酵食品（泡菜、韩式辣酱、大酱）为主，并拥有浓厚的伴餐文化：每餐都会附带4-12道小菜。烧烤是社交餐；炖锅（jjigae）和韩式炸鸡是深夜的慰藉。",
     ja: "韓国料理は発酵食品（キムチ、コチュジャン、テンジャン）が豊富で、強いパンチャン文化があります。どの食事にも4〜12種類の小皿料理が添えられます。BBQは社交的な食事であり、チゲ鍋や韓国フライドチキンは深夜の慰めです。",
     es: "La cocina coreana es rica en fermentación (kimchi, gochujang, doenjang) con una fuerte cultura banchan: cada comida llega con 4-12 pequeños acompañamientos. La barbacoa es la comida social; los guisos jjigae y el pollo frito coreano son el consuelo nocturno.",
+    ko: "한국 요리는 발효(김치, 고추장, 된장)가 중심이며 반찬 문화가 강해 한 끼마다 네 가지에서 열두 가지 반찬이 함께 나옵니다. 고기구이는 여럿이 나누는 식사이고, 찌개와 치킨은 늦은 밤의 위로입니다.",
   },
   "lebanese": {
     id: "Masakan Lebanon adalah tradisi Levantine yang paling banyak diekspor secara global — budaya mezze (10+ piring kecil), daging panggang, tulang punggung minyak zaitun + tahini + lemon. Berbeda dari Turki: lebih sedikit asap, lebih banyak peterseli + lemon. Standar restoran diaspora untuk \"makanan Timur Tengah\" di sebagian besar kota.",
@@ -287,6 +333,7 @@ module.exports = {
     zh: "黎巴嫩菜是全球出口最多的 Levantine 传统——mezze 文化（10+ 小盘菜）、烤肉、橄榄油 + tahini + 柠檬为骨架。与土耳其菜不同：烟熏味较少，欧芹 + 柠檬味较多。在大多数城市，它是散居海外餐厅中“中东食物”的标准。",
     ja: "レバノン料理は、世界で最も輸出されているLevantineの伝統料理です。mezze文化（10種類以上の小皿料理）、グリル肉、オリーブオイル + tahini + レモンが特徴です。トルコ料理とは異なり、煙の香りが少なく、パセリとレモンが多く使われます。多くの都市で「中東料理」のディアスポラレストランの標準となっています。",
     es: "La cocina libanesa es la tradición Levantine más exportada a nivel mundial: cultura mezze (más de 10 platos pequeños), carnes a la parrilla, base de aceite de oliva + tahini + limón. Se distingue de la turca: menos humo, más perejil + limón. El estándar de los restaurantes de la diáspora para la \"comida de Oriente Medio\" en la mayoría de las ciudades.",
+    ko: "레바논 요리는 전 세계로 가장 널리 퍼진 레반트 전통입니다. 메제 문화(작은 접시 열 가지 이상), 구운 고기, 올리브유 + 타히니 + 레몬이 중심을 이룹니다. 터키 요리와 달리 훈연 향이 적고 파슬리와 레몬이 많습니다. 대부분의 도시에서 '중동 음식'의 기준이 되는 이민자 식당의 표준입니다.",
   },
   "macau": {
     id: "Masakan Makau adalah salah satu masakan fusion tertua yang didokumentasikan di dunia: 463 tahun pemerintahan Portugis menyatu dengan Kanton, ditambah tambahan perdagangan kolonial Afrika + Goa + Melayu + India. Ayam Afrika (piri-piri Portugis-Makau), Macanese egg tart, minchi (daging cincang + hash kentang) adalah hidangan khasnya.",
@@ -295,6 +342,7 @@ module.exports = {
     zh: "澳门菜是世界上有记载的最古老的融合菜系之一：463年的葡萄牙统治与粤菜融合，并加入了非洲 + 果阿 + 马来 + 印度殖民贸易的补充。非洲鸡 (piri-piri 葡式澳门风味)、澳门蛋挞、minchi（碎肉+土豆泥）是其招牌菜。",
     ja: "マカオ料理は、世界で最も古い記録されたフュージョン料理の一つです。463年間のポルトガル統治が広東料理と融合し、さらにアフリカ + ゴア + マレー + インドの植民地貿易による追加が加わりました。African chicken（ピリピリポルトガル・マカオ風）、Macanese egg tart、minchi（挽肉＋ポテトハッシュ）が代表的な料理です。",
     es: "La cocina macaense es una de las cocinas de fusión documentadas más antiguas del mundo: 463 años de dominio portugués fusionada con la cantonesa, además de adiciones coloniales-comerciales africanas + de Goa + malayas + indias. El African chicken (piri-piri portugués-macaense), la Macanese egg tart y el minchi (carne picada + hash de patata) son los platos estrella.",
+    ko: "마카오 요리는 세계에서 가장 오래 기록된 융합 요리 가운데 하나입니다. 463년간의 포르투갈 통치가 광둥 요리와 섞이고, 여기에 아프리카·고아·말레이·인도의 식민지 교역이 더해졌습니다. 아프리칸 치킨(피리피리를 쓴 포르투갈-마카오식), 마카오식 에그타르트, 민치(다진 고기 + 감자 해시)가 대표 음식입니다.",
   },
   "malaysian": {
     id: "Masakan Malaysia adalah perpaduan 3 arah dari tradisi Melayu, Tionghoa (diaspora Hokkien/Teochew/Kanton) dan India (mamak). Penang adalah ibu kota makanan — char kway teow, asam laksa, nasi kandar semuanya mencapai puncaknya di sana. Tumpang tindih Singapura sangat besar tetapi versinya berbeda.",
@@ -303,6 +351,7 @@ module.exports = {
     zh: "马来西亚菜是马来、华人（福建/潮州/广东散居群体）和印度（嘛嘛档）传统的三方融合。槟城是美食之都——炒粿条、亚参叻沙、扁担饭都在那里达到巅峰。与新加坡有大量重叠，但版本有所不同。",
     ja: "マレーシア料理は、マレー、中国（ホッケン/潮州/広東のディアスポラ）、インド（mamak）の3つの伝統が融合したものです。ペナンは食の都であり、char kway teow、asam laksa、nasi kandar はすべてそこで最高峰に達します。シンガポールとの重複は大きいですが、バージョンは異なります。",
     es: "La cocina malaya es una fusión a tres bandas de tradiciones malayas, chinas (diáspora Hokkien/Teochew/Cantonesa) e indias (mamak). Penang es la capital gastronómica — char kway teow, asam laksa, nasi kandar alcanzan su punto álgido allí. La superposición con Singapur es enorme, pero las versiones difieren.",
+    ko: "말레이시아 요리는 말레이계, 중국계(호키엔·조주·광둥 이주민), 인도계(마막) 전통이 3중으로 융합된 것입니다. 페낭이 음식의 수도로 char kway teow, 아삼 laksa, 나시 칸다르가 모두 이곳에서 정점을 이룹니다. 싱가포르와 겹치는 부분이 매우 크지만 같은 음식이라도 버전이 다릅니다.",
   },
   "mexican": {
     id: "Masakan Meksiko adalah warisan UNESCO (2010), dibangun di atas tiga serangkai jagung-kacang-cabai \"milpa\" selama 9000 tahun + lapisan kolonial Spanyol. Regional: mole Oaxacan, pibil Yucatán Maya, chiles en nogada Pueblan, birria + tequila Jalisco, makanan laut Baja. Tex-Mex adalah hibrida terpisah — masakan yang berbeda.",
@@ -311,6 +360,7 @@ module.exports = {
     zh: "墨西哥菜系是联合国教科文组织遗产（2010年），建立在玉米-豆类-辣椒“milpa”三位一体的基础上，已有9000年历史，并叠加了西班牙殖民影响。区域特色：Oaxacan moles、Yucatán Maya pibil、Pueblan chiles en nogada、Jalisco birria + 龙舌兰酒、Baja 海鲜。Tex-Mex 是一个独立的混合菜系——不同的菜肴。",
     ja: "メキシコ料理はユネスコ遺産（2010年）で、9000年にわたるトウモロコシ・豆・チリの「milpa」三位一体とスペイン植民地時代の影響の上に築かれています。地域別では、Oaxacan moles、Yucatán Maya pibil、Pueblan chiles en nogada、Jalisco birria + テキーラ、Bajaシーフードがあります。Tex-Mexは別のハイブリッドで、異なる料理です。",
     es: "La cocina mexicana es patrimonio UNESCO (2010), construida sobre la trinidad \"milpa\" de maíz-frijol-chile durante 9000 años + el influjo colonial español. Regional: Oaxacan moles, Yucatán Maya pibil, Pueblan chiles en nogada, Jalisco birria + tequila, mariscos de Baja. Tex-Mex es un híbrido aparte, una cocina diferente.",
+    ko: "멕시코 요리는 유네스코 유산(2010)으로, 9,000년간 이어온 옥수수-콩-고추의 '밀파' 삼위일체 위에 스페인 식민지 시대의 층이 얹힌 것입니다. 지역별로는 오아하카의 몰레, 유카탄 마야의 피빌, 푸에블라의 칠레스 엔 노가다, 할리스코의 비리아 + 데킬라, 바하의 해산물이 있습니다. 텍스멕스는 별개의 혼합 요리로, 다른 요리입니다.",
   },
   "moroccan": {
     id: "Masakan Maroko adalah tradisi tagine yang dimasak perlahan: wadah tanah liat berbentuk kerucut memekatkan rempah-rempah, buah, domba. Couscous Friday adalah ritual keluarga. Campuran rempah-rempah jeruk nipis asin + zaitun + ras el hanout mendefinisikan rasa. Teh mint manis yang dituangkan dari ketinggian adalah jabat tangan sosial.",
@@ -319,6 +369,7 @@ module.exports = {
     zh: "摩洛哥菜是慢炖 tagine 传统：圆锥形陶器集中了香料、水果、羊肉的味道。周五吃 Couscous 是家庭习俗。腌柠檬 + 橄榄 + ras el hanout 香料混合定义了其风味。从高处倾倒的甜薄荷茶是社交的握手礼。",
     ja: "モロッコ料理は、ゆっくり煮込む tagine の伝統です。円錐形の土鍋がスパイス、果物、ラム肉の風味を凝縮する。金曜日の Couscous は家族の儀式。塩漬けレモン + オリーブ + ras el hanout スパイスブレンドが風味を決定づける。高い位置から注がれる甘いミントティーは社交的な挨拶。",
     es: "La cocina marroquí es la tradición de tagine de cocción lenta: recipientes cónicos de barro que concentran especias, frutas, cordero. El viernes de Couscous es el ritual familiar. La mezcla de especias de limón encurtido + aceituna + ras el hanout define el sabor. El té de menta dulce vertido desde la altura es el saludo social.",
+    ko: "모로코 요리는 오래 끓이는 타진의 전통입니다. 원뿔 모양의 토기가 향신료와 과일과 양고기의 맛을 응축시킵니다. 금요일의 쿠스쿠스는 가족의 의식입니다. 소금에 절인 레몬, 올리브, 라스 엘 하누트 향신료 배합이 맛을 규정합니다. 높이 들어 따르는 달콤한 민트차는 사교의 인사입니다.",
   },
   "nepalese": {
     id: "Masakan Nepal berada di persimpangan Himalaya antara Tibet + India + tradisi etnis Newari. Momos (pangsit) adalah duta global; dal bhat (lentil + nasi) adalah makanan pokok sehari-hari. Tradisi perjamuan Newari adalah versi mewah — chatamari, kachila, choila.",
@@ -327,6 +378,7 @@ module.exports = {
     zh: "尼泊尔菜位于喜马拉雅山脉的十字路口，融合了西藏+印度+尼瓦尔民族传统。Momos（饺子）是全球大使；dal bhat（扁豆+米饭）是日常主食。尼瓦尔宴会传统是其高级版本——chatamari, kachila, choila。",
     ja: "ネパール料理は、チベット、インド、ネワール民族の伝統が交差するヒマラヤの十字路に位置しています。Momos（餃子）は世界的な大使であり、dal bhat（レンズ豆と米）は日常の主食です。ネワール族の宴会料理は、chatamari, kachila, choilaといった高級版です。",
     es: "La cocina nepalí se encuentra en la encrucijada himalaya de las tradiciones tibetanas + indias + étnicas newari. Los momos (empanadillas) son el embajador global; el dal bhat (lentejas + arroz) es el alimento básico diario. La tradición de banquetes newari es la versión de alta cocina — chatamari, kachila, choila.",
+    ko: "네팔 요리는 티베트와 인도, 그리고 네와르족의 전통이 만나는 히말라야의 길목에 있습니다. 모모(만두)가 세계적인 대표 주자이고, 달 바트(렌틸 + 밥)가 일상의 주식입니다. 네와르식 연회 전통이 고급 버전으로, 차타마리, 카칠라, 초일라가 나옵니다.",
   },
   "new-zealand": {
     id: "Masakan Selandia Baru adalah Maori hangi (oven tanah) + kolonial Inggris + modern Pasifik. Domba adalah protein nasional; madu manuka + kerang bibir hijau + lobster air tawar + paua adalah ekspor yang berharga. Es krim hokey-pokey dan pavlova (asal-usul diklaim NZ, disengketakan AU) adalah ikon makanan penutup.",
@@ -335,6 +387,7 @@ module.exports = {
     zh: "新西兰美食是毛利 hangi（地炉）+ 英国殖民 + 环太平洋现代的融合。羊肉是国菜蛋白质；麦卢卡蜂蜜 + 青口贝 + 小龙虾 + 鲍鱼是珍贵的出口产品。Hokey-pokey 冰淇淋和 pavlova（新西兰声称起源，澳大利亚有争议）是甜点标志。",
     ja: "ニュージーランド料理は、マオリの hangi（土窯）+ 英国植民地 + 環太平洋の現代料理です。ラム肉は国民的なタンパク質であり、マヌカハニー + グリーンリップムール貝 + ザリガニ + paua は貴重な輸出品です。Hokey-pokey アイスクリームと pavlova（ニュージーランドが起源を主張し、オーストラリアが異議を唱えている）はデザートの象徴です。",
     es: "La cocina de Nueva Zelanda es Maori hangi (horno de tierra) + colonial británica + moderna del Pacífico. El cordero es la proteína nacional; la miel de manuka + el mejillón de labios verdes + el cangrejo de río + el paua son las exportaciones preciadas. El helado Hokey-pokey y la pavlova (origen reclamado por Nueva Zelanda, disputado por Australia) son los iconos de postre.",
+    ko: "뉴질랜드 요리는 마오리의 항이(땅속 화덕)에 영국 식민지 시대와 현대의 환태평양 감각이 더해진 것입니다. 국민 단백질은 양고기이고, 마누카 꿀, 초록입홍합, 크레이피시, 파우아가 귀한 수출품입니다. 호키포키 아이스크림과 파블로바(뉴질랜드가 기원을 주장하고 호주가 이의를 제기합니다)가 대표적인 디저트입니다.",
   },
   "north-indian": {
     id: "Masakan India Utara (Punjabi + Mughlai + Awadhi) berbasis gandum: roti tandoor (naan, roti), kari susu krimi (butter chicken, dal makhani), dan kebab kaya (Lucknowi galouti). Apa yang kebanyakan orang non-India maksud dengan \"makanan India\" secara global.",
@@ -343,6 +396,7 @@ module.exports = {
     zh: "北印度（旁遮普 + 莫卧儿 + 奥瓦迪）菜系以小麦为主：tandoor 面包（naan、roti）、奶油乳制品咖喱（butter chicken、dal makhani）和丰盛的烤肉串（Lucknowi galouti）。全球大多数非印度人所说的“印度菜”指的就是它。",
     ja: "北インド（Punjabi + Mughlai + Awadhi）料理は小麦ベースで、tandoorパン（naan、roti）、クリーミーな乳製品カレー（butter chicken、dal makhani）、濃厚なケバブ（Lucknowi galouti）が特徴です。世界中のほとんどの非インド人が「インド料理」と呼ぶものです。",
     es: "La cocina del norte de la India (Punjabi + Mughlai + Awadhi) se basa en el trigo: panes tandoor (naan, roti), currys lácteos cremosos (butter chicken, dal makhani) y ricos kebabs (Lucknowi galouti). Es lo que la mayoría de los no indios entienden por \"comida india\" a nivel mundial.",
+    ko: "북인도(펀자브 + 무굴 + 아와드) 요리는 밀이 중심입니다. 탄두르 빵(난, 로티), 유제품을 넉넉히 쓴 커리(버터 치킨, 달 마크니), 진한 케밥(러크나우식 갈루티). 인도 밖에서 '인도 음식'이라고 할 때 대개 이것을 뜻합니다.",
   },
   "northeastern": {
     id: "Masakan Tiongkok Timur Laut (Dongbei) adalah masakan iklim dingin yang mengenyangkan: rebusan babi, acar sawi putih (suancai), pangsit skala besar, saus cuka-manis. Guo bao rou (babi asam manis) dan di san xian (tiga harta bumi: kentang + terong + paprika) adalah ekspor ikonik.",
@@ -351,6 +405,7 @@ module.exports = {
     zh: "东北（董北）中国菜是丰盛的寒冷气候烹饪：炖猪肉、酸菜腌制、大规模饺子、醋甜酱汁。锅包肉 (Guo bao rou)（糖醋猪肉）和地三鲜 (di san xian)（三种地宝：土豆 + 茄子 + 青椒）是标志性出口。",
     ja: "東北（ドンベイ）中華料理は、心温まる寒冷地の料理です。豚肉の煮込み、漬物（suancai）、大型の餃子、酢甘いソースが特徴です。Guo bao rou（甘酢豚）と di san xian（三つの大地の宝：ジャガイモ + ナス + ピーマン）が象徴的な輸出品です。",
     es: "La cocina china del noreste (Dongbei) es una cocina contundente de clima frío: estofados de cerdo, encurtidos de chucrut (suancai), dumplings a gran escala, salsas agridulces de vinagre. El Guo bao rou (cerdo agridulce) y el di san xian (tres tesoros de la tierra: patata + berenjena + pimiento) son las exportaciones icónicas.",
+    ko: "중국 동북(둥베이) 요리는 추운 기후에 맞춘 든든한 음식입니다. 돼지고기 조림, 절인 배추(쏸차이), 큼직한 만두, 새콤달콤한 소스. 궈바오러우(탕수육)와 디싼셴(감자 + 가지 + 고추의 '땅의 세 가지 보물')이 대표적으로 알려진 음식입니다.",
   },
   "northwestern": {
     id: "Masakan Tiongkok Barat Laut (Xibei) meliputi Shaanxi, Gansu, Ningxia, Xinjiang — pengaruh Muslim Hui yang kuat (tanpa babi). Lanzhou lamian (sup mi daging sapi tarik tangan), biang biang noodles (mi lebar sabuk Shaanxi), rou jia mo (hamburger Tiongkok) adalah ikon global. Sate domba jintan + naan terhubung ke Asia Tengah.",
@@ -359,6 +414,7 @@ module.exports = {
     zh: "西北（西贝）中国菜涵盖陕西、甘肃、宁夏、新疆——受回族穆斯林影响深远（无猪肉）。兰州拉面 (Lanzhou lamian)（手拉牛肉面汤）、biang biang 面（陕西裤带面）、肉夹馍 (rou jia mo)（中式汉堡）是全球标志。孜然羊肉串 + 馕饼与中亚相连。",
     ja: "西北（シーベイ）中華料理は、陝西省、甘粛省、寧夏回族自治区、新疆ウイグル自治区にまたがり、回族イスラム教徒の影響が強く（豚肉なし）特徴的です。Lanzhou lamian（手打ち牛肉麺スープ）、biang biang noodles（陝西省の帯状麺）、rou jia mo（中華ハンバーガー）が世界的なアイコンです。クミンラム串 + naan は中央アジアとつながります。",
     es: "La cocina china del noroeste (Xibei) abarca Shaanxi, Gansu, Ningxia, Xinjiang, con una fuerte influencia musulmana Hui (sin cerdo). El Lanzhou lamian (sopa de fideos de ternera estirados a mano), los biang biang noodles (fideos anchos de Shaanxi) y el rou jia mo (hamburguesa china) son los iconos globales. Las brochetas de cordero con comino + el naan se vinculan con Asia Central.",
+    ko: "중국 서북(시베이) 요리는 산시, 간쑤, 닝샤, 신장에 걸쳐 있으며 후이족 무슬림의 영향이 강합니다(돼지고기를 쓰지 않습니다). 란저우 라몐(수타 소고기 국수), 비앙비앙몐(허리띠처럼 넓은 산시 국수), 러우자모(중국식 햄버거)가 세계적으로 알려져 있습니다. 커민을 뿌린 양꼬치와 난은 중앙아시아로 이어집니다.",
   },
   "pakistani": {
     id: "Masakan Pakistan berorientasi daging (daging kambing + sapi + ayam; babi haram), berbasis gandum + nasi, dengan akar Mughal + Persia + Punjabi yang kuat. Berbeda dari India: lebih banyak pulao daripada biryani, lebih gaya karahi daripada tandoori, lebih sedikit kari susu, lebih banyak kaldu tulang dan betis yang direbus perlahan.",
@@ -367,6 +423,7 @@ module.exports = {
     zh: "巴基斯坦菜系以肉类为主（羊肉 + 牛肉 + 鸡肉；猪肉 haram），以小麦 + 米饭为基础，具有浓厚的莫卧儿 + 波斯 + 旁遮普根源。与印度菜不同：pulao 多于 biryani，karahi 风格多于 tandoori，乳制品咖喱较少，骨汤和慢炖羊腿较多。",
     ja: "パキスタン料理は肉中心（羊肉 + 牛肉 + 鶏肉、豚肉はharam）、小麦と米をベースとし、Mughal + Persian + Punjabiの強いルーツを持っています。インド料理とは異なり、biryaniよりもpulaoが多く、tandooriよりもkarahiスタイルが多く、乳製品のカレーが少なく、骨だしとゆっくり煮込んだすね肉が多いのが特徴です。",
     es: "La cocina pakistaní se centra en la carne (cordero + ternera + pollo; el cerdo es haram), se basa en trigo + arroz, con fuertes raíces Mughal + Persian + Punjabi. Se distingue de la india: más pulao que biryani, más estilo karahi que tandoori, menos curry lácteo, más caldo de huesos y jarrete estofado a fuego lento.",
+    ko: "파키스탄 요리는 고기가 중심이며(양고기 + 소고기 + 닭고기, 돼지고기는 하람), 밀과 쌀을 기반으로 무굴·페르시아·펀자브의 뿌리가 강합니다. 인도 요리와는 다릅니다. 비리야니보다 풀라오, 탄두리보다 카라히식이 많고, 유제품 커리는 적은 대신 사골 육수와 오래 끓인 정강이 요리가 많습니다.",
   },
   "peranakan": {
     id: "Masakan Peranakan / Nyonya adalah perpaduan 600 tahun pemukim Tionghoa Hokkien + rempah-rempah Melayu di Melaka, Penang, dan Singapura — kacang buah keluak, gula melaka, sambal, nasi bunga telang biru. Memasak di rumah yang memakan waktu; langka dan patut dicari.",
@@ -375,6 +432,7 @@ module.exports = {
     zh: "土生华人/娘惹菜是福建华人定居者与马来香料在马六甲、槟城和新加坡融合了600年的结晶——黑果、马六甲椰糖、参巴酱、蝶豆花饭。这是耗时的家常菜；稀有且值得一试。",
     ja: "プラナカン / ニョニャ料理は、マラッカ、ペナン、シンガポールにおけるホッケン系中国人入植者とマレーのスパイスが600年かけて融合したものです。buah keluak の実、gula melaka、sambal、青いエンドウ豆の花のライスなどが特徴です。時間のかかる家庭料理で、珍しく、探す価値があります。",
     es: "La cocina Peranakan / Nyonya es la fusión de 600 años de colonos chinos Hokkien + especias malayas en Melaka, Penang y Singapur — nuez buah keluak, gula melaka, sambal, arroz de flor de guisante azul. Cocina casera que requiere mucho tiempo; rara y que vale la pena buscar.",
+    ko: "페라나칸(뇨냐) 요리는 말라카, 페낭, 싱가포르에서 호키엔계 중국 이주민과 말레이 향신료가 600년에 걸쳐 융합된 결과입니다. 부아 클루악 열매, 굴라 멜라카, 삼발, 나비완두꽃 밥. 손이 많이 가는 가정식이라 흔치 않으니 찾아갈 가치가 있습니다.",
   },
   "persian": {
     id: "Masakan Persia adalah kecanggihan saffron + jeruk nipis kering + delima, dengan nasi (polo) diangkat ke status seremonial. Tahdig (dasar nasi renyah) adalah obsesi nasional. Fesenjan (sup kenari-delima) dan ghormeh sabzi (sup herbal) adalah khoresh ikonik.",
@@ -383,6 +441,7 @@ module.exports = {
     zh: "波斯菜是藏红花 + 干青柠 + 石榴的精致，米饭（polo）被提升到仪式地位。Tahdig（酥脆的米饭底部）是全国性的痴迷。Fesenjan（核桃石榴炖菜）和 ghormeh sabzi（香草炖菜）是标志性的 khoresh。",
     ja: "ペルシャ料理は、サフラン + ドライライム + ザクロの洗練された料理で、米（polo）は儀式的な地位に昇格している。Tahdig（カリカリの米の底）は国民的な執着。Fesenjan（クルミとザクロのシチュー）と ghormeh sabzi（ハーブシチュー）は象徴的な khoresh。",
     es: "La cocina persa es sofisticación de azafrán + lima seca + granada, con el arroz (polo) elevado a estatus ceremonial. Tahdig (la base de arroz crujiente) es la obsesión nacional. Fesenjan (estofado de nuez y granada) y ghormeh sabzi (estofado de hierbas) son los khoresh icónicos.",
+    ko: "페르시아 요리는 사프란과 말린 라임과 석류가 만들어 내는 섬세함이며, 쌀(폴로)을 의례의 자리까지 끌어올립니다. 타디그(냄비 바닥에 눌어붙은 누룽지)는 온 나라의 집착입니다. 페센잔(호두-석류 스튜)과 고르메 사브지(허브 스튜)가 대표적인 코레시입니다.",
   },
   "polish": {
     id: "Masakan Polandia adalah makanan nyaman Slavia yang asam-gurih: pierogi (pangsit isi, 30+ isian tradisional), bigos (sup pemburu), żurek (sup gandum hitam asam dengan sosis). Banyak menggunakan kubis, bit, babi, krim asam. Pączki dan makowiec memimpin repertoar manis.",
@@ -391,6 +450,7 @@ module.exports = {
     zh: "波兰菜是酸咸的斯拉夫舒适食物：pierogi（带馅饺子，30多种传统馅料）、bigos（猎人炖肉）、żurek（酸黑麦香肠汤）。大量使用卷心菜、甜菜根、猪肉、酸奶油。Pączki 和 makowiec 是甜点中的代表。",
     ja: "ポーランド料理は、酸味と塩味の効いたスラブのコンフォートフードです。pierogi（詰め物餃子、30種類以上の伝統的な具材）、bigos（猟師のシチュー）、żurek（ソーセージ入りサワーライ麦スープ）。キャベツ、ビーツ、豚肉、サワークリームを多用。Pączki と makowiec が甘いレパートリーをリードする。",
     es: "La cocina polaca es comida reconfortante eslava agridulce: pierogi (empanadillas rellenas, más de 30 rellenos tradicionales), bigos (estofado de cazador), żurek (sopa agria de centeno con salchicha). Abundante en repollo, remolacha, cerdo, crema agria. Pączki y makowiec lideran el repertorio dulce.",
+    ko: "폴란드 요리는 시큼하고 짭짤한 슬라브식 위로 음식입니다. 피에로기(속을 채운 만두, 전통적인 속만 서른 가지가 넘습니다), 비고스(사냥꾼의 스튜), 주레크(소시지를 넣은 시큼한 호밀 수프). 양배추, 비트, 돼지고기, 사워크림을 많이 씁니다. 단 음식으로는 퐁치키와 마코비에츠가 앞장섭니다.",
   },
   "portuguese": {
     id: "Masakan Portugis adalah makanan laut yang menghadap Atlantik + substrat Mediterania + jangkauan kolonial global. Bacalhau (ikan kod asin) begitu mendasar sehingga dilaporkan ada 365 resep — satu untuk setiap hari. Pastel de nata adalah duta global. Anggur Port dan Madeira adalah ikon anggur fortifikasi. Egg tart Makau berakar di sini.",
@@ -399,6 +459,7 @@ module.exports = {
     zh: "葡萄牙菜面向大西洋的海鲜+地中海基底+全球殖民影响。Bacalhau（咸鳕鱼）是如此基础，据说有365种食谱——每天一种。Pastel de nata是全球大使。Port wine和Madeira是加强型葡萄酒的标志。澳门的蛋挞源于此。",
     ja: "ポルトガル料理は、大西洋に面したシーフード、地中海の影響、そして世界的な植民地支配の広がりが特徴です。Bacalhau（塩漬けタラ）は非常に基本的で、伝えられるところによると365のレシピがあり、毎日異なる料理が楽しめます。Pastel de nataは世界的な大使です。Port wineとMadeiraは酒精強化ワインの象徴です。マカオのエッグタルトはここから派生しています。",
     es: "La cocina portuguesa es marisco atlántico + sustrato mediterráneo + alcance colonial global. El bacalhau (bacalao salado) es tan fundamental que, según se informa, hay 365 recetas — una para cada día. El pastel de nata es el embajador global. El vino de Oporto y el Madeira son los iconos de los vinos fortificados. Las tartas de huevo de Macao tienen su origen aquí.",
+    ko: "포르투갈 요리는 대서양을 향한 해산물, 지중해적 바탕, 그리고 식민지 시대의 세계적 확장이 겹쳐진 것입니다. 바칼라우(염장 대구)는 하루에 하나씩 365가지 조리법이 있다고 할 만큼 기본입니다. 파스텔 드 나타가 세계적인 대표 주자이고, 포트와인과 마데이라는 주정강화 와인의 상징입니다. 마카오의 에그타르트도 여기서 왔습니다.",
   },
   "russian": {
     id: "Masakan Rusia banyak menggunakan pangsit + sup kental + ikan asap, berkembang di berbagai zona iklim yang luas. Borscht (secara teknis Ukraina) adalah duta global; beef stroganoff (Saint Petersburg) dan pelmeni (pangsit Siberia) melengkapi trio. Ritual teh melalui samovar; paduan vodka universal.",
@@ -407,6 +468,7 @@ module.exports = {
     zh: "俄罗斯菜以饺子 + 炖菜 + 熏鱼为主，在广阔的气候带中演变而来。Borscht（技术上是乌克兰菜）是全球大使；beef stroganoff（圣彼得堡）和 pelmeni（西伯利亚饺子）构成了这个三巨头。通过 samovar 进行的茶道；伏特加搭配普遍存在。",
     ja: "ロシア料理は餃子 + 煮込み料理 + 燻製魚が豊富で、広大な気候帯で発展した。Borscht（技術的にはウクライナ料理）は世界的な大使であり、beef stroganoff（サンクトペテルブルク）と pelmeni（シベリアの餃子）がトリオを締めくくる。samovar を介したお茶の儀式；ウォッカのペアリングは普遍的。",
     es: "La cocina rusa es rica en empanadillas + guisos + pescado ahumado, evolucionada a través de vastas zonas climáticas. Borscht (técnicamente ucraniana) es el embajador global; beef stroganoff (San Petersburgo) y pelmeni (empanadillas siberianas) completan el trío. Ritual del té a través del samovar; maridajes de vodka universales.",
+    ko: "러시아 요리는 만두와 스튜와 훈제 생선이 중심이며, 광대한 기후대에 걸쳐 발전해 왔습니다. 보르시(엄밀히는 우크라이나 음식)가 세계적인 대표 주자이고, 비프 스트로가노프(상트페테르부르크)와 펠메니(시베리아식 만두)가 나머지를 채웁니다. 사모바르로 차를 우려 마시는 의식이 있고, 보드카를 곁들이는 것이 일반적입니다.",
   },
   "scandinavian": {
     id: "Masakan Skandinavia adalah trinitas ikan asin + gandum hitam + beri: gravlax (salmon asin), smörrebröd (roti lapis terbuka), ikan haring acar, roti gandum hitam. Gerakan Nordik Baru (Noma 2003+) membingkai ulang percakapan santapan mewah global seputar makanan yang dicari + difermentasi + sangat lokal.",
@@ -415,6 +477,7 @@ module.exports = {
     zh: "斯堪的纳维亚菜是腌鱼 + 黑麦 + 浆果三位一体：gravlax（腌制三文鱼）、smörrebröd（开放式三明治）、腌鲱鱼、黑麦面包。新北欧运动（Noma 2003+）重新定义了全球高端餐饮围绕觅食 + 发酵 + 超本地化的对话。",
     ja: "スカンジナビア料理は、塩漬け魚 + ライ麦 + ベリーの三位一体です。gravlax（塩漬けサーモン）、smörrebröd（オープンサンドイッチ）、ニシンのピクルス、ライ麦パン。新北欧料理運動（Noma 2003+）は、採集 + 発酵 + 超地域性を中心に、世界の高級ダイニングの会話を再構築した。",
     es: "La cocina escandinava es la trinidad de pescado curado + centeno + bayas: gravlax (salmón curado), smörrebröd (sándwiches abiertos), arenque encurtido, pan de centeno. El movimiento Nueva Cocina Nórdica (Noma 2003+) redefinió la conversación global de alta cocina en torno a lo recolectado + fermentado + hiperlocal.",
+    ko: "스칸디나비아 요리는 염장 생선 + 호밀 + 베리의 삼총사입니다. 그라브락스(염장 연어), 스뫼레브뢰드(오픈 샌드위치), 청어 절임, 호밀빵. 뉴 노르딕 운동(2003년 이후의 노마)은 채집과 발효, 극단적인 로컬을 중심으로 세계 파인다이닝의 화두를 다시 짰습니다.",
   },
   "shanghainese": {
     id: "Masakan Shanghai (secara teknis Jiangsu / Huaiyang) lebih manis dan berminyak dibandingkan sub-masakan Tiongkok lainnya. Xiao long bao adalah duta globalnya. Hong shao rou (daging babi merah rebus) dan hairy crab (musim gugur) adalah hidangan klasik musiman.",
@@ -423,6 +486,7 @@ module.exports = {
     zh: "上海菜系（技术上属于江苏/淮扬菜）比其他中国子菜系更甜、更油。Xiao long bao 是其全球大使。Hong shao rou（红烧肉）和 hairy crab（秋季）是其季节性经典菜肴。",
     ja: "上海料理（厳密にはJiangsu / Huaiyang料理）は、他の中国のサブ料理よりも甘く、油っぽいのが特徴です。Xiao long baoは世界的な大使であり、Hong shao rou（豚の角煮）とhairy crab（秋）は季節の定番料理です。",
     es: "La cocina shanghainesa (técnicamente Jiangsu / Huaiyang) es más dulce y aceitosa que otras subcocinas chinas. El Xiao long bao es su embajador global. El Hong shao rou (cerdo estofado rojo) y el hairy crab (otoño) son los clásicos de temporada.",
+    ko: "상하이 요리(엄밀히는 장쑤/화이양 계열)는 다른 중국 지역 요리보다 달고 기름집니다. 샤오롱바오가 세계적인 대표 주자입니다. 훙사오러우(간장 조림 삼겹살)와 가을의 상하이 털게가 제철 별미입니다.",
   },
   "sichuan": {
     id: "Masakan Sichuan dibangun di atas dua sensasi panas: la (api cabai) dan ma (mati rasa lada Sichuan) — bersama-sama \"ma la\". Penggunaan liberal pasta kacang lebar fermentasi (doubanjiang), cabai acar, dan lada Sichuan. Chongqing hot pot adalah ekspor paling terkenal.",
@@ -431,6 +495,7 @@ module.exports = {
     zh: "川菜围绕两种辣感构建：辣（辣椒的火辣）和麻（花椒的麻痹感）——合称“麻辣”。大量使用发酵豆瓣酱、泡椒和花椒。重庆火锅是最著名的出口菜品。",
     ja: "四川料理は、la（唐辛子の辛さ）と ma（四川山椒の痺れ）という2つの辛さの感覚を中心に構成されており、これらを合わせて「麻辣」と呼びます。発酵そら豆ペースト（doubanjiang）、漬け唐辛子、四川山椒を liberally に使用します。重慶火鍋が最も有名な輸出品です。",
     es: "La cocina sichuanesa se basa en dos sensaciones de calor: la (fuego de chile) y ma (adormecimiento de pimienta de Sichuan) — juntas \"ma la\". Uso liberal de pasta de habas fermentadas (doubanjiang), chiles encurtidos y granos de pimienta de Sichuan. El hot pot de Chongqing es la exportación más famosa.",
+    ko: "쓰촨 요리는 두 가지 매운맛 위에 세워집니다. 라(고추의 불맛)와 마(화자오의 얼얼함), 둘을 합쳐 '마라'라고 합니다. 발효 두반장, 절임 고추, 화자오를 아낌없이 씁니다. 가장 널리 알려진 것은 충칭 훠궈입니다.",
   },
   "singaporean": {
     id: "Makanan Singapura adalah budaya pusat jajanan: tradisi Hokkien, Teochew, Kanton, Hainan, Peranakan, Melayu, dan India di satu lingkungan, seringkali satu kedai. Cari kombinasi kepiting cabai + roti kaya + kopi-O.",
@@ -439,6 +504,7 @@ module.exports = {
     zh: "新加坡美食是小贩中心文化：一个街区，甚至一个摊位，融合了福建、潮州、广东、海南、土生华人、马来和印度传统。寻找辣椒螃蟹 + 咖椰吐司 + 咖啡乌的三重奏。",
     ja: "シンガポール料理はホーカーセンター文化です。ホッケン、潮州、広東、海南、プラナカン、マレー、インドの伝統が、一つの地域、しばしば一つの屋台に集まっています。チリクラブ + kaya-toast + kopi-O の三位一体を探してみてください。",
     es: "La comida singapurense es la cultura de los centros hawker: tradiciones Hokkien, Teochew, Cantonesa, Hainanesa, Peranakan, malaya e india en un mismo barrio, a menudo en un mismo puesto. Busque la trifecta de chilli-crab + kaya-toast + kopi-O.",
+    ko: "싱가포르 음식은 호커센터 문화입니다. 호키엔, 조주, 광둥, 하이난, 페라나칸, 말레이, 인도의 전통이 한 동네, 때로는 한 노점에 모여 있습니다. 칠리 크랩 + kaya toast + kopi-O 삼총사를 찾아보세요.",
   },
   "south-african": {
     id: "Masakan Afrika Selatan adalah pertemuan tradisi Afrika Pribumi (umngqusho, pap, biltong), Melayu Tanjung (bobotie, sosatie, koeksisters dari budak Melayu terikat), Belanda-Afrikaner (boerewors, potjiekos, vetkoek), dan kolonial Inggris (kari, biskuit). Braai (BBQ) adalah ritual sosial nasional; Gatsby adalah sandwich legendaris Cape Town.",
@@ -447,6 +513,7 @@ module.exports = {
     zh: "南非美食是本土非洲（umngqusho, pap, biltong）、开普马来（bobotie, sosatie, koeksisters，源自契约马来奴隶）、荷兰-南非白人（boerewors, potjiekos, vetkoek）和英国殖民（curries, biscuits）传统的融合。Braai (BBQ) 是国家社会仪式；Gatsby 是开普敦的传奇三明治。",
     ja: "南アフリカ料理は、先住民アフリカ（umngqusho, pap, biltong）、ケープマレー（bobotie, sosatie, koeksisters、契約マレー人奴隷由来）、オランダ系アフリカーナー（boerewors, potjiekos, vetkoek）、そして英国植民地（curries, biscuits）の伝統が出会ったものです。Braai（バーベキュー）は国民的な社交儀式であり、Gatsby はケープタウンの伝説的なサンドイッチです。",
     es: "La cocina sudafricana es el encuentro de las tradiciones indígenas africanas (umngqusho, pap, biltong), malayas del Cabo (bobotie, sosatie, koeksisters de esclavos malayos contratados), holandés-afrikáner (boerewors, potjiekos, vetkoek) y coloniales británicas (curries, biscuits). El Braai (BBQ) es el ritual social nacional; el Gatsby es el sándwich legendario de Ciudad del Cabo.",
+    ko: "남아프리카 요리는 토착 아프리카(움응쿠쇼, 팝, 빌통), 케이프 말레이(계약 노동으로 끌려온 말레이인들이 가져온 보보티, 소사티, 쿡시스터), 네덜란드계 아프리카너(부레보르스, 포치코스, 페트쿡), 영국 식민지(커리, 비스킷) 전통이 만나는 자리입니다. 브라이(바비큐)는 국민적인 사교 의식이고, 개츠비는 케이프타운의 전설적인 샌드위치입니다.",
   },
   "south-indian": {
     id: "Masakan India Selatan berbasis nasi dan sebagian besar vegetarian (tradisi Tamil Brahmin) dengan sub-masakan masing-masing di Tamil Nadu, Kerala, Karnataka, Andhra Pradesh dan Telangana. Chettinad adalah pengecualian yang kaya daging; Kerala adalah jangkar makanan laut + kelapa; Hyderabadi adalah jantung biryani Telugu-Muslim.",
@@ -455,6 +522,7 @@ module.exports = {
     zh: "南印度菜系以米饭为主，大部分是素食（泰米尔婆罗门传统），在泰米尔纳德邦、喀拉拉邦、卡纳塔克邦、安得拉邦和特伦甘纳邦各有一个子菜系。Chettinad 是肉类为主的例外；喀拉拉邦是海鲜 + 椰子的核心；Hyderabadi 是泰卢固穆斯林 biryani 的中心地带。",
     ja: "南インド料理は米をベースとし、主に菜食主義（Tamil Brahminの伝統）で、Tamil Nadu、Kerala、Karnataka、Andhra Pradesh、Telanganaにそれぞれサブ料理があります。Chettinadは肉料理が豊富な例外で、Keralaはシーフードとココナッツの要、HyderabadiはTelugu-Muslim biryaniの中心地です。",
     es: "La cocina del sur de la India se basa en el arroz y es en gran parte vegetariana (tradición Tamil Brahmin), con una subcocina en Tamil Nadu, Kerala, Karnataka, Andhra Pradesh y Telangana. Chettinad es la excepción con mucha carne; Kerala es el ancla de mariscos + coco; Hyderabadi es el corazón del biryani telugu-musulmán.",
+    ko: "남인도 요리는 쌀이 중심이고 대체로 채식(타밀 브라만 전통)이며, 타밀나두, 케랄라, 카르나타카, 안드라프라데시, 텔랑가나가 각각 고유한 하위 요리를 갖고 있습니다. 체티나드는 고기를 많이 쓰는 예외이고, 케랄라는 해산물과 코코넛의 중심, 하이데라바드는 텔루구계 무슬림 비리야니의 본고장입니다.",
   },
   "spanish": {
     id: "Masakan Spanyol bersifat regional dan berbagi piring. 17 komunitas otonom masing-masing dengan ciri khasnya sendiri — Andalusia (gazpacho + jamón), Catalonia (leluhur paella + cava), Basque (pintxos + bacalao), Galicia (gurita), Madrid (cocido). Budaya tapas adalah makanan sosial; makan siang adalah makanan besar.",
@@ -463,6 +531,7 @@ module.exports = {
     zh: "西班牙菜系具有地域特色，以分享式菜肴为主。17个自治区各有其特色——Andalusia（gazpacho + jamón）、Catalonia（paella 的祖先 + cava）、Basque（pintxos + bacalao）、Galicia（章鱼）、Madrid（cocido）。Tapas 文化是社交餐点；午餐是正餐。",
     ja: "スペイン料理は地域性が高く、シェアプレートが特徴です。17の自治州それぞれに独自の料理があります。Andalusia（gazpacho + jamón）、Catalonia（paellaの祖先 + cava）、Basque（pintxos + bacalao）、Galicia（タコ）、Madrid（cocido）。Tapas文化は社交的な食事であり、ランチがメインの食事です。",
     es: "La cocina española es regional y de plato compartido. 17 comunidades autónomas, cada una con lo suyo: Andalucía (gazpacho + jamón), Cataluña (ancestros de la paella + cava), País Vasco (pintxos + bacalao), Galicia (pulpo), Madrid (cocido). La cultura de las Tapas es la comida social; el almuerzo es la comida principal.",
+    ko: "스페인 요리는 지역색이 강하고 함께 나눠 먹습니다. 17개 자치주가 각자의 요리를 갖고 있습니다. 안달루시아(가스파초 + 하몽), 카탈루냐(파에야의 원형 + 카바), 바스크(핀초스 + 바칼라오), 갈리시아(문어), 마드리드(코시도). 타파스는 함께하는 식사이고, 하루의 주된 식사는 점심입니다.",
   },
   "sri-lankan": {
     id: "Masakan Sri Lanka adalah nasi-dan-kari tetapi lebih pedas dan lebih dominan kelapa daripada India Selatan. Hoppers (pancake mangkuk), string hoppers (sarang nasi), kottu roti (roti pipih cincang) adalah ikonnya. Ministry of Crab di Kolombo membuat kari kepiting Sri Lanka terkenal di dunia.",
@@ -471,6 +540,7 @@ module.exports = {
     zh: "斯里兰卡菜是米饭和咖喱，但比南印度菜更辣，椰子味更浓。Hoppers（碗状煎饼）、string hoppers（米粉巢）、kottu roti（切碎的薄饼）是其标志。科伦坡的Ministry of Crab使斯里兰卡蟹肉咖喱闻名世界。",
     ja: "スリランカ料理は、南インド料理よりもスパイシーでココナッツの風味が強いライス＆カレーです。Hoppers（ボウルパンケーキ）、string hoppers（米の巣）、kottu roti（刻んだフラットブレッド）が代表的な料理です。コロンボのMinistry of Crabは、スリランカのクラブカレーを世界的に有名にしました。",
     es: "La cocina de Sri Lanka es arroz y curry, pero más picante y con más sabor a coco que la del sur de la India. Los hoppers (tortitas en forma de cuenco), los string hoppers (nidos de arroz) y el kottu roti (pan plano troceado) son sus iconos. El Ministry of Crab en Colombo hizo mundialmente famoso el curry de cangrejo de Sri Lanka.",
+    ko: "스리랑카 요리는 밥과 커리가 기본이지만 남인도 요리보다 맵고 코코넛을 훨씬 많이 씁니다. 호퍼(그릇 모양 팬케이크), 스트링 호퍼(쌀국수 타래), 코투 로티(잘게 썬 플랫브레드)가 대표적입니다. 콜롬보의 미니스트리 오브 크랩이 스리랑카식 크랩 커리를 세계에 알렸습니다.",
   },
   "swiss": {
     id: "Masakan Swiss adalah perpaduan empat bahasa: Prancis (Romande fondue + raclette), Jerman (rösti + cervelat + bircher), Italia (Ticino pizzoccheri + risotto), Romansh (Engadin capuns). Terkenal secara global karena cokelat (Lindt, Toblerone) dan keju tua (Gruyère, Emmentaler).",
@@ -479,6 +549,7 @@ module.exports = {
     zh: "瑞士菜是四种语言的碰撞：法语（罗曼底 fondue + raclette）、德语（rösti + cervelat + bircher）、意大利语（提契诺 pizzoccheri + risotto）、罗曼什语（恩加丁 capuns）。以巧克力（Lindt, Toblerone）和陈年奶酪（Gruyère, Emmentaler）闻名全球。",
     ja: "スイス料理は4つの言語の衝突です：フランス語（ロマンディ fondue + raclette）、ドイツ語（rösti + cervelat + bircher）、イタリア語（ティチーノ pizzoccheri + risotto）、ロマンシュ語（エンガディン capuns）。チョコレート（Lindt, Toblerone）と熟成チーズ（Gruyère, Emmentaler）で世界的に有名。",
     es: "La cocina suiza es la colisión de cuatro idiomas: francés (Romande fondue + raclette), alemán (rösti + cervelat + bircher), italiano (Ticino pizzoccheri + risotto), romanche (Engadin capuns). Famosa mundialmente por su chocolate (Lindt, Toblerone) y quesos añejos (Gruyère, Emmentaler).",
+    ko: "스위스 요리는 네 개 언어권이 부딪히는 자리입니다. 프랑스어권(퐁뒤 + 라클렛), 독일어권(뢰스티 + 체르벨라 + 비르허뮈슬리), 이탈리아어권(티치노의 피초케리 + 리조토), 로만슈어권(엥가딘의 카푼스). 세계적으로는 초콜릿(린트, 토블론)과 숙성 치즈(그뤼예르, 에멘탈)로 유명합니다.",
   },
   "taiwanese": {
     id: "Masakan Taiwan adalah Hokkien + Hakka + lapisan pendudukan Jepang + lapisan migrasi daratan 1949. Makanan jalanan pasar malam adalah ikonnya (lu rou fan, oyster omelette, gua bao, stinky tofu); Din Tai Fung membuat xiao long bao terkenal secara global. Bubble tea adalah penemuan Taiwan.",
@@ -487,6 +558,7 @@ module.exports = {
     zh: "台湾菜系融合了闽南菜 + 客家菜 + 日据时期影响 + 1949年大陆移民影响。夜市小吃是其标志（lu rou fan、oyster omelette、gua bao、stinky tofu）；鼎泰丰让 xiao long bao 享誉全球。Bubble tea 是台湾的发明。",
     ja: "台湾料理は、Hokkien + Hakka + 日本統治時代の影響 + 1949年の中国本土からの移住の影響が融合したものです。夜市の屋台料理が象徴的（lu rou fan、oyster omelette、gua bao、stinky tofu）で、Din Tai Fungがxiao long baoを世界的に有名にしました。Bubble teaは台湾の発明です。",
     es: "La cocina taiwanesa es Hokkien + Hakka + influencia de la ocupación japonesa + influencia de la migración continental de 1949. La comida callejera de los mercados nocturnos es el icono (lu rou fan, oyster omelette, gua bao, stinky tofu); Din Tai Fung hizo famoso el xiao long bao a nivel mundial. El Bubble tea es una invención taiwanesa.",
+    ko: "대만 요리는 호키엔과 하카에 일제강점기의 영향, 그리고 1949년 본토 이주민의 영향이 층층이 쌓인 것입니다. 야시장 길거리 음식이 상징입니다(루러우판, 굴전, 구아바오, 취두부). 딘타이펑이 샤오롱바오를 세계적으로 알렸고, 버블티는 대만에서 태어났습니다.",
   },
   "teochew": {
     id: "Masakan Teochew (Chaoshan) dari pesisir Guangdong terkenal ringan: kaldu bening, bawal kukus, bubur dengan lauk pendamping. Bak kut teh yang pedas (bukan herbal); char kway teow asli; orh nee untuk hidangan penutup.",
@@ -495,6 +567,7 @@ module.exports = {
     zh: "潮州（潮汕）菜源自广东沿海，以清淡著称：清汤、清蒸鲳鱼、配小菜的粥。胡椒味（非药材味）的肉骨茶；原味的炒粿条；芋泥甜点。",
     ja: "広東省沿岸部の潮州（Chaoshan）料理は、あっさりしていることで有名です。澄んだスープ、蒸しマナガツオ、おかずを添えたお粥などがあります。胡椒が効いた（漢方ではない） bak kut teh、オリジナルの char kway teow、デザートには orh nee があります。",
     es: "La cocina Teochew (Chaoshan) de la costa de Guangdong es famosa por su ligereza: caldos claros, pámpano al vapor, congee con acompañamientos. El bak kut teh picante (no herbal); el char kway teow original; orh nee de postre.",
+    ko: "광둥 해안 지역의 조주(차오산) 요리는 담백하기로 유명합니다. 맑은 국물, 병어찜, 반찬을 곁들인 죽. 약재가 아닌 후추 향의 bak kut teh, 원조 char kway teow, 후식으로는 오니(orh nee)를 맛보세요.",
   },
   "thai": {
     id: "Masakan Thailand menyeimbangkan 4 rasa — manis, asam, asin, pedas — dalam setiap hidangan. Kari dibuat dari pasta buatan sendiri (bukan bubuk kari botolan), kemangi aromatik, jeruk nipis, serai, kecap ikan. Pembagian Bangkok-Isaan-Utara-Selatan itu nyata: 4 tradisi regional yang berbeda.",
@@ -503,6 +576,7 @@ module.exports = {
     zh: "泰国菜在每道菜中平衡四种味道——甜、酸、咸、辣。咖喱以自制酱料（非罐装咖喱粉）为基础，搭配芳香罗勒、青柠、柠檬草、鱼露。曼谷-伊桑-北部-南部的划分是真实存在的：四种独特的地区传统。",
     ja: "タイ料理は、甘味、酸味、塩味、辛味の4つの味をすべての料理でバランスよく調和させます。カレーは自家製ペースト（瓶詰めのカレー粉ではない）をベースに、香り高いバジル、ライム、レモングラス、魚醤を使用します。バンコク・イサーン・北部・南部の区分は明確で、4つの異なる地域伝統があります。",
     es: "La cocina tailandesa equilibra 4 sabores — dulce, agrio, salado, picante — en cada plato. Curries elaborados con pastas caseras (no polvos de curry envasados), albahaca aromática, lima, hierba limón, salsa de pescado. La división Bangkok-Isaan-Norte-Sur es real: 4 tradiciones regionales distintas.",
+    ko: "태국 요리는 모든 음식에서 단맛, 신맛, 짠맛, 매운맛의 네 가지 맛을 균형 있게 맞춥니다. 카레는 병에 든 카레 가루가 아니라 직접 만든 페이스트로 끓이고 바질, 라임, 레몬그라스, 피시소스를 씁니다. 방콕·이산·북부·남부의 구분은 실제로 뚜렷한 네 개의 지역 전통입니다.",
   },
   "turkish": {
     id: "Masakan Turki mencakup 7 tradisi regional di seluruh Anatolia, Aegea, dan pantai Laut Hitam. Kebab adalah ikon ekspor (Adana, Urfa, Iskender, döner) — tetapi pide, lahmacun, manti, mezze dan ritual sosial teh-kopi-rakı sama pentingnya. Diet Mediterania bertemu warisan nomaden Asia Tengah.",
@@ -511,6 +585,7 @@ module.exports = {
     zh: "土耳其菜涵盖安纳托利亚、爱琴海和黑海沿岸的7种地域传统。烤肉串是出口标志（Adana, Urfa, Iskender, döner）——但pide、lahmacun、manti、mezze以及茶-咖啡-rakı的社交仪式同样重要。地中海饮食与中亚游牧遗产的结合。",
     ja: "トルコ料理は、アナトリア、エーゲ海、黒海沿岸の7つの地域伝統にまたがっています。ケバブは輸出の象徴（Adana, Urfa, Iskender, döner）ですが、pide、lahmacun、manti、mezze、そして紅茶-コーヒー-rakıの社交儀式も同様に重要です。地中海ダイエットと中央アジアの遊牧民の遺産が出会います。",
     es: "La cocina turca abarca 7 tradiciones regionales a lo largo de Anatolia, el Egeo y la costa del Mar Negro. Los kebabs son el icono de exportación (Adana, Urfa, Iskender, döner) — pero el pide, lahmacun, manti, mezze y el ritual social del té-café-rakı son igualmente importantes. La dieta mediterránea se encuentra con la herencia nómada de Asia Central.",
+    ko: "튀르키예 요리는 아나톨리아, 에게해, 흑해 연안에 걸친 일곱 개 지역 전통을 아우릅니다. 케밥(아다나, 우르파, 이스켄데르, 되네르)이 수출 대표 주자이지만 피데, 라흐마준, 만트, 메제, 그리고 차·커피·라크를 나누는 사교 의식도 그만큼 중요합니다. 지중해 식단과 중앙아시아 유목 유산이 만나는 지점입니다.",
   },
   "ukrainian": {
     id: "Masakan Ukraina adalah negara borscht (UNESCO menetapkan borscht Ukraina pada tahun 2022). Salo (lemak babi yang diawetkan) adalah simbol nasional. Varenyky (pangsit isi, manis atau gurih) adalah kenyamanan sehari-hari. Chicken Kyiv adalah duta restoran internasional.",
@@ -519,6 +594,7 @@ module.exports = {
     zh: "乌克兰菜是 borscht 之乡（联合国教科文组织于 2022 年将乌克兰 borscht 列入名录）。Salo（腌制猪肉脂肪）是国家象征。Varenyky（带馅饺子，甜或咸）是日常的慰藉。Chicken Kyiv 是国际餐厅大使。",
     ja: "ウクライナ料理は borscht の国（ユネスコは2022年にウクライナの borscht を登録）。Salo（塩漬け豚脂）は国の象徴。Varenyky（詰め物餃子、甘いまたは塩辛い）は日常の安らぎ。Chicken Kyiv は国際的なレストラン大使。",
     es: "La cocina ucraniana es el país del borscht (la UNESCO inscribió el borscht ucraniano en 2022). Salo (grasa de cerdo curada) es el símbolo nacional. Varenyky (empanadillas rellenas, dulces o saladas) son el confort diario. Chicken Kyiv es el embajador internacional de los restaurantes.",
+    ko: "우크라이나는 보르시치의 나라입니다(유네스코는 2022년 우크라이나 보르시치를 등재했습니다). 살로(염장 돼지 비계)는 국가적 상징이고, 바레니키(속을 채운 만두, 달거나 짭짤하게)는 일상의 위로입니다. 국제적으로 식당을 대표하는 것은 치킨 키이우입니다.",
   },
   "uzbek": {
     id: "Masakan Uzbekistan adalah tradisi plov Jalur Sutra — domba ekor gemuk yang dimasak perlahan + nasi + wortel + bawang bombay dalam kazan di atas api terbuka. Warisan Takbenda UNESCO 2016. Manty (pangsit kukus), lagman (mi tarik tangan), samsa (pastri tandoor) melengkapi hidangan pokok.",
@@ -527,6 +603,7 @@ module.exports = {
     zh: "乌兹别克菜是丝绸之路 plov 传统——在开放的火上用 kazan 慢炖的肥尾羊肉 + 米饭 + 胡萝卜 + 洋葱。联合国教科文组织非物质文化遗产 2016。Manty（蒸饺）、lagman（手拉面）、samsa（馕坑糕点）构成了主食。",
     ja: "ウズベク料理はシルクロードの plov の伝統です。開放された火の上で kazan を使ってゆっくり煮込んだ脂尾羊肉 + 米 + ニンジン + 玉ねぎ。ユネスコ無形文化遺産2016年。Manty（蒸し餃子）、lagman（手延べ麺）、samsa（タンドール菓子）が主食を構成する。",
     es: "La cocina uzbeka es la tradición del plov de la Ruta de la Seda — cordero de cola gorda cocinado a fuego lento + arroz + zanahorias + cebollas en un kazan sobre fuego abierto. Patrimonio Inmaterial de la UNESCO 2016. Manty (empanadillas al vapor), lagman (fideos estirados a mano), samsa (pasteles de tandoor) completan el conjunto de básicos.",
+    ko: "우즈베크 요리는 실크로드의 플로프 전통입니다. 카잔에 장작불을 피워 기름진 양 꼬리 지방을 천천히 녹여 내고 쌀과 당근과 양파를 함께 익힙니다. 2016년 유네스코 무형문화유산에 올랐습니다. 만티(찐만두), 라그만(수타면), 삼사(탄두르 페이스트리)가 나머지 기본을 채웁니다.",
   },
   "vietnamese": {
     id: "Masakan Vietnam terkenal ringan, kaya rempah dan seimbang. Pho adalah simbolnya tetapi bun cha, banh mi dan com tam sama ikoniknya. Hanoi (utara) halus + jernih; Saigon (selatan) lebih manis + berani; tengah (Hue, Hoi An) lebih pedas + lebih bergaya istana kerajaan.",
@@ -535,5 +612,6 @@ module.exports = {
     zh: "越南菜以清淡、香草味浓郁和均衡著称。河粉是其象征，但烤肉米线、法棍和碎米饭同样具有标志性。河内（北部）口味清淡；西贡（南部）口味更甜更大胆；中部（顺化、会安）则更辣、更具宫廷风味。",
     ja: "ベトナム料理は、あっさりとしていて、ハーブが豊富で、バランスが取れていることで有名です。フォーが象徴的ですが、ブンチャー、バインミー、コムタムも同様に象徴的です。ハノイ（北部）は繊細で澄んだ味わい、サイゴン（南部）はより甘く大胆な味わい、中部（フエ、ホイアン）はより辛く、宮廷料理の影響が強いです。",
     es: "La cocina vietnamita es famosa por ser ligera, rica en hierbas y equilibrada. El Pho es el símbolo, pero el bun cha, el banh mi y el com tam son igualmente icónicos. Hanói (norte) es sutil + claro; Saigón (sur) es más dulce + audaz; el centro (Hue, Hoi An) es más picante + más de corte real.",
+    ko: "베트남 요리는 가볍고 허브가 풍부하며 균형 잡힌 것으로 유명합니다. 쌀국수(pho)가 상징이지만 분짜, 반미, 껌땀도 그에 못지않습니다. 하노이(북부)는 담백하고 맑으며, 사이공(남부)은 더 달고 진하고, 중부(후에, 호이안)는 더 맵고 궁중 요리에 가깝습니다.",
   },
 };

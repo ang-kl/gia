@@ -116,8 +116,40 @@ const aliasRe = (list, wordBounded = []) => new RegExp(
 const SINGAPORE_RE = aliasRe(SINGAPORE_ALIASES);
 const JOHOR_RE = aliasRe(JOHOR_ALIASES, ['johor']);
 
+// v0.62.897 — THE POOL KEY, AND THE LIST THAT RESETS IT.
+//
+// Codex review on #1834, P2, and correct. `cuisine:pool:{chatId}:{criteriaHash}:v{n}`
+// caches whole VENUE OBJECTS — displayName, formattedAddress, editorialSummary,
+// primaryTypeDisplayName — and v0.62.896 made every one of those language-specific. The
+// key had no language segment at all, so a reader who switched language and repeated the
+// same search inside the 20-minute window was served the PREVIOUS language's strings.
+// The third cache in that request path: the outer /api/cuisine/search key has carried
+// `:l${csLang}` since v0.59.0 and the Michelin blob key was widened in #1834 itself.
+//
+// The language goes on the POOL KEY and deliberately NOT into `computeCriteriaHash`. The
+// seen-set and the variant index are keyed on that hash and are about WHICH VENUES have
+// been shown — identified by place id, which no language changes. Folding language into
+// the hash would hand a reader who toggles language a fresh seen-set and re-show them
+// venues they had already scrolled past. Same request, two caches, two notions of identity.
+//
+// BOTH LIVE HERE RATHER THAN IN index.js, and the reason is a defect this replaced: the
+// first version of the reset loop said `SUPPORTED.map(...)` inside index.js, where
+// `SUPPORTED` is NOT in module scope — every use there is a local require. It would have
+// thrown a ReferenceError into a swallowing catch, so ↺ Start over would silently stop
+// clearing pools. `node --check` passed on it, because a syntax check cannot see scope.
+// Here `SUPPORTED` is a module-scope import and the functions are callable from a test.
+function poolLanguages() {
+  return [...new Set(SUPPORTED.map((l) => placesLanguage(l)))];
+}
+
+function cuisinePoolKey(chatId, criteriaHash, placesLang, variantIdx) {
+  return `cuisine:pool:${chatId}:${criteriaHash}:${placesLang}:v${variantIdx}`;
+}
+
 module.exports = {
   placesLanguage,
+  poolLanguages,
+  cuisinePoolKey,
   isGenericTypeLabel,
   GENERIC_TYPE_WORDS_BY_LANG,
   SINGAPORE_ALIASES,
