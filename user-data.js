@@ -1,57 +1,133 @@
-// user-data.js — v0.57.25
+// user-data.js — v0.62.898
 //
 // Self-service erasure (/forgetme) and inactivity TTL refresh.
 //
-// Per-chatId Redis keys this module is aware of:
-//   loc:<hashedChatId>             24 h  (location-cache)
-//   loc:pending:<hashedChatId>      5 min (location-cache)
-//   proc:<hashedChatId>            60 s  (location-cache)
-//   buddy-optin:<chatId>           30 d  (buddy-match)
-//   buddy-blocks:<chatId>          persistent — refreshed to 90 d
-//                                   on every activity so it auto-
-//                                   purges if the user stops using
-//                                   the bot for ≥90 days
-//   buddy-day:<chatId>:<YMD>       24 h  (buddy-match)
-//   recent-picks:<chatId>          24 h  (recent-picks)
-//   clip:<chatId>                  30 d  (clip-store, v0.59.44)
+// ⚠ THE HEADER THIS REPLACES WAS THE DEFECT. It listed eight keys and read as if it were the
+// whole inventory. It was not: the app writes about forty per-chat namespaces and this module
+// deleted SEVEN. Measured before the fix — 29 seeded, 7 deleted, 22 survived — including the
+// entire `cab:*` cabinet tree, `rating-pref`, `country-pref`, `user:<id>:lang`, `userlocale:`,
+// `recent-locations:` and `search-conv:`, which holds the user's own typed messages.
 //
-// Aggregate-usage SETs that hold this user's sha256 hash as a member
-// (no per-user value attached — only de-dup membership; usage-log.js):
-//   usage:users                    persistent (one SREM)
-//   usage:dau:<YMD>                90 d  (SCAN + SREM the hash)
-//   usage:search:<YMD>             90 d  (SCAN + SREM)
-//   usage:searchmulti:<YMD>        90 d  (SCAN + SREM)
-// (usage:cuisine / usage:criteria HASHes carry no per-user attribution
-// → nothing to erase there.)
+// ⚠ AND THE ORDER MADE IT WORSE THAN A GAP. It deleted `clip:<chatId>` — the INDEX — without the
+// card hashes it points at, while `clip-store.js recomputeCardTtl` sets a favourited card to
+// PERSIST: no TTL, ever. Asking to be forgotten therefore left favourited cards on disk
+// permanently with nothing pointing at them — unreachable AND undeletable. Erasure created the
+// orphan it was supposed to prevent.
 //
-// `loc:`, `loc:pending:`, `proc:` are hashed (sha256, 16-hex) per
-// location-cache.js — the same `hashChatId` the `usage:*` SETs store.
-// The buddy + recent-picks + clip keys use the plain chatId.
-// `forgetUserData` covers all encodings.
+// `/privacy` says, in nine locales: "You can clear your stored data at any time by typing
+// /forgetme." That is a published commitment, which is why this is a fix and not a feature.
+//
+// THE SHAPE OF THE FIX. Three lists and one exemption table, all EXPORTED so a test asserts them
+// by calling rather than by reading this comment — because a comment is what went stale:
+//
+//   plainKeys(chatId)    exact keys under the raw chatId
+//   hashedKeys(chatId)   exact keys under hashChatId() — sha256, first 16 hex. ONE encoding;
+//                        loc:, loc:pending:, proc:, seen:, userlocale: and drift-suppress: all
+//                        use it, verified rather than assumed.
+//   scanPatterns(chatId) glob patterns for the families (cards, cabinets, cuisine state …)
+//   ERASURE_EXEMPT       namespace → reason, for what deliberately is NOT erased
+//
+// SCAN RATHER THAN FOLLOW THE INDEX, deliberately. Reading `clip:<chatId>` to find the cards
+// would fix the ordering bug and nothing else. SCAN also collects the orphans that ALREADY exist
+// from every /forgetme run before this one, so a user erased last month is cleaned up the next
+// time they ask. It makes ordering irrelevant instead of merely correct.
+//
+// ⚠ EVERY PATTERN TERMINATES THE chatId. `cuisine:*:<chatId>*` would also match chat 3139402319
+// when erasing 313940231 — Telegram ids are numeric and one can be a prefix of another. So the
+// patterns are `…:<chatId>` (exact) and `…:<chatId>:*`, never a bare trailing wildcard, and a
+// test asserts it.
+//
+// Aggregate-usage SETs hold this user's sha256 as a bare member with no value attached; those
+// are handled by removeUsageMembership, not by key deletion. usage:cuisine / usage:criteria are
+// name→count HASHes with no per-user attribution at all — nothing there to erase.
 
 const { hashChatId } = require('./location-cache');
 
 const ACTIVITY_TTL_S = 90 * 24 * 60 * 60; // 90 days
 
-// Static keys that use plain chatId (one DEL each).
+// Static keys under the raw chatId (one DEL each).
 function plainKeys(chatId) {
   return [
-    `buddy-optin:${chatId}`,
-    `buddy-blocks:${chatId}`,
+    // clipboard — the index and the two list heads. The CARDS are scanned, see scanPatterns.
+    `clip:${chatId}`,
+    `clip_archive:${chatId}`,
+    `clip:rename-pending:${chatId}`,
+    `cab:${chatId}`,
+    // durable preferences the user deliberately set
+    `rating-pref:${chatId}`,
+    `country-pref:${chatId}`,
+    `user:${chatId}:lang`,
+    `user:${chatId}:country`,
+    `recent-locations:${chatId}`,
+    `verbose:${chatId}`,
+    // the user's own typed messages — /s conversation history, up to 16 turns
+    `search-conv:${chatId}`,
+    // what was shown: rotation + dedup state
     `recent-picks:${chatId}`,
-    `clip:${chatId}`
+    `michelin:walk:seen:${chatId}`,
+    `michelin:walk:meta:${chatId}`,
+    `funfact:lastSeen:${chatId}`,
+    // transient flow state
+    `locconf:${chatId}`,
+    `drift-pending:${chatId}`,
+    `wake:pending:${chatId}`,
+    `wake2:offer:${chatId}`,
+    `degraded:notice:${chatId}`,
+    // buddy — the feature is retired (index.js:4140-4145 commented out) but old keys persist
+    `buddy-optin:${chatId}`,
+    `buddy-blocks:${chatId}`
   ];
 }
 
-// Static keys that use hashedChatId.
+// Static keys under hashChatId() — sha256 truncated to 16 hex. There is exactly ONE hashed
+// encoding in the codebase; location-locale.js defines its own `_hashChatId` but it is the same
+// function, which was verified by computing both rather than by reading them.
 function hashedKeys(chatId) {
   const h = hashChatId(chatId);
   return [
     `loc:${h}`,
     `loc:pending:${h}`,
-    `proc:${h}`
+    `proc:${h}`,
+    `seen:${h}`,             // last-activity epoch — drives the wake-from-idle prompt
+    `userlocale:${h}`,       // registered SG/JB/OTHER locale record
+    `drift-suppress:${h}`    // "don't re-ask about this location" — a USER CHOICE
   ];
 }
+
+// Families that need a SCAN. Every pattern terminates the chatId with `:` or end-of-string, so
+// erasing 313940231 cannot reach 3139402319 — see the header.
+function scanPatterns(chatId) {
+  return [
+    `card:${chatId}:*`,               // the clipboard cards themselves (PERSIST when favourited)
+    `card_locs:${chatId}:*`,          // which drawers each card sits in
+    `cab:${chatId}:*`,                // the whole cabinet tree: cabinets, drawers, :default
+    `country-pref:${chatId}:dev:*`,   // per-device country overrides
+    `cuisine:*:${chatId}`,            // session-seen / session-pages / session-meta / sg-dishes
+    `cuisine:*:${chatId}:*`,          // seen / variant / pool / recycle, keyed by criteria hash
+    `chat-freetext:seen:${chatId}:*`,
+    `pick-cache:${chatId}:*`,
+    `place:anchor:${chatId}:*`,
+    `buddy-day:${chatId}:*`,
+    `tell-gia:rl:${chatId}:*`,
+    `idem:cuisine:${chatId}:*`,
+    `gia:rl:*:${chatId}:*`            // generic per-endpoint rate-limit counters
+  ];
+}
+
+// What is deliberately NOT erased, and why. The reasons come from a fixed set the test enforces,
+// so "we decided not to" always has a stated shape rather than being an omission that looks like
+// a decision — which is precisely how the previous seven-of-forty list read.
+const ERASURE_EXEMPT = Object.freeze({
+  'usage:users': 'aggregate-no-per-user-attribution',
+  'usage:dau': 'aggregate-no-per-user-attribution',
+  'usage:cuisine': 'aggregate-no-per-user-attribution',
+  'usage:criteria': 'aggregate-no-per-user-attribution',
+  'freetext:log': 'aggregate-no-per-user-attribution',
+  'chat-freetext:query': 'not-enumerable-by-chatid',
+  'cuisine-request': 'holds-chatid-as-a-field-not-in-the-key',
+  'buddy-intent': 'dead-code-no-writer',
+  'buddy-offer': 'dead-code-no-writer'
+});
 
 // Daily counters use the pattern `buddy-day:<chatId>:<YMD>` — many
 // keys per chat over time. SCAN them.
@@ -116,10 +192,17 @@ async function forgetUserData(redis, chatId) {
   // `deleted` so the user sees a non-zero result even if all their
   // own keys had already expired).
   const usageRemoved = await removeUsageMembership(redis, chatId);
+  // v0.62.898 — the scanned families join the two static lists. `scanDailyKeys` is retained and
+  // still exported for back-compat, but its one pattern now lives in `scanPatterns` with the
+  // others so there is a single place to add a namespace and a single list for the test to check.
+  const scanned = [];
+  for (const pattern of scanPatterns(chatId)) {
+    scanned.push(...(await scanKeys(redis, pattern)));
+  }
   const candidates = [
     ...plainKeys(chatId),
     ...hashedKeys(chatId),
-    ...(await scanDailyKeys(redis, chatId))
+    ...scanned
   ];
   // Filter to keys that actually exist (so the count we report is
   // accurate, not "I tried to delete 6 things, half might've been
@@ -160,6 +243,8 @@ module.exports = {
   touchActivity,
   plainKeys,
   hashedKeys,
+  scanPatterns,
+  ERASURE_EXEMPT,
   scanDailyKeys,
   removeUsageMembership,
   ACTIVITY_TTL_S
