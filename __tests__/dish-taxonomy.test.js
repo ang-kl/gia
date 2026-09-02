@@ -161,7 +161,7 @@ describe('the dish taxonomy overlay', () => {
     // Before batch 1, `japanese` had no typed dish at all, so every period returned the same
     // answer chosen by a 1e-6 jitter over a flat field — `[AMD-165]` recorded that as a forty-way
     // tie at exactly 1.0000. A guard that only counted rows would have been green either way.
-    for (const slug of ['japanese', 'cantonese', 'american']) {
+    for (const slug of ['japanese', 'cantonese', 'american', 'korean', 'french']) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
       const at = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
         { lang: 'en', slug })[0].dish;
@@ -179,13 +179,34 @@ describe('the dish taxonomy overlay', () => {
     expect(band('afternoon'), 'afternoon is saturated again').toBeLessThan(10);
   });
 
+  it('⚠ `night_supper` draws on more than one cuisine', () => {
+    // ⚠ THIS EXISTS BECAUSE A FIGURE I WROTE WAS WRONG. [AMD-170] said night_supper "rests on 13
+    // dishes, eleven of them Singaporean". Measured, it was THIRTEEN of thirteen — one cuisine,
+    // not two — written from memory rather than from a count, in a paragraph whose whole purpose
+    // was to state the gap honestly. A period that exists but can only ever answer one cuisine
+    // passes every other check in this file: the rows are valid, the enum is respected, and
+    // reachability is satisfied by a single dish.
+    //
+    // A FLOOR, not a ratio. The right ratio is not knowable, and a floor rises naturally as
+    // batches land — 1 → 3 with batch 2 (korean and malaysian, the two cuisines here with real
+    // 24-hour trade in Singapore). Raise it when a batch earns it.
+    const by = new Map();
+    for (const [slug, e] of Object.entries(NATION_OVERLAY)) {
+      for (const d of (e.iconicDishes || [])) {
+        if (Array.isArray(d.mealTime) && d.mealTime.includes('night_supper')) by.set(slug, (by.get(slug) || 0) + 1);
+      }
+    }
+    expect(by.size, 'night_supper can only answer one cuisine — a 4am suggestion is stuck there').toBeGreaterThan(2);
+  });
+
   it('the completeness count is pinned, so a dropped batch cannot pass quietly', () => {
     let dishes = 0;
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
     // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
+    // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
-    // japanese in full. 99 → 254. Ten batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(254);
+    // japanese in full. 99 → 254. Nine batches to go; the arc ends at 1,697.
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(404);
   });
 });
