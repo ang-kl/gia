@@ -174,7 +174,7 @@ describe('the dish taxonomy overlay', () => {
     // Before batch 1, `japanese` had no typed dish at all, so every period returned the same
     // answer chosen by a 1e-6 jitter over a flat field — `[AMD-165]` recorded that as a forty-way
     // tie at exactly 1.0000. A guard that only counted rows would have been green either way.
-    for (const slug of ['japanese', 'cantonese', 'american', 'korean', 'french', 'thai', 'mexican']) {
+    for (const slug of ['japanese', 'cantonese', 'american', 'korean', 'french', 'thai', 'mexican', 'south-indian', 'british']) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
       const top = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
         { lang: 'en', slug })[0];
@@ -215,15 +215,20 @@ describe('the dish taxonomy overlay', () => {
     // reachability is satisfied by a single dish.
     //
     // A FLOOR, not a ratio. The right ratio is not knowable, and a floor rises naturally as
-    // batches land — 1 → 3 with batch 2 (korean and malaysian, the two cuisines here with real
-    // 24-hour trade in Singapore). Raise it when a batch earns it.
+    // batches land — 1 → 3 with batch 2 (korean and malaysian, the two cuisines there with real
+    // 24-hour trade in Singapore), then 3 → 5 with batch 4, which added south-indian (the 24-hour
+    // prata and dosa shops, six rows) and chinese (jianbing and baozi from pre-dawn carts).
+    //
+    // ⚠ RATCHETED, because a floor that never moves has stopped being one. The Singaporean share
+    // of the period went 100 % → 62 % → 45 % across those two batches; the floor is what stops it
+    // sliding back. Raise it again when a batch earns it.
     const by = new Map();
     for (const [slug, e] of Object.entries(NATION_OVERLAY)) {
       for (const d of (e.iconicDishes || [])) {
         if (Array.isArray(d.mealTime) && d.mealTime.includes('night_supper')) by.set(slug, (by.get(slug) || 0) + 1);
       }
     }
-    expect(by.size, 'night_supper can only answer one cuisine — a 4am suggestion is stuck there').toBeGreaterThan(2);
+    expect(by.size, 'night_supper lost cuisines — a 4am suggestion is narrowing again').toBeGreaterThan(3);
   });
 
   it('the completeness count is pinned, so a dropped batch cannot pass quietly', () => {
@@ -231,10 +236,12 @@ describe('the dish taxonomy overlay', () => {
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
     // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
+    // Batch 4 (v0.62.907): +162 — south-indian, german, british, sichuan, chinese, filipino.
+    // 551 → 713, past 40 % of the 1,697.
     // Batch 3 (v0.62.906): +147 — spanish, mexican, peranakan, indonesian, thai. 404 → 551.
     // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
-    // japanese in full. 99 → 254. Eight batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(551);
+    // japanese in full. 99 → 254. Seven batches to go; the arc ends at 1,697.
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(713);
   });
 });
