@@ -156,6 +156,16 @@ export const SG_TERMS = Object.freeze({
   // ⚠ 巴刹, not 市场 — Singapore's own word for a market, borrowed from Malay `pasar`, and what
   // the bilingual signage says. The header's rule ("Chinese follows Singapore's own conventions,
   // not a dictionary") applied to a word where the dictionary and the sign genuinely differ.
+  // v0.62.917 — the ordinals. Sixth Avenue is 第六道 in the register (the station table row is
+  // there to check), and `avenue` is already 道, so the two compose. Only fifth and sixth appear
+  // in the corpus today; the rest are here because a road numbered five and one numbered seven
+  // cannot sensibly be handled by different mechanisms, and a missing ordinal reads as a bug.
+  first:       { fr: 'Première', id: 'Pertama', ru: 'Первая', de: 'Erste', zh: '第一', ja: '一番', es: 'Primera', ko: '1번' },
+  second:      { fr: 'Deuxième', id: 'Kedua', ru: 'Вторая', de: 'Zweite', zh: '第二', ja: '二番', es: 'Segunda', ko: '2번' },
+  third:       { fr: 'Troisième', id: 'Ketiga', ru: 'Третья', de: 'Dritte', zh: '第三', ja: '三番', es: 'Tercera', ko: '3번' },
+  fourth:      { fr: 'Quatrième', id: 'Keempat', ru: 'Четвёртая', de: 'Vierte', zh: '第四', ja: '四番', es: 'Cuarta', ko: '4번' },
+  fifth:       { fr: 'Cinquième', id: 'Kelima', ru: 'Пятая', de: 'Fünfte', zh: '第五', ja: '五番', es: 'Quinta', ko: '5번' },
+  sixth:       { fr: 'Sixième', id: 'Keenam', ru: 'Шестая', de: 'Sechste', zh: '第六', ja: '六番', es: 'Sexta', ko: '6번' },
   market:      { fr: 'Marché', id: 'Pasar', ru: 'Рынок', de: 'Markt', zh: '巴刹', ja: '市場', es: 'Mercado', ko: '시장' },
 
   // ── positional and modifier words ─────────────────────────────────────────────────────────

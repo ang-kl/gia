@@ -33,6 +33,7 @@
 
 import { SG_TERMS, expandAbbrev, expandStWord, termLocal } from './sg-terms-i18n.js';
 import { SG_STATION_NAMES_LOCAL } from './mrt-stations-i18n.local.generated.js';
+import { nounNameLocal } from './sg-nouns-i18n.generated.js';
 
 /** Locales whose readers need a proper noun rendered into their own script. */
 export const NON_LATIN = Object.freeze(['ru', 'zh', 'ja', 'ko']);
@@ -63,15 +64,33 @@ const CJK = /[\u3000-\u9fff\uac00-\ud7af\uff00-\uffef]/;
 const NOUNS = new Map();
 for (const [name, row] of Object.entries(SG_STATION_NAMES_LOCAL)) NOUNS.set(name.toLowerCase(), row);
 
+// ⚠ v0.62.917 — AND THE NOUN TABLE IS CONSULTED SECOND, NEVER FIRST. The station table's zh
+// column IS the government register, cell-checked by its own test; `sg-nouns-i18n.generated.js`
+// is hand-authored. Where both answer, the register wins, and the ordering is what makes that
+// true rather than a comment saying so. The same precedence `hawker-vault.js` applies to its
+// exact / postal / normalised / containment ladder, and for the same reason: a fallback that
+// runs first is not a fallback.
+
 /** The local rendering of a proper-noun phrase, or null. Mirrors `stationNameLocal`'s shape. */
 export function nounLocal(phrase, lang) {
   if (!lang || lang === 'en') return null;
   const row = NOUNS.get(String(phrase || '').trim().toLowerCase());
-  if (!row) return null;
-  if (lang === 'zh') return (typeof row.zh === 'string' && row.zh.trim()) ? row.zh : null;
-  const bag = row.k === 's' ? row.t : row.r;
-  const v = bag && bag[lang];
-  return (typeof v === 'string' && v.trim()) ? v : null;
+  if (row) {
+    const fromRegister = lang === 'zh'
+      ? ((typeof row.zh === 'string' && row.zh.trim()) ? row.zh : null)
+      : (() => { const b = row.k === 's' ? row.t : row.r; const v = b && b[lang]; return (typeof v === 'string' && v.trim()) ? v : null; })();
+    // ⚠ FALL THROUGH ON A MISSING CELL, do not return null. Stopping at the ROW rather than the
+    // CELL would hide a hand-authored answer behind a register row that has nothing to say in
+    // this locale.
+    //
+    // ⚠ AND IT IS UNREACHABLE TODAY — said here rather than left to be discovered. The two tables
+    // are disjoint (the harvester only reports what the register does not cover) and the register
+    // has zero missing cells across zh/ru/ja/ko. `__tests__/sg-nouns.test.js` asserts both, so the
+    // day either stops being true the suite says so. A mutation collapsing this to a row-level
+    // return passes every test, which is the [AMD-187] shape: correct, unreached, reported green.
+    if (fromRegister) return fromRegister;
+  }
+  return nounNameLocal(phrase, lang);
 }
 
 /**

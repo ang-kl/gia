@@ -161,9 +161,27 @@ describe('the map layer speaks the reader\'s language', () => {
   });
 
   it('⚠ joining is decided by script, not by locale', () => {
-    // "18 Raffles Quay" in Chinese: Raffles is an unknown noun and stays Latin, so the digit and
-    // the Latin word must keep their space even though the locale is zh.
-    expect(placeLocal('18 Raffles Quay', 'zh').text).toBe('18 Raffles 码头');
+    // "18 Nonesuch Quay" in Chinese: Nonesuch is an unknown noun and stays Latin, so the digit
+    // and the Latin word must keep their space even though the locale is zh.
+    //
+    // ⚠ v0.62.917 — THE EXAMPLE MOVED, THE PROPERTY DID NOT. This read "18 Raffles Quay" until
+    // `sg-nouns-i18n.generated.js` gave Raffles a rendering (莱佛士, from the register's Raffles
+    // Place 莱佛士坊), and the line then correctly produced 18莱佛士码头 — every token CJK, so no
+    // space belongs anywhere. A fixture that fails because the data got better is not a
+    // regression, and swapping in a noun that is still unknown keeps the assertion about the
+    // JOINER rather than about which names happen to be authored today. Same repair the
+    // `ko` example above already carries from v0.62.883.
+    //
+    // ⚠ AND THE EXAMPLE MOVED TWICE IN ONE DAY. It was "18 Raffles Quay" until v0.62.917 gave
+    // Raffles a rendering, then "18 Collyer Quay" for about an hour until the same release's
+    // third batch gave Collyer one (哥烈, from Collyer Quay 哥烈码头). With the noun table at
+    // 99.9% of the corpus there is no real Singapore road left to borrow, so the example is an
+    // INVENTED name now — which is correct, because the assertion was never about which names
+    // are authored. A fixture that has to be repaired every time the data improves was pinned to
+    // the wrong thing.
+    expect(placeLocal('18 Nonesuch Quay', 'zh').text).toBe('18 Nonesuch 码头');
+    // …and the now-known name proves the other half: all-CJK runs together, no space at all.
+    expect(placeLocal('18 Raffles Quay', 'zh').text).toBe('18莱佛士码头');
     // Korean spaces its words; only a road-type suffix and a counter attach.
     expect(placeLocal('Aft Bedok North Rd', 'ko').text).toBe('베독 북로 이후');
     expect(placeLocal('Maxwell Rd', 'ko').text).toBe('맥스웰로');

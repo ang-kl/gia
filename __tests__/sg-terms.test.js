@@ -104,8 +104,11 @@ describe('the vocabulary is complete and its exemptions are reasoned', () => {
 
   it('the vocabulary size is pinned and moves deliberately', () => {
     // 61 at v0.62.911 → 69 at v0.62.916, when the harvester showed eight common nouns sitting in
-    // the proper-noun bucket only because this table did not contain them.
-    expect(Object.keys(SG_TERMS).length, 'the vocabulary changed size — bump this deliberately').toBe(69);
+    // the proper-noun bucket only because this table did not contain them → 75 at v0.62.917, when
+    // the ordinals landed. `Sixth Avenue` composes to 第六道, which is exactly what the station
+    // register independently says, so the six ordinals are checked against a source rather than
+    // against themselves — see `sg-nouns.test.js`.
+    expect(Object.keys(SG_TERMS).length, 'the vocabulary changed size — bump this deliberately').toBe(75);
     expect(TERM_LOCALES).toEqual(['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
   });
 
