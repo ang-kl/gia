@@ -7,6 +7,9 @@
 // HTML-stripped body (so nothing regresses).
 
 import React, { useState } from 'react';
+import { pickNameGuide } from '../../../_shared/lib/name-guide.js';
+import { pickAddressGuide } from '../../../_shared/lib/address-guide.js';
+import PronounceIcon from '../../../_shared/components/PronounceIcon.jsx';
 import { t } from '../lib/i18n.js';
 import { haptic } from '../lib/tg.js';
 import { SEGMENT_BY_KEY } from '../lib/segments.js';
@@ -127,6 +130,27 @@ export default function VenueCard({
               <div className="text-[13px] font-bold text-tg-text">
                 {number != null && <span className="text-tg-hint">{number} · </span>}{v.name}
               </div>
+              {/* v0.62.915 — THE TRANSLATIONS WERE ALREADY ON THE CARD; NOTHING READ THEM.
+                  `ResultCard.copy()` has forwarded nameLocal / nameReading / namePronounce /
+                  nameGloss into the saved venue since v0.62.840, and this component rendered
+                  `{v.name}` and stopped. So a Japanese venue saved from a card that showed
+                  "(銀座 寿司)" underneath came back to the Sketchbook with the line gone.
+                  Resolved through the SHARED `pickNameGuide`, not a local re-implementation:
+                  its own comment records that five source-scanning tests asserted this
+                  precedence and four broke on a refactor while the behaviour held. A third
+                  copy of the rule would be the defect this release spent its other half
+                  removing. `sayNow` is the stored `namePronounce` — the Sketchbook has no live
+                  pronunciation projection, so the persisted value IS the answer here. */}
+              {(() => {
+                const g = pickNameGuide(v, v.namePronounce);
+                if (!g) return null;
+                return (
+                  <div className="text-[10.5px] text-tg-hint leading-tight truncate flex items-center gap-1" data-name-guide={g.key}>
+                    {g.icon === 'pronounce' && <PronounceIcon className="shrink-0 opacity-80" />}
+                    <span className="truncate">{g.text}</span>
+                  </div>
+                );
+              })()}
               {typeLine && <div className="text-[11px] text-tg-hint capitalize">{typeLine}</div>}
             </div>
             {fileBtn}
@@ -163,6 +187,20 @@ export default function VenueCard({
           {v ? (
             <div className="mt-2 border-t border-tg-border pt-2 space-y-1">
               {v.area && <div className="text-[11px] text-tg-text">📍 {v.area}</div>}
+              {/* v0.62.915 — the address half, same rule. `addressLocal` is the line a reader
+                  holds up to a driver; `address-guide.js` records that it has existed since
+                  v0.62.824 with nothing anywhere rendering it. The English `area` above is
+                  never displaced — it stays the primary and the Maps query. */}
+              {(() => {
+                const g = pickAddressGuide(v);
+                if (!g) return null;
+                return (
+                  <div className="text-[10.5px] text-tg-hint leading-snug flex items-center gap-1 min-w-0" data-address-guide={g.key}>
+                    {g.icon === 'pronounce' && <PronounceIcon className="shrink-0 opacity-80" />}
+                    <span className="truncate">{g.text}</span>
+                  </div>
+                );
+              })()}
               {v.recentReview && <div className="text-[11px] text-tg-hint italic">💬 “{v.recentReview}”{v.recentReviewAgo ? ` · ${v.recentReviewAgo}` : ''}</div>}
               {v.vibe && <div className="text-[11px] text-tg-hint">{v.vibe}</div>}
             </div>

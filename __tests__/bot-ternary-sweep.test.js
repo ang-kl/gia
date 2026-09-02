@@ -144,11 +144,28 @@ describe('the call sites are keyed, and the ones that must NOT be are not', () =
     expect(read('index.js')).not.toMatch(/\bisFr\b/);
   });
 
-  it('locale-code plumbing is UNTOUCHED — keying it would break language selection', () => {
+  it('locale-code plumbing is UNTOUCHED — keying it would break language selection', async () => {
     // The false positive that would have looked like thoroughness. These pick a locale; they
     // display nothing. `clip-store` is the clearest: it maps a stored record's language onto
     // the app's list.
-    expect(read('clip-store.js')).toMatch(/record\.lang === 'fr' \? 'fr'/);
+    // v0.62.915 — this line USED to pin `record.lang === 'fr' ? 'fr'` in clip-store.js. That
+    // ladder is gone: the clamp now reads i18n's SUPPORTED list, because the ladder stopped at
+    // five locales while the app reached nine, so a card saved by a zh/ja/es/ko reader came back
+    // 'en'. The pin's PURPOSE survives — this call site resolves a locale CODE and displays
+    // nothing — so it is asserted by CALLING, the same repair applied to pipeline.js below.
+    // That is the SEVENTH source-scan pin this arc has had to fix after a refactor changed
+    // nothing a reader can see.
+    {
+      const { _normaliseRecord, _denormaliseRecord } = require('../clip-store');
+      const { SUPPORTED } = require('../i18n');
+      const round = (l) => _denormaliseRecord(_normaliseRecord({ lang: l, body: 'x' })).lang;
+      for (const l of SUPPORTED) expect(round(l), `a card saved in ${l} came back as something else`).toBe(l);
+      // …and an unshipped locale is clamped rather than persisted.
+      expect(round('pt')).toBe('en');
+      expect(round(undefined)).toBe('en');
+      // The output is a language CODE, never a sentence — the distinction this test guards.
+      expect(round('ko')).toMatch(/^[a-z]{2}$/);
+    }
     // v0.62.896 — this line USED to pin `const languageCode = lang === 'fr' ? 'fr' : 'en'`
     // in pipeline.js. That ternary is gone: it is now `placesLanguage(lang)`, and the
     // fr-or-en collapse it encoded was the defect the operator reported (a Korean reader
@@ -171,7 +188,23 @@ describe('the call sites are keyed, and the ones that must NOT be are not', () =
       expect(placesLanguage('pt')).toBe('en');
       expect(placesLanguage(undefined)).toBe('en');
     }
-    expect(read('bot-fun-facts.js')).toMatch(/const safeLang = lang === 'fr' \? 'fr' : 'en'/);
+    // v0.62.915 — and the EIGHTH. This pinned `const safeLang = lang === 'fr' ? 'fr' : 'en'` in
+    // bot-fun-facts.js, the else-branch of a local copy of the overlay rule that was three
+    // locales behind the lib's. The copy is deleted, not widened: the body is resolved by the
+    // lib's `factBody()`, which is the one place that knows the precedence. Asserted by calling.
+    {
+      const { _formatHtml } = require('../bot-fun-facts');
+      const fact = { id: 'x', en: 'EN body', fr: 'FR body', _i18n: { zh: 'ZH overlay' } };
+      // `await`, not a returned promise: a `return` here would end the `it` early and silently
+      // skip anything added below it later — the shape that makes a test pass for no reason.
+      const [fr, zh, pt] = await Promise.all([
+        _formatHtml(fact, 'fr'), _formatHtml(fact, 'zh'), _formatHtml(fact, 'pt'),
+      ]);
+      expect(fr, 'the French body no longer resolves').toContain('FR body');
+      // The locale this call site used to collapse to English.
+      expect(zh, 'zh still falls through to English').toContain('ZH overlay');
+      expect(pt, 'an unshipped locale no longer falls back').toContain('EN body');
+    }
   });
 
   it('every file that calls t() can actually reach it', () => {

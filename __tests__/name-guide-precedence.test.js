@@ -25,6 +25,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { pickNameGuide, hasForeignScript } from '../web/_shared/lib/name-guide.js';
+import { pickAddressGuide } from '../web/_shared/lib/address-guide.js';
 
 const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
@@ -130,5 +131,95 @@ describe('the finding’s stated blast radius is checked against the source, not
       .not.toMatch(/\bSG: '|\bMY: '/);
     // nameReading is attached under the same map.
     expect(read('translate-name.js')).toMatch(/const localLang = LOCAL_LANG_BY_CC\[/);
+  });
+});
+
+// ── v0.62.915 — THE SAVED CARD SPEAKS THE SAME LANGUAGES THE LIVE ONE DOES ─────────────────
+//
+// The operator asked whether the Sketchbook "has been updated with translation including extra
+// data fields to store translations (eatery, address, etc) when saved". Traced end to end, the
+// answer was TWO gaps at OPPOSITE ENDS OF THE SAME WIRE:
+//
+//   * `ResultCard.copy()` has forwarded nameLocal / nameReading / namePronounce / nameGloss
+//     since v0.62.840 — and `web/clipboard/.../VenueCard.jsx` rendered `{v.name}` and stopped.
+//     Four fields persisted, none read.
+//   * `addressLocal` was the reverse: rendered on the live card since v0.62.895 and never put
+//     into the copy payload at all. One field read, never persisted.
+//
+// So a Japanese venue whose live card showed "(銀座 寿司)" and a Korean address came back to the
+// Sketchbook as a bare Latin name and an English address. Both halves are asserted here, by
+// CALLING — this file's own header records that four source-scan pins broke on refactors while
+// the behaviour held, and v0.62.915 broke two more in exactly that way.
+
+describe('a card saved to the Sketchbook keeps its translated lines', () => {
+  const { _normaliseRecord, _denormaliseRecord } = require('../clip-store.js');
+  const TOKYO = {
+    placeId: 'p1',
+    name: '銀座 寿司',
+    nameLocal: '銀座 寿司',
+    nameReading: 'Ginza Sushi',
+    namePronounce: 'GIN-za SOO-shee',
+    nameGloss: 'Ginza Sushi',
+    area: '6-chome, Ginza, Chuo City, Tokyo',
+    addressLocal: '東京都中央区銀座6丁目',
+  };
+  const roundTrip = (venue) =>
+    _denormaliseRecord(_normaliseRecord({ lang: 'ja', body: 'x', venue })).venue;
+
+  it('⚠ every translated field survives the card HASH', () => {
+    const back = roundTrip(TOKYO);
+    for (const k of ['nameLocal', 'nameReading', 'namePronounce', 'nameGloss', 'addressLocal']) {
+      expect(back[k], `${k} was dropped in storage`).toBe(TOKYO[k]);
+    }
+  });
+
+  it('the guide the Sketchbook draws is the same one the live card draws', () => {
+    // Same function, same inputs, same answer — the property that makes a second copy of the
+    // precedence unnecessary. The Sketchbook has no live pronunciation projection, so the
+    // PERSISTED namePronounce is its `sayNow`.
+    const back = roundTrip(TOKYO);
+    const live = pickNameGuide(TOKYO, TOKYO.namePronounce);
+    const saved = pickNameGuide(back, back.namePronounce);
+    expect(saved).toEqual(live);
+    expect(saved.key, 'foreign script must still resolve to the pronunciation').toBe('say');
+  });
+
+  it('⚠ the address guide reaches the saved card, which is what was never forwarded', () => {
+    const back = roundTrip(TOKYO);
+    const g = pickAddressGuide(back);
+    expect(g, 'addressLocal did not survive the copy payload').toBeTruthy();
+    expect(g.key).toBe('local');
+    expect(g.text).toBe('(東京都中央区銀座6丁目)');
+    // …and the English area is never displaced — it stays the primary and the Maps query.
+    expect(back.area).toBe(TOKYO.area);
+  });
+
+  it('a venue with nothing translated draws no guide at all', () => {
+    // The Singapore case, which is most of this app: no local-name gate, so no second line.
+    // A guard that only ever asserts the positive would not notice a bracket under every card.
+    const sg = roundTrip({ placeId: 'p2', name: 'Tiong Bahru Bakery', area: '56 Eng Hoon St' });
+    expect(pickNameGuide(sg, sg.namePronounce)).toBeNull();
+    expect(pickAddressGuide(sg)).toBeNull();
+  });
+
+  it('VenueCard calls the shared functions and holds no copy of either rule', () => {
+    const src = read('web/clipboard/src/components/VenueCard.jsx');
+    expect(src).toMatch(/pickNameGuide\(v, v\.namePronounce\)/);
+    expect(src).toMatch(/pickAddressGuide\(v\)/);
+    expect(src).toMatch(/data-name-guide=/);
+    expect(src).toMatch(/data-address-guide=/);
+    // A re-inlined chain is the failure this whole file exists to prevent.
+    expect(src, 'the Sketchbook re-implemented the precedence').not.toMatch(/v\.nameLocal \?/);
+    expect(src, 'the Sketchbook re-implemented the address rule').not.toMatch(/v\.addressLocal \?/);
+  });
+
+  it('⚠ the copy payload forwards addressLocal, or the storage test above is vacuous', () => {
+    // The round-trip proves the STORE keeps the field. It cannot see whether the client ever
+    // sends it — and for addressLocal, for twenty releases, it did not.
+    const src = read('web/cuisine/src/v2/components/ResultCard.jsx');
+    expect(src, 'addressLocal is not in the copy payload').toMatch(/addressLocal: venue\.addressLocal,/);
+    for (const k of ['nameLocal', 'nameReading', 'namePronounce', 'nameGloss']) {
+      expect(src, `${k} left the copy payload`).toMatch(new RegExp(`${k}: venue\\.${k},`));
+    }
   });
 });

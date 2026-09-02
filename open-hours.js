@@ -45,7 +45,10 @@ function fmtTime(hour, minute, lang = 'en') {
   if (lang === 'id') return `${String(hour).padStart(2, '0')}.${mm}`;
   if (lang === 'fr') return `${String(hour).padStart(2, '0')}h${mm}`;
   // v0.62.316 — ru + de use the 24-hour clock with a colon (11:00).
-  if (lang === 'ru' || lang === 'de' || lang === 'zh' || lang === 'ja' || lang === 'es') return `${String(hour).padStart(2, '0')}:${mm}`;
+  // v0.62.915 — `ko` was missing from this list while DAY_LABELS and OH_PHRASES below both
+  // carry all nine, so a Korean reader got an otherwise-Korean hours line ending in an
+  // English "AM"/"PM". Korean listings use the 24-hour clock, same as zh/ja.
+  if (lang === 'ru' || lang === 'de' || lang === 'zh' || lang === 'ja' || lang === 'es' || lang === 'ko') return `${String(hour).padStart(2, '0')}:${mm}`;
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
   const ampm = hour < 12 ? 'AM' : 'PM';
   return `${h12}:${mm} ${ampm}`;

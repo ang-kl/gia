@@ -13582,7 +13582,11 @@ async function cacheBotUsername() {
         });
         // v0.58.55 / v0.59.0: prefer the body's lang (TMA toggle is
         // freshest), fall back to the Redis /language pref, then 'en'.
-        const bodyLang = (typeof req.body?.lang === 'string' && ['en','fr'].includes(req.body.lang)) ? req.body.lang : null;
+        // v0.62.915 — the allow-list was ['en','fr'], written when the app had two locales.
+        // Seven locales' TMA toggles were therefore DISCARDED here and the Redis /language
+        // pref used instead, so a reader who switched language in the Mini App without ever
+        // running /language got the stale one. Imported from i18n rather than retyped.
+        const bodyLang = (typeof req.body?.lang === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(req.body.lang)) ? req.body.lang : null;
         const reqLang = bodyLang || await resolveLang(redis, chatId, null);
         const slim = incoming
           .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
@@ -13974,7 +13978,11 @@ async function cacheBotUsername() {
         });
         // v0.58.55 / v0.59.0: prefer the body's venue.lang (TMA toggle),
         // fall back to the Redis /language pref, then 'en'.
-        const venueLang = (typeof venue.lang === 'string' && ['en','fr'].includes(venue.lang)) ? venue.lang : null;
+        // v0.62.915 — the allow-list was ['en','fr'], written when the app had two locales.
+        // Seven locales' TMA toggles were therefore DISCARDED here and the Redis /language
+        // pref used instead, so a reader who switched language in the Mini App without ever
+        // running /language got the stale one. Imported from i18n rather than retyped.
+        const venueLang = (typeof venue.lang === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(venue.lang)) ? venue.lang : null;
         const oneLang = venueLang || await resolveLang(redis, chatId, null);
         const { formatVenueBlock } = require('./venue-templates');
         const { googleMapsUrl } = require('./maps-url');
@@ -14192,7 +14200,11 @@ async function cacheBotUsername() {
           }
           console.log(`[WarmStart] A1 region resolved: client=${wsRegionIn || '<unset>'} cached=${cachedRegion || '<unset>'} coords=(${lat.toFixed(2)},${lng.toFixed(2)}) → ${region}`);
         }
-        const wsBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
+        // v0.62.915 — the allow-list was ['en','fr'], written when the app had two locales.
+        // Seven locales' TMA toggles were therefore DISCARDED here and the Redis /language
+        // pref used instead, so a reader who switched language in the Mini App without ever
+        // running /language got the stale one. Imported from i18n rather than retyped.
+        const wsBodyLang = (typeof langIn === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(langIn)) ? langIn : null;
         const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
         const isJB = region === 'JB';
         // v0.61.185 — three-region model. See cuisine-search comment
@@ -15506,7 +15518,11 @@ async function cacheBotUsername() {
         const { cuisines = [], filters = {}, prices = [], radius, region = 'SG', location, lang: langIn } = req.body || {};
         // v0.58.55 / v0.59.0: prefer the body's lang (TMA toggle),
         // fall back to the Redis /language pref, then 'en'.
-        const synBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
+        // v0.62.915 — the allow-list was ['en','fr'], written when the app had two locales.
+        // Seven locales' TMA toggles were therefore DISCARDED here and the Redis /language
+        // pref used instead, so a reader who switched language in the Mini App without ever
+        // running /language got the stale one. Imported from i18n rather than retyped.
+        const synBodyLang = (typeof langIn === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(langIn)) ? langIn : null;
         const synLang = synBodyLang || await resolveLang(redis, chatId, null);
 
         const cv = require('./cuisines-vault');

@@ -43,6 +43,7 @@
 // first read via migrateOldShapeEntry().
 
 const crypto = require('crypto');
+const { SUPPORTED: SUPPORTED_LOCALES } = require('./i18n');   // v0.62.915 — the clamp reads the list, never restates it
 
 const KEY_PREFIX = 'clip:';
 const CARD_PREFIX = 'card:';
@@ -77,10 +78,12 @@ function normaliseRecord(record) {
   const venueCount = Number.isFinite(record.venueCount) ? record.venueCount : 1;
   const preview = typeof record.preview === 'string' ? record.preview.slice(0, 200) : '';
   const body = String(record.body || '').slice(0, 4096);
-  const lang = record.lang === 'fr' ? 'fr' :
-               record.lang === 'id' ? 'id' :
-               record.lang === 'ru' ? 'ru' :
-               record.lang === 'de' ? 'de' : 'en';
+  // v0.62.915 — a hand-extended ternary ladder that stopped at five locales (en/fr/id/ru/de)
+  // while the app reached nine, so a card saved by a zh/ja/es/ko reader was persisted as 'en'
+  // and re-opened in English. The ladder is why: adding a locale meant editing this file, and
+  // whoever added zh, ja, es and ko to i18n.js had no reason to know it existed. The clamp now
+  // READS the supported list instead of restating it, so a tenth locale needs no edit here.
+  const lang = SUPPORTED_LOCALES.includes(record.lang) ? record.lang : 'en';
   const name = typeof record.name === 'string' && record.name.trim()
     ? record.name.trim().slice(0, 60) : '';
   const note = typeof record.note === 'string'
@@ -538,6 +541,14 @@ module.exports = {
   newCardId,
   cardKey,
   locsKey,
+  // v0.62.915 — the record normalisers, exported for tests. They were private, so the only way
+  // to guard the locale clamp was to scan this file for the ternary ladder that implemented it —
+  // and `bot-ternary-sweep.test.js` did exactly that, pinning `record.lang === 'fr' ? 'fr'` as
+  // its example of locale-code plumbing. Replacing the ladder broke a pin that was testing the
+  // spelling of a rule rather than the rule. Exported so the clamp can be asserted by CALLING,
+  // the repair that file already applied to `pipeline.js`'s languageCode pin.
+  _normaliseRecord: normaliseRecord,
+  _denormaliseRecord: denormaliseRecord,
   // Constants:
   KEY_PREFIX,
   CARD_PREFIX,

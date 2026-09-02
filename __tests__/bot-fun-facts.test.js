@@ -54,41 +54,107 @@ describe('bot-fun-facts — _formatHtml', () => {
     sourceUrl: 'https://eresources.nlb.gov.sg/infopedia/articles/SIP_x.html'
   };
 
-  it('returns empty for null fact', () => {
-    expect(_formatHtml(null, 'en')).toBe('');
+  // v0.62.915 — `_formatHtml` is async now. It resolves the body through the lib's `factBody()`
+  // rather than a local copy of the overlay rule, and the lib is ESM reachable only through the
+  // dynamic import this CJS file already performs. A missing `await` here does not throw — it
+  // asserts against a Promise, and `expect(promise).toContain(...)` fails with "expected [] to
+  // include", which is what these six did before they were updated.
+  it('returns empty for null fact', async () => {
+    expect(await _formatHtml(null, 'en')).toBe('');
   });
 
-  it('EN format includes "Did you know?" header + EN body + linked source', () => {
-    const html = _formatHtml(fact, 'en');
+  it('EN format includes "Did you know?" header + EN body + linked source', async () => {
+    const html = await _formatHtml(fact, 'en');
     expect(html).toContain('💡 Did you know?');
     expect(html).toContain('EN body text');
     expect(html).toContain('href="https://eresources.nlb.gov.sg');
     expect(html).toContain('NLB Infopedia');
   });
 
-  it('FR format swaps header to "Le saviez-vous ?"', () => {
-    const html = _formatHtml(fact, 'fr');
+  it('FR format swaps header to "Le saviez-vous ?"', async () => {
+    const html = await _formatHtml(fact, 'fr');
     expect(html).toContain('💡 Le saviez-vous ?');
     expect(html).toContain('FR body text');
   });
 
-  it('unknown lang falls back to EN body', () => {
-    const html = _formatHtml(fact, 'de');
+  it('a locale with no body for this fact falls back to EN', async () => {
+    // Was labelled "unknown lang" and passed 'de'. `de` is a REAL overlay locale — the label was
+    // written when the bot only knew en/fr, and it is the same assumption this release removed.
+    const html = await _formatHtml(fact, 'de');
     expect(html).toContain('EN body text');
   });
 
-  it('escapes HTML in the body', () => {
+  it('a genuinely unknown lang gets the EN header and the EN body', async () => {
+    const html = await _formatHtml(fact, 'xx');
+    expect(html).toContain('💡 Did you know?');
+    expect(html).toContain('EN body text');
+  });
+
+  it('escapes HTML in the body', async () => {
     const malicious = { ...fact, en: 'A & B <script>alert(1)</script>' };
-    const html = _formatHtml(malicious, 'en');
+    const html = await _formatHtml(malicious, 'en');
     expect(html).toContain('A &amp; B &lt;script&gt;');
     expect(html).not.toContain('<script>alert');
   });
 
-  it('handles missing sourceUrl gracefully', () => {
+  it('handles missing sourceUrl gracefully', async () => {
     const noUrl = { ...fact, sourceUrl: null };
-    const html = _formatHtml(noUrl, 'en');
+    const html = await _formatHtml(noUrl, 'en');
     expect(html).toContain('<i>Source: NLB Infopedia</i>');
     expect(html).not.toContain('href=');
+  });
+
+  // ── v0.62.915 — THE DRIFT THIS RELEASE REMOVED ────────────────────────────────────────────
+  //
+  // The bot held `_OVERLAY_LANGS = new Set(['id','ru','de'])` while `lib/fun-facts.js` had been
+  // corrected to read the overlay for zh/ja/es too. Measured on the shipped data: the generated
+  // overlay carries SIX locales x 72 facts, and the bot consulted three — so 216 written bodies
+  // were discarded at render time and a Chinese reader got English from the bot and Chinese
+  // from the Mini App, off the same file.
+
+  it('⚠ an overlay locale the bot used to discard now reaches the reply', async () => {
+    const withOverlay = { ...fact, _i18n: { zh: 'ZH overlay body', ja: 'JA overlay body' } };
+    const zh = await _formatHtml(withOverlay, 'zh');
+    expect(zh, 'zh still falls through to the English body').toContain('ZH overlay body');
+    expect(zh).not.toContain('EN body text');
+    const ja = await _formatHtml(withOverlay, 'ja');
+    expect(ja).toContain('JA overlay body');
+  });
+
+  it('⚠ a hand-authored flat body still beats the generated overlay', async () => {
+    // The precedence `factBody()` pins, asserted from the bot side too: the bot must not have
+    // re-implemented it in the other order while reading the same data.
+    const both = { ...fact, ja: 'JA hand-authored', _i18n: { ja: 'JA overlay body' } };
+    expect(await _formatHtml(both, 'ja')).toContain('JA hand-authored');
+  });
+
+  it('⚠ `fact.id` is the identifier, never an Indonesian body', async () => {
+    // `id` is a locale code AND this data file's primary key. Reading the flat key for 'id'
+    // would print the fact's id string as its body.
+    const idFact = { ...fact, id: 'sample', _i18n: { id: 'ID overlay body' } };
+    const html = await _formatHtml(idFact, 'id');
+    expect(html).toContain('ID overlay body');
+    expect(html, 'the fact identifier leaked into the body').not.toContain('>sample<');
+  });
+
+  it('the header and the Source label carry all nine locales', async () => {
+    // Widening the BODY alone would have printed a Chinese fact under an English heading.
+    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
+    const seenHeaders = new Set();
+    for (const l of LOCALES) {
+      const html = await _formatHtml(fact, l);
+      const header = html.slice(html.indexOf('<b>') + 3, html.indexOf('</b>'));
+      expect(header, `${l} has no header`).toBeTruthy();
+      seenHeaders.add(header);
+    }
+    // fr and en both say "Source", but the HEADERS must all differ — an English header reaching
+    // a ninth locale is exactly the defect, and a count is the only way to see it.
+    expect(seenHeaders.size, 'two locales share a header — one of them is falling back to EN')
+      .toBe(LOCALES.length);
+    const withSource = { ...fact, sourceUrl: null };
+    expect(await _formatHtml(withSource, 'ko')).toContain('출처:');
+    expect(await _formatHtml(withSource, 'zh')).toContain('来源:');
+    expect(await _formatHtml(withSource, 'en')).toContain('Source:');
   });
 });
 
