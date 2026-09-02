@@ -399,6 +399,12 @@ function loadAll() {
         const redevelopment = Array.isArray(z.redevelopment) ? z.redevelopment : [];   // v0.62.596
         if (cleaning.length || renovation.length || redevelopment.length) c.closures = { cleaning, renovation, redevelopment };
         if (Number.isFinite(z.foodStalls) && z.foodStalls > 0) c.stalls = z.foodStalls;   // 2026 refresh
+        // v0.62.912 — the MARKET half of a market-and-food centre. Measured on 83 of 123, and
+        // dropped here until now, so those centres read at roughly half their real size: Blk 117
+        // Aljunied is 79 cooked-food stalls AND 82 market stalls, and the card said 79.
+        if (Number.isFinite(z.marketStalls) && z.marketStalls > 0) c.marketStalls = z.marketStalls;
+        // v0.62.912 — NEA's prose profile, present for all 123. See build-hawker-closures.js.
+        if (z.description) c.description = z.description;
         if (z.status) c.status = z.status;
         if (z.isNew) c.isNew = true;
         // v0.62.596 — coord fallback from the closure CSV for centres missing from

@@ -47,6 +47,43 @@ export function activeClosure(closures) {
   return null;
 }
 
+// v0.62.912 — THE SOONEST WINDOW STILL AHEAD, which is the question the card could not answer.
+//
+// `activeClosure` above returns something only while TODAY is inside a window, and measured against
+// the shipped data that is 4 centres out of 123. The other 119 cards said nothing about closures at
+// all — not because the information was missing, but because nothing asked for it: the API has been
+// forwarding every future window the whole time (204 of them; 122 of 123 centres have a next
+// closure). A user planning Sunday lunch could not see that the centre shuts on Sunday.
+//
+// Same precedence as `activeClosure` — redevelopment > renovation > cleaning — applied only to
+// break ties on an identical start date. Otherwise the SOONEST wins regardless of kind, because
+// "what closes first" is the question, and a cleaning day next week matters more to a diner than
+// a renovation the month after.
+//
+// Returns `{ kind, start, end }`; note the extra `start`, which `activeClosure` has no use for.
+export function nextClosure(closures) {
+  if (!closures) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const RANK = { redevelopment: 0, renovation: 1, cleaning: 2 };
+  let best = null;
+  for (const kind of ['redevelopment', 'renovation', 'cleaning']) {
+    for (const w of (closures[kind] || [])) {
+      if (!w || !w.start || !w.end) continue;
+      const s = new Date(`${w.start}T00:00:00`);
+      if (!(s > today)) continue;                    // today-or-past is activeClosure's business
+      if (!best || s < best.date || (s.getTime() === best.date.getTime() && RANK[kind] < RANK[best.kind])) {
+        best = { kind, start: w.start, end: w.end, date: s };
+      }
+    }
+  }
+  return best ? { kind: best.kind, start: best.start, end: best.end } : null;
+}
+
+// The date a closure STARTS, formatted like closureTill formats an end: "7th" inside this month,
+// "8 December" later this year, "1 March 2027" beyond it. Same helper, different field — kept as a
+// thin alias rather than a copy so the two can never format differently.
+export const closureFrom = closureTill;
+
 // Operator: the map pin's colour matches its card tab's background.
 //   cleaning → red · renovation → grey · redevelopment → near-black (light text).
 export const CLOSURE_PIN_COLOR = {
