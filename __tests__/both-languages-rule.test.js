@@ -21,6 +21,7 @@
 // one is displayed. For the case the operator actually reported — a Singapore venue read in
 // Japanese — the first two are absent, so the pronunciation line still wins.
 import { describe, it, expect } from 'vitest';
+import { pickAddressGuide } from '../web/_shared/lib/address-guide.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { secondLine } from '../web/_shared/lib/name-second-line.js';
@@ -142,6 +143,32 @@ describe('the address keeps both, because something depends on the English', () 
     // it into Maps. It is on the operator's allowed list for exactly that reason.
     const src = code('web/cuisine/src/v2/components/ResultCard.jsx');
     expect(src).toMatch(/dropCountry\(venue\.area\)/);
-    expect(src).toMatch(/\{streetSay && streetSay !== addrStreet && \(/);
+    // v0.62.895 — this used to pin the inline `{streetSay && streetSay !== addrStreet`,
+    // which moved into pickAddressGuide() when the address gained a second candidate.
+    // Third time in this arc a source-scan broke on a refactor while the behaviour held,
+    // which is exactly what name-guide.js's header says these modules exist to stop. The
+    // rule is now asserted by CALLING the function; the English line is still grepped
+    // because "it is still rendered" is genuinely a source fact.
+    expect(src, 'the guide must go through the precedence, not an inline ternary')
+      .toMatch(/pickAddressGuide\(venue, streetSay, addrStreet\)/);
+    expect(pickAddressGuide({ area: '1 Raffles Place' }, undefined, undefined),
+      'no candidates → no second line').toBeNull();
+    expect(pickAddressGuide({ area: 'Blk 49, Telok Blangah Drive' }, 'Телок Бланга Драйв', 'Telok Blangah Drive').key)
+      .toBe('say');
+  });
+
+  it('and exactly ONE address guide renders — "Both means TWO"', () => {
+    // The operator's rule applied to the address, which until v0.62.895 had no contest
+    // to arbitrate: `addressLocal` had existed unrendered on 1,186 Michelin rows since
+    // v0.62.824. Now that both can exist, only one may show.
+    const both = pickAddressGuide(
+      { area: '88 Changgyeonggung-ro, Jongno-gu, Seoul', addressLocal: '서울 종로구 창경궁로 88' },
+      'Чангёнгун-ро', 'Changgyeonggung-ro',
+    );
+    expect(both.key, 'the real address outranks a way to pronounce a street').toBe('local');
+    expect(both.text).toBe('(서울 종로구 창경궁로 88)');
+    expect(both.icon, 'brackets mean translation; the icon means pronunciation').toBeNull();
+    // …and it never fires when it would just repeat the primary.
+    expect(pickAddressGuide({ area: '서울 종로구 창경궁로 88', addressLocal: '서울 종로구 창경궁로 88' })).toBeNull();
   });
 });
