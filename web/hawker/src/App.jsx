@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { m, useReducedMotion } from 'motion/react';
 import { openLink, initData, tg } from './tg.js';
@@ -10,10 +10,11 @@ import PronounceIcon from '../../_shared/components/PronounceIcon.jsx';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import { codeHex } from './lib/mapOverlays.js';
+import { nearestByDistance, shortDist } from '../../_shared/lib/temp-pin.js';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
-import { activeClosure, closureTill, CLOSURE_TAB_BG } from './closure.js';
+import { activeClosure, nextClosure, closureTill, closureFrom, CLOSURE_TAB_BG } from './closure.js';
 import StationLocationField from '../../_shared/components/StationLocationField.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
@@ -470,6 +471,13 @@ export default function App() {
 
   const regionList = data?.regions || [];
   const active = regionList.find((r) => r.region === activeRegion);
+  // v0.62.912 — every centre across every region, flat, for the Nearby row. Deliberately NOT
+  // scoped to the active region: the nearest alternative to a centre at a region boundary is
+  // routinely in the next region, and a "nearby" list that stopped at an administrative line
+  // would be wrong in exactly the cases a closed centre makes it matter.
+  const allCentresFlat = useMemo(
+    () => regionList.flatMap((r) => (r.centres || [])), [regionList],
+  );
 
   // v0.62.841 — HOW TO SAY the centre's name. Operator: "do the hawker centre and
   // train line endpoint". `curatedFor` hands the government register's Chinese /
@@ -583,6 +591,11 @@ export default function App() {
     const expanded = expandedCards.has(c.name);
     // v0.62.595 — cleaning/renovation/redevelopment closure tab: only when TODAY is in a window.
     const closure = activeClosure(c.closures);
+    // v0.62.912 — and the SOONEST window still ahead. `closure` is non-null for 4 centres of 123;
+    // `upcoming` is non-null for 122, from windows the API has been forwarding all along. Rendered
+    // as a muted line rather than a second coloured tab: the protruding tab means "shut now", and
+    // giving "shuts next Sunday" the same weight would make the loud signal meaningless.
+    const upcoming = closure ? null : nextClosure(c.closures);
     const card = (
       // v0.62.549 — opaque card surface (operator: carousel cards in focus with
       // an opaque background = the card background colour, not translucent).
@@ -652,13 +665,28 @@ export default function App() {
                 extra hard-coded 🍳 here rendered a DOUBLE frying pan (operator:
                 "two search icons"). Drop the prefix. */}
             {Number.isFinite(c.stalls) && c.stalls > 0 && (
-              <span className="text-[10px] text-tg-text/80">{tn('stalls.count', lang, { n: c.stalls })}</span>
+              /* v0.62.912 — a market-and-food centre now reads at its real size. Blk 117 Aljunied
+                 is 79 cooked-food stalls AND 82 market stalls; the card said 79, because
+                 `marketStalls` sat in data/hawker-closures.json and was never forwarded. */
+              <span className="text-[10px] text-tg-text/80">
+                {Number.isFinite(c.marketStalls) && c.marketStalls > 0
+                  ? tn('hawker.stallsBoth', lang, { f: c.stalls, m: c.marketStalls })
+                  : tn('stalls.count', lang, { n: c.stalls })}
+              </span>
             )}
             {c.status && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusIsOpen(c) ? 'bg-blue-600/20 text-blue-500' : 'bg-amber-500/20 text-amber-600'}`}>
                 {statusLabel(c, lang)}
               </span>
             )}
+          </div>
+        )}
+        {upcoming && (
+          <div className="text-[10px] text-tg-hint leading-snug">
+            {upcoming.kind === 'cleaning' ? '🧽 ' : upcoming.kind === 'redevelopment' ? '🚧 ' : '🔧 '}
+            {tn(upcoming.kind === 'cleaning' ? 'hawker.nextCleaning'
+              : upcoming.kind === 'redevelopment' ? 'hawker.nextRedevelopment'
+              : 'hawker.nextRenovation', lang, { from: closureFrom(upcoming.start) })}
           </div>
         )}
         {/* v0.62.678 — collapse toggle. Collapsed = identity + meta (above);
@@ -675,6 +703,34 @@ export default function App() {
         </button>
         {expanded && (
         <>
+        {/* v0.62.912 — NEA's own profile of the centre: built year, size, character, signature
+            dishes. Present for 123 of 123 in the source CSV and, until now, dropped by the
+            builder — so the card's only answer to "what IS this place" was `status`, which reads
+            "Existing" for 108 of them. Behind the toggle because it is a paragraph, not a fact. */}
+        {c.description && (
+          <div className="text-[11px] text-tg-hint leading-snug">{c.description}</div>
+        )}
+        {/* v0.62.912 — Nearby alternatives. nearestByDistance / shortDist / nearbyCentreNode have
+            all existed in _shared/lib/temp-pin.js for versions, tested, and nearbyCentreNode was
+            never called from anywhere — a feature designed and left unwired. Most useful exactly
+            when this centre is shut, which is why it sits under a card that now says so. */}
+        {(() => {
+          const near = nearestByDistance(c.lat, c.lng, allCentresFlat, 4)
+            .filter((n) => n.name !== c.name).slice(0, 3);
+          if (!near.length) return null;
+          return (
+            <div className="text-[11px] text-tg-hint leading-snug">
+              <span className="font-medium">{tn('hawker.nearby', lang)}</span>{' · '}
+              {near.map((n, k) => (
+                <span key={n.name}>
+                  {k > 0 && ' · '}
+                  {hawkerNameLocal(n.displayName || n.name, lang) || n.displayName || n.name}
+                  {' '}<span className="opacity-70">{shortDist(n.distM)}</span>
+                </span>
+              ))}
+            </div>
+          );
+        })()}
         {/* v0.62.553 — operator: Michelin Bib Gourmand stall(s) in this centre,
             house style "✳️ Bib Gourmand · <stall>". The ✳️ + word carry the
             meaning (CVD-safe), mirroring the map pin's macaron-red + ✳️ marker. */}

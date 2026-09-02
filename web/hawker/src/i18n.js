@@ -39,6 +39,14 @@ const STRINGS = {
   'hawker.closedCleaning': { en: 'Closed for cleaning till {till}', fr: 'Fermé pour nettoyage jusqu\'au {till}' },
   'hawker.redevelopment': { en: 'Redevelopment till {till}', fr: 'Réaménagement jusqu\'au {till}' },
   'hawker.renovation': { en: 'Under Renovation till {till}', fr: 'En rénovation jusqu\'au {till}' },
+  // v0.62.912 — the UPCOMING closure, plus the Nearby label and the food+market stall line.
+  // activeClosure only speaks while a centre is shut TODAY (4 of 123); these carry the 204
+  // future windows the API has been sending all along.
+  'hawker.nextCleaning': { en: 'Next cleaning · {from}', fr: 'Prochain nettoyage · {from}' },
+  'hawker.nextRenovation': { en: 'Renovation from {from}', fr: 'Rénovation à partir du {from}' },
+  'hawker.nextRedevelopment': { en: 'Redevelopment from {from}', fr: 'Réaménagement à partir du {from}' },
+  'hawker.nearby': { en: 'Nearby', fr: 'À proximité' },
+  'hawker.stallsBoth': { en: '🍳 {f} food · {m} market stalls', fr: '🍳 {f} stands · {m} étals de marché' },
   'link.googleMap': { en: 'Google Map ↗', fr: 'Google Maps ↗' },
   'layer.colour':            { en: 'Colour', fr: 'Couleur' },
   'layer.colour.on':         { en: '☑️ Monochrome', fr: '☑️ Monochrome' },
@@ -184,6 +192,11 @@ const STRINGS = {
 // into STRINGS below (existing en/fr untouched; t()'s `entry[l] || entry.en`
 // degrades any unlisted key to English). Hawker "hawker centre" → "pusat jajan".
 const ID_STRINGS = {
+  'hawker.nextCleaning': 'Pembersihan berikutnya · {from}',
+  'hawker.nextRenovation': 'Renovasi mulai {from}',
+  'hawker.nextRedevelopment': 'Pembangunan ulang mulai {from}',
+  'hawker.nearby': 'Di dekatnya',
+  'hawker.stallsBoth': '🍳 {f} kios makanan · {m} kios pasar',
   'header.title': '🍚 Pusat Jajan (2026)',
   'header.versionCount': 'v{v} · {n} pusat',
   'header.versionOnly': 'v{v}',
@@ -274,6 +287,11 @@ for (const k in ID_STRINGS) {
 
 // ----- Russian (ru) overlay — v0.62.310. Control labels kept tight to fit EN pills. -----
 const RU_STRINGS = {
+  'hawker.nextCleaning': 'Следующая уборка · {from}',
+  'hawker.nextRenovation': 'Ремонт с {from}',
+  'hawker.nextRedevelopment': 'Реконструкция с {from}',
+  'hawker.nearby': 'Рядом',
+  'hawker.stallsBoth': '🍳 {f} прилавков · {m} рыночных',
   'header.title': '🍚 Хокер-центр (2026)',
   'header.versionCount': 'v{v} · {n} центров',
   'header.versionOnly': 'v{v}',
@@ -361,6 +379,11 @@ const RU_STRINGS = {
 
 // ----- German (de) overlay — v0.62.310. Compounds abbreviated where chips are tight. -----
 const DE_STRINGS = {
+  'hawker.nextCleaning': 'Nächste Reinigung · {from}',
+  'hawker.nextRenovation': 'Renovierung ab {from}',
+  'hawker.nextRedevelopment': 'Umbau ab {from}',
+  'hawker.nearby': 'In der Nähe',
+  'hawker.stallsBoth': '🍳 {f} Essensstände · {m} Marktstände',
   'header.title': '🍚 Hawker-Zentrum (2026)',
   'header.versionCount': 'v{v} · {n} Zentren',
   'header.versionOnly': 'v{v}',
@@ -450,6 +473,11 @@ for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k
 
 // ----- Chinese (zh) overlay — v0.62.491. Agent-drafted; SG terms (小贩中心/德士站). Control labels tight. -----
 const ZH_STRINGS = {
+  'hawker.nextCleaning': '下次清洗 · {from}',
+  'hawker.nextRenovation': '{from} 起装修',
+  'hawker.nextRedevelopment': '{from} 起重建',
+  'hawker.nearby': '附近',
+  'hawker.stallsBoth': '🍳 {f} 个熟食摊 · {m} 个巴刹摊',
   'header.title': '🍚 小贩中心 (2026)',
   'header.versionCount': 'v{v} · {n} 家中心',
   'header.versionOnly': 'v{v}',
@@ -538,6 +566,11 @@ for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k
 
 // ----- Japanese (ja) overlay — v0.62.491. Agent-drafted; verified Japanese (no Korean). Control labels tight. -----
 const JA_STRINGS = {
+  'hawker.nextCleaning': '次回清掃 · {from}',
+  'hawker.nextRenovation': '{from} から改装',
+  'hawker.nextRedevelopment': '{from} から再開発',
+  'hawker.nearby': '近く',
+  'hawker.stallsBoth': '🍳 屋台 {f} · 市場 {m}',
   'header.title': '🍚 ホーカーセンター (2026)',
   'header.versionCount': 'v{v} · {n} 施設',
   'header.versionOnly': 'v{v}',
@@ -626,6 +659,11 @@ for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k
 
 // ----- Spanish (es) overlay — v0.62.491. Agent-drafted; no apostrophes. Control labels tight. -----
 const ES_STRINGS = {
+  'hawker.nextCleaning': 'Próxima limpieza · {from}',
+  'hawker.nextRenovation': 'Renovación desde el {from}',
+  'hawker.nextRedevelopment': 'Remodelación desde el {from}',
+  'hawker.nearby': 'Cerca',
+  'hawker.stallsBoth': '🍳 {f} puestos de comida · {m} de mercado',
   'header.title': '🍚 Centro de hawkers (2026)',
   'header.versionCount': 'v{v} · {n} centros',
   'header.versionOnly': 'v{v}',
@@ -716,6 +754,11 @@ for (const k in ES_STRINGS) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k
 // the operator's standing instruction. `ko` is NOT in SUPPORTED yet, so this block is inert:
 // the merge below writes a column nothing reads until the K6 flip adds 'ko' to the list.
 const KO_STRINGS = {
+  "hawker.nextCleaning": "다음 청소 · {from}",
+  "hawker.nextRenovation": "{from}부터 보수",
+  "hawker.nextRedevelopment": "{from}부터 재개발",
+  "hawker.nearby": "주변",
+  "hawker.stallsBoth": "🍳 음식 {f} · 시장 {m}",
   "header.title": "🍚 호커센터 (2026)",
   "header.versionCount": "v{v} · {n}곳",
   "header.versionOnly": "v{v}",

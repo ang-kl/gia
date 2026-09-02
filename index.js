@@ -19714,6 +19714,12 @@ async function cacheBotUsername() {
             // data.gov.sg "Hawker Centres (GEOJSON)". Replaces the
             // v0.60.53 closure path (NEA retired the closures dataset).
             stalls: Number.isFinite(c.stalls) ? c.stalls : null,
+            // v0.62.912 — the market half, and NEA's own prose profile of the centre. Both have
+            // been in data/hawker-closures.json all along and neither reached the client, so the
+            // card could say neither how big a market-and-food centre really is nor what the
+            // place actually IS — `status` offered only "Existing", which 108 of 123 share.
+            marketStalls: Number.isFinite(c.marketStalls) ? c.marketStalls : null,
+            description: c.description || null,
             status: c.status || null,
             // v0.62.553 — Michelin Bib Gourmand stall names in this centre
             // (from SG-michelin.js BIB_GOURMAND, joined in hawker-vault). Drives

@@ -29,7 +29,7 @@ import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
-import { activeClosure, CLOSURE_PIN_COLOR } from '../closure.js';
+import { activeClosure, nextClosure, closureTill, closureFrom, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
@@ -79,9 +79,17 @@ const PIN_BIB_RED = '#C6282D';
 // redevelopment) recolours its pin to the tab's background colour and shows a
 // "CLOSE" badge above the pin (like the "NEW" badge). closureKind overrides the
 // established-red / new-navy / Bib-red colour while the closure is active.
-function hawkerPinNode(isNew, number, hasBib, closureKind) {
+// v0.62.912 — `upcomingKind` is a SECOND, quieter closure state: a centre shut later, not now.
+// It deliberately uses a different visual channel from `closureKind` — an outer RING in the
+// closure colour, and no badge — rather than a second fill. Two fills would be indistinguishable
+// at a glance on a dense map, and the whole point of the distinction is that one means "do not
+// walk there today" and the other means "plan around it". Colour alone never carries either
+// signal: closed-now keeps its CLOSE badge, matching the ✳️-plus-red convention this file
+// already uses for Bib Gourmand.
+function hawkerPinNode(isNew, number, hasBib, closureKind, upcomingKind) {
   const size = 26;
   const closeColor = closureKind ? CLOSURE_PIN_COLOR[closureKind] : null;
+  const soonColor = (!closeColor && upcomingKind) ? CLOSURE_PIN_COLOR[upcomingKind] : null;
   const wrap = document.createElement('div');
   wrap.style.cssText =
     `position:relative;width:${size}px;height:${size}px;cursor:pointer;`;
@@ -90,7 +98,10 @@ function hawkerPinNode(isNew, number, hasBib, closureKind) {
     'display:flex;align-items:center;justify-content:center;' +
     `width:${size}px;height:${size}px;` +
     'border-radius:50% 50% 50% 0;transform:rotate(-45deg);' +
-    'border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.45);' +
+    'border:2px solid #fff;' +
+    (soonColor
+      ? `box-shadow:0 0 0 2px ${soonColor},0 2px 5px rgba(0,0,0,0.45);`
+      : 'box-shadow:0 2px 5px rgba(0,0,0,0.45);') +
     `background:${closeColor || (hasBib ? PIN_BIB_RED : (isNew ? '#1e3a8a' : '#e53935'))};`;
   const inner = document.createElement('span');
   inner.style.cssText =
@@ -468,10 +479,34 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     // an innerHTML info window and the string is authored data, not a literal.
     const hLocal = hawkerNameLocal(c.displayName || c.name, lang);
     if (hLocal) h += `<div style="font-size:12px;opacity:.7;">(${escapeHtml(hLocal)})</div>`;
+    // v0.62.912 — WAS `if (status) … else if (stalls)`, and every centre carries
+    // status: "Existing", so the stall count NEVER rendered in this popup. Not a rare edge —
+    // 123 of 123. Both lines now show.
     if (c.status) {
       h += `<div style="color:${p.sub};margin-top:2px;">🕒 ${escapeHtml(c.status)}</div>`;
-    } else if (Number.isFinite(c.stalls) && c.stalls > 0) {
-      h += `<div style="color:${p.sub};margin-top:2px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`;
+    }
+    if (Number.isFinite(c.stalls) && c.stalls > 0) {
+      const stallsTxt = (Number.isFinite(c.marketStalls) && c.marketStalls > 0)
+        ? tn('hawker.stallsBoth', lang, { f: c.stalls, m: c.marketStalls })
+        : tn('stalls.count', lang, { n: c.stalls });
+      h += `<div style="color:${p.sub};margin-top:2px;">${escapeHtml(stallsTxt)}</div>`;
+    }
+    // v0.62.912 — and the closure, which this popup never mentioned at all: the pin recoloured
+    // itself and the card grew a tab, while tapping the pin opened a card that said nothing
+    // about the centre being shut. Same shared helpers, so the three cannot disagree.
+    const popActive = activeClosure(c.closures);
+    const popNext = popActive ? null : nextClosure(c.closures);
+    if (popActive) {
+      const k = popActive.kind === 'cleaning' ? 'hawker.closedCleaning'
+        : popActive.kind === 'redevelopment' ? 'hawker.redevelopment' : 'hawker.renovation';
+      h += `<div style="color:${CLOSURE_PIN_COLOR[popActive.kind]};font-weight:700;margin-top:3px;">`
+        + `${escapeHtml(tn(k, lang, { till: closureTill(popActive.end) }))}</div>`;
+    } else if (popNext) {
+      const k = popNext.kind === 'cleaning' ? 'hawker.nextCleaning'
+        : popNext.kind === 'redevelopment' ? 'hawker.nextRedevelopment' : 'hawker.nextRenovation';
+      const glyph = popNext.kind === 'cleaning' ? '🧽' : popNext.kind === 'redevelopment' ? '🚧' : '🔧';
+      h += `<div style="color:${p.sub};margin-top:3px;">${glyph} `
+        + `${escapeHtml(tn(k, lang, { from: closureFrom(popNext.start) }))}</div>`;
     }
     if (c.address) {
       h += `<div style="color:${p.sub};margin-top:3px;">📇 ${escapeHtml(c.address)}</div>`;
@@ -592,7 +627,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: hawkerPinNode(c.isNew, centreNo, Array.isArray(c.bibStalls) && c.bibStalls.length > 0, activeClosure(c.closures)?.kind || null),
+        content: hawkerPinNode(c.isNew, centreNo, Array.isArray(c.bibStalls) && c.bibStalls.length > 0, activeClosure(c.closures)?.kind || null, nextClosure(c.closures)?.kind || null),
         // v0.61.91 — centre droplets sit above every overlay layer
         // (train stations / pins) so they are never occluded.
         zIndex: 1000,

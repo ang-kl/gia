@@ -97,6 +97,13 @@ function main() {
     const status = (r[col('status')] || '').trim();
     const food = parseInt(r[col('no_of_food_stalls')], 10);
     const market = parseInt(r[col('no_of_market_stalls')], 10);
+    // v0.62.912 — NEA's own prose profile of the centre: built year, size, character and
+    // signature dishes, e.g. "Built in 1974, Adam Food Centre comprises 32 cooked food stalls.
+    // Although small in size, the hawker centre has a huge reputation…". Populated for all 123
+    // rows (median 238 chars) and, until now, dropped on the floor here — the card had no answer
+    // to "what IS this place" and `status` gave it only "Existing", which 108 of 123 share.
+    // Whitespace is squeezed because the source has double spaces after full stops.
+    const description = (r[col('description_myenv')] || '').replace(/\s+/g, ' ').trim();
     // Postal from address_myenv ("…, Singapore 289876") — the reliable join key
     // (name-folding alone misses ~70% because the CSV re-orders block/street tokens).
     const addr = (r[col('address_myenv')] || '').trim();
@@ -112,6 +119,7 @@ function main() {
       marketStalls: Number.isFinite(market) ? market : null,
       status: status || null,
       isNew: /\(new\)/i.test(status),
+      description: description || null,
     };
   }
   fs.writeFileSync(OUT_PATH, JSON.stringify(out, null, 0) + '\n');
