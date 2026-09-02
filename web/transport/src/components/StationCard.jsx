@@ -508,8 +508,19 @@ export default function StationCard({
             readSaved, data-station-card, the Maps query and the share URL. */}
         <span className="flex-1 min-w-0">
           <span className={`font-google ${isCompact ? 'text-type-meta' : 'text-type-body'} font-bold leading-tight block truncate`} title={displayName}>{displayName}</span>
+          {/* ⚠ v0.62.902 — THE COLOUR COMES FROM THE STRIP, NOT FROM THE THEME. Operator, with
+              two screenshots: *"The second line transaction text is in black font colour for the
+              train station card."* It was `text-tg-hint` — Telegram's hint grey, which is
+              computed for the PAGE background and knows nothing about the line-coloured band it
+              is sitting on. On the EW green it read as black; on the NE purple it survived only
+              because the purple is dark enough to flatter it. The name one line above has always
+              used `stripText` (white, or #111827 on a white interchange strip); the second line
+              was the one part of the band that ignored it. Same shape as the defects this arc
+              keeps turning up: one datum — the strip's own text colour — and a call site that
+              did not ask. Opacity, not a different colour, keeps it subordinate to the name. */}
           {nameSecond && (
-            <span className="text-[11px] text-tg-hint leading-tight flex items-center gap-1 min-w-0">
+            <span className="text-[11px] leading-tight flex items-center gap-1 min-w-0"
+              style={{ color: stripText, opacity: 0.85 }}>
               {nameSecond.key === 'say' && <PronounceIcon className="shrink-0 opacity-80" />}
               <span className="truncate">{nameSecond.text}</span>
             </span>

@@ -394,7 +394,7 @@ describe('end to end', () => {
     const hostile = { isOpen: true, get() { throw new Error('x'); }, hGetAll() { throw new Error('x'); } };
     for (const args of [
       { redis: hostile, lang: 'ko', t: tn },
-      { lat: NaN, lng: NaN, lang: 'xx', queryText: ' '.repeat(50), t: tn },
+      { lat: NaN, lng: NaN, lang: 'xx', queryText: ' '.repeat(50), t: tn },
       {},
     ]) {
       const out = await suggestForContext(args);
