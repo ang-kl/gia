@@ -2,11 +2,32 @@
 // live carpark / nearby train lines.
 // Plain framework-agnostic JS; operates on a google.maps.Map instance.
 //
-// KEEP IN SYNC: this file is byte-identical to
+// THREE COPIES, AND THEY ARE **NOT** BYTE-IDENTICAL. This header used to say they
+// were, in all three files, and it was false in all three. Two of them even listed
+// THEMSELVES as the file they matched, so following the instruction — "edit all
+// copies together", meaning copy one over another — would have deleted live code.
+// A sync note that is wrong is worse than none: it is an instruction to break
+// things, and it reads with the authority of documentation.
+//
+// The other two copies:
 //   web/hawker/src/lib/mapOverlays.js
-//   web/transport/src/lib/mapOverlays.js
-// The three TMAs are separate Vite apps with no shared package, so the
-// module is intentionally duplicated. Edit all copies together.
+//   web/cuisine/src/v2/lib/mapOverlays.js
+// The three TMAs are separate Vite apps with no shared package, so the module is
+// duplicated on purpose. What follows is what is actually true, measured at
+// v0.62.894 and asserted by __tests__/map-overlays-copies.test.js:
+//
+//   87 top-level bindings across the three files
+//   71 present in all three — 63 byte-identical, 8 deliberately divergent
+//   10 present in transport + cuisine only: the 🍚 hawker overlay helpers.
+//      HAWKER DOES NOT HAVE THEM, and that is not an oversight — hawker centres
+//      are that app's own content, not a layer it draws over something else.
+//    1 hawker only: ensureInfoVisible (its info card pans itself into view)
+//    5 cuisine only: the hawker palette constants + carpark-cache internals
+//
+// SO: DO NOT COPY ONE FILE OVER ANOTHER. Port the specific change, to the copies
+// that should have it, and run the test. The `stationInfoCardHtml` region IS held
+// byte-identical across all three and is asserted by
+// __tests__/station-card-labels.test.js — that one you may sync wholesale.
 //
 // v0.64.0 — point layers (carpark / taxis / attractions / exits) are
 // clipped to a radius of an anchor point (the map viewport centre,
