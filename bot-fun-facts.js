@@ -30,7 +30,7 @@ async function _loadLib() {
   // The lib's `_pickFact` closure-captures the data file's `facts`
   // export, so we don't need to load the data file separately — just
   // call `_pickFact({ ctxTags, lastSeen })` with no factsList.
-  _libCache = { _pickFact: libMod._pickFact };
+  _libCache = { _pickFact: libMod._pickFact, factBody: libMod.factBody };
   return _libCache;
 }
 
@@ -84,29 +84,66 @@ function _escapeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
-// v0.62.x — id/ru/de fact bodies come from the generated `_i18n` overlay
-// (merged onto facts by lib/fun-facts.js); en/fr remain flat on the fact.
-const _OVERLAY_LANGS = new Set(['id', 'ru', 'de']);
+// v0.62.915 — THE BOT HELD ITS OWN COPY OF THE OVERLAY RULE, AND IT WAS THREE LOCALES BEHIND.
+// `_OVERLAY_LANGS` was `['id','ru','de']` while `lib/fun-facts.js` had already been corrected to
+// read the overlay for zh/ja/es too (v0.62.777, whose own comment records ~5,300 unreachable
+// strings). Measured: the generated overlay carries SIX locales × 72 facts; the bot consulted
+// three of them and served `fact.en` for the other 216, so a Chinese reader got an English fun
+// fact from the BOT and a Chinese one from the MINI APP, off the same data file.
+//
+// The set is DELETED rather than widened. `factBody()` in the lib is the one place that knows the
+// precedence — hand-authored flat key, then overlay, then English — and its own comment records
+// that branching on a language SET could only ever read one of the two. A second copy of a rule is
+// the defect; a wider second copy is the same defect with a later expiry date.
 const _FF_HEADERS = {
+  en: '💡 Did you know?',
   fr: '💡 Le saviez-vous ?',
   id: '💡 Tahukah Anda?',
   ru: '💡 А вы знали?',
   de: '💡 Wussten Sie schon?',
-  en: '💡 Did you know?',
+  // v0.62.915 — the header table stopped at five, so widening the BODY alone would have printed a
+  // Chinese fact under an English heading. Hand-authored, like the rest of this arc's locale work.
+  zh: '💡 你知道吗？',
+  ja: '💡 ご存知ですか？',
+  es: '💡 ¿Sabías que...?',
+  ko: '💡 알고 계셨나요?',
+};
+
+// v0.62.915 — `Source` was a bare English literal on every locale's reply, below a header and a
+// body that both now localise. Nine values, hand-authored.
+const _FF_SOURCE = {
+  en: 'Source',
+  fr: 'Source',
+  id: 'Sumber',
+  ru: 'Источник',
+  de: 'Quelle',
+  zh: '来源',
+  ja: '出典',
+  es: 'Fuente',
+  ko: '출처',
 };
 
 // Build the HTML body for the bot reply. Telegram parse_mode='HTML'.
-function _formatHtml(fact, lang) {
+//
+// v0.62.915 — ASYNC NOW, and that is the point rather than a cost. The body used to be resolved
+// here by a local copy of the overlay rule; it is resolved by `factBody()` in the lib, which is
+// an ESM module this CJS file can only reach through the dynamic import `_loadLib()` already
+// performs. Paying one await to have ONE implementation of the precedence beats keeping a
+// synchronous second copy that drifts — which is exactly what it did, for three locales.
+async function _formatHtml(fact, lang) {
   if (!fact) return '';
   let body;
-  if (_OVERLAY_LANGS.has(lang)) {
-    body = (fact._i18n && fact._i18n[lang]) || fact.en || '';
-  } else {
-    const safeLang = lang === 'fr' ? 'fr' : 'en';
-    body = fact[safeLang] || fact.en || '';
+  try {
+    const { factBody } = await _loadLib();
+    body = factBody(fact, lang);
+  } catch {
+    // The lib is unreachable (import failure). English is the honest fallback: it is what every
+    // locale was already getting for the body before this change, so a failure here is no worse
+    // than the status quo it replaces.
+    body = fact.en || '';
   }
   const header = _FF_HEADERS[lang] || _FF_HEADERS.en;
-  const sourceLabel = 'Source';
+  const sourceLabel = _FF_SOURCE[lang] || _FF_SOURCE.en;
   const sourceLine = (fact.source && fact.sourceUrl)
     ? `\n\n<a href="${_escapeHtml(fact.sourceUrl)}">${sourceLabel}: ${_escapeHtml(fact.source)}</a>`
     : (fact.source ? `\n\n<i>${sourceLabel}: ${_escapeHtml(fact.source)}</i>` : '');
@@ -126,7 +163,7 @@ async function sendFunFactReply({ bot, redis, chatId, lang, cuisines, region, co
   try {
     const fact = await pickFunFactForChat({ redis, chatId, cuisines, region, countryPref });
     if (!fact) return null;
-    const html = _formatHtml(fact, lang);
+    const html = await _formatHtml(fact, lang);
     if (!html) return null;
     await bot.sendMessage(chatId, html, {
       parse_mode: 'HTML',

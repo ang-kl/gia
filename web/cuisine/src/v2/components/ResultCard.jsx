@@ -321,6 +321,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         namePronounce: venue.namePronounce, // v0.62.840 — how to say it
         nameGloss: venue.nameGloss,      // v0.62.x item 7 — meaning of a foreign-lang name
         area: venue.area,
+        // v0.62.915 — the four name fields above have been forwarded since v0.62.840 and
+        // `addressLocal` never was, so a card saved from a venue showing its Korean address
+        // arrived in the Sketchbook with only the English line. The four were forwarded and
+        // then not rendered; this one was rendered here and not forwarded. Same gap, opposite
+        // end of the same wire.
+        addressLocal: venue.addressLocal,
         lat: venue.lat,
         lng: venue.lng,
         rating: venue.rating,

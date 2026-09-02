@@ -129,7 +129,15 @@ describe('the card prefers the map and survives without it', () => {
     expect(pick(withMap, 'ja')).toBe('本日休業 · 日 11:30 開店');
     // v0.62.883 (K6) — 'ko' was this file's example of a locale open-hours cannot speak.
     // It speaks it now, so the example moves to 'pt' and Korean proves the other direction.
-    expect(pick(withMap, 'ko')).toBe('오늘 휴무 · 일 11:30 AM 영업 시작');
+    //
+    // ⚠ v0.62.915 — AND THIS FIXTURE PINNED A DEFECT. It read `일 11:30 AM 영업 시작`: a
+    // Korean sentence, a Korean day label, and an English AM. `fmtTime` listed ru/de/zh/ja/es
+    // in its 24-hour branch and omitted ko, so Korean fell through to the 12-hour English form
+    // — while DAY_LABELS and OH_PHRASES in the same file both carried all nine. K6 moved the
+    // EXAMPLE and copied the output it happened to produce, which is how a fixture ends up
+    // asserting the bug it walked past.
+    expect(pick(withMap, 'ko')).toBe('오늘 휴무 · 일 11:30 영업 시작');
+    expect(pick(withMap, 'ko'), 'an English AM/PM is back in a Korean line').not.toMatch(/AM|PM/);
     expect(pick(withMap, 'pt')).toBe('EN scalar');          // a locale open-hours cannot speak
     expect(pick({ closedTodayLabel: 'EN scalar' }, 'ja')).toBe('EN scalar');  // old payload
     expect(pick({}, 'ja')).toBeUndefined();                  // nothing at all — no throw
