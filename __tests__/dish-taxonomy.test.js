@@ -174,7 +174,20 @@ describe('the dish taxonomy overlay', () => {
     // Before batch 1, `japanese` had no typed dish at all, so every period returned the same
     // answer chosen by a 1e-6 jitter over a flat field — `[AMD-165]` recorded that as a forty-way
     // tie at exactly 1.0000. A guard that only counted rows would have been green either way.
-    for (const slug of ['japanese', 'cantonese', 'american', 'korean', 'french', 'thai', 'mexican', 'south-indian', 'british']) {
+    // ⚠ EVERY FULLY-CLASSIFIED CUISINE, NOT A HAND-PICKED LIST. A mutation flattening `vietnamese`
+    // to `anytime` SURVIVED, because vietnamese was not on the list — the list had grown by two
+    // names per batch while the table grew by 150 rows, so it was checking eleven of twenty-six.
+    // Same shape as the runSearch census that pinned one line of seventeen, and the reason that
+    // one became an exact count rather than a floor.
+    //
+    // Measured before widening it: all 26 fully-classified cuisines pass, so no exemption list is
+    // needed — and an exemption nobody needs is a hole nobody is watching.
+    const classified = Object.entries(NATION_OVERLAY)
+      .filter(([, e]) => (e.iconicDishes || []).length
+        && e.iconicDishes.every((d) => Array.isArray(d.mealTime) && d.mealTime.length))
+      .map(([slug]) => slug);
+    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(26);
+    for (const slug of classified) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
       const top = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
         { lang: 'en', slug })[0];
@@ -217,18 +230,42 @@ describe('the dish taxonomy overlay', () => {
     // A FLOOR, not a ratio. The right ratio is not knowable, and a floor rises naturally as
     // batches land — 1 → 3 with batch 2 (korean and malaysian, the two cuisines there with real
     // 24-hour trade in Singapore), then 3 → 5 with batch 4, which added south-indian (the 24-hour
-    // prata and dosa shops, six rows) and chinese (jianbing and baozi from pre-dawn carts).
+    // prata and dosa shops, six rows) and chinese (jianbing and baozi from pre-dawn carts), then
+    // 5 → 6 with batch 5, which added teochew (the 24-hour porridge and fish-soup shops).
     //
-    // ⚠ RATCHETED, because a floor that never moves has stopped being one. The Singaporean share
-    // of the period went 100 % → 62 % → 45 % across those two batches; the floor is what stops it
+    // ⚠ RATCHETED TWICE NOW, because a floor that never moves has stopped being one. The
+    // Singaporean share of the period went 100 % → 62 % → 45 % → 41 %; the floor is what stops it
     // sliding back. Raise it again when a batch earns it.
+    //
+    // Note what did NOT happen: batch 5 also carried hokkien and turkish, both of which trade late
+    // here — and neither was given the period, because hawker stalls and döner shops shut before
+    // dawn. A wider number was available and was not taken.
     const by = new Map();
     for (const [slug, e] of Object.entries(NATION_OVERLAY)) {
       for (const d of (e.iconicDishes || [])) {
         if (Array.isArray(d.mealTime) && d.mealTime.includes('night_supper')) by.set(slug, (by.get(slug) || 0) + 1);
       }
     }
-    expect(by.size, 'night_supper lost cuisines — a 4am suggestion is narrowing again').toBeGreaterThan(3);
+    expect(by.size, 'night_supper lost cuisines — a 4am suggestion is narrowing again').toBeGreaterThan(4);
+
+    // ⚠ AND THE SET IS PINNED, NOT JUST ITS SIZE. A mutation stripping `teochew`'s night_supper
+    // rows SURVIVED the floor above: it took the count 6 → 5, and `> 4` accepts 5. A floor
+    // ratcheted to one below the achieved value lets each batch silently undo the previous one's
+    // gain — which is precisely what that mutation did.
+    //
+    // So each contributor is named with the reason it earned the period. Removing one is then a
+    // deliberate edit to this list rather than a number that quietly still passes. Same discipline
+    // as ERASURE_EXEMPT in user-data.js: covered, or exempt with a stated reason, and both fail.
+    const EARNED = {
+      singaporean:    '24-hour coffeeshops, prata shops and porridge stalls',
+      malaysian:      'mamak stalls, which do not shut',
+      'south-indian': 'the 24-hour Tekka / Race Course Road dosa and idli shops',
+      teochew:        'the 24-hour porridge and fish-soup coffeeshops',
+      korean:         'Tanjong Pagar fried chicken and the ox-bone soup shops',
+      chinese:        'jianbing and baozi from pre-dawn carts',
+    };
+    const lost = Object.keys(EARNED).filter((slug) => !by.has(slug));
+    expect(lost, 'these cuisines earned night_supper and no longer carry it').toEqual([]);
   });
 
   it('the completeness count is pinned, so a dropped batch cannot pass quietly', () => {
@@ -236,12 +273,14 @@ describe('the dish taxonomy overlay', () => {
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
     // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
+    // Batch 5 (v0.62.908): +149 — hokkien, teochew, lebanese, greek, turkish, vietnamese.
+    // 713 → 862 — PAST HALFWAY. The taxonomy now describes more of the catalogue than it doesn't.
     // Batch 4 (v0.62.907): +162 — south-indian, german, british, sichuan, chinese, filipino.
     // 551 → 713, past 40 % of the 1,697.
     // Batch 3 (v0.62.906): +147 — spanish, mexican, peranakan, indonesian, thai. 404 → 551.
     // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
-    // japanese in full. 99 → 254. Seven batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(713);
+    // japanese in full. 99 → 254. Six batches to go; the arc ends at 1,697.
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(862);
   });
 });
