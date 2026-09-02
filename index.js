@@ -79,6 +79,10 @@ const {
 // Override the SG default when "Times Square KL", "Bangkok",
 // "Putrajaya", etc. appears in the query.
 const { detectCountryHint } = require('./country-hints');
+// v0.62.896 — one mapping from the reader's app language to the Places `languageCode`,
+// replacing six hand-written `lang === 'fr' ? 'fr' : 'en'` ternaries. See that module's
+// header for what asking Places for Korean COSTS — it returns one language, not both.
+const { placesLanguage, isGenericTypeLabel } = require('./places-language');
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
 const { yearsOffFromFilter, yearUniverse, makeMichelinYearMatcher } = require('./michelin-year-filter');
@@ -8820,42 +8824,11 @@ function flagFor(cuisine) {
 // primaryType enum when it's itself specific (cafe / bakery / bar); (4) nothing
 // — when ALL we have is a bare "Restaurant" / "Food" the line is HIDDEN rather
 // than showing a useless generic label.
-const GENERIC_VENUE_TYPE = new Set([
-  'restaurant', 'food', 'store', 'meal takeaway', 'meal delivery',
-  'point of interest', 'establishment', 'food store', 'grocery store',
-  'grocery or supermarket'
-]);
-function _humaniseTypeEnum(enumStr) {
-  return String(enumStr || '')
-    .replace(/_/g, ' ')
-    .replace(/[\p{L}][\p{L}'’-]*/gu, (w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .replace(/\s+restaurant$/i, '')
-    .replace(/^restaurant\s+/i, '')
-    .trim();
-}
-function _isGenericType(s) {
-  return GENERIC_VENUE_TYPE.has(String(s || '').trim().toLowerCase());
-}
-function humaniseRestaurantType(displayText, primaryTypeEnum, typesArr) {
-  // (1) localized display name, when it's already specific.
-  let s = (displayText && String(displayText).trim()) || '';
-  s = s.replace(/\s+restaurant$/i, '').replace(/^restaurant\s+/i, '').trim();
-  if (s && !_isGenericType(s)) return s;
-  // (2) mine types[] for a specific cuisine subtype (e.g. gluten_free_restaurant
-  //     → "Gluten-free"). These all end in "_restaurant" in the Places (New) API.
-  const types = Array.isArray(typesArr) ? typesArr.map(String) : [];
-  for (const t of types) {
-    if (/_restaurant$/i.test(t)) {
-      const h = _humaniseTypeEnum(t);
-      if (h && !_isGenericType(h)) return h;
-    }
-  }
-  // (3) raw primaryType enum when it is itself specific (cafe / bakery / bar …).
-  const pe = _humaniseTypeEnum(primaryTypeEnum);
-  if (pe && !_isGenericType(pe)) return pe;
-  // (4) only a generic "Restaurant" / "Food" anywhere — hide the line.
-  return '';
-}
+// v0.62.896 — MOVED to venue-type-label.js so it can be tested by calling rather than by
+// scanning this file (index.js exports nothing). Same function, same order, same output;
+// see that module's header for why, and places-language.js's for what it now has to cope
+// with. The resolution ladder's own comment moved with it.
+const { humaniseRestaurantType } = require('./venue-type-label');
 
 // v0.61.230 — `regionCode` is now an option (default 'SG' kept for
 // backwards compat with the technique / nation-iconic / cooking-
@@ -8872,6 +8845,9 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
   // restaurantType line on every result card. Localized per
   // languageCode (FR users see "Restaurant japonais" → stripped to
   // "japonais" by humaniseRestaurantType below).
+  // v0.62.896 — and now localized for all NINE locales, not two. The strip below
+  // is English-shaped; humaniseRestaurantType consults the primaryType ENUM first
+  // so a bare 음식점 / ресторан is hidden rather than shown as if it were specific.
   const FIELD_MASK = [
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
@@ -8887,7 +8863,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
       {
         textQuery,
         regionCode,                // v0.61.230 — was hardcoded 'SG'
-        languageCode: lang === 'fr' ? 'fr' : 'en',
+        languageCode: placesLanguage(lang),   // v0.62.896 — was fr-or-en
         maxResultCount: Math.min(Math.max(max, 1), 10),
         locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius: 50000 } },
         openNow: false
@@ -10183,7 +10159,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     // served after the user switched to English (displayName/editorialSummary
     // are language-specific). `v2` busts every stale blob at once; the lang
     // segment scopes fr vs en so a language switch re-fetches live.
-    const cacheLang = csLang === 'fr' ? 'fr' : 'en';
+    // v0.62.896 — MUST widen with the request below, or a Korean reader is served the
+    // French blob: displayName/formattedAddress/editorialSummary are all language-specific
+    // and this key is the only thing scoping them. Widening the fetch without widening the
+    // key would have been a cache-poisoning bug wearing a translation's clothes.
+    const cacheLang = placesLanguage(csLang);
     const cacheKey = `michelin:place:v2:${cacheLang}:${entry.id || slugify(`${entry.name}-${entry.city || ''}`)}`;
     if (redis && redis.isOpen) {
       try {
@@ -10206,7 +10186,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
           `https://places.googleapis.com/v1/places/${encodeURIComponent(curatedPlaceId)}`,
           {
             headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': FIELD_MASK_BY_ID },
-            params: { languageCode: csLang === 'fr' ? 'fr' : 'en' },
+            params: { languageCode: cacheLang },   // v0.62.896 — same code the blob is keyed on
             timeout: 4000
           }
         );
@@ -10218,7 +10198,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
           {
             textQuery: buildMichQuery(entry),
             regionCode: placesRegionCode,
-            languageCode: csLang === 'fr' ? 'fr' : 'en',
+            languageCode: cacheLang,   // v0.62.896 — same code the blob is keyed on
             maxResultCount: 1
           },
           {

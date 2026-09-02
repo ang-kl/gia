@@ -163,7 +163,28 @@ describe('the call sites are keyed, and the ones that must NOT be are not', () =
     // display nothing. `clip-store` is the clearest: it maps a stored record's language onto
     // the app's list.
     expect(read('clip-store.js')).toMatch(/record\.lang === 'fr' \? 'fr'/);
-    expect(read('pipeline.js')).toMatch(/const languageCode = lang === 'fr' \? 'fr' : 'en'/);
+    // v0.62.896 — this line USED to pin `const languageCode = lang === 'fr' ? 'fr' : 'en'`
+    // in pipeline.js. That ternary is gone: it is now `placesLanguage(lang)`, and the
+    // fr-or-en collapse it encoded was the defect the operator reported (a Korean reader
+    // in Seoul got an English venue name from a bot speaking Korean everywhere else).
+    // The pin's PURPOSE survives — this call site resolves a locale CODE and displays
+    // nothing, so the sweep must never turn it into a t() call — so it is asserted by
+    // CALLING, which is what it should have done all along. That is the sixth source-scan
+    // pin this arc has had to repair after a refactor changed nothing a reader can see.
+    expect(read('pipeline.js')).toMatch(/const languageCode = placesLanguage\(lang\)/);
+    {
+      const { placesLanguage } = require('../places-language');
+      for (const [lang, code] of [['fr', 'fr'], ['ko', 'ko'], ['zh', 'zh-CN'], ['en', 'en']]) {
+        const got = placesLanguage(lang);
+        expect(got, `placesLanguage(${lang})`).toBe(code);
+        // The output is a language TAG, never a sentence — that is the whole distinction
+        // this test guards, and it is checkable without reading the source at all.
+        expect(got).toMatch(/^[a-z]{2}(-[A-Z]{2})?$/);
+      }
+      // …and an unshipped locale falls back rather than being forwarded to Google.
+      expect(placesLanguage('pt')).toBe('en');
+      expect(placesLanguage(undefined)).toBe('en');
+    }
     expect(read('bot-fun-facts.js')).toMatch(/const safeLang = lang === 'fr' \? 'fr' : 'en'/);
   });
 

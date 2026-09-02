@@ -20,6 +20,9 @@
 // checking the table instead of the prose.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { pickAddressGuide } from '../web/_shared/lib/address-guide.js';
+import {
+  cuisineName, restaurantTypeName, CUISINE_SLUGS, VENUE_TYPE_SLUGS,
+} from '../web/_shared/lib/cuisine-i18n.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -36,40 +39,69 @@ vi.mock('react', () => {
 
 const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
-const LOCALES = ['fr', 'zh', 'ja', 'es', 'ru', 'de', 'id'];
+const LOCALES = ['fr', 'zh', 'ja', 'es', 'ru', 'de', 'id', 'ko'];
 
-function tableRows(name) {
-  const src = read('web/cuisine/src/v2/lib/cuisine-i18n.js');
-  const start = src.indexOf('const ' + name + ' = {');
-  expect(start, name + ' table not found').toBeGreaterThan(-1);
-  const block = src.slice(start, src.indexOf('\n};', start));
-  return [...block.matchAll(/^\s+'?([a-z0-9-]+)'?:\s*\{([^}]*)\}/gm)]
-    .map((m) => ({ key: m[1], body: m[2] }));
-}
+// v0.62.896 — THIS BLOCK USED TO SCAN THE SOURCE of web/cuisine/src/v2/lib/cuisine-i18n.js
+// with a regex over `const NAMES = {`. It would have gone red on the move to
+// web/_shared/lib/ while not one of the strings it checks had changed, and it could only
+// ever prove a KEY was present — not that calling the function returns it. It now asserts
+// by calling, which is the same repair name-guide.js's header prescribes and the fifth
+// time this arc has had to make it.
+//
+// `ko` joined LOCALES here at v0.62.896. Operator IMG: the Cuisine sub-menu drew its
+// headers in Korean (남아시아, 유럽) with every cuisine name under them still English,
+// because the table had no `ko` column — 95 rows, 95 missing. This list is the guard
+// against that recurring for a tenth locale.
+const MISS = '\u0000not-covered';
 
-describe('O-336 — every cuisine and venue type covers all eight locales', () => {
-  for (const table of ['VENUE_TYPES', 'NAMES']) {
-    it(`${table}: no row is missing a locale`, () => {
-      const rows = tableRows(table);
-      expect(rows.length).toBeGreaterThan(0);
-      const gaps = [];
-      for (const { key, body } of rows) {
-        for (const l of LOCALES) {
-          if (!new RegExp('\\b' + l + ':').test(body)) gaps.push(`${table}.${key}.${l}`);
-        }
+describe('O-336 — every cuisine and venue type covers all eight non-English locales', () => {
+  it('NAMES: no row falls through to English for any locale', () => {
+    expect(CUISINE_SLUGS.length).toBeGreaterThan(0);
+    const gaps = [];
+    for (const slug of CUISINE_SLUGS) {
+      for (const l of LOCALES) {
+        if (cuisineName(slug, MISS, l) === MISS) gaps.push(`NAMES.${slug}.${l}`);
       }
-      expect(gaps, 'these fall through to English for a reader who chose that locale').toEqual([]);
-    });
-  }
-
-  it('the counts are the ones that were measured, so a silent shrink is caught', () => {
-    expect(tableRows('VENUE_TYPES').length).toBe(26);
-    expect(tableRows('NAMES').length).toBe(69);
+    }
+    expect(gaps, 'these render English to a reader who chose that locale').toEqual([]);
   });
 
-  it('and the file no longer claims ru/de/id fall through — the comment was the stale part', () => {
-    const src = read('web/cuisine/src/v2/lib/cuisine-i18n.js');
-    expect(src).not.toMatch(/`id`\/`ru`\/`de` fall through to English throughout/);
+  it('VENUE_TYPES: no row falls through to English for any locale', () => {
+    expect(VENUE_TYPE_SLUGS.length).toBeGreaterThan(0);
+    const gaps = [];
+    for (const slug of VENUE_TYPE_SLUGS) {
+      for (const l of LOCALES) {
+        // restaurantTypeName returns its INPUT unchanged when it has nothing better to
+        // say, so "came back as the slug" is exactly "not covered" here.
+        if (restaurantTypeName(slug, l) === slug) gaps.push(`VENUE_TYPES.${slug}.${l}`);
+      }
+    }
+    expect(gaps).toEqual([]);
+  });
+
+  it('the counts are the ones that were measured, so a silent shrink is caught', () => {
+    expect(VENUE_TYPE_SLUGS.length).toBe(26);
+    expect(CUISINE_SLUGS.length).toBe(69);
+  });
+
+  it('the Korean names are the authored ones, not a locale key echoing English', () => {
+    expect(cuisineName('south-indian', MISS, 'ko')).toBe('남인도');
+    expect(cuisineName('european', MISS, 'ko')).toBe('유럽');
+    expect(cuisineName('korean', MISS, 'ko')).toBe('한국');
+    expect(restaurantTypeName('ice-cream', 'ko')).toBe('아이스크림');
+  });
+
+  it('and both Mini Apps read the SAME table — the copy that drifted cannot come back', async () => {
+    const shared = await import('../web/_shared/lib/cuisine-i18n.js');
+    const viaCuisine = await import('../web/cuisine/src/v2/lib/cuisine-i18n.js');
+    const viaClipboard = await import('../web/clipboard/src/lib/cuisine-i18n.js');
+    // Identity, not equality of output: a re-export is the same function object, a
+    // second hand-kept copy is not. That is the property that failed before v0.62.896,
+    // when the clipboard copy sat three locales and one whole table behind this one.
+    expect(viaCuisine.cuisineName).toBe(shared.cuisineName);
+    expect(viaClipboard.cuisineName).toBe(shared.cuisineName);
+    expect(viaCuisine.restaurantTypeName).toBe(shared.restaurantTypeName);
+    expect(viaClipboard.restaurantTypeName).toBe(shared.restaurantTypeName);
   });
 });
 
