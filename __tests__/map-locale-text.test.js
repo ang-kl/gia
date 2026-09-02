@@ -97,7 +97,15 @@ describe('the map layer speaks the reader\'s language', () => {
       for (const l of TERM_LOCALES) if (!row[l] || !String(row[l]).trim()) missing.push(`${k}.${l}`);
     }
     expect(missing, 'a place term landed half-translated').toEqual([]);
-    expect(Object.keys(SG_TERMS).length, 'the vocabulary changed size — bump this deliberately').toBe(61);
+    // v0.62.916 — THE COUNT PIN MOVED, IT WAS NOT DELETED. It read `toBe(61)` with the message
+    // "bump this deliberately", and the vocabulary grew to 69 when the harvester showed eight
+    // common nouns sitting in the proper-noun bucket only because this table lacked them. Rather
+    // than change 61 to 69 here AND in the new `__tests__/sg-terms.test.js`, the number is pinned
+    // once, there, next to the classification that produced it. Two pins on one figure is the
+    // duplicate-that-drifts this arc keeps finding — the ABBREV maps had drifted by two keys
+    // under a comment claiming a guard that did not exist.
+    expect(Object.keys(SG_TERMS).length, 'the vocabulary shrank below what the map layer needs')
+      .toBeGreaterThanOrEqual(61);
     expect(TERM_LOCALES).toEqual(['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
   });
 

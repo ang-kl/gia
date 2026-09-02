@@ -23,7 +23,14 @@ const ABBREV = {
   lor: 'Lorong', lrg: 'Lorong', jln: 'Jalan', ctrl: 'Central',
   upp: 'Upper', bt: 'Bukit', tg: 'Tanjong', mt: 'Mount',
   nth: 'North', sth: 'South', blk: 'Block', bldg: 'Building',
-  ctr: 'Centre', opp: 'Opposite', bef: 'Before', aft: 'After'
+  ctr: 'Centre', opp: 'Opposite', bef: 'Before', aft: 'After',
+  // v0.62.916 — `ln` and `pl` existed only in the Mini App copy of this map
+  // (web/_shared/lib/sg-terms-i18n.js), so the server rendered "Ln" and "Pl"
+  // where the Mini App rendered "Lane" and "Place". That header has claimed
+  // since v0.62.911 that __tests__/sg-terms.test.js asserts the two agree; the
+  // test did not exist, and the maps had drifted by exactly these two keys. It
+  // exists now.
+  ln: 'Lane', pl: 'Place'
 };
 
 // Expand the SG abbreviations in `text`. Whitespace is preserved; a
