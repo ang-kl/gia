@@ -56,13 +56,16 @@ const TARGET_KEYED = new Set(SUPPORTED.map((l) => `bot.lang.set.${l}`));
 
 describe('the Korean column is complete for bot i18n.js', () => {
   it('covers every entry in the table, and the table is the size we measured', () => {
-    expect(ENTRIES.length, 'the surface is 439 units — 405 at K1, +2 at K6, +15 at v0.62.884, +16 at v0.62.885 (14 bot.about.* plus the hint and the profile blurb), +1 at v0.62.893 (bot.error.generic)').toBe(439);
+    expect(ENTRIES.length, 'the surface is 452 units — 405 at K1, +2 at K6, +15 at v0.62.884, +16 at v0.62.885 (14 bot.about.* plus the hint and the profile blurb), +1 at v0.62.893 (bot.error.generic), +13 at v0.62.901 (the §2,911·C frames and period labels)').toBe(452);
     const missing = ENTRIES.filter(([k, v]) => !TARGET_KEYED.has(k) && (!v.ko || !String(v.ko).trim())).map(([k]) => k);
     expect(missing, 'these entries have no Korean').toEqual([]);
     // v0.62.893 — 429 -> 430 and 420 -> 421: `bot.error.generic` ships complete,
     // so ko and the other six all gain exactly one. They move TOGETHER, which is
     // what proves the new key was not added to some locales and not others.
-    expect(ENTRIES.filter(([, v]) => typeof v.ko === 'string').length).toBe(430);
+    // v0.62.901 — 430 -> 443: the 13 §2,911·C keys all ship Korean, so this moves by the same
+    // 13 as the total. If one had shipped without ko, these two pins would disagree — which
+    // is the only reason to keep both numbers rather than a ratio.
+    expect(ENTRIES.filter(([, v]) => typeof v.ko === 'string').length).toBe(443);
   });
 
   it('and the target-keyed family stays uncolumned, as its six other locales are', () => {
@@ -79,12 +82,16 @@ describe('the Korean column is complete for bot i18n.js', () => {
     // en and fr carry all 405; the other six carry 389 — the 16 that differ are the two
     // language-menu families above, which are correct as they stand.
     const count = (l) => ENTRIES.filter(([, v]) => typeof v[l] === 'string' && v[l].trim()).length;
-    expect({ en: count('en'), fr: count('fr') }).toEqual({ en: 439, fr: 439 });
+    expect({ en: count('en'), fr: count('fr') }).toEqual({ en: 452, fr: 452 });
     // v0.62.884 — 389 + 15. bot.langname.ko is in that fifteen: the family had
     // stood at eight since K6, and widening /start's ['en','fr'] client-language
     // gate is what would have put the literal "bot.langname.ko" in front of a
     // reader. The gate was hiding the gap, not preventing it.
-    for (const l of ['id', 'ru', 'de', 'zh', 'ja', 'es']) expect(count(l), `${l} lost values when ko was inserted`).toBe(421);
+    // v0.62.901 — 421 -> 434. The 13 §2,911·C keys ship every locale, so all eight move by 13
+    // together; the 16-entry gap to en/fr is still the two language-menu families and is
+    // unchanged. Six numbers moving in lockstep is the check — one lagging would mean the
+    // splice dropped a cell.
+    for (const l of ['id', 'ru', 'de', 'zh', 'ja', 'es']) expect(count(l), `${l} lost values when ko was inserted`).toBe(434);
   });
 });
 
