@@ -93,6 +93,19 @@ describe('the dish taxonomy overlay', () => {
     expect(legacy, 'a NEW row used the legacy `snack` value').toBe(20);
   });
 
+  it('⚠ no shipped row gives a drink a course — the batch validator cannot see the file', () => {
+    // ⚠ A MUTATION SURVIVED. Adding `course: "dessert"` to `mexican::mezcal` in the overlay left
+    // the suite green: the drink/course rule lived only in the BATCH validator, which runs over a
+    // batch before insertion and never over the shipped table. So a row could reach the overlay
+    // carrying a course it should not have — by a hand edit, a bad merge, or a batch that skipped
+    // validation. A rule enforced only on the way in is not enforced on what is there.
+    const bad = rows.filter(([, v]) => ['drink', 'hot-drink', 'cold-drink'].includes(v.type) && v.course);
+    expect(bad.map(([k]) => k), 'these drink rows carry a course').toEqual([]);
+    // …and the mirror: a food row without one. Same rule, other direction, same blind spot.
+    const noCourse = rows.filter(([, v]) => !['drink', 'hot-drink', 'cold-drink'].includes(v.type) && !v.course);
+    expect(noCourse.map(([k]) => k), 'these food rows have no course').toEqual([]);
+  });
+
   it('the drink split reaches the weather term', () => {
     // 91 unclassified dishes are `kind: 'drink'`, and neither weather set knew the type.
     expect(score.WET_TYPES.has('hot-drink')).toBe(true);
@@ -161,12 +174,26 @@ describe('the dish taxonomy overlay', () => {
     // Before batch 1, `japanese` had no typed dish at all, so every period returned the same
     // answer chosen by a 1e-6 jitter over a flat field — `[AMD-165]` recorded that as a forty-way
     // tie at exactly 1.0000. A guard that only counted rows would have been green either way.
-    for (const slug of ['japanese', 'cantonese', 'american', 'korean', 'french']) {
+    for (const slug of ['japanese', 'cantonese', 'american', 'korean', 'french', 'thai', 'mexican']) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
-      const at = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
-        { lang: 'en', slug })[0].dish;
-      const picks = new Set(['breakfast', 'afternoon', 'dinner', 'supper'].map(at));
+      const top = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
+        { lang: 'en', slug })[0];
+      const picks = new Set(['breakfast', 'afternoon', 'dinner', 'supper'].map((p) => top(p).dish));
       expect(picks.size, `${slug} answers the same dish at every period`).toBeGreaterThan(2);
+
+      // ⚠ AND THE DIFFERENCE MUST COME FROM SCORING, NOT FROM THE TIE-BREAK. A mutation flattening
+      // every `thai` row to `mealTime: ["anytime"]` SURVIVED the assertion above: `anytime` scores
+      // 0.7 everywhere, so every dish ties, and the jitter — which is keyed on the bucketId, and
+      // the bucketId differs per period — still returned a different dish at each. The test was
+      // satisfied by randomness, which is the exact defect it was written to catch, one level in.
+      //
+      // So: at three of the four periods the winner must EXACT-MATCH that period, which only the
+      // taxonomy can produce. Three of four rather than four, because a cuisine with no breakfast
+      // trade should not be pushed into inventing one.
+      const exact = ['breakfast', 'afternoon', 'dinner', 'supper']
+        .filter((p) => score._mealFit(NATION_OVERLAY[slug].iconicDishes.find((d) => d.name === top(p).dish), p) === 1);
+      expect(exact.length, `${slug}'s top dishes are tied, not chosen — the jitter is doing the work`)
+        .toBeGreaterThanOrEqual(3);
     }
     // And the tie band shrinks from saturated to merely wide: many dishes genuinely ARE
     // lunch-and-dinner dishes, so a floor is the honest assertion, not a small exact number.
@@ -204,9 +231,10 @@ describe('the dish taxonomy overlay', () => {
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
     // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
+    // Batch 3 (v0.62.906): +147 — spanish, mexican, peranakan, indonesian, thai. 404 → 551.
     // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
-    // japanese in full. 99 → 254. Nine batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(404);
+    // japanese in full. 99 → 254. Eight batches to go; the arc ends at 1,697.
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(551);
   });
 });
