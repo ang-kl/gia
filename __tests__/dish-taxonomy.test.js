@@ -186,7 +186,7 @@ describe('the dish taxonomy overlay', () => {
       .filter(([, e]) => (e.iconicDishes || []).length
         && e.iconicDishes.every((d) => Array.isArray(d.mealTime) && d.mealTime.length))
       .map(([slug]) => slug);
-    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(26);
+    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(33);
     for (const slug of classified) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
       const top = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
@@ -233,20 +233,30 @@ describe('the dish taxonomy overlay', () => {
     // prata and dosa shops, six rows) and chinese (jianbing and baozi from pre-dawn carts), then
     // 5 → 6 with batch 5, which added teochew (the 24-hour porridge and fish-soup shops).
     //
-    // ⚠ RATCHETED TWICE NOW, because a floor that never moves has stopped being one. The
-    // Singaporean share of the period went 100 % → 62 % → 45 % → 41 %; the floor is what stops it
-    // sliding back. Raise it again when a batch earns it.
+    // then 6 → 7 with batch 6, which added pakistani (nihari and paya are pre-dawn dishes in their
+    // own cuisine — nihari takes its name from *nahar*, the dawn — and the Desker Road / Serangoon
+    // Road eateries keep those hours).
     //
-    // Note what did NOT happen: batch 5 also carried hokkien and turkish, both of which trade late
-    // here — and neither was given the period, because hawker stalls and döner shops shut before
-    // dawn. A wider number was available and was not taken.
+    // ⚠ RATCHETED THREE TIMES NOW, because a floor that never moves has stopped being one. The
+    // Singaporean share of the period went 100 % → 62 % → 45 % → 41 % → 36 %; the floor is what
+    // stops it sliding back. Raise it again when a batch earns it.
+    //
+    // ⚠ AND IT SITS AT THE ACHIEVED VALUE, NOT ONE BELOW IT. Batch 5's floor was `> 4` against an
+    // achieved 6, and a mutation stripping the cuisine that batch had just added took it to 5 and
+    // passed. One below the line is not a floor; it is a permit to give back last batch's gain.
+    //
+    // Note what did NOT happen: batch 6 also carried hong-kong, whose cha chaan teng and dai pai
+    // dong genuinely run past midnight — in Hong Kong. The HK cafés here shut by about 22:00, and
+    // the period is about where a diner in Singapore can eat at 3am, not about a cuisine's home
+    // city. Batch 5 declined hokkien and turkish on the same reasoning. A wider number has been
+    // available at every batch and has not been taken.
     const by = new Map();
     for (const [slug, e] of Object.entries(NATION_OVERLAY)) {
       for (const d of (e.iconicDishes || [])) {
         if (Array.isArray(d.mealTime) && d.mealTime.includes('night_supper')) by.set(slug, (by.get(slug) || 0) + 1);
       }
     }
-    expect(by.size, 'night_supper lost cuisines — a 4am suggestion is narrowing again').toBeGreaterThan(4);
+    expect(by.size, 'night_supper lost cuisines — a 4am suggestion is narrowing again').toBeGreaterThanOrEqual(7);
 
     // ⚠ AND THE SET IS PINNED, NOT JUST ITS SIZE. A mutation stripping `teochew`'s night_supper
     // rows SURVIVED the floor above: it took the count 6 → 5, and `> 4` accepts 5. A floor
@@ -263,9 +273,19 @@ describe('the dish taxonomy overlay', () => {
       teochew:        'the 24-hour porridge and fish-soup coffeeshops',
       korean:         'Tanjong Pagar fried chicken and the ox-bone soup shops',
       chinese:        'jianbing and baozi from pre-dawn carts',
+      pakistani:      'nihari and paya at dawn, and the Desker Road eateries that keep those hours',
     };
     const lost = Object.keys(EARNED).filter((slug) => !by.has(slug));
     expect(lost, 'these cuisines earned night_supper and no longer carry it').toEqual([]);
+
+    // ⚠ AND THE OTHER DIRECTION, which neither the floor nor the list above was watching. A batch
+    // could hand `night_supper` to any cuisine and every assertion here would still pass: the
+    // floor only rises, and `lost` only looks for names that went missing. So a cuisine can hold
+    // the period ONLY if it is named above with the reason it earned it — the same bidirectional
+    // shape as the namespace guard in __tests__/forgetme-erasure.test.js, where being covered and
+    // being exempt are both explicit and anything else fails.
+    const unnamed = [...by.keys()].filter((slug) => !(slug in EARNED));
+    expect(unnamed, 'a cuisine took night_supper without earning a line in EARNED').toEqual([]);
   });
 
   it('the completeness count is pinned, so a dropped batch cannot pass quietly', () => {
@@ -273,6 +293,8 @@ describe('the dish taxonomy overlay', () => {
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
     // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
+    // Batch 6 (v0.62.909): +163 — australian, fusion, portuguese, dessert, hong-kong, pakistani,
+    // argentinian. 862 → 1,025, past 60 % of the 1,697. Five batches to go.
     // Batch 5 (v0.62.908): +149 — hokkien, teochew, lebanese, greek, turkish, vietnamese.
     // 713 → 862 — PAST HALFWAY. The taxonomy now describes more of the catalogue than it doesn't.
     // Batch 4 (v0.62.907): +162 — south-indian, german, british, sichuan, chinese, filipino.
@@ -281,6 +303,6 @@ describe('the dish taxonomy overlay', () => {
     // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
     // japanese in full. 99 → 254. Six batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(862);
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(1025);
   });
 });
