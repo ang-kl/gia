@@ -50,8 +50,14 @@ const JB_NEAR_M = 60000;       // JB-region near-cap (Pontian ↔ Desaru ↔ Kul
 const SG_DEFAULT_CAP_M = 30000;
 const OTHER_DEFAULT_CAP_M = 40000;
 
-const JOHOR_RE = /\bjohor\b/i;
-const SINGAPORE_RE = /singapore/i;
+// v0.62.896 — these two regexes used to live here as /\bjohor\b/i and /singapore/i, which
+// was correct for exactly as long as Places was pinned to English. Once `languageCode`
+// carries the reader's locale, a Korean reader's Johor venue is addressed 말레이시아
+// 조호르 and a Chinese reader's Singapore venue 新加坡 — so the cross-border refinement
+// silently stopped refining, in the one direction nobody would notice: it would let
+// venues THROUGH rather than drop them. The shared forms carry all nine locales and
+// preserve each original's anchoring exactly. The boundary itself is still `distanceM`.
+const { JOHOR_RE, SINGAPORE_RE } = require('./places-language');
 
 const hay = (v) => `${(v && v.area) || ''} ${(v && v.name) || ''}`;
 // A venue with no distanceM (no lat/lng) can't be distance-scoped; keep it

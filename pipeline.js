@@ -37,6 +37,7 @@ const transport = require('./transport');
 const carpark = require('./carpark');
 const { logger } = require('./logger');
 const { googleMapsUrl } = require('./maps-url');
+const { placesLanguage } = require('./places-language');   // v0.62.896
 const { narrationLocalisation } = require('./prompt-locale');
 
 const MODEL_NAME = llm.DEFAULT_MODEL;
@@ -973,7 +974,11 @@ function pagesForRequest(maxResults, maxPages) {
 }
 
 async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1, queryOverride = null, fanOutSeeds = false, redis = null }) {
-  const languageCode = lang === 'fr' ? 'fr' : 'en';
+  // v0.62.896 — was `lang === 'fr' ? 'fr' : 'en'`, so eight of the nine shipped locales
+  // got English weekday descriptions, English type labels and English venue names on the
+  // one surface the reader spends the most time in. `placesLanguage` is the single mapping;
+  // its header records what asking Places for a non-English language costs downstream.
+  const languageCode = placesLanguage(lang);
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
     diag('D712', 'GOOGLE_MAPS_API_KEY missing', false);
