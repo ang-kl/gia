@@ -42,6 +42,20 @@ export const CHROME = {
   exits:          { en: 'Exits', fr: 'Sorties', id: 'Pintu Keluar', ru: 'Выходы', de: 'Ausgänge', zh: '出口', ja: '出口', es: 'Salidas', ko: '출구' },
   exit:           { en: 'Exit', fr: 'Sortie', id: 'Pintu keluar', ru: 'Выход', de: 'Ausgang', zh: '出口', ja: '出口', es: 'Salida', ko: '출구' },
   busStopNo:      { en: 'Bus Stop № {code}', fr: 'Arrêt de bus № {code}', id: 'Halte bus № {code}', ru: 'Остановка № {code}', de: 'Haltestelle № {code}', zh: '巴士站 № {code}', ja: 'バス停 № {code}', es: 'Parada de bus № {code}', ko: '버스 정류장 № {code}' },
+  // v0.62.911 — four strings that sat hardcoded in English inside busInfoHtml and
+  // buildBusMarkers, in all three mapOverlays.js copies, while the `busStopNo` line directly
+  // above them was already localised across all nine. The bus popup was the outlier.
+  stopFallback:   { en: 'Stop {code}', fr: 'Arrêt {code}', id: 'Halte {code}', ru: 'Остановка {code}', de: 'Haltestelle {code}', zh: '{code}站', ja: '停留所 {code}', es: 'Parada {code}', ko: '{code} 정류장' },
+  arrivalsLoading:{ en: 'Loading arrivals…', fr: 'Chargement des arrivées…', id: 'Memuat kedatangan…', ru: 'Загрузка прибытий…', de: 'Ankünfte werden geladen…', zh: '正在载入到站时间…', ja: '到着情報を読み込み中…', es: 'Cargando llegadas…', ko: '도착 정보 불러오는 중…' },
+  arrivalsNone:   { en: 'No live arrivals', fr: 'Aucune arrivée en direct', id: 'Tidak ada kedatangan langsung', ru: 'Нет данных о прибытии', de: 'Keine Live-Ankünfte', zh: '暂无实时到站', ja: 'リアルタイム到着なし', es: 'Sin llegadas en directo', ko: '실시간 도착 정보 없음' },
+  postal:         { en: 'Singapore {code}', fr: 'Singapour {code}', id: 'Singapura {code}', ru: 'Сингапур {code}', de: 'Singapur {code}', zh: '新加坡 {code}', ja: 'シンガポール {code}', es: 'Singapur {code}', ko: '싱가포르 {code}' },
+  // v0.62.911 — the hawker card's stall count, rendered as `f.stalls + ' stalls'` in the cuisine
+  // and transport overlay copies while the Hawker TMA's own App.jsx:28 had localised it all along
+  // via tn('stalls.count'). Same information, two renderings, one English. The wording here is
+  // COPIED from web/hawker/src/i18n.js rather than re-translated, so the map popup and the card
+  // read identically — a second independent translation of one string is a drift waiting to happen.
+  // The 🍳 is carried by the caller, not the template, because the overlay row has its own icon.
+  stalls:         { en: '{n} stalls', fr: '{n} stands', id: '{n} kios', ru: '{n} прилавков', de: '{n} Stände', zh: '{n} 个摊位', ja: '{n} 店舗', es: '{n} puestos', ko: '점포 {n}곳' },
   moreInfo:       { en: 'More Info ↗', fr: "Plus d'infos ↗", id: 'Info lengkap ↗', ru: 'Подробнее ↗', de: 'Mehr Infos ↗', zh: '更多信息 ↗', ja: '詳細 ↗', es: 'Más información ↗', ko: '자세히 보기 ↗' },
   firstLastTrain: { en: 'First / Last Train', fr: 'Premier / dernier train', id: 'Kereta pertama / terakhir', ru: 'Первый / последний поезд', de: 'Erster / letzter Zug', zh: '首末班车', ja: '始発・終電', es: 'Primer / último tren', ko: '첫차 / 막차' },
   firstTrain:     { en: 'First', fr: 'Premier', id: 'Pertama', ru: 'Первый', de: 'Erste', zh: '首班', ja: '始発', es: 'Primero', ko: '첫차' },

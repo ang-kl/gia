@@ -311,7 +311,7 @@ function exitTemplateHtml({ exitCode, station, codes, nearby }) {
   let h = '<div>' + codePill(scLabel('exit', _lang) + ' ' + (exitCode || '?'), hex, true) + '</div>';
   if (station) {
     h += '<div style="font-weight:600;margin-top:4px;">'
-      + escapeHtml(scLabel('station', _lang, { name: station })) + '</div>';
+      + escapeHtml(stationDisplay(station, _lang)) + '</div>';
   }
   if (list.length) {
     h += '<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;">'
@@ -494,12 +494,15 @@ function squareStationNode(hex, small) {
 // station code (e.g. CC4 orange · DT15 blue) on a white pill, then
 // "<Name> station". Replaces the single-colour amenityLabelNode label
 // so an interchange shows each line's own colour.
-export function stationPillNode(codes, name, fallbackHex) {
+export function stationPillNode(codes, name, fallbackHex, lang) {
   const el = stationPillBase();
   appendCodeChips(el, codes, fallbackHex);
   const nm = document.createElement('span');
-  const nice = name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
-  nm.textContent = (nice + ' station').trim();
+  // v0.62.911 — was `(nice + ' station')`: a raw English name with an English word welded on, in
+  // every locale, on every map in all three TMAs — while the info card 500 lines below already
+  // called scLabel and MrtMapPanel.jsx already called stationName. One fact, three renderings,
+  // one of them right. stationDisplay is now the single answer for all of them.
+  nm.textContent = stationDisplay(name, lang || _lang);
   nm.style.cssText = 'color:#1c1c1f;';
   el.appendChild(nm);
   return el;
@@ -679,6 +682,8 @@ function rectPinNode(bg, text) {
 import { scLabel, dayLabel, dirLabel } from '../../../_shared/lib/station-card-labels.js';
 import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
+import { stationDisplay } from '../../../_shared/lib/station-display.js';
+import { placeSecondLine } from '../../../_shared/lib/sg-place-text.js';
 export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
 
 // v0.61.22 — popup colour palette.
@@ -955,7 +960,13 @@ function stationInfoCardHtml(rec, lang) {
     + pills
     + '<span style="color:' + c.sub + ';">·</span>'
     + '<span style="font-weight:700;font-size:14px;color:' + nameHex + ';">'
-    + escapeHtml(scLabel('station', lang, { name })) + '</span></div>';
+    // v0.62.911 — was scLabel('station', lang, { name }): the TEMPLATE localised ({name}站,
+    // {name}역) wrapped around the RAW ENGLISH name, so zh read `Simei站` where the government
+    // register says 四美地铁站. stationDisplay applies the register first and only falls back
+    // to the template. No second line is added here on purpose: secondLine() returns null once
+    // the primary is already in the reader's language, which is the rule name-second-line.js
+    // spells out — a bracket repeating 시메이역 under 시메이역 is noise, not a translation.
+    + escapeHtml(stationDisplay(name, lang)) + '</span></div>';
   // v0.62.890 — this row localised NOTHING while every label around it did
   // (scLabel, dirLabel, dayLabel all take `lang`). It was the outlier, and the
   // operator saw it: an English line name inside an otherwise Korean popup. Like
@@ -1101,14 +1112,26 @@ function busArrivalRows(services) {
 // dark (#1c1c1f) + bold so it reads on the white card.
 function busInfoHtml(b, services) {
   const c = infoPalette();
-  const road = b.roadName || b.description || ('Stop ' + b.code);
+  // v0.62.911 — the road name is the ONE thing a bus stop popup exists to say, and it was raw
+  // English in every locale. There is no bus-stop name table anywhere (measured: 880 rows in
+  // data/stations_with_nearest_bus_stops.json, `bus_stop_name` empty on all of them) and the
+  // names arrive live from LTA, so nothing could be hand-translated row by row. placeSecondLine
+  // composes one instead: the closed SG vocabulary translates, known proper nouns render in
+  // the reader's script, unknown ones stay English — which is right, because the proper noun
+  // is the part you show a driver. It returns null rather than an English echo.
+  const road = b.roadName || b.description || scLabel('stopFallback', _lang, { code: b.code });
+  const roadSecond = placeSecondLine(road, _lang);
   let h = '<div style="color:' + c.fg + ';font-weight:700;">🚏 ' + escapeHtml(road) + '</div>';
+  if (roadSecond) {
+    h += '<div style="color:' + c.fg + ';margin-top:1px;"><small style="opacity:.75">('
+      + escapeHtml(roadSecond.text) + ')</small></div>';
+  }
   h += '<div style="color:' + c.fg + ';font-weight:600;margin-top:2px;">🚏 '
     + escapeHtml(scLabel('busStopNo', _lang, { code: b.code })) + '</div>';
   if (services == null) {
-    h += '<div style="color:' + c.fg + ';margin-top:5px;">Loading arrivals…</div>';
+    h += '<div style="color:' + c.fg + ';margin-top:5px;">' + escapeHtml(scLabel('arrivalsLoading', _lang)) + '</div>';
   } else if (!services.length) {
-    h += '<div style="color:' + c.fg + ';margin-top:5px;">No live arrivals</div>';
+    h += '<div style="color:' + c.fg + ';margin-top:5px;">' + escapeHtml(scLabel('arrivalsNone', _lang)) + '</div>';
   } else {
     h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
   }
@@ -1378,7 +1401,7 @@ export function createOverlayController(map, googleMaps, opts) {
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
         content: busTierNode(busTier(z0), f.code),
-        title: f.description || ('Stop ' + f.code),
+        title: f.description || scLabel('stopFallback', _lang, { code: f.code }),
         gmpClickable: true
       });
       marker.addListener('click', () => openBusInfo(map, info, f, marker));
@@ -1823,9 +1846,9 @@ export function createOverlayController(map, googleMaps, opts) {
     if (f.unit) addr.push(escapeHtml(f.unit));
     if (f.building) addr.push(escapeHtml(f.building));
     if (f.street) {
-      addr.push(escapeHtml(f.street) + (f.postal ? ', Singapore ' + escapeHtml(f.postal) : ''));
+      addr.push(escapeHtml(f.street) + (f.postal ? ', ' + escapeHtml(scLabel('postal', _lang, { code: f.postal })) : ''));
     } else if (f.postal) {
-      addr.push('Singapore ' + escapeHtml(f.postal));
+      addr.push(escapeHtml(scLabel('postal', _lang, { code: f.postal })));
     }
     if (addr.length) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">' + addr.join('<br>') + '</div>';
@@ -1875,9 +1898,9 @@ export function createOverlayController(map, googleMaps, opts) {
     const addr = [];
     if (f.building) addr.push(escapeHtml(f.building));
     if (f.address) {
-      addr.push(escapeHtml(f.address) + (f.postal ? ', Singapore ' + escapeHtml(f.postal) : ''));
+      addr.push(escapeHtml(f.address) + (f.postal ? ', ' + escapeHtml(scLabel('postal', _lang, { code: f.postal })) : ''));
     } else if (f.postal) {
-      addr.push('Singapore ' + escapeHtml(f.postal));
+      addr.push(escapeHtml(scLabel('postal', _lang, { code: f.postal })));
     }
     if (addr.length) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">📍 ' + addr.join('<br>') + '</div>';
