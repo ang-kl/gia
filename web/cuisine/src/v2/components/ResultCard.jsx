@@ -10,6 +10,7 @@ import { abbrevAddress } from '../../../../_shared/lib/abbrev-address.js';
 import PronounceIcon from '../../../../_shared/components/PronounceIcon.jsx';
 import { cachedPronunciation, streetOf } from '../../../../_shared/lib/pronounce-client.js';
 import { pickNameGuide } from '../../../../_shared/lib/name-guide.js';
+import { pickAddressGuide } from '../../../../_shared/lib/address-guide.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -672,12 +673,26 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               STAYS, because that is the one a reader shows a driver or types into Maps;
               this one only helps them read and pronounce it. Rendered only when the guide
               differs from the street itself, so an English reader sees nothing. */}
-          {streetSay && streetSay !== addrStreet && (
-            <div className="text-[12px] text-tg-hint leading-snug flex items-center gap-1 min-w-0">
-              <PronounceIcon className="shrink-0 opacity-80" />
-              <span className="truncate">{streetSay}</span>
-            </div>
-          )}
+          {/* v0.62.895 — the address gained a PRECEDENCE, because it gained a second
+              candidate. `addressLocal` — the real address in the local script — now
+              exists on every foreign-script venue (local-name.js) and has existed on
+              1,186 Michelin rows since v0.62.824 without ever being rendered. It
+              outranks the pronunciation for everyone: a reader who can read the script
+              wants the authoritative form, and a reader who cannot still wants it,
+              because it is the line they hold up to a driver. A transliteration helps
+              you SAY a street; it is not an address.
+              Exactly ONE renders — the operator's "Both means TWO". The English line
+              above is never displaced; it stays the Maps query and the share payload. */}
+          {(() => {
+            const g = pickAddressGuide(venue, streetSay, addrStreet);
+            if (!g) return null;
+            return (
+              <div className="text-[12px] text-tg-hint leading-snug flex items-center gap-1 min-w-0">
+                {g.icon === 'pronounce' && <PronounceIcon className="shrink-0 opacity-80" />}
+                <span className="truncate">{g.text}</span>
+              </div>
+            );
+          })()}
 
           {/* v0.62.124 — collapse toggle. Collapsed = identity + meta + price +
               🍲 Try (above); everything below is revealed on expand. A focused/

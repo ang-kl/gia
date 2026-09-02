@@ -19,6 +19,7 @@
 // through was itself out of date by the time anyone read it, which is the argument for
 // checking the table instead of the prose.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { pickAddressGuide } from '../web/_shared/lib/address-guide.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -152,13 +153,16 @@ describe('the address guide is ADDITIVE — the English line must survive', () =
     const src = read('web/cuisine/src/v2/components/ResultCard.jsx');
     expect(src, 'the English address line was replaced rather than supplemented')
       .toMatch(/📍 \{horizontal \? abbrevAddress\(dropCountry\(venue\.area\)\)/);
-    expect(src).toMatch(/\{streetSay && streetSay !== addrStreet && \(/);
+    // v0.62.895 — the inline condition moved into pickAddressGuide(); the guide being a
+    // SEPARATE line from the English one is still a source fact, so that part is grepped.
+    expect(src).toMatch(/pickAddressGuide\(venue, streetSay, addrStreet\)/);
   });
 
   it('and it is suppressed when the guide just echoes the street', () => {
-    const src = read('web/cuisine/src/v2/components/ResultCard.jsx');
     // An English reader gets no second line, because the guide equals the street.
-    expect(src).toContain('streetSay !== addrStreet');
+    // Asserted by calling it rather than by grepping the condition it used to be.
+    expect(pickAddressGuide({ area: '1 Raffles Place' }, 'Raffles Place', 'Raffles Place')).toBeNull();
+    expect(pickAddressGuide({ area: '1 Raffles Place' }, 'РАФ-фелс Плейс', 'Raffles Place').key).toBe('say');
   });
 
   it('App batches names AND streets in one request', () => {

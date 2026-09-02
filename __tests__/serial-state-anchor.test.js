@@ -77,10 +77,106 @@ describe('serial-state time anchor', () => {
     // Tolerance, not slack: the file is written on one machine and read on another, and CI's
     // clock is its own. Five minutes is far below the 45 that got through, and far above any
     // honest skew.
+    //
+    // v0.62.895 — AND IT LET THE NEXT ONE THROUGH. On 02-09 '26 an anchor was stamped
+    // 09:29 SGT while the sensor read 09:24:22: 278 seconds ahead, under this tolerance
+    // by 22 ([AMD-153]). The reasoning above is not wrong, it is incomplete — a
+    // tolerance sized to the worst failure ON RECORD cannot catch the ordinary one, and
+    // 45 minutes was the outlier that got noticed, not the typical error.
+    //
+    // This check is KEPT rather than tightened. Tightening it to catch 278 seconds would
+    // pit it against real clock skew, and it still covers a case the evidence check
+    // above cannot: an anchor and a source that are wrong TOGETHER. Two checks with
+    // different blind spots beat one with a better-guessed constant.
     const SKEW_MS = 5 * 60_000;
     expect(a - Date.now(), `anchor ${plain} is ahead of now`).toBeLessThan(SKEW_MS);
     expect(Date.parse(iso) - Date.now()).toBeLessThan(SKEW_MS);
     expect(Date.parse(utc) - Date.now()).toBeLessThan(SKEW_MS);
+  });
+
+  // ── THE EVIDENCE CHECK ──────────────────────────────────────────────────────
+  //
+  // THE FUTURE CHECK ABOVE DID NOT CATCH THE NEXT ONE, and the reason is in its own
+  // comment. It was calibrated against [AMD-87]'s 45-minute error — "five minutes is
+  // far below the 45 that got through" — so its tolerance is 300 seconds. On
+  // 02-09 '26 an anchor was stamped 09:29 SGT while the sensor read 09:24:22:
+  // **278 seconds ahead, under the tolerance by 22.** ([AMD-153].)
+  //
+  // A tolerance sized to the worst failure on record cannot catch the ORDINARY one,
+  // and typing an anchor a few minutes ahead is the ordinary one. The 45-minute case
+  // was the outlier that happened to be noticed.
+  //
+  // So stop asking the clock. `last_anchor_source` already states the sensor reading
+  // the writer claims to have taken:
+  //
+  //   system_clock_d203_max_sensor_0924_22_wins_over_pr_1832_squash_merge_0922_24_by_118_seconds…
+  //
+  // Comparing the anchor to THAT needs no clock, no tolerance and no knowledge of CI's
+  // skew: both values were written by the same hand in the same commit, so any
+  // disagreement between them is a mistake by construction.
+  const sensorOf = (src) => {
+    const m = /sensor_(\d{2})(\d{2})_?(\d{2})?/.exec(src || '');
+    return m ? { h: +m[1], m: +m[2], s: +(m[3] || 0) } : null;
+  };
+
+  it('the live anchor source states the sensor reading it claims to have taken', () => {
+    // [AMD-87]'s source read `system_clock_d203_max_sensor_wins` — a computation
+    // asserted with no number in it at all. This is that failure, checked.
+    //
+    // LIVE VALUE ONLY, deliberately: 76 of the 122 historical `_prior` entries carry
+    // no sensor value, because the convention post-dates them. Asserting over all of
+    // them would fail on history that was never wrong, and a guard that must be
+    // suppressed to pass is a guard nobody keeps.
+    const src = first('last_anchor_source');
+    expect(src, 'last_anchor_source is missing entirely').toBeTruthy();
+    expect(sensorOf(src), `last_anchor_source names no sensor reading: ${src}`).not.toBeNull();
+  });
+
+  it('the anchor EQUALS the sensor reading its own source names', () => {
+    // The check that would have caught 02-09: source `0924_22`, anchor `09:29`.
+    const src = first('last_anchor_source');
+    const sensor = sensorOf(src);
+    expect(sensor).not.toBeNull();
+    const m = /^\d{2}-\d{2} '\d{2} (\d{2}):(\d{2}) SGT$/.exec(plain);
+    expect(m, `last_anchor_time is malformed: ${plain}`).not.toBeNull();
+    expect(
+      { h: +m[1], m: +m[2] },
+      `anchor ${plain} disagrees with its own stated sensor reading ` +
+      `${String(sensor.h).padStart(2, '0')}:${String(sensor.m).padStart(2, '0')} — ` +
+      'one of the two was typed rather than measured',
+    ).toEqual({ h: sensor.h, m: sensor.m });
+  });
+
+  it('a stated max() computation actually computes', () => {
+    // The field claims `computed_with_a_deterministic_tool`. This is what makes that
+    // claim checkable rather than decorative. Applied across EVERY parseable entry,
+    // not just the live one: the arithmetic is self-contained, so history can be held
+    // to it. Running it the first time found two entries off by exactly one second —
+    // both stated in a field asserting a tool had been used, both computed mentally.
+    const bad = [];
+    for (const line of lines) {
+      if (!/^last_anchor_source(_prior\d+)?:/.test(line)) continue;
+      const v = line.slice(line.indexOf(':') + 1).trim();
+      const sensor = sensorOf(v);
+      const ev = /_(\d{2})(\d{2})_(\d{2})_by_(\d+)_seconds/.exec(v);
+      if (!sensor || !ev) continue;
+      const s = sensor.h * 3600 + sensor.m * 60 + sensor.s;
+      const e = +ev[1] * 3600 + +ev[2] * 60 + +ev[3];
+      if (s - e !== +ev[4]) bad.push(`stated ${ev[4]}s, actual ${s - e}s — ${v.slice(0, 72)}`);
+    }
+    expect(bad, 'a "computed with a deterministic tool" figure that does not compute').toEqual([]);
+  });
+
+  it('the evidence check can actually fire', () => {
+    // A guard that cannot fail is not a guard — the rule this file already applies to
+    // its own older assertions. Replayed with the two real defects.
+    expect(sensorOf('system_clock_d203_max_sensor_wins'), '[AMD-87]: no number at all').toBeNull();
+    const s = sensorOf('system_clock_d203_max_sensor_0924_22_wins_over_pr_1832_squash_merge_0922_24_by_118_seconds');
+    expect(s).toEqual({ h: 9, m: 24, s: 22 });
+    // 02-09: the anchor said 09:29, its source said 09:24 — different, so it fires.
+    expect({ h: 9, m: 29 }).not.toEqual({ h: s.h, m: s.m });
+    // …and the arithmetic check: 09:24:22 − 09:22:24 is 118, not 119.
+    expect((9 * 3600 + 24 * 60 + 22) - (9 * 3600 + 22 * 60 + 24)).toBe(118);
   });
 
   it('the future check can actually fire', () => {

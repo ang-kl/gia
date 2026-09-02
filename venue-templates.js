@@ -233,6 +233,12 @@ function formatVenueBlock(p, opts = {}) {
   // word stripped upstream by humaniseRestaurantType in index.js.
   if (p.restaurantType) lines.push(`🍽️ ${escapeHtml(p.restaurantType)}`);
   if (p.area) lines.push(`📇 ${escapeHtml(p.area)}`);
+  // v0.62.895 — the address in the local script, when it differs from the line
+  // above. Sitting unrendered on 1,186 curated Michelin rows since v0.62.824, and
+  // now attached for every foreign-script venue by local-name.js. This is the line
+  // a reader holds up to a taxi driver in Seoul or Tokyo; the English one above
+  // stays because it is what they type into Maps.
+  if (p.addressLocal && p.addressLocal !== p.area) lines.push(`(${escapeHtml(p.addressLocal)})`);
   const hours = formatHoursLine(p, lang);
   if (hours) lines.push(hours);
   if (includeContact) {
