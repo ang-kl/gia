@@ -16,9 +16,15 @@
 // and everything except the proper noun comes from a CLOSED SET — the same set `sg-address.js`
 // already knows about, because it expands exactly these abbreviations (Rd → Road, Opp → Opposite).
 // So the function words are translatable once, here, and reused for every one of the 5,500 stops
-// and every address in the catalogue. The proper noun is handled separately by
-// `sg-nouns-i18n.generated.js`; when it is unknown it stays English, which is correct — that is
-// the part a reader shows a taxi driver or types into Maps.
+// and every address in the catalogue. The proper noun is looked up separately by
+// `sg-place-text.js` against the MRT station table; when it is unknown it stays English, which is
+// correct — that is the part a reader shows a taxi driver or types into Maps.
+//
+// ⚠ v0.62.916 — THIS PARAGRAPH USED TO NAME `sg-nouns-i18n.generated.js`, WHICH HAS NEVER
+// EXISTED. A comment describing a file that was planned and not written reads exactly like a
+// comment describing one that is there, and two sessions took it at face value. The station
+// table is what actually answers today; `scripts/harvest-sg-place-spans.mjs` reports what a
+// dedicated noun table would still have to cover.
 //
 // ⚠ CHINESE FOLLOWS SINGAPORE'S OWN CONVENTIONS, NOT A DICTIONARY. The local renderings are
 // established here: Road 路, Avenue 道, Street 街, Lane 巷, Lorong 巷, Drive 通道, Block 座.
@@ -44,6 +50,13 @@ export const TERM_LOCALES = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
  * the two agree. That is the same discipline `__tests__/map-overlays-copies.test.js` already
  * applies to the three mapOverlays.js copies, and for the same reason: a duplicate nobody checks
  * drifts, and a drifted duplicate is worse than no duplicate at all.
+ *
+ * ⚠ v0.62.916 — AND UNTIL NOW THAT TEST DID NOT EXIST. The sentence above shipped in v0.62.911
+ * describing a guard nobody had written, and the prediction it makes came true in the interval:
+ * measured, this map had 31 keys and `sg-address.js` had 29, missing `ln: lane` and `pl: place`,
+ * so the bot rendered "Ln" where the Mini App rendered "Lane". Both the test and the two keys
+ * are in place now. A comment asserting a safeguard is not a safeguard — it is the most
+ * convincing possible way to look like one.
  */
 export const ABBREV = Object.freeze({
   rd: 'road', ave: 'avenue', av: 'avenue', dr: 'drive', drv: 'drive',
@@ -121,6 +134,30 @@ export const SG_TERMS = Object.freeze({
   industrial:  { fr: 'Industriel', id: 'Industri', ru: 'Промышленный', de: 'Industrie', zh: '工业', ja: '工業', es: 'Industrial', ko: '산업' },
   business:    { fr: 'Affaires', id: 'Bisnis', ru: 'Деловой', de: 'Geschäfts', zh: '商业', ja: 'ビジネス', es: 'Empresarial', ko: '비즈니스' },
 
+  // ── v0.62.916 — place heads the first pass missed ─────────────────────────────────────────
+  //
+  // `scripts/harvest-sg-place-spans.mjs` reads every address in `data/` and reports which spans
+  // are vocabulary and which are proper nouns. Eight common nouns were sitting in the PROPER
+  // bucket — `Bridge×13`, `Coast×12`, `Airport×11` among them — purely because this table did
+  // not contain them. Authoring a Japanese *reading* for "Bridge" would have been exactly the
+  // "plausible-looking nonsense" `sg-place-text.js`'s header warns about.
+  //
+  // ⚠ AND THE REGISTER TURNED THREE CANDIDATES AROUND. `beach`, `cross` and `middle` look like
+  // obvious semantic heads and are not: Beach Road is 美芝路, Upper Cross Street 克罗士街上段,
+  // Middle Road 密驼路 — all transliterated. They are in NOT_TERMS below, not here. A frequency
+  // count says which words are common; only the register says which ones MEAN anything.
+  bridge:      { fr: 'Pont', id: 'Jembatan', ru: 'Мост', de: 'Brücke', zh: '桥', ja: '橋', es: 'Puente', ko: '다리' },
+  coast:       { fr: 'Côte', id: 'Pantai', ru: 'Побережье', de: 'Küste', zh: '海岸', ja: '海岸', es: 'Costa', ko: '해안' },
+  airport:     { fr: 'Aéroport', id: 'Bandara', ru: 'Аэропорт', de: 'Flughafen', zh: '机场', ja: '空港', es: 'Aeropuerto', ko: '공항' },
+  station:     { fr: 'Gare', id: 'Stasiun', ru: 'Станция', de: 'Bahnhof', zh: '站', ja: '駅', es: 'Estación', ko: '역' },
+  canal:       { fr: 'Canal', id: 'Kanal', ru: 'Канал', de: 'Kanal', zh: '运河', ja: '運河', es: 'Canal', ko: '운하' },
+  science:     { fr: 'Sciences', id: 'Sains', ru: 'Научный', de: 'Wissenschafts', zh: '科学', ja: '科学', es: 'Ciencia', ko: '과학' },
+  straits:     { fr: 'Détroit', id: 'Selat', ru: 'Пролив', de: 'Meerenge', zh: '海峡', ja: '海峡', es: 'Estrecho', ko: '해협' },
+  // ⚠ 巴刹, not 市场 — Singapore's own word for a market, borrowed from Malay `pasar`, and what
+  // the bilingual signage says. The header's rule ("Chinese follows Singapore's own conventions,
+  // not a dictionary") applied to a word where the dictionary and the sign genuinely differ.
+  market:      { fr: 'Marché', id: 'Pasar', ru: 'Рынок', de: 'Markt', zh: '巴刹', ja: '市場', es: 'Mercado', ko: '시장' },
+
   // ── positional and modifier words ─────────────────────────────────────────────────────────
   // These are what make a bus stop name a SENTENCE rather than a label: "Opposite Block 123"
   // tells a rider which side of the road to stand on, and it is the single most useful thing on
@@ -157,6 +194,20 @@ export const NOT_TERMS = Object.freeze({
   bukit: 'part of the proper noun — "Bukit Timah" is 武吉知马 whole, never "Hill Timah"',
   tanjong: 'part of the proper noun — "Tanjong Pagar" is 丹戎巴葛 whole',
   mount: 'part of the proper noun — "Mount Faber" is 花柏山 whole, never "Hill Faber"',
+  // v0.62.916 — five words the harvester surfaced as frequent, each of which the register
+  // TRANSLITERATES rather than translates. Named here so their absence from the table above
+  // reads as a decision rather than an oversight, and so the harvester stops reporting them
+  // as proper nouns to be authored.
+  marine: 'the register transliterates it — Marine Parade is 马林百列 and Marine Terrace 马林台, '
+    + 'both carried as proper in mrt-stations-i18n.local.generated.js. "海军百列" is not a place',
+  chinese: 'the register did NOT translate it — Chinese Garden is 裕华园, not 中华花园, and that '
+    + 'row is in the station table to check. The garden is named for its builder, not its style',
+  beach: 'Beach Road is 美芝路 — a transliteration of "Beach", not 海滩路. The road is named after '
+    + 'a shoreline reclaimed away in the 1800s, so the literal reading would also be wrong today',
+  cross: 'Upper Cross Street is 克罗士街上段 — "Cross" transliterated. It is a surname-derived '
+    + 'street name, not a crossing, so 十字街 would describe a junction that does not exist',
+  middle: 'Middle Road is 密驼路, a transliteration. 中路 would read as "the middle road" of some '
+    + 'set, and there is no such set — it was the boundary of the 1820s Japanese quarter',
 });
 
 /** Expand one SG abbreviation to its full English word. Returns the input lowercased otherwise. */
