@@ -226,12 +226,29 @@ describe('the scorer', () => {
     const typed = sg.filter((d) => Array.isArray(d.mealTime) && d.mealTime.length && !d.mealTime.includes('anytime'));
     expect(typed.length).toBeGreaterThan(50);
     // The property, over every typed dish: a period the dish claims outscores one it does not.
+    //
+    // ⚠ THE AUTHORED VALUE IS NOT A PERIOD ID, and this loop used to treat it as one. `snack` is
+    // a legacy token that `_periodsOf` resolves to `afternoon`; scoring a dish AT `'snack'` asks
+    // the scorer about a period that does not exist, so `_periodsOf(...).has('snack')` is false
+    // and the dish gets 0.15 — the same as the out-period — leaving the 1e-6 jitter to decide.
+    // It surfaced in v0.62.919 for a reason worth writing down: the three `snack`-only dishes
+    // were all `["snack","anytime"]` until that release, so the `anytime` filter above removed
+    // them before the bug could show. A defect hidden by a SECOND defect, and fixing the second
+    // one is what exposed it. Resolve through the scorer's own function, as the scorer does.
     for (const d of typed) {
-      const inP = d.mealTime[0];
-      const outP = ['breakfast', 'lunch', 'dinner', 'supper'].find((p) => !d.mealTime.includes(p));
+      const inPeriods = score._periodsOf(d.mealTime);
+      const inP = [...inPeriods][0];
+      const outP = ['breakfast', 'lunch', 'afternoon', 'dinner', 'supper'].find((p) => !inPeriods.has(p));
       if (!outP) continue;
       expect(scoreOf(d.name, inP), `${d.name}: ${inP} should beat ${outP}`).toBeGreaterThan(scoreOf(d.name, outP));
     }
+    // …and the loop above is only meaningful if the resolution actually did something. Three of
+    // the 157 typed dishes lead with `snack`; without `_periodsOf` they score 0.15 at their own
+    // declared time. Asserted, so a later batch that retires the legacy token makes this visible
+    // rather than quietly turning the guard above back into a comparison of two equal numbers.
+    const legacyLed = typed.filter((d) => d.mealTime[0] === 'snack');
+    expect(legacyLed.length, 'no dish leads with the legacy token — _periodsOf above is now inert')
+      .toBeGreaterThan(0);
     // And where the tie genuinely breaks by period, the top DOES move: supper admits none of the
     // breakfast/lunch/dinner set, so a different dish leads.
     const at = (p) => score.scoreDishes(sg, { period: p, weather: 'unknown', bucketId: `x:${p}` }, { lang: 'en', slug: 'singaporean' })[0].dish;
@@ -379,7 +396,8 @@ describe('end to end', () => {
     // 1.0000 and dozens hold it — mealFit and explainability both saturate while every other
     // term is absent. `scoredDishes[0]` was the 1e-6 jitter choosing, dressed as a ranking.
     // Naming the band does not make the answer better; it makes the answer honest, and it is why
-    // extending the dish taxonomy from 99 of 1,697 is the highest-leverage follow-up.
+    // extending the dish taxonomy — 1,177 of 1,697 as of v0.62.918 — is the highest-leverage
+    // follow-up. Four batches, 520 rows, remain.
     const s = await suggestForContext({ redis: null, now: AT, lat: 1.3, lng: 103.8, lang: 'en', t: tn });
     expect(s.dishBandSize).toBeGreaterThan(1);
     // Deterministic inside a bucket — rotation, not randomness.

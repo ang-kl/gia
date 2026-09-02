@@ -263,19 +263,32 @@ describe('factBody — device-language resolution (v0.61.383)', () => {
     // on a constructed fact rather than by hunting the corpus for a hole that no
     // longer exists. Asserted below, so this stays honest if a hole reappears.
     expect(facts.filter((f) => !f.ja && !(f._i18n && f._i18n.ja))).toEqual([]);
+    // v0.62.919 — the same statement for ko, and it is the COMPLETENESS CHECK for the 72
+    // Korean bodies. Stronger than counting rows: a count of 72 is satisfied by 72 rows
+    // whatever they contain, while this fails the moment one fact has no Korean by either
+    // route. `ko` was in OVERLAY_LANGS from v0.62.915 with nothing behind it, so every
+    // Korean reader saw English on both the bot and the Mini App.
+    expect(facts.filter((f) => !f.ko && !(f._i18n && f._i18n.ko))).toEqual([]);
     const bare = { id: 'x-bare', tags: [], en: 'English body', fr: 'Corps francais' };
     expect(factBody(bare, 'ja')).toBe('English body');
     expect(factBody(bare, 'ko')).toBe('English body');
     expect(factBody(bare, 'xx')).toBe('English body');
   });
 
-  it('reads the overlay when there is no curated flat key — zh/ja/es', () => {
+  it('reads the overlay when there is no curated flat key — zh/ja/es/ko', () => {
     // The regression guard for the fix. OVERLAY_LANGS was ['id','ru','de'] while
     // both overlays already carried six languages, so zh/ja/es were translated
-    // and then dropped at render time.
-    for (const lang of ['zh', 'ja', 'es']) {
+    // and then dropped at render time. `ko` joins them in v0.62.919.
+    //
+    // ⚠ THE `if (!f) continue` THIS LOOP USED TO CARRY IS GONE. If no fact matched, the
+    // body never ran and the iteration passed having measured nothing — the vacuous-pass
+    // shape this arc has now found a dozen times, most recently in a verifier that parsed
+    // zero rows out of a correct 862-row file and printed four passes ([AMD-183]). A loop
+    // that can silently examine nothing is not a guard. It asserts a fact was FOUND first.
+    for (const lang of ['zh', 'ja', 'es', 'ko']) {
       const f = facts.find((x) => !x[lang] && x._i18n && x._i18n[lang]);
-      if (!f) continue;
+      expect(f, `no fact has an overlay-only ${lang} body — this iteration would measure nothing`)
+        .toBeTruthy();
       expect(factBody(f, lang), `${f.id} ${lang}`).toBe(f._i18n[lang]);
       expect(factBody(f, lang)).not.toBe(f.en);
     }

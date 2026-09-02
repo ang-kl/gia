@@ -17,7 +17,7 @@
 // This is what makes cold start the PRIMARY path rather than a fallback branch: there is one code
 // path, and a missing signal quietly shrinks the denominator instead of contributing a guessed
 // zero — which would rank an unknown dish below a known-bad one. It is also why extending the
-// dish taxonomy from its current 99 of 1,697 rows improves results later with NO CODE CHANGE.
+// dish taxonomy from its 1,177-of-1,697 rows improves results later with NO CODE CHANGE.
 //
 // ── THE WEIGHTS, AND WHY EACH NUMBER ──────────────────────────────────────────────────────────
 //
@@ -209,7 +209,11 @@ function _periodsOf(mealTime) {
 }
 
 function _mealFit(dish, period) {
-  // Rung 1 — the taxonomy, exact but present on only 99 of 1,697 dishes (all singaporean today).
+  // Rung 1 — the taxonomy, exact, on 1,177 of 1,697 dishes across 40 cuisines (v0.62.918).
+  // ⚠ THE `anytime` BRANCH BELOW SHORT-CIRCUITS, and that is load-bearing: a row authored
+  // `["breakfast","snack","anytime"]` never reaches the period test, so its real periods are
+  // dead. Five rows were in that state until v0.62.919; `__tests__/dish-taxonomy.test.js`
+  // now forbids the mix over the SHIPPED table, not just on the way in.
   if (Array.isArray(dish.mealTime) && dish.mealTime.length) {
     if (dish.mealTime.includes('anytime')) return 0.7;
     return _periodsOf(dish.mealTime).has(period) ? 1 : 0.15;

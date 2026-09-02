@@ -106,6 +106,34 @@ describe('the dish taxonomy overlay', () => {
     expect(noCourse.map(([k]) => k), 'these food rows have no course').toEqual([]);
   });
 
+  it('⚠ no shipped row mixes `anytime` with a real period — the other periods would be dead', () => {
+    // ⚠ FOUND BY VERIFYING #1853, NOT BY A TEST. `_mealFit` in `taste-score.js` reads:
+    //
+    //     if (dish.mealTime.includes('anytime')) return 0.7;
+    //     return _periodsOf(dish.mealTime).has(period) ? 1 : 0.15;
+    //
+    // The `anytime` branch SHORT-CIRCUITS. So a row authored `["breakfast","snack","anytime"]`
+    // scores a flat 0.7 at every one of the six periods and its two real periods never run —
+    // the row reads as carefully classified and behaves as if it were not classified at all.
+    // Five pre-existing `singaporean::` rows were in that state: bak kwa, salted egg fish skin,
+    // soon kueh, ti kway / png kueh and vadai. All five now drop `anytime` and keep what is true.
+    //
+    // Third time this arc for the same shape ([AMD-176], and the drink/course test above): the
+    // BATCH VALIDATOR rejects this on the way in — "'anytime' with other periods — it
+    // short-circuits, so the rest are dead" — and nothing looked at the shipped table. A rule
+    // enforced on entry is not enforced on what is there.
+    const mixed = rows.filter(([, v]) => (v.mealTime || []).includes('anytime') && v.mealTime.length > 1);
+    expect(mixed.map(([k, v]) => `${k} ${JSON.stringify(v.mealTime)}`), 'these rows mix anytime with a real period').toEqual([]);
+    // …and the property the fix relies on, asserted rather than assumed: a sole-`anytime` row is
+    // legitimate (kaya puff, kvass, biltong), so the rule is about MIXING, not about the value.
+    // ⚠ THE FLOOR IS THE MEASURED VALUE, because the first draft GUESSED it at 20 and the real
+    // count is 12 — the same defect the K4 length band recorded, in the assertion written to
+    // prove the fix was surgical. A floor picked from intuition fails on correct data or, worse,
+    // passes on wrong data. Ratcheted to the achieved value, per the night_supper precedent.
+    const soleAnytime = rows.filter(([, v]) => v.mealTime.length === 1 && v.mealTime[0] === 'anytime');
+    expect(soleAnytime.length, 'sole-anytime rows are legitimate and must not have been swept up').toBeGreaterThanOrEqual(12);
+  });
+
   it('the drink split reaches the weather term', () => {
     // 91 unclassified dishes are `kind: 'drink'`, and neither weather set knew the type.
     expect(score.WET_TYPES.has('hot-drink')).toBe(true);

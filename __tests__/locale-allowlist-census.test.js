@@ -237,8 +237,14 @@ describe('the bot no longer keeps its own copy of the overlay rule', () => {
     const OLD = new Set(['id', 'ru', 'de']);
     const discarded = [...langs].filter((l) => !OLD.has(l));
     expect(discarded.sort(), 'the overlay locales changed — re-measure what the old set discarded')
-      .toEqual(['es', 'ja', 'zh']);
+      .toEqual(['es', 'ja', 'ko', 'zh']);
     const strings = discarded.reduce((n, l) => n + ids.filter((i) => data[i]?.[l]).length, 0);
-    expect(strings, 'the count of bodies the bot used to discard').toBe(216);
+    // ⚠ THIS NUMBER GROWS WHENEVER THE OVERLAY DOES, AND THAT IS NOT A WIDENING BUG. It counts
+    // the bodies a code path that NO LONGER EXISTS — the bot's deleted `_OVERLAY_LANGS` — would
+    // have discarded. Every locale added to the overlay adds 72 to it: 216 at three locales
+    // (v0.62.915, es/ja/zh), 288 at four (v0.62.919, + ko). A reader who takes a rising figure
+    // here as a regression is reading the wrong direction; the assertion above it, on the locale
+    // SET, is the one that would catch a real narrowing.
+    expect(strings, 'the count of bodies the deleted bot path would have discarded').toBe(288);
   });
 });

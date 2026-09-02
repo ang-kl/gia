@@ -4,7 +4,7 @@
 // Folded onto fact._i18n by lib/fun-facts.js (kept out of the data file to avoid the
 // `id` locale/identifier collision). Produced by scripts/translate-content.mjs.
 //
-// Keys: 72 · langs: id/ru/de/zh/ja/es
+// Keys: 72 · langs: id/ru/de/zh/ja/es/ko
 export default {
   "asam-laksa-penang": {
     id: "Penang asam laksa adalah sup asam + ikan kembung, berbeda dari laksa santan-kari SG/JB. CNN pernah menempatkannya di peringkat #7 dalam 50 makanan terbaik dunia (2011).",
@@ -13,6 +13,7 @@ export default {
     zh: "槟城 asam laksa 是一种罗望子+鲭鱼汤，与新加坡/新山（SG/JB）的椰浆咖喱 laksa 不同。美国有线电视新闻网（CNN）曾将其评为2011年全球50种最佳美食中的第7名。",
     ja: "ペナン asam laksa は、タマリンドとサバのスープで、シンガポール/ジョホールバル（SG/JB）のココナッツカレー laksa とは異なります。CNNはかつて、2011年の世界のベストフード50で第7位にランク付けしました。",
     es: "El Penang asam laksa es una sopa de tamarindo + caballa, distinta del laksa de coco y curry de SG/JB. CNN lo clasificó una vez como el número 7 entre los 50 mejores alimentos del mundo (2011).",
+    ko: "페낭 asam laksa는 타마린드와 고등어로 끓인 국물로, 싱가포르/조호르바루의 코코넛 커리 laksa와는 다릅니다. CNN은 2011년 세계 50대 음식에서 이 요리를 7위로 꼽은 적이 있습니다.",
   },
   "bedok-minangkabau-roof": {
     id: "Atap Bedok Food Centre mencerminkan warisan kampong Melayu — arsitektur puncaknya terinspirasi oleh desain Minangkabau.",
@@ -21,6 +22,7 @@ export default {
     zh: "勿洛熟食中心的屋顶反映了马来甘榜 kampong 遗产 — 其尖顶建筑灵感来自米南加保 Minangkabau 设计。",
     ja: "ベドック・フードセンターの屋根は、マレーの kampong の遺産を反映している。その尖った建築は Minangkabau のデザインに触発されている。",
     es: "El techo del Bedok Food Centre refleja la herencia kampong malaya — su arquitectura puntiaguda está inspirada en el diseño Minangkabau.",
+    ko: "브독 푸드센터의 지붕은 말레이 캄퐁의 유산을 담고 있습니다. 뾰족한 지붕 형태는 미낭카바우 건축에서 따온 것입니다.",
   },
   "bukit-canberra-2021": {
     id: "Bukit Canberra Hawker Centre dibuka pada tahun 2021 dengan fitur hijau dan tautan langsung ke kompleks olahraga — bagian dari rencana NEA tahun 2015 untuk 10+ pusat baru.",
@@ -29,6 +31,7 @@ export default {
     zh: "武吉坎贝拉小贩中心 Bukit Canberra Hawker Centre 于2021年开业，拥有绿色特色并与体育综合体直接相连 — 是国家环境局 NEA 2015年10多个新中心计划的一部分。",
     ja: "ブキット・キャンベラ・ホーカーセンター Bukit Canberra Hawker Centre は2021年にオープンし、環境に配慮した特徴とスポーツ複合施設への直接リンクを備えている。これはNEAの2015年の10以上の新しいセンター計画の一部である。",
     es: "El Bukit Canberra Hawker Centre abrió en 2021 con características ecológicas y un enlace directo a un complejo deportivo — parte del plan de la NEA de 2015 para más de 10 nuevos centros.",
+    ko: "부킷 캔버라 호커센터는 2021년에 문을 열었습니다. 친환경 설비를 갖추고 스포츠 복합시설과 바로 연결되며, 호커센터 10곳 이상을 새로 짓겠다는 NEA의 2015년 계획의 일부입니다.",
   },
   "cantonese-balestier-farms": {
     id: "hawker Kanton bekerja di People's Park, Kreta Ayer, dan Jalan Besar — mereka mengendalikan pasokan sayuran dari pertanian Balestier.",
@@ -37,6 +40,7 @@ export default {
     zh: "广东hawker在牛车水大厦、Kreta Ayer和Jalan Besar工作——他们控制着Balestier农场的蔬菜供应。",
     ja: "広東系hawkerはPeople's Park、Kreta Ayer、Jalan Besarで働き、Balestierの農場からの野菜供給を管理していました。",
     es: "Los hawker cantoneses trabajaban en People's Park, Kreta Ayer y Jalan Besar; controlaban el suministro de verduras de las granjas de Balestier.",
+    ko: "광둥계 노점상들은 피플스파크, 크레타아예르, 잘란 브사르에서 일했고 발레스티어 농장에서 오는 채소 공급을 장악했습니다.",
   },
   "durian-musang-king-civet": {
     id: "Musang King (Mao Shan Wang) adalah durian Malaysia yang paling berharga — daging buah keemasan, pahit-manis, dengan aroma yang lebih dalam daripada D24 yang lebih umum. Nama ini berasal dari Musang (musang palem Asia) di kebun.",
@@ -45,6 +49,7 @@ export default {
     zh: "猫山王（Musang King）是马来西亚最珍贵的榴莲——果肉金黄，苦甜交织，香气比更常见的D24更浓郁。其名称来源于果园中的麝香猫（亚洲棕榈果子狸）。",
     ja: "Musang King（マオシャンワン）は、マレーシアで最も珍重されるドリアンです。黄金色の果肉はほろ苦く甘く、より一般的なD24よりも深い香りを持っています。名前は果樹園に生息するMusang（アジアパームシベット）に由来しています。",
     es: "Musang King (Mao Shan Wang) es el durian malasio más preciado: pulpa dorada, agridulce, con un aroma más profundo que el D24, más común. El nombre proviene del Musang (civeta de palma asiática) de los huertos.",
+    ko: "무상킹(마오산왕)은 말레이시아에서 가장 귀한 두리안입니다. 황금빛 과육에 달콤씁쓸하며, 흔한 D24보다 향이 훨씬 깊습니다. 이름은 과수원에 사는 무상(사향고양이)에서 왔습니다.",
   },
   "first-hawker-shelters-1921-1923": {
     id: "Tempat penampungan pedagang kaki lima Telok Ayer / Finlayson Green (1921) dan tempat penampungan pedagang kaki lima People's Park (1923) adalah upaya pemerintah Singapura yang pertama untuk menampung pedagang kaki lima.",
@@ -53,6 +58,7 @@ export default {
     zh: "直落亚逸/芬礼逊湾 hawker 中心（1921年）和人民公园 hawker 中心（1923年）是新加坡政府首次为安置街头小贩所做的努力。",
     ja: "テロック・アヤー／フィンレイソン・グリーンhawker シェルター（1921年）とピープルズ・パークhawker シェルター（1923年）は、シンガポール政府が初めて屋台の販売業者を収容しようとした取り組みでした。",
     es: "Los refugios para hawkers de Telok Ayer / Finlayson Green (1921) y People's Park (1923) fueron los primeros esfuerzos del gobierno de Singapur para albergar a los vendedores ambulantes.",
+    ko: "1921년 텔록아예르/핀레이슨 그린 노점 상가와 1923년 피플스파크 노점 상가는 거리 상인에게 지붕을 마련해 주려 한 싱가포르 정부의 첫 시도였습니다.",
   },
   "g-chilli-thai-portuguese": {
     id: "Cabai tidak berasal dari Thailand — pedagang Portugis membawanya dari Amerika sekitar 500 tahun yang lalu.",
@@ -61,6 +67,7 @@ export default {
     zh: "辣椒并非泰国本土产物——葡萄牙商人大约500年前将其从美洲带到泰国。",
     ja: "唐辛子はタイ原産ではありません。ポルトガル商人が約500年前にアメリカ大陸から持ち込みました。",
     es: "Los chiles no son nativos de Tailandia; los comerciantes portugueses los trajeron de las Américas hace unos 500 años.",
+    ko: "고추는 태국 토종이 아닙니다. 약 500년 전 포르투갈 상인들이 아메리카 대륙에서 들여왔습니다.",
   },
   "g-coffee-ethiopia-yemen": {
     id: "Kopi pertama kali diseduh di Etiopia dan Yaman, berabad-abad sebelum mencapai Eropa.",
@@ -69,6 +76,7 @@ export default {
     zh: "咖啡最初在埃塞俄比亚和也门冲泡，比传到欧洲早了几个世纪。",
     ja: "コーヒーは、ヨーロッパに伝わる何世紀も前に、エチオピアとイエメンで初めて淹れられました。",
     es: "El café se preparó por primera vez en Etiopía y Yemen, siglos antes de que llegara a Europa.",
+    ko: "커피는 유럽에 닿기 수백 년 전에 이미 에티오피아와 예멘에서 처음 끓여 마셨습니다.",
   },
   "g-kimchi-winter-jars": {
     id: "Orang Korea pernah mengubur stoples kimchi di bawah tanah agar tetap berfermentasi perlahan sepanjang musim dingin.",
@@ -77,6 +85,7 @@ export default {
     zh: "韩国人曾将泡菜坛子埋在地下，让它们在冬天缓慢发酵。",
     ja: "韓国人はかつて、冬の間ゆっくりと発酵させるために、キムチの瓶を地中に埋めていました。",
     es: "Los coreanos solían enterrar frascos de kimchi bajo tierra para que fermentaran lentamente durante el invierno.",
+    ko: "한국에서는 겨우내 김치가 천천히 익도록 항아리를 땅에 묻어 두곤 했습니다.",
   },
   "g-noodles-oldest-china": {
     id: "Mangkuk mi tertua yang diketahui berusia sekitar 4.000 tahun, ditemukan di Tiongkok barat laut.",
@@ -85,6 +94,7 @@ export default {
     zh: "已知最古老的面条碗约有4000年历史，发现于中国西北部。",
     ja: "知られている最古の麺の器は、約4000年前のもので、中国西北部で発見されました。",
     es: "El cuenco de fideos más antiguo conocido tiene unos 4.000 años y fue encontrado en el noroeste de China.",
+    ko: "지금까지 발견된 가장 오래된 국수 한 그릇은 약 4,000년 전의 것으로, 중국 북서부에서 나왔습니다.",
   },
   "g-ramen-china-origin": {
     id: "Ramen datang ke Jepang dari Tiongkok dan baru menjadi hidangan nasional yang dicintai pada abad ke-20.",
@@ -93,6 +103,7 @@ export default {
     zh: "拉面从中国传入日本，直到20世纪才成为备受喜爱的国民美食。",
     ja: "ラーメンは中国から日本に伝わり、20世紀になって初めて国民に愛される料理となりました。",
     es: "El ramen llegó a Japón desde China y solo se convirtió en un plato nacional muy querido en el siglo XX.",
+    ko: "라멘은 중국에서 일본으로 건너왔고, 20세기에 들어서야 국민 음식으로 사랑받게 되었습니다.",
   },
   "g-sushi-fermented-rice": {
     id: "Sushi dimulai sebagai cara mengawetkan ikan dalam nasi fermentasi — awalnya, nasi dibuang.",
@@ -101,6 +112,7 @@ export default {
     zh: "寿司最初是作为一种用发酵米饭保存鱼肉的方法——起初，米饭是被丢弃的。",
     ja: "寿司は、魚を発酵させた米で保存する方法として始まりました。当初、米は捨てられていました。",
     es: "El sushi comenzó como una forma de conservar pescado en arroz fermentado; al principio, el arroz se desechaba.",
+    ko: "초밥은 본래 생선을 삭힌 밥에 넣어 보존하던 방법이었습니다. 처음에는 그 밥을 버렸습니다.",
   },
   "g-tea-china-ancient": {
     id: "Teh pertama kali diminum di Tiongkok lebih dari 2.000 tahun yang lalu, jauh sebelum mencapai seluruh dunia.",
@@ -109,6 +121,7 @@ export default {
     zh: "茶在中国首次饮用是在2000多年前，远早于它传到世界其他地方。",
     ja: "お茶は2000年以上前に中国で初めて飲まれ、世界の他の地域に伝わるずっと前のことです。",
     es: "El té se bebió por primera vez en China hace más de 2.000 años, mucho antes de que llegara al resto del mundo.",
+    ko: "차는 2,000여 년 전 중국에서 처음 마셨습니다. 세계 다른 지역에 알려지기 훨씬 전의 일입니다.",
   },
   "g-umami-1908-kombu": {
     id: "Umami, rasa 'kelima' yang gurih, diidentifikasi di Jepang pada tahun 1908 dari kaldu rumput laut kombu.",
@@ -117,6 +130,7 @@ export default {
     zh: "鲜味，即咸鲜的“第五种味道”，于1908年在日本从海带（kombu）汤中被发现。",
     ja: "旨味（うまみ）は、風味豊かな「第五の味」として、1908年に日本で昆布（kombu）だしから特定されました。",
     es: "El umami, el sabroso «quinto sabor», fue identificado en Japón en 1908 a partir del caldo de algas kombu.",
+    ko: "감칠맛, 즉 '제5의 맛'은 1908년 일본에서 다시마 국물을 연구하다 밝혀졌습니다.",
   },
   "gluttons-square-orchard": {
     id: "Glutton's Square — tempat parkir terbuka Orchard Road — adalah lokasi relokasi hawker terkenal pada tahun 1970-an sebelum pembangunan kembali Orchard.",
@@ -125,6 +139,7 @@ export default {
     zh: "大食家广场 Glutton's Square — 乌节路露天停车场 — 是1970年代乌节路改造前著名的小贩 hawker 搬迁地。",
     ja: "Glutton's Square — オーチャードロードの屋外駐車場 — は、オーチャードの再開発前、1970年代に有名な hawker 移転地だった。",
     es: "Glutton's Square — el aparcamiento al aire libre de Orchard Road — fue un famoso lugar de reubicación de hawkers en la década de 1970 antes de la reurbanización de Orchard.",
+    ko: "글러튼스 스퀘어는 오차드로드의 노천 주차장으로, 오차드 재개발 이전인 1970년대에 유명했던 노점 이전 부지였습니다.",
   },
   "hainanese-chicken-rice-wenchang": {
     id: "Nasi ayam Hainan berawal dari ayam Wenchang rebus dari kabupaten Wenchang, Hainan. Migran Hainan membawa teknik ini ke Singapura.",
@@ -133,6 +148,7 @@ export default {
     zh: "Hainanese chicken rice 源于海南文昌县的文昌鸡。海南移民将这项技术带到新加坡。",
     ja: "Hainanese chicken rice は、海南省文昌県産の茹でたWenchang chicken に由来します。海南からの移民がこの技術をシンガポールにもたらしました。",
     es: "El Hainanese chicken rice se remonta al pollo Wenchang hervido del condado de Wenchang, Hainan. Los migrantes hainaneses trajeron la técnica a Singapur.",
+    ko: "하이난 치킨라이스의 뿌리는 하이난성 원창현의 삶은 원창닭입니다. 하이난 이주민들이 그 조리법을 싱가포르로 가져왔습니다.",
   },
   "hainanese-curry-rice-1945": {
     id: "Nasi kari Hainan adalah fusi kopitiam pasca-1945 — potongan daging babi Barat dipadukan dengan hidangan Peranakan seperti babi pongteh dan chap chye, semuanya disiram saus kari.",
@@ -141,6 +157,7 @@ export default {
     zh: "Hainanese curry rice 是1945年后的 kopitiam 融合菜——西式猪排搭配土生华人（Peranakan）菜肴，如 babi pongteh 和 chap chye，全部淋上咖喱汁。",
     ja: "Hainanese curry rice は1945年以降のkopitiam フュージョンです — 西洋風ポークチョップと、babi pongteh やchap chye のようなプラナカン（Peranakan）料理を組み合わせ、すべてカレーグレービーソースをかけます。",
     es: "El Hainanese curry rice es una fusión kopitiam posterior a 1945 — chuletas de cerdo occidentales combinadas con platos Peranakan como babi pongteh y chap chye, todo bañado en salsa de curry.",
+    ko: "하이난 커리라이스는 1945년 이후 코피티암에서 태어난 융합 요리입니다. 서양식 돼지고기 커틀릿에 바비 퐁테와 찹채 같은 페라나칸 요리를 함께 담고, 그 위에 커리 국물을 끼얹습니다.",
   },
   "hainanese-kopitiam-1945": {
     id: "Setelah pendudukan Jepang berakhir pada tahun 1945, orang Hainan yang menganggur membuka kopitiam — mereka menyajikan sarapan ala Barat dengan sentuhan lokal seperti telur setengah matang yang disiram kecap.",
@@ -149,6 +166,7 @@ export default {
     zh: "1945年日本占领结束后，失业的海南人开设了 kopitiam — 他们提供西式早餐，并加入本地特色，例如淋上酱油的半熟蛋。",
     ja: "1945年に日本占領が終わった後、職を失った海南人が kopitiam を開いた。彼らは洋風の朝食に、醤油をかけた半熟卵のような地元のひねりを加えて提供した。",
     es: "Después de que terminó la ocupación japonesa en 1945, los hainanenses desempleados abrieron kopitiam — servían desayunos de estilo occidental con toques locales como huevos semicocidos rociados con salsa de soja.",
+    ko: "1945년 일본 점령이 끝난 뒤 일자리를 잃은 하이난 사람들이 코피티암을 열었습니다. 간장을 뿌린 반숙 달걀처럼 현지식으로 비튼 서양식 아침을 냈습니다.",
   },
   "hawker-centres-1971-committee": {
     id: "Komite Pengembangan Hawker Centres, yang dibentuk pada tahun 1971, mendorong gelombang pertama pusat-pusat yang dibangun khusus. Collyer Quay (110 kios) dan Boat Quay (80 kios) dibuka paling awal.",
@@ -157,6 +175,7 @@ export default {
     zh: "1971年成立的Hawker Centres Development Committee推动了第一批专门建造的中心。Collyer Quay（110个摊位）和Boat Quay（80个摊位）最早开放。",
     ja: "1971年に設立されたHawker Centres Development Committeeは、目的別に建設されたセンターの第一波を推進しました。Collyer Quay（110の屋台）とBoat Quay（80の屋台）が最も早くオープンしました。",
     es: "El Comité de Desarrollo de Hawker Centres, formado en 1971, impulsó la primera ola de centros construidos a propósito. Collyer Quay (110 puestos) y Boat Quay (80 puestos) abrieron los primeros.",
+    ko: "1971년에 꾸려진 호커센터 개발위원회가 목적에 맞게 지은 첫 호커센터들을 이끌었습니다. 콜리어키(110개 노점)와 보트키(80개 노점)가 가장 먼저 문을 열었습니다.",
   },
   "hawker-licensing-1903": {
     id: "Pada tahun 1903, pemerintah kolonial memutuskan bahwa pedagang kaki lima memerlukan pendaftaran dan perizinan — kekhawatiran kesehatan masyarakat (kolera, tifus) mendorong kebijakan ini.",
@@ -165,6 +184,7 @@ export default {
     zh: "1903年，殖民政府决定 hawkers 需要注册和许可——公共卫生问题（霍乱、伤寒）推动了这项政策。",
     ja: "1903年、植民地政府はhawkers に登録と免許が必要であると決定しました — 公衆衛生上の懸念（コレラ、腸チフス）がこの政策を推進しました。",
     es: "En 1903, el gobierno colonial decidió que los hawkers necesitaban registro y licencia — las preocupaciones de salud pública (cólera, fiebre tifoidea) impulsaron la política.",
+    ko: "1903년 식민 정부는 노점상에게 등록과 허가가 필요하다고 결정했습니다. 콜레라와 장티푸스 같은 공중보건 문제가 그 배경이었습니다.",
   },
   "hawker-licensing-1907-1919": {
     id: "Undang-undang perizinan pertama kali diberlakukan pada tahun 1907 untuk pedagang kaki lima malam; pada tahun 1919, undang-undang tersebut diperluas untuk mencakup pedagang kaki lima siang dan keliling juga.",
@@ -173,6 +193,7 @@ export default {
     zh: "许可法于1907年首次对夜间 hawkers 实施；1919年，该法案也扩展到涵盖白天和流动 hawkers。",
     ja: "免許法は1907年に夜間のhawkers に対して初めて施行され、1919年には昼間および移動式のhawkers にも拡大されました。",
     es: "Las leyes de licencias se aplicaron por primera vez en 1907 para los hawkers nocturnos; en 1919 se extendieron para cubrir también a los hawkers diurnos e itinerantes.",
+    ko: "허가 제도는 1907년 야간 노점상에게 처음 적용되었고, 1919년에는 주간 노점상과 이동 노점상까지 확대되었습니다.",
   },
   "hawkers-inquiry-1950": {
     id: "Komisi Penyelidikan hawker, yang dibentuk oleh Gubernur F. Gimson pada April 1950, memiliki 10 anggota yang menangani masalah kesehatan masyarakat dan perizinan hawker.",
@@ -181,6 +202,7 @@ export default {
     zh: "由总督F. Gimson于1950年4月成立的Hawkers Inquiry Commission有10名成员，负责处理hawker的公共卫生和执照问题。",
     ja: "1950年4月にF. Gimson総督によって設立されたHawkers Inquiry Commissionは、hawkerの公衆衛生と免許問題に取り組む10人の委員で構成されていました。",
     es: "La Comisión de Investigación de hawker, establecida por el Gobernador F. Gimson en abril de 1950, contaba con 10 miembros que abordaban los problemas de salud pública y licencias de los hawker.",
+    ko: "1950년 4월 김슨 총독이 설치한 노점상 조사위원회는 위원 10명으로 노점상의 공중보건과 허가 문제를 다루었습니다.",
   },
   "hawkers-multiracial-19c": {
     id: "Pada pertengahan abad ke-19, pedagang kaki lima multiras sudah ada di mana-mana di Singapura — Hokkien, Teochew, Kanton, Melayu, Jawa, dan India.",
@@ -189,6 +211,7 @@ export default {
     zh: "到19世纪中叶，多民族的街头 hawkers 在新加坡已随处可见——包括福建人、潮州人、广东人、马来人、爪哇人和印度人。",
     ja: "19世紀半ばには、多民族のストリートhawkers がシンガポール中にいました — 福建、潮州、広東、マレー、ジャワ、インドの人々です。",
     es: "A mediados del siglo XIX, los hawkers callejeros multirraciales ya estaban por todas partes en Singapur — hokkien, teochew, cantonés, malayo, javanés e indio.",
+    ko: "19세기 중반에 이미 싱가포르 거리에는 여러 민족의 노점상이 가득했습니다. 호키엔, 조주, 광둥, 말레이, 자바, 인도 상인들이 함께 있었습니다.",
   },
   "hockchia-coffee-guild": {
     id: "hawker Hockchia dan Hockchew menjalankan kios malam di sepanjang Queen Street dan Johore Road, diorganisir melalui Hockchia Coffee Stall Keepers Guild.",
@@ -197,6 +220,7 @@ export default {
     zh: "福清和福州hawker沿着Queen Street和Johore Road经营夜市摊位，通过Hockchia Coffee Stall Keepers Guild组织起来。",
     ja: "ホクシア族とホクチュー族のhawkerは、Queen StreetとJohore Road沿いで夜の屋台を運営し、Hockchia Coffee Stall Keepers Guildを通じて組織されていました。",
     es: "Los hawker hockchia y hockchew regentaban puestos nocturnos a lo largo de Queen Street y Johore Road, organizados a través del Hockchia Coffee Stall Keepers Guild.",
+    ko: "혹치아와 혹추 노점상들은 퀸스트리트와 조호르로드에서 야간 노점을 운영했고, 혹치아 커피노점상 조합을 통해 조직되어 있었습니다.",
   },
   "hokkien-largest-hawker-group": {
     id: "Orang Hokkien adalah kelompok hawker Tionghoa terbesar di Singapura kolonial — mereka mendominasi kios kopi dan makanan matang di seluruh Chinatown.",
@@ -205,6 +229,7 @@ export default {
     zh: "福建人是殖民时期新加坡最大的华人hawker群体——他们主导了牛车水各地的咖啡和熟食摊位。",
     ja: "ホッケン族は植民地時代のシンガポールで最大の中国系hawkerグループでした。彼らはChinatown全域のコーヒーと調理済み食品の屋台を支配していました。",
     es: "Los hokkien eran el grupo de hawker chinos más grande en el Singapur colonial; dominaban los puestos de café y comida preparada en todo Chinatown.",
+    ko: "식민지 시대 싱가포르에서 가장 큰 중국계 노점상 집단은 호키엔이었습니다. 차이나타운 전역의 커피와 조리 음식 노점을 이들이 주도했습니다.",
   },
   "hokkien-mee-fusion": {
     id: "Hokkien mee Singapura memadukan mi Hokkien dengan teknik memasak Kanton — mi kuning bulat yang dimasak dengan wok hei panas tinggi.",
@@ -213,6 +238,7 @@ export default {
     zh: "新加坡福建面融合了福建面和粤式烹饪技术 — 用高温锅气炒制的圆形黄面。",
     ja: "シンガポール Hokkien mee は、福建麺と広東料理の技術を融合させたものだ。高温の wok hei で炒められた丸い黄色い麺が特徴である。",
     es: "El Hokkien mee de Singapur fusiona fideos Hokkien con técnica de cocina cantonesa — fideos amarillos redondos cocinados a fuego alto con wok hei.",
+    ko: "싱가포르 호키엔미는 호키엔 국수에 광둥식 조리법을 더한 요리입니다. 둥근 노란 면을 센 불에 볶아 웍헤이를 입힙니다.",
   },
   "illegal-hawkers-1959": {
     id: "Pada tahun 1959, jumlah hawker ilegal mencapai lebih dari 30.000 di Singapura — dan hanya 16 inspektur yang tersedia untuk memantau kepatuhan.",
@@ -221,6 +247,7 @@ export default {
     zh: "截至1959年，新加坡的非法hawker数量超过30,000人——而只有16名检查员负责监督合规性。",
     ja: "1959年までに、シンガポールでは違法なhawkerが30,000人を超え、コンプライアンスを監視できる検査官はわずか16人でした。",
     es: "Para 1959, los hawker ilegales sumaban más de 30.000 en Singapur, y solo 16 inspectores estaban disponibles para supervisar el cumplimiento.",
+    ko: "1959년 무렵 싱가포르의 무허가 노점상은 3만 명이 넘었지만, 이를 단속할 감독관은 16명뿐이었습니다.",
   },
   "indian-hawker-rojak-vadai": {
     id: "hawker India di Singapura menjual rojak, mee goreng, vadai, muruku, kachang puteh, susu kambing, dan yoghurt — seringkali di dekat sekolah dan lapangan bermain.",
@@ -229,6 +256,7 @@ export default {
     zh: "新加坡的印度hawker出售rojak、mee goreng、vadai、muruku、kachang puteh、羊奶和酸奶——通常在学校和操场附近。",
     ja: "シンガポールのインド系hawkerは、rojak、mee goreng、vadai、muruku、kachang puteh、ヤギ乳、ヨーグルトを販売しており、しばしば学校や遊び場の近くで見られました。",
     es: "Los hawker indios en Singapur vendían rojak, mee goreng, vadai, muruku, kachang puteh, leche de cabra y yogur, a menudo cerca de escuelas y campos de juego.",
+    ko: "싱가포르의 인도계 노점상들은 로작, 미고렝, 바다이, 무루쿠, 카창푸테, 염소젖, 요구르트를 팔았습니다. 학교와 운동장 근처가 주된 자리였습니다.",
   },
   "jb-mamak-24-7": {
     id: "Warung mamak Johor Bahru buka 24/7 karena ritme perdagangan lintas batas dengan Singapura. Banyak yang menyajikan teh tarik dan roti canai kepada pengemudi truk di jalan raya AH2.",
@@ -237,6 +265,7 @@ export default {
     zh: "新山（Johor Bahru）的 mamak 摊位因与新加坡的跨境贸易节奏而24小时营业。许多摊位为AH2高速公路上的卡车司机提供 teh tarik 和 roti canai。",
     ja: "ジョホールバル（Johor Bahru）の mamak 屋台は、シンガポールとの国境を越えた貿易のリズムにより24時間営業しています。多くの屋台がAH2高速道路のトラック運転手に teh tarik と roti canai を提供しています。",
     es: "Los puestos mamak de Johor Bahru funcionan 24/7 debido al ritmo del comercio transfronterizo con Singapur. Muchos sirven teh tarik y roti canai a los camioneros en la autopista AH2.",
+    ko: "조호르바루의 마막 노점이 24시간 문을 여는 것은 싱가포르와 오가는 국경 무역의 리듬 때문입니다. 상당수는 AH2 고속도로의 트럭 기사들에게 테타릭과 로티차나이를 냅니다.",
   },
   "kaya-hainanese-coconut-jam": {
     id: "Kaya adalah adaptasi Hainan — juru masak Hainan di rumah-rumah Inggris dan Peranakan menukar selai buah Barat dengan santan, menciptakan olesan pandan-kelapa.",
@@ -245,6 +274,7 @@ export default {
     zh: "Kaya 是海南人的改良——在英国和土生华人（Peranakan）家庭工作的海南厨师用椰奶取代了西式果酱，创造了这种香兰椰子酱。",
     ja: "Kaya は海南の適応でした — イギリス人やプラナカン（Peranakan）の家庭で働く海南の料理人が、西洋のフルーツジャムをココナッツミルクに置き換え、パンダンココナッツスプレッドを作り出しました。",
     es: "La kaya fue una adaptación hainanesa — los cocineros hainaneses en hogares británicos y Peranakan cambiaron la mermelada de frutas occidental por leche de coco, creando la crema de pandan y coco.",
+    ko: "카야는 하이난 사람들의 변주였습니다. 영국인과 페라나칸 가정에서 일하던 하이난 요리사들이 서양 과일잼 대신 코코넛 밀크를 써서 판단-코코넛 스프레드를 만들어 냈습니다.",
   },
   "kaya-pandan-vs-hainanese": {
     id: "Dua gaya kaya hidup berdampingan: Hainanese (cokelat karamel, dimasak perlahan dengan kelapa + telur + gula) dan Nonya (hijau cerah dari jus pandan). Versi cokelat lebih tua; yang hijau menyebar melalui rumah tangga Peranakan.",
@@ -253,6 +283,7 @@ export default {
     zh: "咖椰有两种风格并存：海南式（焦糖棕色，用椰子+鸡蛋+糖慢煮而成）和娘惹式（因斑斓叶汁而呈亮绿色）。棕色版本历史更久；绿色版本通过土生华人家庭传播开来。",
     ja: "カヤには2つのスタイルが共存しています。海南式（キャラメルブラウンで、ココナッツ＋卵＋砂糖を加えてゆっくり煮込んだもの）と、ニョニャ式（パンダンジュースによる鮮やかな緑色）です。ブラウンのバージョンが古く、緑色のスプレッドはプラナカン家庭を通じて広まりました。",
     es: "Coexisten dos estilos de kaya: Hainanese (marrón caramelo, cocinado a fuego lento con coco + huevos + azúcar) y Nonya (verde brillante por el jugo de pandan). La versión marrón es más antigua; la verde se extendió a través de los hogares Peranakan.",
+    ko: "카야에는 두 갈래가 공존합니다. 하이난식은 코코넛·달걀·설탕을 오래 졸여 캐러멜빛 갈색을 띠고, 뇨냐식은 판단 즙으로 선명한 초록빛을 냅니다. 갈색 쪽이 더 오래되었고, 초록 쪽은 페라나칸 가정을 통해 퍼졌습니다.",
   },
   "kl-char-kway-teow": {
     id: "Kuala Lumpur char kway teow cenderung lebih gelap dan manis daripada Penang — lebih banyak kecap hitam, kaldu udangnya sedikit lebih ringan. Penduduk setempat menyebutnya \"kway teow gaya KL\" untuk membedakannya.",
@@ -261,6 +292,7 @@ export default {
     zh: "吉隆坡炒粿条 Kuala Lumpur char kway teow 比槟城的更深色、更甜 — 更多的黑酱油，虾汤的浓郁度略低。当地人称之为“kway teow KL-style”以示区别。",
     ja: "クアラルンプール char kway teow は、ペナンのものよりも色が濃く、甘い。より多くの黒醤油が使われ、エビ出汁のコクはやや少ない。地元の人々は区別するために「kway teow KLスタイル」と呼ぶ。",
     es: "El char kway teow de Kuala Lumpur tiende a ser más oscuro y dulce que el de Penang — más salsa de soja oscura, un cuerpo ligeramente menos denso de caldo de gambas. Los lugareños lo llaman \"kway teow estilo KL\" para distinguirlo.",
+    ko: "쿠알라룸푸르식 차퀘이테오는 페낭식보다 색이 진하고 답니다. 진간장을 더 넣고 새우 육수의 맛은 조금 덜합니다. 현지에서는 이를 구분해 \"KL식 퀘이테오\"라 부릅니다.",
   },
   "kl-hokkien-mee": {
     id: "Kuala Lumpur hokkien mee adalah tumisan kental dan gelap — mi kuning, lemak babi renyah, dan kecap hitam. Berbeda dari versi kaldu udang yang lebih ringan di Singapura dengan nama yang sama.",
@@ -269,6 +301,7 @@ export default {
     zh: "吉隆坡 hokkien mee 是一种浓稠、色深的炒面——由黄面、酥脆猪油渣和黑酱油制成。它与新加坡同名但以清淡虾汤为底的版本不同。",
     ja: "クアラルンプール hokkien mee は、太くて濃い色の炒め麺で、黄色の麺、カリカリの豚肉のラード、濃口醤油が特徴です。シンガポールの同名の、よりあっさりとしたエビ出汁バージョンとは異なります。",
     es: "El Kuala Lumpur hokkien mee es un salteado espeso y oscuro — fideos amarillos, manteca de cerdo crujiente y soja oscura. Es distinto de la versión más ligera con caldo de gambas de Singapur del mismo nombre.",
+    ko: "쿠알라룸푸르 호키엔미는 진하고 검은 볶음면입니다. 노란 면에 바삭한 돼지기름과 진간장을 씁니다. 같은 이름이지만 새우 육수를 쓰는 싱가포르의 가벼운 버전과는 다릅니다.",
   },
   "klang-bak-kut-teh-origin": {
     id: "Klang di Selangor secara luas disebut sebagai kota asal bak kut teh gaya Malaysia. Kaldu Hokkien yang gelap dan herbal itu adalah hidangan sarapan pekerja di pelabuhan Klang abad ke-19.",
@@ -277,6 +310,7 @@ export default {
     zh: "雪兰莪州的巴生被广泛认为是马来西亚式 bak kut teh 的发源地。这种深色、草本的福建肉骨茶汤是19世纪巴生港口劳工的早餐。",
     ja: "セランゴール州のクランは、マレーシア風 bak kut teh の発祥の地として広く知られています。この濃い薬膳風の福建スープは、19世紀のクラン港で労働者の朝食でした。",
     es: "Klang, en Selangor, es ampliamente citada como la ciudad de origen del bak kut teh de estilo malasio. El caldo Hokkien oscuro y herbal era la comida matutina de los trabajadores en el puerto de Klang en el siglo XIX.",
+    ko: "말레이시아식 육골차(박쿳테)의 발상지로는 슬랑오르주 클랑이 널리 꼽힙니다. 진하고 약재 향이 도는 호키엔식 국물은 19세기 클랑 항구 노동자들의 아침 끼니였습니다.",
   },
   "kueh-kapit-love-letters": {
     id: "Kueh kapit (\"surat cinta\") adalah wafer telur renyah yang dilipat menjadi empat. Berasal dari Hokkien + Peranakan; hidangan khas Tahun Baru Imlek di seluruh Malaysia dan Singapura.",
@@ -285,6 +319,7 @@ export default {
     zh: "Kueh kapit（“情书”）是一种酥脆的鸡蛋薄饼，对折成四分之一。起源于福建和土生华人；是马来西亚和新加坡的农历新年特色美食。",
     ja: "Kueh kapit（「ラブレター」）は、四つ折りにされたサクサクの卵のウエハースです。福建とプラナカンの起源を持ち、マレーシアとシンガポール両方で旧正月の名物料理です。",
     es: "Los Kueh kapit (\"cartas de amor\") son obleas de huevo crujientes dobladas en cuartos. De origen Hokkien + Peranakan; una especialidad del Año Nuevo Chino tanto en Malasia como en Singapur.",
+    ko: "쿠에 카핏(\"러브 레터\")은 얇고 바삭한 달걀 과자를 네 겹으로 접은 것입니다. 호키엔과 페라나칸에서 유래했으며, 말레이시아와 싱가포르 모두에서 설 명절 과자로 통합니다.",
   },
   "labyrinth-michelin-chicken-rice": {
     id: "Hainanese chicken rice modern Restaurant Labyrinth memegang bintang Michelin dari tahun 2017 hingga 2020 — koki Han Li Guang memimpin dapur.",
@@ -293,6 +328,7 @@ export default {
     zh: "Labyrinth 餐厅的现代海南鸡饭 Hainanese chicken rice 在2017年至2020年间获得米其林星 — 主厨韩立光掌勺。",
     ja: "レストラン Labyrinth のモダンな海南 chicken rice は、2017年から2020年までミシュランの星を獲得した。シェフのハン・リー・グアンが厨房を率いた。",
     es: "El moderno Hainanese chicken rice del Restaurante Labyrinth ostentó una estrella Michelin de 2017 a 2020 — el chef Han Li Guang dirigió la cocina.",
+    ko: "레스토랑 래버린스의 현대적 하이난 치킨라이스는 2017년부터 2020년까지 미쉐린 1스타를 유지했습니다. 주방은 한리광 셰프가 이끌었습니다.",
   },
   "laksa-etymology": {
     id: "\"Laksa\" mungkin berasal dari bahasa Hindi lakshah (\"seratus ribu\", karena banyak bahannya) atau bahasa Persia lāksha (vermicelli). Kemungkinan besar merupakan kreasi Peranakan — mi beras ditambah pasta rempah Melayu.",
@@ -301,6 +337,7 @@ export default {
     zh: "“Laksa”可能源自印地语 lakshah（“十万”，因其食材众多）或波斯语 lāksha（细面条）。很可能是土生华人（Peranakan）的创造——米粉加上马来香料酱。",
     ja: "「Laksa」は、ヒンディー語のlakshah（「十万」、多くの材料のため）またはペルシャ語のlāksha（バーミセリ）に由来する可能性があります。おそらくプラナカン（Peranakan）の創作 — 米麺とマレーのスパイスペースト。",
     es: "«Laksa» puede provenir del hindi lakshah («cien mil», por sus muchos ingredientes) o del persa lāksha (fideos finos). Probablemente una creación Peranakan — fideos de arroz más pasta de especias malaya.",
+    ko: "\"laksa\"는 재료가 많다는 뜻의 힌디어 lakshah(\"십만\")에서 왔다는 설과, 페르시아어 lāksha(가는 국수)에서 왔다는 설이 있습니다. 쌀국수에 말레이 향신료 페이스트를 더한 페라나칸의 창작일 가능성이 높습니다.",
   },
   "laksa-katong-cut": {
     id: "Katong laksa (Singapura) terkenal dimakan hanya dengan sendok — mi dipotong sebelumnya menjadi panjang yang mudah disendok. Kerang tebal, udang kering, dan kaldu santan-kari kental membedakannya dari varian sup-laksa.",
@@ -309,6 +346,7 @@ export default {
     zh: "加东 laksa（新加坡）以只用勺子食用而闻名——面条被预先切成适合勺子舀取的长度。大块的蛤蜊、虾米和浓郁的椰浆咖喱汤使其与汤面 laksa 变体区分开来。",
     ja: "カトン laksa（シンガポール）は、スプーンだけで食べられることで有名です。麺はあらかじめスプーンで食べやすい長さにカットされています。大きなアサリ、干しエビ、そして濃厚なココナッツカレーのスープが、他のスープ laksa との違いです。",
     es: "El Katong laksa (Singapur) es famoso por comerse solo con cuchara — los fideos se precortan en longitudes adecuadas para la cuchara. Berberechos grandes, camarones secos y un espeso caldo de coco y curry lo distinguen de las variantes de sopa laksa.",
+    ko: "카통 laksa(싱가포르)는 숟가락만으로 먹는 것으로 유명합니다. 면을 미리 숟가락에 맞게 잘라 두기 때문입니다. 굵은 꼬막, 말린 새우, 걸쭉한 코코넛 커리 국물이 다른 국물형 laksa와 구별되는 점입니다.",
   },
   "lim-tua-tow-pentagon": {
     id: "Pasar Lim Tua Tow Road (tahun 1950-an) memiliki eksterior berbentuk pentagon dengan jendela bundar — terkenal secara lokal karena fried carrot cake (chai tow kway) dan Hokkien mee-nya.",
@@ -317,6 +355,7 @@ export default {
     zh: "林大头路市场 (1950年代) 外观呈五边形，带有圆形舷窗 — 以其炒萝卜糕 (chai tow kway) 和福建面 Hokkien mee 而闻名当地。",
     ja: "リム・トゥア・タオ・ロード市場 (1950年代) は、円形の舷窓がある五角形の外観だった。地元で fried carrot cake (chai tow kway) と Hokkien mee で有名だった。",
     es: "El Mercado de Lim Tua Tow Road (años 50) tenía un exterior pentagonal con ojos de buey circulares — famoso localmente por su fried carrot cake (chai tow kway) y Hokkien mee.",
+    ko: "림투아타우로드 시장(1950년대)은 오각형 외관에 둥근 창이 나 있었습니다. 튀긴 무떡(차이타우콰이)과 호키엔미로 동네에서 이름났습니다.",
   },
   "macpherson-1955-dowsett": {
     id: "Pasar MacPherson Road dibuka pada tahun 1955 — dirancang oleh Gordon Dowsett, dua lantai, sekitar 200 kios. Itu menjadi Jackson Centre, sebuah coffeeshop 24 jam, pada tahun 1991.",
@@ -325,6 +364,7 @@ export default {
     zh: "麦波申路市场于1955年开业 — 由戈登·道塞特设计，两层楼，约200个摊位。它于1991年成为杰克逊中心，一家24小时咖啡店。",
     ja: "マクファーソンロード市場は1955年にオープンした。ゴードン・ダウセットが設計し、2階建てで約200の屋台があった。1991年に24時間営業のコーヒーショップ、ジャクソンセンターとなった。",
     es: "El Mercado de MacPherson Road abrió en 1955 — diseñado por Gordon Dowsett, dos plantas, alrededor de 200 puestos. Se convirtió en el Jackson Centre, una cafetería 24 horas, en 1991.",
+    ko: "맥퍼슨로드 시장은 1955년에 문을 열었습니다. 고든 다우셋이 설계한 2층 건물에 노점이 약 200개 있었습니다. 1991년에는 24시간 코피티암인 잭슨 센터가 되었습니다.",
   },
   "malay-javanese-middle-road": {
     id: "hawker Melayu dan Jawa berkumpul di sekitar Middle Road, menjual satay, kueh, barang antik, dan kain.",
@@ -333,6 +373,7 @@ export default {
     zh: "马来和爪哇hawker聚集在Middle Road附近，出售satay、kueh、古玩和布料。",
     ja: "マレー系とジャワ系のhawkerはMiddle Road周辺に集まり、satay、kueh、骨董品、布地を販売していました。",
     es: "Los hawker malayos y javaneses se agrupaban alrededor de Middle Road, vendiendo satay, kueh, curiosidades y telas.",
+    ko: "말레이계와 자바계 노점상들은 미들로드 일대에 모여 사테, 쿠에, 골동품, 천을 팔았습니다.",
   },
   "mee-goreng-mamak": {
     id: "Mee goreng mamak adalah penemuan Malaysia-India — pedagang kaki lima India-Muslim menumis mi kuning Tiongkok dengan bubuk kari, tomat, dan sambal. Sebuah fusi lintas budaya abad ke-20.",
@@ -341,6 +382,7 @@ export default {
     zh: "Mee goreng mamak 是一种马来西亚-印度发明——印度穆斯林小贩用咖喱粉、番茄和 sambal 炒制华人黄面。这是20世纪的一种跨文化融合。",
     ja: "Mee goreng mamak はマレーシアとインドの融合料理です。インド系イスラム教徒の屋台の行商人が、中華麺をカレー粉、トマト、 sambal と一緒に炒めました。20世紀の異文化融合です。",
     es: "El Mee goreng mamak es una invención malasio-india — vendedores ambulantes indio-musulmanes saltearon fideos amarillos chinos con curry en polvo, tomates y sambal. Una fusión transcultural del siglo XX.",
+    ko: "미고렝 마막은 말레이시아 인도계의 발명품입니다. 인도-무슬림 노점상들이 중국식 노란 면을 커리 가루, 토마토, 삼발과 함께 볶아 냈습니다. 20세기에 태어난 문화 교차의 산물입니다.",
   },
   "mee-goreng-mamak-tomato-base": {
     id: "Basis tomat dan cabai mee goreng mamak adalah ciri khasnya — penemuan Malaysia-India yang TIDAK ditemukan di salah satu masakan leluhur. Hidangan ini berasal dari kota-kota pelabuhan Malaya awal abad ke-20.",
@@ -349,6 +391,7 @@ export default {
     zh: "嘛嘛炒面的番茄辣椒底是其特色——这是马来西亚-印度人的发明，在任何祖先菜系中都找不到。这道菜的历史可追溯到20世纪初的马来亚港口城市。",
     ja: "ミーゴレン・ママックのトマトとチリのベースが特徴です。これはマレーシア・インドの発明であり、どちらの祖先料理にも見られません。この料理は20世紀初頭のマラヤの港町に由来します。",
     es: "La base de tomate y chile del mee goreng mamak es la clave: una invención malayo-india NO encontrada en ninguna de las cocinas ancestrales. El plato data de principios del siglo XX en las ciudades portuarias malayas.",
+    ko: "미고렝 마막을 알아보는 열쇠는 토마토와 고추로 만든 바탕입니다. 말레이시아 인도계의 발명으로, 어느 쪽 원류 요리에도 없습니다. 20세기 초 말라야 항구 도시에서 비롯되었습니다.",
   },
   "murtabak-fold-technique": {
     id: "Cara masak murtabak yang khas: adonan diregangkan di atas piring panas, isian (telur + daging cincang + bawang) ditambahkan, lalu dilipat menjadi kantong persegi dan dipanggang di kedua sisi hingga renyah.",
@@ -357,6 +400,7 @@ export default {
     zh: "穆尔塔巴的独特烹饪方式：面团在热盘上拉伸，加入馅料（鸡蛋+肉末+洋葱），然后折叠成方形口袋，两面煎至酥脆。",
     ja: "ムルタバクの特徴的な調理法：生地を熱い鉄板の上で伸ばし、具材（卵＋ひき肉＋玉ねぎ）を加え、四角いポケット状に折りたたんで両面をカリカリになるまで焼きます。",
     es: "La cocción distintiva del murtabak: la masa se estira sobre una plancha caliente, se añade el relleno (huevo + carne picada + cebolla), luego se dobla en un bolsillo cuadrado y se cocina a la plancha por ambos lados hasta que esté crujiente.",
+    ko: "무르타박의 특징은 조리법에 있습니다. 반죽을 뜨거운 철판 위에서 늘리고 달걀·다진 고기·양파 소를 올린 뒤, 네모나게 접어 양면을 바삭하게 지집니다.",
   },
   "murtabak-yemeni-arab": {
     id: "Akar murtabak adalah Yaman / Arab — kata tersebut berarti \"terlipat\" dalam bahasa Arab. Pedagang kaki lima Tamil-Muslim di Penang dan Singapura mengadaptasi roti pipih isi ini pada awal 1900-an.",
@@ -365,6 +409,7 @@ export default {
     zh: "Murtabak 的根源是也门/阿拉伯——这个词在阿拉伯语中意为“折叠”。1900年代初，槟城和新加坡的泰米尔穆斯林小贩改良了这种馅饼。",
     ja: "Murtabak のルーツはイエメン/アラブにあり、この言葉はアラビア語で「折りたたまれた」を意味します。1900年代初頭までに、ペナンとシンガポールのタミル系イスラム教徒の屋台の行商人が、この詰め物入りフラットブレッドを改良しました。",
     es: "Las raíces del Murtabak son yemeníes / árabes — la palabra significa \"doblado\" en árabe. Los vendedores ambulantes tamil-musulmanes en Penang y Singapur adaptaron el pan plano relleno a principios del siglo XX.",
+    ko: "무르타박의 뿌리는 예멘과 아랍입니다. 이 말은 아랍어로 \"접은 것\"을 뜻합니다. 페낭과 싱가포르의 타밀-무슬림 노점상들이 1900년대 초에 이 속을 채운 납작빵을 현지화했습니다.",
   },
   "my-durian-seasons": {
     id: "Musim durian utama Semenanjung Malaysia adalah Juni–Agustus dan November–Januari. Panen Musang King Pahang mencapai puncaknya pada akhir Juni; panen yang lebih kecil berlanjut sepanjang tahun.",
@@ -373,6 +418,7 @@ export default {
     zh: "马来西亚半岛主要的榴莲季节是六月至八月和十一月至一月。彭亨州的 Musang King 榴莲在六月下旬达到收成高峰；小规模的收成则全年持续。",
     ja: "マレーシア半島の主なドリアンシーズンは6月から8月と11月から1月です。パハン州の Musang King の収穫は6月下旬にピークを迎えますが、小規模な収穫は年間を通して続きます。",
     es: "Las principales temporadas de durian en Malasia Peninsular son de junio a agosto y de noviembre a enero. La cosecha de Musang King de Pahang alcanza su punto máximo a finales de junio; las cosechas más pequeñas continúan durante todo el año.",
+    ko: "말레이반도의 주요 두리안 철은 6~8월과 11~1월입니다. 파항의 무상킹 수확은 6월 말에 절정을 이루고, 작은 수확은 일 년 내내 이어집니다.",
   },
   "nasi-kandar-banjir": {
     id: "Ciri khas nasi kandar adalah \"banjir\" — beberapa kuah kari dituangkan di atas nasi sehingga bercampur di piring. Setiap pelanggan menentukan kombinasi kari di konter.",
@@ -381,6 +427,7 @@ export default {
     zh: "扁担饭的特色是“banjir”（“淹没”）——将多种咖喱浇在米饭上，使其在盘中混合。每位顾客在柜台前指定咖喱组合。",
     ja: "ナシ・カンダールの特徴は「banjir」（「洪水」）です。複数のカレーがご飯の上にかけられ、皿の上で混ざり合います。各客はカウンターでカレーの組み合わせを指示します。",
     es: "La característica distintiva del nasi kandar es el \"banjir\" (\"inundado\"): múltiples currys se vierten sobre el arroz para que se mezclen en el plato. Cada cliente dicta la combinación de curry en el mostrador.",
+    ko: "나시 칸다르의 상징은 \"반지르\"(\"홍수\")입니다. 여러 커리를 밥 위에 부어 접시에서 서로 섞이게 하는 방식입니다. 어떤 커리를 조합할지는 손님이 카운터에서 직접 정합니다.",
   },
   "nasi-kandar-tamil-muslim": {
     id: "Nasi kandar berasal dari pedagang kaki lima Tamil-Muslim di Penang abad ke-19. Tiang \"kandar\" digunakan untuk membawa nasi + kari di pundak; nama tersebut melestarikan tekniknya.",
@@ -389,6 +436,7 @@ export default {
     zh: "Nasi kandar 起源于19世纪槟城的泰米尔穆斯林小贩。“kandar”扁担杆曾被用来肩挑米饭和咖喱；这个名字保留了这种技艺。",
     ja: "Nasi kandar は、19世紀のペナンでタミル系イスラム教徒の屋台の行商人によって生まれました。「kandar」の棒は、米とカレーを肩に担いで運ぶために使われました。その名前はこの技術を今に伝えています。",
     es: "El Nasi kandar se originó con los vendedores ambulantes tamil-musulmanes en el Penang del siglo XIX. El palo \"kandar\" se usaba para transportar el arroz y los curries sobre los hombros; el nombre conserva la técnica.",
+    ko: "나시 칸다르는 19세기 페낭의 타밀-무슬림 노점상에게서 시작되었습니다. \"칸다르\"는 밥과 커리를 어깨에 지고 나르던 멜대를 뜻하며, 이름에 그 방식이 남아 있습니다.",
   },
   "nasi-lemak-pandan-knots": {
     id: "Aroma khas nasi lemak berasal dari daun pandan yang dimasak bersama nasi. Daun-daun diikat menjadi simpul agar koki dapat mengangkatnya dengan bersih sebelum disajikan.",
@@ -397,6 +445,7 @@ export default {
     zh: "Nasi lemak 的招牌香气来自与米饭一起烹煮的班兰叶。叶子被系成结，以便厨师在上菜前能干净地取出。",
     ja: "Nasi lemak の特徴的な香りは、ご飯と一緒に炊き込まれたパンダンリーフから来ています。葉は結び目にされ、調理人が提供する前にきれいに取り除けるようになっています。",
     es: "El aroma característico del nasi lemak proviene de las hojas de pandan cocinadas con el arroz. Las hojas se atan en nudos para que el cocinero pueda retirarlas limpiamente antes de servir.",
+    ko: "나시 르막 특유의 향은 밥과 함께 지은 판단 잎에서 납니다. 잎은 매듭으로 묶어 두어, 내기 전에 깔끔하게 건져낼 수 있게 합니다.",
   },
   "nasi-lemak-winstedt-1909": {
     id: "Referensi tertulis paling awal tentang nasi lemak adalah oleh Richard Olaf Winstedt pada tahun 1909 — nasi santan dengan ikan teri, mentimun, ikan selar, dan cabai manis.",
@@ -405,6 +454,7 @@ export default {
     zh: "Nasi lemak 最早的书面记载是理查德·奥拉夫·温斯特德（Richard Olaf Winstedt）在1909年提及的——椰浆饭配凤尾鱼、黄瓜、ikan selar 和甜辣椒。",
     ja: "Nasi lemak の最も初期の書面による言及は、1909年のリチャード・オラフ・ウィンステッドによるものです — イワシ、キュウリ、ikan selar、甘いチリを添えたココナッツミルクご飯。",
     es: "La referencia escrita más antigua de nasi lemak es de Richard Olaf Winstedt en 1909 — arroz con leche de coco, anchoas, pepino, ikan selar y chile dulce.",
+    ko: "나시 르막에 관한 가장 이른 기록은 1909년 리처드 올라프 윈스테트가 남긴 것입니다. 코코넛 밀크로 지은 밥에 멸치, 오이, 이칸 슬라르, 달콤한 칠리를 곁들인 모습입니다.",
   },
   "north-indian-muslim-tin-cans": {
     id: "Pedagang Muslim India Utara di Singapura lama membawa teh, air jahe, dan roti dalam kaleng timah tinggi melalui jalan-jalan.",
@@ -413,6 +463,7 @@ export default {
     zh: "旧新加坡的北印度穆斯林小贩 hawkers 曾用高大的锡罐装着茶、姜水和面包，穿梭于街头巷尾。",
     ja: "昔のシンガポールでは、北インドのイスラム系 hawkers が、背の高いブリキ缶に紅茶、生姜水、パンを入れて通りを歩き回った。",
     es: "Los hawkers musulmanes del norte de la India en el viejo Singapur llevaban té, agua de jengibre y bollos en latas altas por las calles.",
+    ko: "옛 싱가포르의 북인도 무슬림 노점상들은 차와 생강물, 빵을 키가 큰 양철통에 담아 거리를 돌며 팔았습니다.",
   },
   "nyonya-dumplings-peranakan": {
     id: "Tionghoa Peranakan menciptakan nyonya dumplings yang memadukan tradisi Tionghoa dan Melayu — labu kundur manisan, bubuk ketumbar, dan adas manis dalam isiannya.",
@@ -421,6 +472,7 @@ export default {
     zh: "土生华人创造了娘惹粽 nyonya dumplings，融合了中华和马来传统 — 馅料中含有蜜饯冬瓜、香菜粉和八角。",
     ja: "プラナカン系中国人は、中国とマレーの伝統を融合させた nyonya dumplings を考案した。餡には砂糖漬けの冬瓜、コリアンダーパウダー、アニスシードが入っている。",
     es: "Los chinos peranakan crearon nyonya dumplings mezclando tradiciones chinas y malayas — melón de invierno confitado, cilantro en polvo y anís en el relleno.",
+    ko: "페라나칸 중국계는 중국과 말레이의 전통을 섞어 뇨냐 쫑쯔를 만들었습니다. 소에는 설탕에 절인 동과, 고수 가루, 아니스가 들어갑니다.",
   },
   "pasar-malam-tradition": {
     id: "Pasar malam adalah tradisi mingguan di seluruh Malaysia dan Singapura. Mereka dimulai sebagai penjual makanan + barang ad-hoc di kampung-kampung abad ke-19; banyak kota sekarang menjalankan rotasi mingguan formal.",
@@ -429,6 +481,7 @@ export default {
     zh: "Pasar malam（“夜市”）是马来西亚和新加坡每周一次的传统。它们始于19世纪乡村的临时食品+商品摊贩；现在许多城市都有正式的每周轮换。",
     ja: "Pasar malam（「ナイトマーケット」）は、マレーシアとシンガポール全域で毎週行われる伝統です。19世紀の kampung で、臨時の食品や商品の販売者として始まりました。現在では多くの都市で正式な毎週のローテーションが実施されています。",
     es: "Los Pasar malam (\"mercados nocturnos\") son una tradición semanal en Malasia y Singapur. Comenzaron como vendedores ambulantes de comida y productos en los kampungs del siglo XIX; muchas ciudades ahora tienen rotaciones semanales formales.",
+    ko: "파사르 말람(\"야시장\")은 말레이시아와 싱가포르에 걸친 주간 전통입니다. 19세기 캄풍에서 즉흥적으로 열리던 음식·잡화 노점에서 시작했고, 지금은 여러 도시가 요일을 정해 순회 형식으로 운영합니다.",
   },
   "penang-char-kway-teow": {
     id: "Penang char kway teow dibakar dalam wok dengan kucai Cina, kerang, dan udang. Hidangan ini menjaga saus tetap ringan sehingga wok hei mendominasi — berbeda dari gaya kecap hitam manis KL.",
@@ -437,6 +490,7 @@ export default {
     zh: "槟城炒粿条 Penang char kway teow 用中式韭菜、蛤蜊和虾在锅中炒制。这道菜酱汁清淡，以突出锅气 wok hei — 与吉隆坡 KL 较甜的黑酱油风格不同。",
     ja: "ペナン char kway teow は、中華ニラ、アサリ、エビと一緒に中華鍋で炒められる。この料理はソースを軽くして wok hei が際立つようにしている — KL の甘い黒醤油スタイルとは異なる。",
     es: "El char kway teow de Penang se saltea en wok con cebollino chino, berberechos y gambas. El plato mantiene la salsa ligera para que el wok hei domine — distinto del estilo más dulce de salsa de soja oscura de KL.",
+    ko: "페낭 차퀘이테오는 부추, 꼬막, 새우를 넣어 센 불에 볶습니다. 소스를 가볍게 유지해 웍헤이가 앞에 서게 하는 것이 특징이며, 진간장을 써서 더 단 쿠알라룸푸르식과 구별됩니다.",
   },
   "peoples-park-300-stalls": {
     id: "Pada tahun 1940, Pasar People's Park menampung lebih dari 300 kios — yang terbesar di Singapura saat itu. Kebakaran pada tahun 1966 menghancurkan 186 kios di sana.",
@@ -445,6 +499,7 @@ export default {
     zh: "截至1940年，牛车水大厦市场容纳了300多个摊位——当时是新加坡最大的市场。1966年的一场火灾摧毁了那里的186个摊位。",
     ja: "1940年までに、People's Park Marketには300以上の屋台が収容され、当時シンガポール最大でした。1966年の火災で、そこの186の屋台が破壊されました。",
     es: "Para 1940, el People's Park Market albergaba más de 300 puestos, el más grande de Singapur en ese momento. Un incendio en 1966 destruyó 186 puestos allí.",
+    ko: "1940년 무렵 피플스파크 시장에는 노점이 300곳 넘게 있었고, 당시 싱가포르에서 가장 큰 시장이었습니다. 1966년 화재로 이곳 노점 186곳이 소실되었습니다.",
   },
   "popiah-bangkuang-substitute": {
     id: "Popiah Singapura mengganti rebung (tidak tersedia secara lokal) dengan bangkuang (lobak Meksiko) — sebuah adaptasi migran Fujian dan Chaoshan.",
@@ -453,6 +508,7 @@ export default {
     zh: "新加坡 popiah 用 bangkuang（豆薯）代替了竹笋（当地不产）——这是福建和潮汕移民的改良。",
     ja: "シンガポールのpopiah は、タケノコ（地元では入手不可）の代わりにbangkuang（メキシコカブ）を使用します — 福建と潮汕からの移民の適応です。",
     es: "El popiah de Singapur sustituye los brotes de bambú (no disponibles localmente) por bangkuang (nabo mexicano) — una adaptación de migrantes de Fujian y Chaoshan.",
+    ko: "싱가포르 포피아는 현지에서 구하기 어려운 죽순 대신 방쿠앙(히카마)을 씁니다. 푸젠과 차오산 이주민이 현지에 맞춰 바꾼 것입니다.",
   },
   "popiah-cantonese-vs-hokkien": {
     id: "Popiah Kanton digoreng (gaya lumpia renyah); popiah Hokkien-Peranakan dibungkus lembut dan segar. Keduanya berasal dari tradisi bo bing Fujian, yang menyimpang berdasarkan komunitas di Asia Tenggara abad ke-19.",
@@ -461,6 +517,7 @@ export default {
     zh: "广东薄饼是油炸的（酥脆春卷式）；福建-土生华人薄饼是软皮鲜包的。两者都源自福建的“博饼”传统，在19世纪的东南亚因社群不同而分化。",
     ja: "広東風popiahは揚げて（クリスピーな春巻きスタイル）、福建・プラナカン風popiahは柔らかく巻いた生ものです。どちらも福建省のbo bingの伝統に由来し、19世紀の東南アジアでコミュニティによって分化しました。",
     es: "El popiah cantonés es frito (estilo rollito de primavera crujiente); el popiah Hokkien-Peranakan se envuelve fresco y suave. Ambos descienden de la tradición bo bing de Fujian, divergiendo por comunidad en el sudeste asiático del siglo XIX.",
+    ko: "광둥식 포피아는 튀겨서 바삭한 춘권에 가깝고, 호키엔-페라나칸식은 부드러운 피에 그대로 싸 먹습니다. 둘 다 푸젠의 보빙에서 갈라져 나와, 19세기 동남아에서 공동체별로 달라졌습니다.",
   },
   "roti-prata-madras-parota": {
     id: "Roti prata berasal dari parota di Madras (Chennai). Migran India membawanya ke Singapura; pada tahun 1920-an, roti ini sudah tersebar di seluruh semenanjung Malaya.",
@@ -469,6 +526,7 @@ export default {
     zh: "Roti prata 源自马德拉斯（金奈）的 parota。印度移民将其带到新加坡；到1920年代，它已在整个马来半岛普及。",
     ja: "Roti prata は、マドラス（チェンナイ）のparota に由来します。インド人移民がシンガポールに持ち込み、1920年代にはマレー半島全域に定着しました。",
     es: "El roti prata proviene del parota de Madrás (Chennai). Los migrantes indios lo trajeron a Singapur; para la década de 1920 ya estaba establecido en toda la península malaya.",
+    ko: "로티 프라타는 마드라스(첸나이)의 파로타에서 왔습니다. 인도 이주민이 싱가포르에 들여왔고, 1920년대에는 말라야 반도 전역에 자리를 잡았습니다.",
   },
   "roti-prata-tisu": {
     id: "Roti tisu (\"roti tisu\") adalah varian Singapura — adonan diregangkan setipis kertas menjadi kerucut tinggi ~50 cm dan disajikan dengan kaya, susu kental manis, atau saus cokelat untuk dicocol.",
@@ -477,6 +535,7 @@ export default {
     zh: "Roti tisu（“纸巾煎饼”）是新加坡的一种变体——面团被拉伸得薄如纸张，形成一个约50厘米高的锥形，搭配 kaya、炼乳或巧克力酱蘸食。",
     ja: "Roti tisu（「ティッシュロティ」）はシンガポール式のバリエーションで、生地を紙のように薄く伸ばして高さ約50cmの円錐形にし、 kaya、コンデンスミルク、またはチョコレートソースを添えて提供されます。",
     es: "El Roti tisu (\"roti de pañuelo\") es una variante singapurense — la masa se estira finísima hasta formar un cono alto de unos 50 cm y se sirve con kaya, leche condensada o salsa de chocolate para mojar.",
+    ko: "로티 티수(\"티슈 로티\")는 싱가포르식 변주입니다. 반죽을 종이처럼 얇게 늘려 높이 50cm쯤 되는 고깔로 세우고, 카야나 연유, 초콜릿 소스를 곁들여 찍어 먹습니다.",
   },
   "satay-arab-origins": {
     id: "Asal-usul satay dapat ditelusuri kembali ke pedagang Arab; saus kacang adalah adaptasi Asia Tenggara. Penjual satay keliling dengan panggangan arang portabel adalah makanan pokok Singapura hingga akhir tahun 1970-an.",
@@ -485,6 +544,7 @@ export default {
     zh: "Satay 的起源可追溯到阿拉伯商人；花生酱蘸料是东南亚的改良。直到1970年代末，带着便携式炭烤架的流动 satay 小贩一直是新加坡的特色。",
     ja: "Satay の起源はアラブの商人まで遡ります。ピーナッツソースは東南アジアでの適応でした。携帯用炭火グリルを持った移動式のsatay 売りは、1970年代後半までシンガポールの定番でした。",
     es: "Los orígenes del satay se remontan a los comerciantes árabes; la salsa de cacahuete fue una adaptación del sudeste asiático. Los vendedores ambulantes de satay con parrillas de carbón portátiles fueron un elemento básico de Singapur hasta finales de la década de 1970.",
+    ko: "사테의 기원은 아랍 상인들로 거슬러 올라가며, 땅콩 소스에 찍어 먹는 방식은 동남아에서 더해진 것입니다. 휴대용 숯불 화로를 들고 다니던 사테 장수는 1970년대 후반까지 싱가포르의 일상 풍경이었습니다.",
   },
   "satay-club-esplanade-1971-1994": {
     id: "Satay Club pindah ke tempat makan hawker Esplanade pada tahun 1971 dan bertahan hingga lokasi tersebut dihancurkan pada tahun 1994 untuk Esplanade Theatres.",
@@ -493,6 +553,7 @@ export default {
     zh: "沙爹俱乐部于1971年迁入了滨海艺术中心小贩中心 hawker shelter，并一直待到1994年该地被拆除，用于建造滨海艺术中心剧院。",
     ja: "Satay Club は1971年にエスプラネードの hawker shelter に移転し、1994年にエスプラネード・シアターズのために敷地が取り壊されるまでそこにあった。",
     es: "El Satay Club se trasladó al refugio de hawkers de Esplanade en 1971 y permaneció hasta que el lugar fue demolido en 1994 para los Teatros Esplanade.",
+    ko: "사테 클럽은 1971년 에스플러네이드 노점 상가로 옮겨 갔고, 1994년 에스플러네이드 극장을 짓기 위해 그 자리가 헐릴 때까지 남아 있었습니다.",
   },
   "satay-madura-origin": {
     id: "Catatan tertulis paling awal tentang satay berasal dari Jawa abad ke-19 — hidangan ini secara khusus ditelusuri ke orang Madura di Jawa Timur. Daging panggang tusuk sate menyebar ke Malaya melalui pedagang Indonesia pada tahun 1800-an.",
@@ -501,6 +562,7 @@ export default {
     zh: "Satay 最早的书面记载可追溯到19世纪的爪哇——这道菜具体起源于爪哇东部的马都拉人。到19世纪，串烤肉通过印度尼西亚商人传播到马来亚。",
     ja: "Satay の最も古い書面記録は19世紀のジャワのもので、この料理は特にジャワ島東部のマドゥラ人に由来するとされています。串焼き肉は1800年代までにインドネシアの商人を通じてマラヤに広まりました。",
     es: "Los registros escritos más antiguos del Satay son javaneses del siglo XIX — el plato se remonta específicamente a los madureses del este de Java. La carne asada en brochetas se extendió a Malaya a través de comerciantes indonesios hacia el siglo XIX.",
+    ko: "사테에 관한 가장 이른 기록은 19세기 자바의 것으로, 요리의 뿌리는 자바 동부의 마두라 사람들로 특정됩니다. 꼬치에 꿴 구운 고기는 1800년대에 인도네시아 상인들을 통해 말라야로 퍼졌습니다.",
   },
   "seng-poh-1951-day-night": {
     id: "Pasar Seng Poh Road (1951) memiliki desain eksperimental — sebuah tempat berlindung terbuka untuk hasil bumi siang hari yang dialihfungsikan untuk kios makanan matang di malam hari.",
@@ -509,6 +571,7 @@ export default {
     zh: "成保路市场 (1951) 采用实验性设计 — 一个白天用于农产品销售的开放式遮蔽处，晚上则改作熟食摊位。",
     ja: "センポーロード市場 (1951) は実験的なデザインだった。日中は農産物のための開放的なシェルターで、夜間は調理済み食品の屋台に転用された。",
     es: "El Mercado de Seng Poh Road (1951) tenía un diseño experimental — un refugio abierto para productos diurnos que se reutilizaba para puestos de comida cocinada por la noche.",
+    ko: "성포로드 시장(1951년)은 실험적인 설계였습니다. 낮에는 농산물을 파는 열린 상가였다가, 밤에는 조리 음식 노점 자리로 바뀌었습니다.",
   },
   "stall-grading-1998-safe-2023": {
     id: "Sistem penilaian kios A–D (kebersihan dan sanitasi) diperkenalkan pada tahun 1998; digantikan oleh kerangka kerja SAFE pada tahun 2023.",
@@ -517,6 +580,7 @@ export default {
     zh: "A–D摊位分级系统（清洁度和卫生）于1998年推出；2023年被SAFE框架取代。",
     ja: "A–D屋台格付けシステム（清潔さと衛生）は1998年に導入され、2023年にSAFEフレームワークに置き換えられました。",
     es: "El sistema de clasificación de puestos A–D (limpieza e higiene) se introdujo en 1998; fue reemplazado por el marco SAFE en 2023.",
+    ko: "청결과 위생을 매기는 A~D 등급제는 1998년에 도입되었고, 2023년 SAFE 체계로 대체되었습니다.",
   },
   "street-hawker-resettlement-1986": {
     id: "Penataan kembali street-hawker selesai pada awal 1986 — 80 pedagang terakhir di China Square dan Haw Par Villa pindah ke hawker centres. Sekitar 113 pusat sudah ada saat itu.",
@@ -525,6 +589,7 @@ export default {
     zh: "街头hawker的重新安置于1986年初完成——China Square和Haw Par Villa的最后80名摊贩迁入了hawker centres。当时大约有113个中心。",
     ja: "路上hawkerの再定住は1986年初頭に完了しました。China SquareとHaw Par Villaの最後の80のベンダーがhawker centresに移転しました。当時、約113のセンターが存在していました。",
     es: "El reasentamiento de los hawker callejeros se completó a principios de 1986: los últimos 80 vendedores de China Square y Haw Par Villa se trasladaron a los hawker centres. Para entonces existían unos 113 centros.",
+    ko: "거리 노점상 이주 사업은 1986년 초에 끝났습니다. 차이나스퀘어와 하파빌라에 남아 있던 마지막 80명이 호커센터로 옮겨 갔고, 그 무렵 호커센터는 약 113곳이었습니다.",
   },
   "teh-tarik-pulled-tea": {
     id: "\"Teh tarik\" berarti \"teh ditarik\" dalam bahasa Melayu — seduhan teh susu dituangkan di antara dua cangkir untuk membuatnya berbusa. Sering disebut minuman mamak karena akar India-Muslimnya.",
@@ -533,6 +598,7 @@ export default {
     zh: "“Teh tarik”在马来语中意为“拉茶”——将奶茶在两个杯子之间来回倾倒以使其起泡。因其印度穆斯林根源，常被称为 mamak 饮品。",
     ja: "「Teh tarik」はマレー語で「引かれたお茶」を意味します — ミルクティーを2つのカップの間で注ぎ、泡立てます。インド・イスラム系のルーツから、しばしばmamak ドリンクと呼ばれます。",
     es: "«Teh tarik» significa «té tirado» en malayo — la infusión de té con leche se vierte entre dos tazas para espumarla. A menudo se le llama bebida mamak por sus raíces indio-musulmanas.",
+    ko: "\"테타릭\"은 말레이어로 \"당긴 차\"라는 뜻입니다. 밀크티를 두 잔 사이에서 부어 옮기며 거품을 냅니다. 인도-무슬림에 뿌리를 두어 마막 음료라고도 불립니다.",
   },
   "teh-tarik-pulling-distance": {
     id: "Tarikan teh tarik dilakukan hingga satu meter antara dua cangkir. Aerasi menghasilkan busa tebal khas teh tarik — trik barista yang mendahului busa susu espresso selama beberapa dekade.",
@@ -541,6 +607,7 @@ export default {
     zh: "拉茶的冲泡过程是在两杯之间进行，距离可达一米。这种充气过程产生了拉茶标志性的浓厚泡沫——这种咖啡师技巧比意式浓缩咖啡奶泡早了几十年。",
     ja: "テ・タリックの引きは、2つのカップの間で最大1メートルの距離で行われます。この空気の注入がテ・タリック特有の濃厚な泡を生み出します。これはエスプレッソのミルクフォームよりも数十年も前から存在するバリスタの技です。",
     es: "La extracción del teh tarik se realiza a una distancia de hasta un metro entre dos tazas. La aireación produce la característica espuma espesa del teh tarik, un truco de barista que precede a la espuma de leche del espresso por décadas.",
+    ko: "차를 당기는 동작은 두 잔 사이를 최대 1미터까지 벌려 이루어집니다. 이때 들어간 공기가 테타릭 특유의 두꺼운 거품을 만듭니다. 에스프레소 우유 거품보다 수십 년 앞선 기술입니다.",
   },
   "teochew-fruit-veg-trade": {
     id: "Orang Teochew merupakan sekitar 25% dari hawker Tionghoa di Singapura — mereka mengendalikan perdagangan buah dan sayuran antara Tiongkok dan Singapura.",
@@ -549,6 +616,7 @@ export default {
     zh: "潮州人约占新加坡华人hawker的25%——他们控制着中国和新加坡之间的水果和蔬菜贸易。",
     ja: "潮州族はシンガポールの中国系hawkerの約25%を占め、中国とシンガポール間の果物と野菜の貿易を支配していました。",
     es: "Los teochew constituían aproximadamente el 25% de los hawker chinos en Singapur; controlaban el comercio de frutas y verduras entre China y Singapur.",
+    ko: "조주 사람들은 싱가포르 중국계 노점상의 약 25%를 차지했고, 중국과 싱가포르를 잇는 과일·채소 무역을 장악했습니다.",
   },
   "unesco-2020-114-centres": {
     id: "Budaya hawker Singapura masuk dalam daftar warisan takbenda UNESCO pada tahun 2020. NEA mengelola 114 pasar dan hawker centres per November 2020.",
@@ -557,6 +625,7 @@ export default {
     zh: "新加坡的hawker文化于2020年被列入联合国教科文组织非物质文化遗产名录。截至2020年11月，NEA管理着114个市场和hawker centres。",
     ja: "シンガポールのhawker文化は2020年にユネスコ無形文化遺産リストに登録されました。2020年11月時点で、NEAは114の市場とhawker centresを管理していました。",
     es: "La cultura hawker de Singapur entró en la lista de patrimonio inmaterial de la UNESCO en 2020. La NEA gestionaba 114 mercados y hawker centres a noviembre de 2020.",
+    ko: "싱가포르의 호커 문화는 2020년 유네스코 무형문화유산 목록에 올랐습니다. 2020년 11월 기준으로 NEA가 관리하던 시장과 호커센터는 114곳이었습니다.",
   },
   "yong-nyuk-lin-code-1965": {
     id: "Menteri Yong Nyuk Lin mengumumkan skema perizinan hawker nasional dan Hawkers' Code pada Desember 1965, yang diterapkan pada awal 1966.",
@@ -565,6 +634,7 @@ export default {
     zh: "1965年12月，部长Yong Nyuk Lin宣布了全国hawker执照计划和Hawkers' Code，并于1966年初实施。",
     ja: "Yong Nyuk Lin大臣は、1965年12月に全国的なhawker免許制度とHawkers' Codeを発表し、1966年初頭までに実施されました。",
     es: "El Ministro Yong Nyuk Lin anunció un esquema nacional de licencias para hawker y el Hawkers' Code en diciembre de 1965, implementados a principios de 1966.",
+    ko: "용뉵린 장관은 1965년 12월 전국 노점 허가 제도와 노점상 규약을 발표했고, 1966년 초에 시행되었습니다.",
   },
   "yong-tau-foo-hakka": {
     id: "Yong tau foo adalah improvisasi Hakka — karena tidak dapat menemukan tepung terigu untuk pangsit di rumah baru mereka, migran Hakka mengisi tahu sebagai gantinya.",
@@ -573,6 +643,7 @@ export default {
     zh: "Yong tau foo 是客家人的即兴创作——客家移民在新家找不到制作饺子的面粉，于是改用豆腐来酿。",
     ja: "Yong tau foo は客家（Hakka）の即興料理でした — 新しい土地で餃子用の小麦粉が見つからなかったため、客家移民は代わりに豆腐を詰めて作りました。",
     es: "El yong tau foo fue una improvisación Hakka — al no poder encontrar harina de trigo para empanadillas en su nuevo hogar, los migrantes Hakka rellenaron tofu en su lugar.",
+    ko: "용타우푸는 하카 사람들의 즉흥이었습니다. 새 정착지에서 만두를 빚을 밀가루를 구하지 못하자, 대신 두부에 소를 채워 넣은 것입니다.",
   },
   "yong-tau-foo-pick-your-own": {
     id: "Yong tau foo Singapura berkembang menjadi format hawker swalayan — pelanggan memilih item dari nampan dan warung merakitnya. Yong tau foo Hakka asli adalah set potongan tahu isi yang lebih terbatas.",
@@ -581,5 +652,6 @@ export default {
     zh: "新加坡的酿豆腐演变成了一种自助式小贩形式——顾客从托盘中挑选食材，摊位再进行烹制。客家原版则是一套更为有限的酿豆腐块。",
     ja: "シンガポールのyong tau fooは、セルフサービスのホーカー形式へと進化しました。客はトレイから具材を選び、屋台がそれを調理します。客家オリジナルのものは、より限られた種類の豆腐詰め合わせでした。",
     es: "El yong tau foo de Singapur evolucionó a un formato de hawker de autoservicio: los clientes eligen los ingredientes de una bandeja y el puesto los prepara. El original Hakka era un conjunto más limitado de piezas de tofu rellenas.",
+    ko: "싱가포르의 용타우푸는 손님이 직접 고르는 방식으로 자리 잡았습니다. 쟁반에 재료를 골라 담으면 노점에서 조리해 줍니다. 하카의 원형은 속을 채운 두부 몇 가지로 훨씬 단출했습니다.",
   },
 };
