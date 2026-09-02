@@ -32,8 +32,11 @@
 // from every /forgetme run before this one, so a user erased last month is cleaned up the next
 // time they ask. It makes ordering irrelevant instead of merely correct.
 //
-// ⚠ EVERY PATTERN TERMINATES THE chatId. `cuisine:*:<chatId>*` would also match chat 3139402319
-// when erasing 313940231 — Telegram ids are numeric and one can be a prefix of another. So the
+// ⚠ EVERY PATTERN TERMINATES THE chatId. `cuisine:*:<chatId>*` would also match chat 1000000019
+// when erasing 100000001 — Telegram ids are numeric and one can be a prefix of another. (Both are
+// SYNTHETIC stand-ins: this repo is public and a real chat id identifies a real person, so
+// __tests__/no-owner-chat-id.test.js forbids the one that used to sit here. The pair keeps the
+// prefix relationship the example needs.) So the
 // patterns are `…:<chatId>` (exact) and `…:<chatId>:*`, never a bare trailing wildcard, and a
 // test asserts it.
 //
@@ -95,7 +98,7 @@ function hashedKeys(chatId) {
 }
 
 // Families that need a SCAN. Every pattern terminates the chatId with `:` or end-of-string, so
-// erasing 313940231 cannot reach 3139402319 — see the header.
+// erasing 100000001 cannot reach 1000000019 — see the header.
 function scanPatterns(chatId) {
   return [
     `card:${chatId}:*`,               // the clipboard cards themselves (PERSIST when favourited)

@@ -15838,7 +15838,7 @@ async function cacheBotUsername() {
         // wipe silently skips — so the next search reads the stale
         // per-criteria seen-set and starts mid-catalogue. Operator
         // 2026-05-14 Railway evidence:
-        //   `[Michelin] tap chatId=313940231 hash=2f55465e seen=84 combo=[]`
+        //   `[Michelin] tap chatId=100000001 hash=2f55465e seen=84 combo=[]`
         // on what should have been a fresh mount.
         // Fix: at every search call (now that initData IS valid),
         // detect a missing `cuisine:session-meta:<chatId>:started_at` —
