@@ -181,6 +181,9 @@ describe('TMA i18n coverage (O-327)', () => {
       // was written as `lang === 'fr' ? … : …` and so rendered English to six locales.
       // cuisine 301 -> 379: App.jsx's 75 chains keyed too (69 auto-converted from their
       // own arms, 6 hand-done), plus country.SG/MY/OTHERS.
-      .toEqual({ clipboard: 251, cuisine: 380, hawker: 82, menu: 80, transport: 123 });
+      // v0.62.900 — cuisine 380 → 383: card.reviewRefresh / reviewAlready / reviewUnavailable,
+      // the ↻ under the 💬 line. Bumped with the keys, in the same commit, which is what this
+      // pin exists to force.
+      .toEqual({ clipboard: 251, cuisine: 383, hawker: 82, menu: 80, transport: 123 });
   });
 });

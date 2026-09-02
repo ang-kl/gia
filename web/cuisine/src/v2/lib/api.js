@@ -375,6 +375,34 @@ export async function copyOneToChat(venue, context = {}) {
 // Gemini grounded search (cached 30d in Redis), returns the URL map.
 // Caller passes an optional AbortSignal so unmounting cards cancel
 // in-flight requests rather than racing to setState on a dead node.
+// v0.62.900 — the ↻ under the 💬 review line. Operator: *"can we have a ↻ icon below the 💬 to
+// allow user to refresh it into new language"*.
+//
+// It exists because `venue.recentReview` is frozen at SEARCH time while `lang` re-renders live on
+// the locale toggle. The server decides whether anything needs doing at all — it reads the
+// ORIGINAL out of `place-reviews:`, and returns `already` without spending when the original is
+// already in the reader's language.
+//
+// Fails SOFT, like its neighbour: the review on screen is a nicety, and a 500 or a dead network
+// must not put an error in front of someone who tapped a small circular arrow.
+export async function refreshReviewLanguage({ placeId, lang }, { signal } = {}) {
+  try {
+    const r = await fetch('/api/cuisine/review-translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ placeId, lang, initData: initData() }),
+      signal
+    });
+    if (!r.ok) throw httpErr(r.status);
+    const json = await r.json();
+    vlog.noteServerHint(json);
+    return json || { outcome: 'unavailable' };
+  } catch (err) {
+    if (err?.name === 'AbortError') return { outcome: 'unavailable' };
+    return { outcome: 'unavailable' };
+  }
+}
+
 export async function fetchSocialProfiles({ placeId, name, address, websiteUri }, { signal } = {}) {
   const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {

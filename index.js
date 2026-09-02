@@ -83,6 +83,7 @@ const { detectCountryHint } = require('./country-hints');
 // replacing six hand-written `lang === 'fr' ? 'fr' : 'en'` ternaries. See that module's
 // header for what asking Places for Korean COSTS — it returns one language, not both.
 const { placesLanguage, isGenericTypeLabel, poolLanguages, cuisinePoolKey } = require('./places-language');
+const { SUPPORTED: SUPPORTED_LOCALES_FOR_REVIEW } = require('./i18n');   // v0.62.900 — the ↻ route's allow-list
 const { narrationLang } = require('./prompt-locale');   // v0.62.897 — the enrich cache key
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
@@ -14017,6 +14018,39 @@ async function cacheBotUsername() {
         res.json({ profiles });
       } catch (err) {
         console.error('[Error] /api/cuisine/social-profiles failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.62.900 — the ↻ under the 💬 review line. Operator: *"can we have a ↻ icon below the 💬
+    // to allow user to refresh it into new language, first the language of the review text is
+    // already the same as the language set, then fire new review"*.
+    //
+    // It exists because `venue.recentReview` is frozen at SEARCH time while `lang` re-renders
+    // live on the toggle — the same mismatch `openClosingByLang` and `cachedPronunciation` each
+    // solved differently. And it reads the ORIGINAL from `place-reviews:` rather than the text on
+    // screen, because the on-screen text may already BE a translation (see review-refresh.js).
+    //
+    // Rate-limited at 60/15 min: unlike its neighbours this route can cost a Gemini call per tap,
+    // so the cap is two orders of magnitude below social-profiles' 500. A repeat ↻ into a
+    // language already seen is a Redis hit on the 30-day `translate-review:v1:` key and free.
+    app.post('/api/cuisine/review-translate',
+      makeRateLimiter(redis, { endpoint: 'review-translate', cap: 60 }),
+      async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        const placeId = typeof req.body?.placeId === 'string' ? req.body.placeId.trim() : '';
+        const lang = typeof req.body?.lang === 'string' ? req.body.lang.trim().toLowerCase() : '';
+        if (!placeId) return res.status(400).json({ error: 'missing placeId' });
+        // Validated against SUPPORTED rather than passed through: `lang` reaches a model prompt,
+        // and an unbounded string on that path is not something to be relaxed about.
+        if (!SUPPORTED_LOCALES_FOR_REVIEW.includes(lang)) return res.status(400).json({ error: 'unsupported lang' });
+        const { refreshReviewForLocale } = require('./review-refresh');
+        const out = await refreshReviewForLocale({ redis, placeId, lang });
+        res.json(out);
+      } catch (err) {
+        console.error('[Error] /api/cuisine/review-translate failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });

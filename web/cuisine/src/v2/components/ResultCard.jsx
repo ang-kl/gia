@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { tg } from '../../api/tg.js';
-import { copyOneToChat, fetchSocialProfiles } from '../lib/api.js';
+import { copyOneToChat, fetchSocialProfiles, refreshReviewLanguage } from '../lib/api.js';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { likelyServesText } from '../lib/dish-category.js';
 import { restaurantTypeName } from '../lib/cuisine-i18n.js';
@@ -230,6 +230,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // user pasting forward) the full standardised template.
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
+  // v0.62.900 — the ↻ under the 💬 line. `venue.recentReview` is frozen at SEARCH time while
+  // `lang` re-renders live on the locale toggle, so after a switch the quote is the only thing
+  // on the card still speaking the previous language. Local state, not a venue mutation: the
+  // venue object is shared with the map and the copy payload, and a refreshed quote is a view
+  // concern for this card only.
+  const [reviewText, setReviewText] = useState(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewNote, setReviewNote] = useState(null);   // 'already' | 'unavailable' | null
+  // A refresh belongs to the language it was fetched FOR. Toggling again must not leave the
+  // previous language's text sitting under the new one, so both clear when `lang` changes.
+  useEffect(() => { setReviewText(null); setReviewNote(null); }, [lang]);
   // v0.62.124 — operator: result cards collapse to identity + meta + price +
   // 🍲 Try; everything from the address down is hidden until expanded. The
   // FOCUSED/selected card auto-expands (the music-app carousel's centred card
@@ -269,6 +280,33 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
     });
     return () => controller.abort();
   }, [venue?.placeId, venue?.name]);
+  // v0.62.900 — the ↻ handler. The SERVER decides whether anything needs doing: it reads the
+  // ORIGINAL out of `place-reviews:` and answers `already` without spending when that original is
+  // already in the reader's language. The client cannot make that call, because what it holds may
+  // itself be a translation — see review-refresh.js.
+  async function refreshReview() {
+    if (reviewBusy || !venue?.placeId) return;
+    setReviewBusy(true);
+    setReviewNote(null);
+    try {
+      const out = await refreshReviewLanguage({ placeId: venue.placeId, lang });
+      if (out?.outcome === 'translated' && typeof out.text === 'string' && out.text.trim()) {
+        setReviewText(out.text.trim());
+      } else if (out?.outcome === 'already') {
+        // Show the ORIGINAL, not whatever was on screen: "already in your language" and "still
+        // showing the last language" look identical to a reader and are not the same thing.
+        if (typeof out.text === 'string' && out.text.trim()) setReviewText(out.text.trim());
+        setReviewNote('already');
+      } else {
+        // `place-reviews:` is a 24 h cache. Once it expires the original is gone, and the honest
+        // answer is to say so rather than re-translate the translation on screen.
+        setReviewNote('unavailable');
+      }
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
   async function copy(e) {
     e.stopPropagation();
     if (copying) return;
@@ -751,12 +789,31 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             <div className="flex items-start gap-1 text-[12px] text-tg-hint mt-1 leading-snug italic">
               <span aria-hidden="true">💬</span>
               <span>
-                "{venue.recentReview}"
+                "{reviewText || venue.recentReview}"
                 {typeof venue.recentReviewAgo === 'string' && venue.recentReviewAgo && (
                   <span className="not-italic ml-2 text-tg-hint">{venue.recentReviewAgo}</span>
                 )}
                 {typeof venue.recentReviewTranslatedFlag === 'string' && venue.recentReviewTranslatedFlag && (
                   <span className="not-italic"> ( {venue.recentReviewTranslatedFlag} {tr('card.reviewTranslated', lang)})</span>
+                )}
+                {/* v0.62.900 — refresh THIS review into the language set now. The glyph is
+                    aria-hidden so the accessible name is words, matching the ⌄/⌃ toggle above.
+                    stopPropagation because the whole card is a <button>. */}
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); refreshReview(); }}
+                  disabled={reviewBusy}
+                  aria-label={tr('card.reviewRefresh', lang)}
+                  title={tr('card.reviewRefresh', lang)}
+                  className="not-italic ml-2 align-middle text-[11px] px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-tg-accent/70 active:scale-95 transition-transform"
+                >
+                  <span aria-hidden="true">{reviewBusy ? '…' : '↻'}</span>
+                </button>
+                {reviewNote === 'already' && (
+                  <span className="not-italic ml-1 text-tg-hint">{tr('card.reviewAlready', lang)}</span>
+                )}
+                {reviewNote === 'unavailable' && (
+                  <span className="not-italic ml-1 text-tg-hint">{tr('card.reviewUnavailable', lang)}</span>
                 )}
               </span>
             </div>
