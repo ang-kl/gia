@@ -538,7 +538,17 @@ export default function StationCard({
             className="gia-hit-y shrink-0 flex items-center gap-0.5 text-[10px] font-semibold leading-none opacity-90 active:scale-95"
             style={{ color: stripText }}
           >
-            <span aria-hidden className="mr-0.5">{bodyOpen ? '▾' : '▸'}</span>{bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}
+            {/* v0.62.894 — TWO ARROWS, POINTING OPPOSITE WAYS. This strip rendered a
+                leading ▾/▸ span AND the trailing <Triangle>, so every collapsed card
+                read "▸ details ▼" and every open one "▾ less ▲" — the left glyph
+                pointing down while the right pointed up. v0.62.650 added the
+                operator's "triangle to expand/collapse right side 'details/less'" ON
+                TOP OF the existing Cuisine-style leading glyph instead of instead of
+                it, and nothing rendered here to catch it.
+                The leading span is the one that goes: <Triangle> is the card's shared
+                disclosure glyph, already used trailing-and-alone by the line rows
+                (:257) and "Around the station" (:668). All three toggles now match. */}
+            {bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}
             <Triangle open={bodyOpen} />
           </button>
         )}
