@@ -52,6 +52,7 @@ import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
 import { streetOf } from '../../../_shared/lib/pronounce-client.js';
 import { takeStash, stashAndReload, mapsLanguageIsStale } from '../../../_shared/lib/locale-reload.js';
+import { shouldSuppressAutoSearch } from '../../../_shared/lib/auto-search-gate.js';
 
 // v0.62.865 — operator: *"When I toggle the language, remove the code to refresh
 // the search, just the refresh the google map."*
@@ -2095,7 +2096,9 @@ export default function App() {
         setFlyTarget({ lat: pt.lat, lng: pt.lng, zoom: 11, _k: Date.now() });
         initialLoadFiredRef.current = true;
         initialSearchDone.current = true;
-        runSearch({ ...state, region: 'OTHER', countryPref: cc }, pt);
+        // v0.62.899 — automatic: fires from the auto-detect effect, not from a tap. It sets
+        // `initialLoadFiredRef` itself, so it never reaches runInitialLoad's guard.
+        runSearch({ ...state, region: 'OTHER', countryPref: cc }, pt, { auto: true });
       }
     }
   }
@@ -2339,7 +2342,11 @@ export default function App() {
         const snap = { ...state, ...stateDelta };
         if (locMoveTimerRef.current) clearTimeout(locMoveTimerRef.current);
         locMoveTimerRef.current = setTimeout(() => {
-          runSearch(snap, { lat: userLoc.lat, lng: userLoc.lng });
+          // v0.62.899 — automatic. THIS is the one the operator was watching: the restore
+          // repaints the stashed venues and a second later this timer replaced them. The
+          // restore effect already protects the PIN from this path's sibling (see the
+          // `explicitPickRef` note above); the SEARCH was never protected.
+          runSearch(snap, { lat: userLoc.lat, lng: userLoc.lng }, { auto: true });
         }, 1000);
       }
     } else if (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng)) {
@@ -2883,6 +2890,16 @@ export default function App() {
   }
 
   async function runSearch(snap = state, anchor = null, opts = {}) {
+    // v0.62.899 — ONE DECISION POINT for "the page reloaded to re-language the map, so do not
+    // overwrite the results we just carried across". v0.62.865 put this on `runInitialLoad`
+    // alone; there are 21 runSearch call sites and two others fire automatically on a restored
+    // mount, which is why the operator still saw a search after toggling the language. An
+    // AUTOMATIC caller opts in with `auto: true`; every explicit user action (🔍, a dish tap, a
+    // filter, "Search this area") is untouched and keeps working during the restore window.
+    if (shouldSuppressAutoSearch({ restored: localeReloadRestored, auto: opts?.auto })) {
+      console.log('[Cuisine-TMA-v2] runSearch: auto trigger suppressed — locale-reload restore in effect');
+      return;
+    }
     // v0.62.x — pin the displayed location name to THIS search's anchor (an
     // Other-city pick passes anchor.name, e.g. "Sunshine Coast"); cleared for
     // coordless / current-location searches so the label falls back to the
