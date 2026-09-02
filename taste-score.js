@@ -75,8 +75,16 @@ const WEIGHTS_DISH = Object.freeze({
 
 const POP_SCORE = Object.freeze({ high: 1.0, medium: 0.6, low: 0.25 });
 const LEISURE_DAYS = new Set(['weekend', 'holiday']);
-const WET_TYPES = new Set(['soup', 'stew-curry']);
-const DRY_TYPES = new Set(['grilled', 'snack', 'seafood']);
+// ⚠ AND `drink` WAS A TYPE THE WEATHER TERM DID NOT KNOW. 91 of the 1,598 unclassified dishes are
+// `kind: 'drink'`, the drafting enum lists `type: drink`, and neither set below mentioned it — so
+// every drink landed in the neutral bucket. A hot drink on a wet day is the clearest case this
+// term exists for, and it was the one case it could not answer.
+//
+// Split rather than lumped: `hot-drink` and `cold-drink` are separate authored values, and a
+// drink genuinely served both ways stays `drink` and stays neutral. Guessing which way a teh
+// tarik is drunk would be worse than saying nothing, which is the rule the whole scorer runs on.
+const WET_TYPES = new Set(['soup', 'stew-curry', 'hot-drink']);
+const DRY_TYPES = new Set(['grilled', 'snack', 'seafood', 'cold-drink']);
 
 /** Sum only the live terms, then divide by their weight. See the header. */
 function _blend(terms) {
@@ -168,11 +176,43 @@ function scoreCuisines(ctx = {}, { seed = null, usageCounts = {}, countryCode = 
   return out.sort((a, b) => b.score - a.score);
 }
 
+// ⚠ THE AUTHORED VOCABULARY AND THE SCORER'S PERIODS WERE NOT THE SAME VOCABULARY, and nothing
+// said so. `mealPeriodSGT` has six ids; the taxonomy's drafting enum
+// (scripts/draft-dish-taxonomy.mjs) had five, three of which are periods and two of which are not:
+//
+//     authored   breakfast · lunch · dinner · snack · anytime
+//     periods    breakfast · lunch · afternoon · dinner · supper · night_supper
+//
+// Measured over the 99 rows that exist, exact-match dishes per period: breakfast 21, lunch 87,
+// dinner 83, **afternoon 0, supper 0, night_supper 0**. At half the periods the taxonomy was
+// inert EVEN WHERE IT EXISTED — and those are the periods a suggestion helps most, because at
+// 3pm or 4am the question "what is even open, and what do people eat now" is the whole question.
+// `snack` matched nothing at all: it is a `type` word that ended up in the `mealTime` field.
+//
+// Found while sizing the 1,598-row backfill, which would have multiplied it sixteenfold.
+//
+// The fix is an ALIAS, not a rewrite of the 20 legacy rows (AU-1: add, never compress). `snack`
+// resolves to `afternoon` and only `afternoon` — `mealPeriodSGT` labels that window "afternoon
+// snack" in so many words (15:00-17:00, vibe-suggest.js:26), so the mapping is the source's own
+// wording rather than a judgement of mine. Extending it to `supper` as well would be
+// over-claiming: bak kwa at 11pm is fine, but that is not what the value meant.
+const MEALTIME_ALIAS = Object.freeze({ snack: ['afternoon'] });
+
+/** The authored array resolved into period ids. Legacy values expand; unknown ones pass through. */
+function _periodsOf(mealTime) {
+  const out = new Set();
+  for (const m of mealTime) {
+    const alias = MEALTIME_ALIAS[m];
+    if (alias) { for (const a of alias) out.add(a); } else out.add(m);
+  }
+  return out;
+}
+
 function _mealFit(dish, period) {
   // Rung 1 — the taxonomy, exact but present on only 99 of 1,697 dishes (all singaporean today).
   if (Array.isArray(dish.mealTime) && dish.mealTime.length) {
     if (dish.mealTime.includes('anytime')) return 0.7;
-    return dish.mealTime.includes(period) ? 1 : 0.15;
+    return _periodsOf(dish.mealTime).has(period) ? 1 : 0.15;
   }
   // Rung 2 — drinks, which every cuisine has and which read clearly by period.
   if (dish.kind === 'drink') {
@@ -295,5 +335,5 @@ function topBand(scored, bucketId = '', { widen = false } = {}) {
 module.exports = {
   scoreCuisines, scoreDishes, topBand,
   WEIGHTS_CUISINE, WEIGHTS_DISH, POP_SCORE, BAND_EPSILON, ROTATION_EPSILON, LEISURE_DAYS,
-  _blend, _mealFit, _jitter,
+  _blend, _mealFit, _jitter, _periodsOf, MEALTIME_ALIAS, WET_TYPES, DRY_TYPES,
 };

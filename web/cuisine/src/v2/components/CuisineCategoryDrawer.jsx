@@ -19,8 +19,21 @@ import { useDialog } from '../../../../_shared/lib/use-dialog.js';
 // v0.62.469 — meal-time / dietary badges from the grounded taxonomy. Icons are
 // language-neutral; the enum text stays English for now (localising these ~15
 // controlled-vocab labels is the planned enum-label translation step).
-const MEALTIME_ICON = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍡', anytime: '🕒' };
+//
+// ⚠ v0.62.903 — THAT STEP IS TAKEN, and it is a debt being paid rather than a defect found: the
+// comment above named it and deferred it. It is paid NOW because the dish-taxonomy backfill takes
+// this chip row from the 99 classified dishes to all 1,697 — a 17× widening of an English-only
+// surface, in the arc that has spent five releases closing exactly this. 18 labels × 9 locales.
+//
+// `taxLabel` falls back to the raw enum value, so an enum term added before its translation
+// degrades to today's behaviour rather than to a blank chip.
+const MEALTIME_ICON = { breakfast: '🌅', lunch: '☀️', afternoon: '🍵', dinner: '🌙', supper: '🌃', night_supper: '🌌', snack: '🍡', anytime: '🕒' };
 const DIETARY_ICON = { vegetarian: '🥬', meat: '🍖', seafood: '🦐', mixed: '🍽️' };
+const taxLabel = (field, value, lang) => {
+  const key = `taxonomy.${field}.${value}`;
+  const out = tr(key, lang);
+  return out && out !== key ? out : String(value);
+};
 
 // v0.62.670 — operator (O-85 item 2): the solid -100 pastel fills + -800 ink
 // were light-mode-only (glaring/illegible on a dark Telegram theme). Same
@@ -329,18 +342,25 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                   (only present once a dish is classified; hidden otherwise). */}
               {(Array.isArray(dishDetail.mealTime) || dishDetail.dietary || dishDetail.course) && (
                 <div className="flex flex-wrap gap-1 mb-2">
+                  {/* ⚠ v0.62.903 — `capitalize` REMOVED from these three chips, and only these three. CSS
+                      capitalize upper-cases the first letter of EVERY word, which was harmless while the
+                      labels were single English enum words and is wrong the moment they are phrases:
+                      `plat principal` became "Plat Principal", `fruits de mer` "Fruits De Mer",
+                      `à toute heure` "À Toute Heure". The authored labels already carry the casing each
+                      language wants. A styling rule that was correct for a vocabulary, not for a
+                      language. */}
                   {Array.isArray(dishDetail.mealTime) && dishDetail.mealTime.map((m) => (
-                    <span key={m} className="text-[10px] px-2 py-0.5 rounded-full bg-tg-bg border border-tg-border capitalize">
-                      {MEALTIME_ICON[m] ? `${MEALTIME_ICON[m]} ` : ''}{m}
+                    <span key={m} className="text-[10px] px-2 py-0.5 rounded-full bg-tg-bg border border-tg-border">
+                      {MEALTIME_ICON[m] ? `${MEALTIME_ICON[m]} ` : ''}{taxLabel('mealTime', m, lang)}
                     </span>
                   ))}
                   {dishDetail.dietary && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-tg-bg border border-tg-border capitalize">
-                      {DIETARY_ICON[dishDetail.dietary] ? `${DIETARY_ICON[dishDetail.dietary]} ` : ''}{dishDetail.dietary}
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-tg-bg border border-tg-border">
+                      {DIETARY_ICON[dishDetail.dietary] ? `${DIETARY_ICON[dishDetail.dietary]} ` : ''}{taxLabel('dietary', dishDetail.dietary, lang)}
                     </span>
                   )}
                   {dishDetail.course && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-tg-bg border border-tg-border capitalize">🍽 {dishDetail.course}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-tg-bg border border-tg-border">🍽 {taxLabel('course', dishDetail.course, lang)}</span>
                   )}
                 </div>
               )}

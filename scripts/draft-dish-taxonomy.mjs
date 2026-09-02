@@ -66,8 +66,28 @@ const CHECKPOINT_BRANCH = 'bot/draft-dish-taxonomy';
 const BATCH_PAUSE_MS = 6000;
 const RETRY_WAITS_MS = [15000, 40000];
 
-const TYPES = ['noodles', 'rice', 'bread-dumpling', 'soup', 'grilled', 'stew-curry', 'seafood', 'veg', 'snack', 'sweet', 'drink', 'other'];
-const MEAL_TIMES = ['breakfast', 'lunch', 'dinner', 'snack', 'anytime'];
+// v0.62.903 — `hot-drink` / `cold-drink` split out of `drink`. taste-score.js's weatherFit puts
+// the first in WET_TYPES and the second in DRY_TYPES; a drink genuinely served both ways stays
+// `drink` and stays neutral, because guessing how a teh tarik is drunk is worse than saying
+// nothing. `drink` is kept, not replaced — existing rows stay valid.
+const TYPES = ['noodles', 'rice', 'bread-dumpling', 'soup', 'grilled', 'stew-curry', 'seafood', 'veg', 'snack', 'sweet', 'drink', 'hot-drink', 'cold-drink', 'other'];
+
+// ⚠ v0.62.903 — THIS ENUM AND THE SCORER'S PERIODS WERE NOT THE SAME VOCABULARY. It offered five
+// values, of which three are periods and two are not, while `mealPeriodSGT` asks about six:
+//
+//     was        breakfast · lunch · dinner · snack · anytime
+//     periods    breakfast · lunch · afternoon · dinner · supper · night_supper
+//
+// Measured over the 99 rows this script produced: afternoon 0, supper 0, night_supper 0 exact
+// matches, and `snack` matched no period at all. Half the periods were inert even where the
+// taxonomy existed. Found while sizing the 1,598-row backfill — which, run against the old enum,
+// would have multiplied the defect sixteenfold.
+//
+// The offered list is now the six period ids plus `anytime`. `snack` is NOT offered but IS
+// accepted, so the 20 legacy rows carrying it still validate; taste-score.js aliases it to
+// `afternoon`, which is what `mealPeriodSGT` calls that window in so many words.
+const MEAL_TIMES = ['breakfast', 'lunch', 'afternoon', 'dinner', 'supper', 'night_supper', 'anytime'];
+const MEAL_TIMES_ACCEPTED = [...MEAL_TIMES, 'snack'];
 const DIETARY = ['vegetarian', 'meat', 'seafood', 'mixed'];
 const COURSES = ['soup', 'appetiser', 'main', 'side', 'dessert', 'bites'];
 
@@ -115,7 +135,7 @@ function extractJson(text) {
 function sanitizeEntry(e, kind) {
   if (!e || typeof e !== 'object') return null;
   const type = TYPES.includes(e.type) ? e.type : null;
-  const mealTime = Array.isArray(e.mealTime) ? e.mealTime.filter((m) => MEAL_TIMES.includes(m)) : [];
+  const mealTime = Array.isArray(e.mealTime) ? e.mealTime.filter((m) => MEAL_TIMES_ACCEPTED.includes(m)) : [];
   const dietary = DIETARY.includes(e.dietary) ? e.dietary : null;
   if (!type || !mealTime.length || !dietary) return null; // reject partial/invalid — leave for retry
   const out = { type, mealTime, dietary };
@@ -184,13 +204,20 @@ async function draftBatch(apiKey, batch) {
 function serialize(overlay) {
   const keys = Object.keys(overlay).sort();
   const lines = [
-    '// nation-overlay-taxonomy.generated.js — GENERATED, do not hand-edit.',
+    // ⚠ v0.62.903 — THIS FUNCTION REWRITES THE WHOLE HEADER ON EVERY RUN, so the text below is
+    // the only place the overlay's header can be changed. It used to say "GENERATED, do not
+    // hand-edit"; the file is now hand-extended as well as drafted, and a dispatch that restored
+    // that warning would tell the next reader to leave a defect in place.
+    '// nation-overlay-taxonomy.generated.js — drafted by this script, EXTENDED BY HAND.',
     '//',
     '// Fixed-enum dish taxonomy (type / mealTime / dietary / course) for nation-overlay',
-    '// iconicDishes, keyed `${slug}::${dish}`. Grounded-drafted via',
-    '// scripts/draft-dish-taxonomy.mjs. nation-overlay.js folds these onto each dish at',
+    '// iconicDishes, keyed `${slug}::${dish}`. nation-overlay.js folds these onto each dish at',
     '// load, overriding dish-food-group.js\'s regex fallback (which only covers SG/',
     '// Malaysian hawker vocabulary — this overlay covers every cuisine directly).',
+    '//',
+    '// Drafted by scripts/draft-dish-taxonomy.mjs, which is IDEMPOTENT — it only sends dishes',
+    '// with no row here — and extended by hand where the drafting enum could not say what was',
+    '// needed. See that script\'s MEAL_TIMES for the vocabulary and why it changed.',
     '//',
     `// Entries: ${keys.length}`,
     "'use strict';",

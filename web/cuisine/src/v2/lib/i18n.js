@@ -32,6 +32,28 @@ const STRINGS = {
   // zh '菜系与筛选', ja '料理とフィルター', es 'Cocina y filtros') rather than
   // translated fresh — the word was already decided per locale, just not reused.
   'header.appTitle':           { en: 'Cuisine', fr: 'Cuisine' },
+  // v0.62.903 — the controlled-vocabulary chips on the dish drawer. The v0.62.469 comment on
+  // CuisineCategoryDrawer.jsx said the enum text "stays English for now … the planned enum-label
+  // translation step"; this is that step, paid before the taxonomy backfill takes the surface
+  // from 99 dishes to 1,697. `type` is deliberately absent — the drawer does not render it.
+  'taxonomy.mealTime.breakfast': { en: "breakfast", fr: "petit-déjeuner" },
+  'taxonomy.mealTime.lunch': { en: "lunch", fr: "déjeuner" },
+  'taxonomy.mealTime.afternoon': { en: "afternoon", fr: "après-midi" },
+  'taxonomy.mealTime.dinner': { en: "dinner", fr: "dîner" },
+  'taxonomy.mealTime.supper': { en: "late night", fr: "fin de soirée" },
+  'taxonomy.mealTime.night_supper': { en: "small hours", fr: "petit matin" },
+  'taxonomy.mealTime.snack': { en: "snack", fr: "en-cas" },
+  'taxonomy.mealTime.anytime': { en: "anytime", fr: "à toute heure" },
+  'taxonomy.dietary.vegetarian': { en: "vegetarian", fr: "végétarien" },
+  'taxonomy.dietary.meat': { en: "meat", fr: "viande" },
+  'taxonomy.dietary.seafood': { en: "seafood", fr: "fruits de mer" },
+  'taxonomy.dietary.mixed': { en: "mixed", fr: "mixte" },
+  'taxonomy.course.soup': { en: "soup", fr: "soupe" },
+  'taxonomy.course.appetiser': { en: "starter", fr: "entrée" },
+  'taxonomy.course.main': { en: "main", fr: "plat principal" },
+  'taxonomy.course.side': { en: "side", fr: "accompagnement" },
+  'taxonomy.course.dessert': { en: "dessert", fr: "dessert" },
+  'taxonomy.course.bites': { en: "bites", fr: "bouchées" },
   'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
   'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
   'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
@@ -695,6 +717,25 @@ const STRINGS = {
 // inline `id:` (the locale.switch* keys) — the merge only fills gaps, so those
 // are left as-is.
 const ID_STRINGS = {
+  // v0.62.903 — taxonomy chip vocabulary (see the base table).
+  "taxonomy.mealTime.breakfast": "sarapan",
+  "taxonomy.mealTime.lunch": "makan siang",
+  "taxonomy.mealTime.afternoon": "sore hari",
+  "taxonomy.mealTime.dinner": "makan malam",
+  "taxonomy.mealTime.supper": "larut malam",
+  "taxonomy.mealTime.night_supper": "dini hari",
+  "taxonomy.mealTime.snack": "camilan",
+  "taxonomy.mealTime.anytime": "kapan saja",
+  "taxonomy.dietary.vegetarian": "vegetarian",
+  "taxonomy.dietary.meat": "daging",
+  "taxonomy.dietary.seafood": "makanan laut",
+  "taxonomy.dietary.mixed": "campuran",
+  "taxonomy.course.soup": "sup",
+  "taxonomy.course.appetiser": "pembuka",
+  "taxonomy.course.main": "hidangan utama",
+  "taxonomy.course.side": "pendamping",
+  "taxonomy.course.dessert": "pencuci mulut",
+  "taxonomy.course.bites": "camilan kecil",
   'header.appTitle': 'Masakan',
   'cat.sweetsFusion': 'Manis & Fusion',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
@@ -1087,6 +1128,25 @@ for (const [k, v] of Object.entries(ID_STRINGS)) {
 
 // ----- Russian (ru) overlay — v0.62.313. Controls kept tight to fit EN; agent-verified. -----
 const RU_STRINGS = {
+  // v0.62.903 — taxonomy chip vocabulary (see the base table).
+  "taxonomy.mealTime.breakfast": "завтрак",
+  "taxonomy.mealTime.lunch": "обед",
+  "taxonomy.mealTime.afternoon": "полдник",
+  "taxonomy.mealTime.dinner": "ужин",
+  "taxonomy.mealTime.supper": "поздний ужин",
+  "taxonomy.mealTime.night_supper": "глубокая ночь",
+  "taxonomy.mealTime.snack": "перекус",
+  "taxonomy.mealTime.anytime": "в любое время",
+  "taxonomy.dietary.vegetarian": "вегетарианское",
+  "taxonomy.dietary.meat": "мясо",
+  "taxonomy.dietary.seafood": "морепродукты",
+  "taxonomy.dietary.mixed": "смешанное",
+  "taxonomy.course.soup": "суп",
+  "taxonomy.course.appetiser": "закуска",
+  "taxonomy.course.main": "основное",
+  "taxonomy.course.side": "гарнир",
+  "taxonomy.course.dessert": "десерт",
+  "taxonomy.course.bites": "лёгкие закуски",
   'header.appTitle': 'Кухня',
   'cat.sweetsFusion': 'Десерты и фьюжн',
   'cat.michelinBib': 'Мишлен · Биб Гурман',
@@ -1476,6 +1536,25 @@ const RU_STRINGS = {
 };
 // ----- German (de) overlay — v0.62.313. Compounds abbreviated where tight; agent-verified. -----
 const DE_STRINGS = {
+  // v0.62.903 — taxonomy chip vocabulary (see the base table).
+  "taxonomy.mealTime.breakfast": "Frühstück",
+  "taxonomy.mealTime.lunch": "Mittagessen",
+  "taxonomy.mealTime.afternoon": "Nachmittag",
+  "taxonomy.mealTime.dinner": "Abendessen",
+  "taxonomy.mealTime.supper": "später Abend",
+  "taxonomy.mealTime.night_supper": "frühe Stunden",
+  "taxonomy.mealTime.snack": "Snack",
+  "taxonomy.mealTime.anytime": "jederzeit",
+  "taxonomy.dietary.vegetarian": "vegetarisch",
+  "taxonomy.dietary.meat": "Fleisch",
+  "taxonomy.dietary.seafood": "Meeresfrüchte",
+  "taxonomy.dietary.mixed": "gemischt",
+  "taxonomy.course.soup": "Suppe",
+  "taxonomy.course.appetiser": "Vorspeise",
+  "taxonomy.course.main": "Hauptgericht",
+  "taxonomy.course.side": "Beilage",
+  "taxonomy.course.dessert": "Dessert",
+  "taxonomy.course.bites": "Häppchen",
   'header.appTitle': 'Küche',
   'cat.sweetsFusion': 'Süßes & Fusion',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
@@ -1865,6 +1944,25 @@ const DE_STRINGS = {
 // ----- Chinese (zh, Simplified) overlay — v0.62.x, Phase 3. Curated; controls
 // kept compact (Chinese is dense) so pills don't overflow. -----
 const ZH_STRINGS = {
+  // v0.62.903 — taxonomy chip vocabulary (see the base table).
+  "taxonomy.mealTime.breakfast": "早餐",
+  "taxonomy.mealTime.lunch": "午餐",
+  "taxonomy.mealTime.afternoon": "下午茶",
+  "taxonomy.mealTime.dinner": "晚餐",
+  "taxonomy.mealTime.supper": "宵夜",
+  "taxonomy.mealTime.night_supper": "深夜",
+  "taxonomy.mealTime.snack": "点心",
+  "taxonomy.mealTime.anytime": "随时",
+  "taxonomy.dietary.vegetarian": "素食",
+  "taxonomy.dietary.meat": "肉类",
+  "taxonomy.dietary.seafood": "海鲜",
+  "taxonomy.dietary.mixed": "综合",
+  "taxonomy.course.soup": "汤",
+  "taxonomy.course.appetiser": "前菜",
+  "taxonomy.course.main": "主菜",
+  "taxonomy.course.side": "配菜",
+  "taxonomy.course.dessert": "甜点",
+  "taxonomy.course.bites": "小食",
   'header.appTitle': '菜系',
   'cat.sweetsFusion': '甜点与融合菜',
   'cat.michelinBib': '米其林 · 必比登',
@@ -2255,6 +2353,25 @@ for (const [k, v] of Object.entries(DE_STRINGS)) { if (STRINGS[k] && STRINGS[k].
 for (const [k, v] of Object.entries(ZH_STRINGS)) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = v; }
 // ----- Japanese (ja) overlay — v0.62.x, Phase 3. -----
 const JA_STRINGS = {
+  // v0.62.903 — taxonomy chip vocabulary (see the base table).
+  "taxonomy.mealTime.breakfast": "朝食",
+  "taxonomy.mealTime.lunch": "昼食",
+  "taxonomy.mealTime.afternoon": "午後",
+  "taxonomy.mealTime.dinner": "夕食",
+  "taxonomy.mealTime.supper": "夜食",
+  "taxonomy.mealTime.night_supper": "深夜",
+  "taxonomy.mealTime.snack": "軽食",
+  "taxonomy.mealTime.anytime": "いつでも",
+  "taxonomy.dietary.vegetarian": "ベジタリアン",
+  "taxonomy.dietary.meat": "肉",
+  "taxonomy.dietary.seafood": "魚介",
+  "taxonomy.dietary.mixed": "ミックス",
+  "taxonomy.course.soup": "スープ",
+  "taxonomy.course.appetiser": "前菜",
+  "taxonomy.course.main": "メイン",
+  "taxonomy.course.side": "副菜",
+  "taxonomy.course.dessert": "デザート",
+  "taxonomy.course.bites": "一口サイズ",
   'header.appTitle': '料理',
   'cat.sweetsFusion': 'スイーツ & フュージョン',
   'cat.michelinBib': 'ミシュラン · ビブグルマン',
@@ -2642,6 +2759,25 @@ const JA_STRINGS = {
 };
 // ----- Spanish (es) overlay — v0.62.x, Phase 3. -----
 const ES_STRINGS = {
+  // v0.62.903 — taxonomy chip vocabulary (see the base table).
+  "taxonomy.mealTime.breakfast": "desayuno",
+  "taxonomy.mealTime.lunch": "almuerzo",
+  "taxonomy.mealTime.afternoon": "tarde",
+  "taxonomy.mealTime.dinner": "cena",
+  "taxonomy.mealTime.supper": "noche",
+  "taxonomy.mealTime.night_supper": "madrugada",
+  "taxonomy.mealTime.snack": "tentempié",
+  "taxonomy.mealTime.anytime": "a cualquier hora",
+  "taxonomy.dietary.vegetarian": "vegetariano",
+  "taxonomy.dietary.meat": "carne",
+  "taxonomy.dietary.seafood": "marisco",
+  "taxonomy.dietary.mixed": "mixto",
+  "taxonomy.course.soup": "sopa",
+  "taxonomy.course.appetiser": "entrante",
+  "taxonomy.course.main": "principal",
+  "taxonomy.course.side": "guarnición",
+  "taxonomy.course.dessert": "postre",
+  "taxonomy.course.bites": "bocados",
   'header.appTitle': 'Cocina',
   'cat.sweetsFusion': 'Dulces y Fusión',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
@@ -3034,6 +3170,25 @@ for (const [k, v] of Object.entries(ES_STRINGS)) { if (STRINGS[k] && STRINGS[k].
 // the operator's standing instruction. `ko` is NOT in SUPPORTED yet, so this block is inert:
 // the merge below writes a column nothing reads until the K6 flip adds 'ko' to the list.
 const KO_STRINGS = {
+  // v0.62.903 — taxonomy chip vocabulary (see the base table).
+  "taxonomy.mealTime.breakfast": "아침",
+  "taxonomy.mealTime.lunch": "점심",
+  "taxonomy.mealTime.afternoon": "오후",
+  "taxonomy.mealTime.dinner": "저녁",
+  "taxonomy.mealTime.supper": "야식",
+  "taxonomy.mealTime.night_supper": "새벽",
+  "taxonomy.mealTime.snack": "간식",
+  "taxonomy.mealTime.anytime": "아무 때나",
+  "taxonomy.dietary.vegetarian": "채식",
+  "taxonomy.dietary.meat": "육류",
+  "taxonomy.dietary.seafood": "해산물",
+  "taxonomy.dietary.mixed": "혼합",
+  "taxonomy.course.soup": "국물",
+  "taxonomy.course.appetiser": "전채",
+  "taxonomy.course.main": "메인",
+  "taxonomy.course.side": "곁들임",
+  "taxonomy.course.dessert": "디저트",
+  "taxonomy.course.bites": "한입 거리",
   "header.appTitle": "요리",
   "header.tagline": "💬 말해 주세요 또는 🔍 검색",
   "region.singapore": "싱가포르",
