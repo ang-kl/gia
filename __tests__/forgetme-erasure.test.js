@@ -30,7 +30,10 @@ const require = createRequire(import.meta.url);
 const { forgetUserData, plainKeys, hashedKeys, scanPatterns, ERASURE_EXEMPT } = require('../user-data.js');
 const { hashChatId } = require('../location-cache.js');
 
-const CHAT = 313940231;
+// A SYNTHETIC id. It used to be the owner's real Telegram chat id, which is not a credential
+// but does identify a real person in a public repo. 100000001 / 1000000019 keep the prefix
+// relationship the collision test at the bottom of this file depends on.
+const CHAT = 100000001;
 const H = hashChatId(CHAT);
 
 // A purpose-built fake rather than __tests__/redis-stub.js, which has no scanIterator, no zsets
@@ -174,7 +177,7 @@ describe('everything a user accumulates is erased', () => {
   });
 
   it('⚠ a chat whose id is a PREFIX of another is not collateral damage', async () => {
-    // Telegram ids are numeric, so 3139402319 starts with 313940231. A pattern ending in a bare
+    // Telegram ids are numeric, so 1000000019 starts with 100000001. A pattern ending in a bare
     // `<chatId>*` would erase the longer id's data too — silently, and for someone who never
     // asked. Every pattern therefore terminates the id with `:` or end-of-string.
     const LONGER = `${CHAT}9`;

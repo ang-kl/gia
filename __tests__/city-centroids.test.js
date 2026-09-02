@@ -75,7 +75,7 @@ describe('nearestCityRadiusM', () => {
     expect(psv.nearestCityRadiusM(1.4817, 110.3323)).toBe(60000); // Kuching → Sparse
   });
   it('caps the logged Putrajaya drift pin at 15 km, not the KL 45 km (12-06 regression)', () => {
-    // The exact set-location from log/logs.1781315803421.json (chat 313940231):
+    // The exact set-location from log/logs.1781315803421.json (chat 100000001):
     // a Putrajaya pin that previously fell back to the 45 km city-default and
     // spilled venues toward central KL / Petaling Jaya.
     expect(psv.nearestCityRadiusM(2.96957, 101.71218)).toBe(15000);

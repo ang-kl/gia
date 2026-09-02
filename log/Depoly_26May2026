@@ -28,9 +28,9 @@
 2026-05-25T23:56:54.752866849Z [inf]  [Pulse] Status updated at 7:56:53 am
 2026-05-25T23:56:54.753003115Z [inf]  [footfall] besttime resolved=0/5
 2026-05-25T23:56:54.753006630Z [inf]  [Vault-Index] Refreshed: 0 review caches, 0 summaries
-2026-05-25T23:57:14.527421268Z [inf]  [set-location] chat=313940231 → 1.4989,103.7789
-2026-05-25T23:57:14.527426447Z [inf]  [VLOG 313940231] {"kind":"cuisine-search-incoming","lat":1.4988689,"lng":103.7788849,"cuisines":[],"filters":{"newlyOpened":false,"openNow":false,"halal":false,"vegetarian":false,"homeBased":false,"petFriendly":false,"prices":[]},"prices":[],"region":"JB","freeTextLen":0,"resetSeen":true,"lang":"en"}
-2026-05-25T23:57:14.527429815Z [inf]  [Cuisine-Search] resetSeen for chat 313940231
+2026-05-25T23:57:14.527421268Z [inf]  [set-location] chat=100000001 → 1.4989,103.7789
+2026-05-25T23:57:14.527426447Z [inf]  [VLOG 100000001] {"kind":"cuisine-search-incoming","lat":1.4988689,"lng":103.7788849,"cuisines":[],"filters":{"newlyOpened":false,"openNow":false,"halal":false,"vegetarian":false,"homeBased":false,"petFriendly":false,"prices":[]},"prices":[],"region":"JB","freeTextLen":0,"resetSeen":true,"lang":"en"}
+2026-05-25T23:57:14.527429815Z [inf]  [Cuisine-Search] resetSeen for chat 100000001
 2026-05-25T23:57:14.527432920Z [inf]  [Cuisine-Search] D700 incoming cuisines=[] filters={"newlyOpened":false,"openNow":false,"halal":false,"vegetarian":false,"homeBased":false,"petFriendly":false,"prices":[]} region=JB center=1.4927,103.7414 radius=30000
 2026-05-25T23:57:14.527435878Z [inf]  [Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false
 2026-05-25T23:57:14.527439011Z [inf]  [Cuisine-Search] D702 discover variantIdx=0/0 returned 58 candidates
@@ -38,17 +38,17 @@
 2026-05-25T23:57:21.884767116Z [err]  [Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s
 2026-05-25T23:57:24.869732847Z [inf]  [footfall] besttime resolved=0/6
 2026-05-25T23:57:24.869740554Z [inf]  [Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)
-2026-05-25T23:57:24.869744112Z [inf]  [VLOG 313940231] {"kind":"redis-ttl","key":"cuisine:session-meta:313940231","ttl":1800}
-2026-05-25T23:57:24.869747510Z [inf]  [VLOG 313940231] {"kind":"redis-ttl","key":"cuisine:session-seen:313940231","ttl":1800}
-2026-05-25T23:57:24.869751301Z [inf]  [VLOG 313940231] {"kind":"cuisine-search-exit","ms":12725,"venues":6,"exhausted":false,"sessionFull":false,"pageStackDepth":1,"cached":false}
-2026-05-25T23:57:25.216694156Z [inf]  [VLOG-CLIENT 313940231] {"kind":"fetch","method":"POST","url":"/api/cuisine/search","ms":13090,"ok":true}
+2026-05-25T23:57:24.869744112Z [inf]  [VLOG 100000001] {"kind":"redis-ttl","key":"cuisine:session-meta:100000001","ttl":1800}
+2026-05-25T23:57:24.869747510Z [inf]  [VLOG 100000001] {"kind":"redis-ttl","key":"cuisine:session-seen:100000001","ttl":1800}
+2026-05-25T23:57:24.869751301Z [inf]  [VLOG 100000001] {"kind":"cuisine-search-exit","ms":12725,"venues":6,"exhausted":false,"sessionFull":false,"pageStackDepth":1,"cached":false}
+2026-05-25T23:57:25.216694156Z [inf]  [VLOG-CLIENT 100000001] {"kind":"fetch","method":"POST","url":"/api/cuisine/search","ms":13090,"ok":true}
 2026-05-25T23:57:55.214989593Z [inf]  [footfall] besttime resolved=0/5
-2026-05-25T23:57:59.629172128Z [inf]  [VLOG 313940231] {"kind":"copy-all-incoming","venues":5,"lang":"en"}
-2026-05-25T23:58:00.300470287Z [inf]  [VLOG 313940231] {"kind":"copy-all-exit","ms":658,"ok":true,"count":5}
+2026-05-25T23:57:59.629172128Z [inf]  [VLOG 100000001] {"kind":"copy-all-incoming","venues":5,"lang":"en"}
+2026-05-25T23:58:00.300470287Z [inf]  [VLOG 100000001] {"kind":"copy-all-exit","ms":658,"ok":true,"count":5}
 2026-05-25T23:58:30.305629849Z [inf]  [footfall] besttime resolved=0/5
-2026-05-25T23:59:00.319702610Z [inf]  [set-location] chat=313940231 → 1.3819,103.8847
-2026-05-25T23:59:01.485840032Z [inf]  [VLOG 313940231] {"kind":"cuisine-search-incoming","lat":1.3818906,"lng":103.8847242,"cuisines":[],"filters":{"newlyOpened":false,"openNow":false,"halal":false,"vegetarian":false,"homeBased":false,"petFriendly":false,"prices":[]},"prices":[],"region":"SG","freeTextLen":0,"resetSeen":true,"lang":"en"}
-2026-05-25T23:59:01.485850489Z [inf]  [Cuisine-Search] resetSeen for chat 313940231
+2026-05-25T23:59:00.319702610Z [inf]  [set-location] chat=100000001 → 1.3819,103.8847
+2026-05-25T23:59:01.485840032Z [inf]  [VLOG 100000001] {"kind":"cuisine-search-incoming","lat":1.3818906,"lng":103.8847242,"cuisines":[],"filters":{"newlyOpened":false,"openNow":false,"halal":false,"vegetarian":false,"homeBased":false,"petFriendly":false,"prices":[]},"prices":[],"region":"SG","freeTextLen":0,"resetSeen":true,"lang":"en"}
+2026-05-25T23:59:01.485850489Z [inf]  [Cuisine-Search] resetSeen for chat 100000001
 2026-05-25T23:59:01.485856115Z [inf]  [Cuisine-Search] D700 incoming cuisines=[] filters={"newlyOpened":false,"openNow":false,"halal":false,"vegetarian":false,"homeBased":false,"petFriendly":false,"prices":[]} region=SG center=1.3819,103.8847 radius=20000
 2026-05-25T23:59:01.485860277Z [inf]  [Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false
 2026-05-25T23:59:02.486288479Z [inf]  [Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates
@@ -57,7 +57,7 @@
 2026-05-25T23:59:10.877518315Z [err]  [Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s
 2026-05-25T23:59:16.269898176Z [inf]  [footfall] besttime resolved=0/6
 2026-05-25T23:59:16.371070578Z [inf]  [Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)
-2026-05-25T23:59:16.383120085Z [inf]  [VLOG 313940231] {"kind":"redis-ttl","key":"cuisine:session-meta:313940231","ttl":1800}
-2026-05-25T23:59:16.393504781Z [inf]  [VLOG 313940231] {"kind":"redis-ttl","key":"cuisine:session-seen:313940231","ttl":1800}
-2026-05-25T23:59:16.393510354Z [inf]  [VLOG 313940231] {"kind":"cuisine-search-exit","ms":14937,"venues":6,"exhausted":false,"sessionFull":false,"pageStackDepth":1,"cached":false}
-2026-05-25T23:59:16.759285451Z [inf]  [VLOG-CLIENT 313940231] {"kind":"fetch","method":"POST","url":"/api/cuisine/search","ms":15296,"ok":true}
+2026-05-25T23:59:16.383120085Z [inf]  [VLOG 100000001] {"kind":"redis-ttl","key":"cuisine:session-meta:100000001","ttl":1800}
+2026-05-25T23:59:16.393504781Z [inf]  [VLOG 100000001] {"kind":"redis-ttl","key":"cuisine:session-seen:100000001","ttl":1800}
+2026-05-25T23:59:16.393510354Z [inf]  [VLOG 100000001] {"kind":"cuisine-search-exit","ms":14937,"venues":6,"exhausted":false,"sessionFull":false,"pageStackDepth":1,"cached":false}
+2026-05-25T23:59:16.759285451Z [inf]  [VLOG-CLIENT 100000001] {"kind":"fetch","method":"POST","url":"/api/cuisine/search","ms":15296,"ok":true}
