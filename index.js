@@ -903,12 +903,54 @@ async function sendGoogleMapsContainer(chatId, items = [], opts = {}) {
   return true;
 }
 
-async function handleNoResults(chatId, mealLabel) {
-  await safeSend(
-    chatId,
-    `Soleat couldn't find a ${mealLabel} sanctuary within 200m of you right now. ` +
-    `Try sharing a different location or typing a place name.`
-  );
+// v0.62.901 — §2,911·C, and THREE DEFECTS FIXED BEFORE THE FEATURE COULD LAND HERE.
+//
+// This function was a hardcoded English template literal on a path where every other reply goes
+// through `t()`, so it spoke English to all nine locales. It also said "within 200m", which
+// describes no radius the code uses — `pickValidatedInverted` walks 500/1000/2000 m and the
+// cuisine ladder reaches 60 km. And its caller narrowed `opts.lang` to `['en','fr']`, so seven
+// locales got English cards regardless. All three had to go before a nine-locale suggestion could
+// be woven in, which is why they are in this commit rather than deferred.
+//
+// The suggestion itself is a lookup over curated data already on disk: no LLM, no Places call, no
+// new network IO, and NOTHING keyed to the person asking — see taste-context.js. It never blocks
+// and never throws; `suggestForContext` returns null on any failure and the decline stands alone.
+//
+// Signature is backwards-compatible on purpose. Every existing bare call still works and simply
+// gets the LOCALISED decline; only `deliverPicks` threads the context through.
+async function handleNoResults(chatId, mealLabel, opts = {}) {
+  const lang = (typeof opts.lang === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(opts.lang))
+    ? opts.lang : 'en';
+  const decline = tn('taste.noResults', lang, { meal: mealLabel || '' });
+
+  let suggestion = null;
+  try {
+    const { suggestForContext } = require('./taste-suggest');
+    suggestion = await suggestForContext({
+      redis, lang, t: tn,
+      lat: Number.isFinite(opts.lat) ? opts.lat : null,
+      lng: Number.isFinite(opts.lng) ? opts.lng : null,
+      queryText: typeof opts.query === 'string' ? opts.query : '',
+      countryCode: typeof opts.countryCode === 'string' ? opts.countryCode : 'SG',
+    });
+  } catch (err) {
+    console.warn('[handleNoResults] suggestion suppressed:', err && err.message);
+  }
+
+  if (!suggestion) { await safeSend(chatId, decline); return; }
+
+  // parse_mode HTML — every interpolated value is curated prose containing apostrophes and
+  // dashes, so it goes through escapeHtml. This is the exact unescaped-user-text-in-HTML failure
+  // the gia-preflight skill exists to catch.
+  const { escapeHtml } = require('./venue-templates');
+  const lines = [
+    escapeHtml(decline),
+    '',
+    `<b>${escapeHtml(tn('taste.header', lang))}</b>`,
+    escapeHtml(suggestion.headline),
+  ];
+  if (suggestion.body) lines.push(`<i>${escapeHtml(suggestion.body)}</i>`);
+  await safeSend(chatId, lines.join('\n'), { parse_mode: 'HTML', disable_web_page_preview: true });
 }
 
 // Fetches a single place by ID for the cuisine-pick TMA round-trip.
@@ -1164,6 +1206,33 @@ async function applyChatRatingFloor(chatId, venues, label = 'rating-floor') {
 // pagination (the free-text path) can mark only what the user saw. All
 // other callers ignore the return value — behaviour unchanged.
 async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
+  // ⚠ RESOLVED FIRST, AND THAT ORDERING IS THE POINT. The draft resolved the locale below the
+  // empty-picks branch, so the ONE path this release exists to improve — the localised decline
+  // and its suggestion — was still handed an undefined lang and still answered in English. A fix
+  // placed after the early return is not a fix.
+  // v0.58.55: opts.lang ('en' | 'fr') threads through formatVenueBlock
+  // so static labels (Open now / Closed / crowd / etc.) and the picks
+  // header render in the user's locale. Defaults to 'en' when caller
+  // doesn't specify — preserves prior behaviour for paths that don't
+  // yet know the user's language preference.
+  // v0.62.901 — was a two-locale allow-list, so seven of the nine shipped locales got English
+  // venue cards from the shared bot renderer. `SUPPORTED` is the list every other surface uses.
+  //
+  // ⚠ AND WIDENING THE ALLOW-LIST ALONE WAS A NO-OP, which a whole-file scan caught by accident
+  // while looking for one line. deliverPicks has FOURTEEN call sites. Eleven passed no `lang` at
+  // all and fell to 'en'; the other three passed a value their own caller had already narrowed to
+  // fr-or-en. runCuisineFlow is the clearest case — it resolves the locale TWICE (once to
+  // translate the reviews, once for the fun fact) and then delivers the cards around that Korean
+  // review in English.
+  //
+  // So the resolution happens HERE, once, at the layer that has the chatId — rather than at
+  // fourteen call sites that would have to remember. Same defect shape as the six Places
+  // ternaries, the michelin cache key, the pool key and the runSearch gate: one datum, several
+  // call sites, and only one of them asked.
+  let dpLang = (typeof opts.lang === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(opts.lang)) ? opts.lang : null;
+  if (!dpLang) dpLang = await resolveLang(redis, chatId, null).catch(() => 'en') || 'en';
+  if (!SUPPORTED_LOCALES_FOR_REVIEW.includes(dpLang)) dpLang = 'en';
+
   // v0.61.425 — operator: uniform minimum Google rating of 3.7 across EVERY
   // eatery surface. deliverPicks is the shared bot renderer (/s, free-text,
   // sanctuary, cuisine flow), so the guarded floor applies here once.
@@ -1171,7 +1240,13 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // pill selects the mode (≥floor / any / unrated-only); default ≥3.7.
   picks = await applyChatRatingFloor(chatId, picks, 'deliverPicks');
   if (!picks.length) {
-    await handleNoResults(chatId, mealLabel);
+    // v0.62.901 — the caller's locale and anchor ride along so the decline is localised and the
+    // suggestion has a context. Callers that pass neither still work; they get the localised
+    // decline with an unseeded suggestion, which is the honest degradation.
+    await handleNoResults(chatId, mealLabel, {
+      lang: dpLang, lat: opts.lat, lng: opts.lng,
+      query: opts.query, countryCode: opts.countryCode,
+    });
     return [];
   }
   // v0.27.1: track for /share. Fire-and-forget; never blocks delivery.
@@ -1183,12 +1258,6 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // (name bold / address / hours / stats with distance / Maps URL).
   // Replaces the v0.57.7 single-line numbered header per Human Lead's
   // standardised template request.
-  // v0.58.55: opts.lang ('en' | 'fr') threads through formatVenueBlock
-  // so static labels (Open now / Closed / crowd / etc.) and the picks
-  // header render in the user's locale. Defaults to 'en' when caller
-  // doesn't specify — preserves prior behaviour for paths that don't
-  // yet know the user's language preference.
-  const dpLang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
   // v0.60.118 — best-effort rain caveat on open-air picks (hawker /
   // market / al-fresco / waterfront). No-op on indoor picks and when
   // the 2h outlook is fair; never blocks delivery.
@@ -11775,7 +11844,9 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
   // disambiguation resolved the query (e.g. "goulash dumplings" →
   // "Czech guláš with bread dumplings", "European"), they drive the
   // relevance ranking + the above/below-the-line divider.
-  const ftLang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
+  // v0.62.901 — widened from a two-locale allow-list. This value reaches deliverPicks at the
+  // bottom of this function, so narrowing it here silently un-did the widening there.
+  const ftLang = (typeof opts.lang === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(opts.lang)) ? opts.lang : 'en';
   const ftCuisine = (typeof opts.cuisine === 'string' && opts.cuisine.trim()) ? opts.cuisine.trim() : null;
   const ftDishLabel = (typeof opts.dishLabel === 'string' && opts.dishLabel.trim()) ? opts.dishLabel.trim() : null;
   try {
@@ -12070,7 +12141,8 @@ function placeAnchorKey(place) {
 }
 
 async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
-  const lang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
+  // v0.62.901 — widened from a two-locale allow-list; feeds deliverPicks twice below.
+  const lang = (typeof opts.lang === 'string' && SUPPORTED_LOCALES_FOR_REVIEW.includes(opts.lang)) ? opts.lang : 'en';
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');

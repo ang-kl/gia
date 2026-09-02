@@ -836,6 +836,22 @@ export default function App() {
     // Suppress the boot search: these results ARE the search, carried across the
     // reload. Set before any setState so it is true by the time runInitialLoad runs.
     localeReloadRestored = true;
+    // ⚠ v0.62.902 — AND DROP THE OVERLAY, BECAUSE NOTHING ELSE WILL.
+    //
+    // Operator, with a screenshot of the German UI: *"When i change my language from Russian
+    // to German, the search did fire!!!"* — and the search did NOT fire. `loading` initialises
+    // to `true` (:528) so the overlay covers the very first paint, and the ONLY thing that ever
+    // turned it off was the boot search's own `finally { setLoading(false) }`. v0.62.899
+    // suppressed every automatic search on a restored mount — correctly, that is what was asked
+    // for — and in doing so removed the one thing that cleared the flag. The restored results
+    // then sat behind a permanent "Suche Lokale…" with a 🛑 Stop button, which is
+    // indistinguishable from a search that will not finish.
+    //
+    // So the fix for "the search fired" MADE a spinner that never stops. Worth stating plainly:
+    // v0.62.865 was incomplete, v0.62.899 completed it and broke the thing next to it, and only
+    // the operator's eyes caught either. A suppressed search still has to leave a usable screen.
+    setLoading(false);
+    setBootOverlayHold(false);
     if (Array.isArray(restored.venues)) setVenues(restored.venues);
     if (restored.searchCenter) setSearchCenter(restored.searchCenter);
     if (restored.userLoc) setUserLoc(restored.userLoc);
@@ -2898,6 +2914,11 @@ export default function App() {
     // filter, "Search this area") is untouched and keeps working during the restore window.
     if (shouldSuppressAutoSearch({ restored: localeReloadRestored, auto: opts?.auto })) {
       console.log('[Cuisine-TMA-v2] runSearch: auto trigger suppressed — locale-reload restore in effect');
+      // v0.62.902 — every `return` above `setLoading(true)` has to leave the screen usable.
+      // `loading` starts true on mount, so bailing out here without clearing it leaves the
+      // overlay up forever. Belt to the restore effect's braces: this one also covers a
+      // suppressed AUTOMATIC search on a mount where the restore effect never ran.
+      setLoading(false);
       return;
     }
     // v0.62.x — pin the displayed location name to THIS search's anchor (an
@@ -2944,6 +2965,11 @@ export default function App() {
       setError(state.region === 'OTHER'
         ? 'Pick a country and city above, then tap 🔍.'
         : 'Location not yet resolved — share a pin via /location and reopen.');
+      // v0.62.902 — the same defect, and it PRE-DATES the locale gate: this branch set a
+      // visible error and returned with `loading` still true from mount, so the overlay
+      // covered the very message it had just written. Found by writing the rule down rather
+      // than by anybody reporting it.
+      setLoading(false);
       return;
     }
     // v0.60.188 — operator: when the previous search returned fewer

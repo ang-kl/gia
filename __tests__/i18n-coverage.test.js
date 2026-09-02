@@ -210,7 +210,10 @@ describe('i18n coverage', () => {
     // unguarded `bot.onText` handlers never sent. The title's "276" is the
     // figure the Register carried when this file was written and is kept as the
     // heading it was; the assertion below is the measurement.
-    expect(KEYS.length).toBe(279);
+    // v0.62.901 — 279 → 292: the 13 §2,911·C keys (5 taste.why.*, 6 taste.period.*,
+    // taste.noResults, taste.header). All three numbers below move together or the
+    // arithmetic stops balancing, which is what makes them worth pinning at all.
+    expect(KEYS.length).toBe(292);
   });
 
   it('no key is identical to English except the pinned ones', () => {
@@ -254,8 +257,10 @@ describe('i18n coverage', () => {
     // so the possible-cells total and the present-cells total move together and
     // `absentPinned` does not move at all. That the third line still balances is
     // the check that the new key really is complete rather than merely counted.
-    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2511);
-    expect(have).toBe(2394);
+    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2628);
+    // 2394 + 13×9 = 2511. `absentPinned` is unchanged at 117 because every new key is
+    // complete in all nine — if one were not, this line and the one above would disagree.
+    expect(have).toBe(2511);
     expect(absentPinned.size).toBe(2511 - 2394);
   });
 
