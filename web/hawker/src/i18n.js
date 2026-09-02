@@ -45,6 +45,12 @@ const STRINGS = {
   'hawker.nextCleaning': { en: 'Next cleaning · {from}', fr: 'Prochain nettoyage · {from}' },
   'hawker.nextRenovation': { en: 'Renovation from {from}', fr: 'Rénovation à partir du {from}' },
   'hawker.nextRedevelopment': { en: 'Redevelopment from {from}', fr: 'Réaménagement à partir du {from}' },
+  // v0.62.914 — PARTLY OPEN, and the managing agent. NEA's remark sometimes says only part of
+  // a centre shuts; measured, 7 windows across 3 centres. `managedBy` is a bare bracket because
+  // the agent's name is a proper noun that no locale translates.
+  'hawker.partlyOpen': { en: 'Partly open · till {till}', fr: 'Partiellement ouvert · jusqu\'au {till}' },
+  'hawker.partlyOpenNext': { en: 'Partly open from {from}', fr: 'Partiellement ouvert dès le {from}' },
+  'hawker.managedBy': { en: '({m})', fr: '({m})' },
   'hawker.nearby': { en: 'Nearby', fr: 'À proximité' },
   'hawker.stallsBoth': { en: '🍳 {f} food · {m} market stalls', fr: '🍳 {f} stands · {m} étals de marché' },
   'link.googleMap': { en: 'Google Map ↗', fr: 'Google Maps ↗' },
@@ -192,6 +198,9 @@ const STRINGS = {
 // into STRINGS below (existing en/fr untouched; t()'s `entry[l] || entry.en`
 // degrades any unlisted key to English). Hawker "hawker centre" → "pusat jajan".
 const ID_STRINGS = {
+  'hawker.partlyOpen': 'Sebagian buka · hingga {till}',
+  'hawker.partlyOpenNext': 'Sebagian buka mulai {from}',
+  'hawker.managedBy': '({m})',
   'hawker.nextCleaning': 'Pembersihan berikutnya · {from}',
   'hawker.nextRenovation': 'Renovasi mulai {from}',
   'hawker.nextRedevelopment': 'Pembangunan ulang mulai {from}',
@@ -287,6 +296,9 @@ for (const k in ID_STRINGS) {
 
 // ----- Russian (ru) overlay — v0.62.310. Control labels kept tight to fit EN pills. -----
 const RU_STRINGS = {
+  'hawker.partlyOpen': 'Частично открыт · до {till}',
+  'hawker.partlyOpenNext': 'Частично открыт с {from}',
+  'hawker.managedBy': '({m})',
   'hawker.nextCleaning': 'Следующая уборка · {from}',
   'hawker.nextRenovation': 'Ремонт с {from}',
   'hawker.nextRedevelopment': 'Реконструкция с {from}',
@@ -379,6 +391,9 @@ const RU_STRINGS = {
 
 // ----- German (de) overlay — v0.62.310. Compounds abbreviated where chips are tight. -----
 const DE_STRINGS = {
+  'hawker.partlyOpen': 'Teilweise geöffnet · bis {till}',
+  'hawker.partlyOpenNext': 'Teilweise geöffnet ab {from}',
+  'hawker.managedBy': '({m})',
   'hawker.nextCleaning': 'Nächste Reinigung · {from}',
   'hawker.nextRenovation': 'Renovierung ab {from}',
   'hawker.nextRedevelopment': 'Umbau ab {from}',
@@ -473,6 +488,9 @@ for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k
 
 // ----- Chinese (zh) overlay — v0.62.491. Agent-drafted; SG terms (小贩中心/德士站). Control labels tight. -----
 const ZH_STRINGS = {
+  'hawker.partlyOpen': '部分营业 · 至{till}',
+  'hawker.partlyOpenNext': '{from} 起部分营业',
+  'hawker.managedBy': '({m})',
   'hawker.nextCleaning': '下次清洗 · {from}',
   'hawker.nextRenovation': '{from} 起装修',
   'hawker.nextRedevelopment': '{from} 起重建',
@@ -566,6 +584,9 @@ for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k
 
 // ----- Japanese (ja) overlay — v0.62.491. Agent-drafted; verified Japanese (no Korean). Control labels tight. -----
 const JA_STRINGS = {
+  'hawker.partlyOpen': '一部営業 · {till}まで',
+  'hawker.partlyOpenNext': '{from} から一部営業',
+  'hawker.managedBy': '({m})',
   'hawker.nextCleaning': '次回清掃 · {from}',
   'hawker.nextRenovation': '{from} から改装',
   'hawker.nextRedevelopment': '{from} から再開発',
@@ -659,6 +680,9 @@ for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k
 
 // ----- Spanish (es) overlay — v0.62.491. Agent-drafted; no apostrophes. Control labels tight. -----
 const ES_STRINGS = {
+  'hawker.partlyOpen': 'Parcialmente abierto · hasta el {till}',
+  'hawker.partlyOpenNext': 'Parcialmente abierto desde el {from}',
+  'hawker.managedBy': '({m})',
   'hawker.nextCleaning': 'Próxima limpieza · {from}',
   'hawker.nextRenovation': 'Renovación desde el {from}',
   'hawker.nextRedevelopment': 'Remodelación desde el {from}',
@@ -754,6 +778,9 @@ for (const k in ES_STRINGS) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k
 // the operator's standing instruction. `ko` is NOT in SUPPORTED yet, so this block is inert:
 // the merge below writes a column nothing reads until the K6 flip adds 'ko' to the list.
 const KO_STRINGS = {
+  "hawker.partlyOpen": "일부 영업 · {till}까지",
+  "hawker.partlyOpenNext": "{from}부터 일부 영업",
+  "hawker.managedBy": "({m})",
   "hawker.nextCleaning": "다음 청소 · {from}",
   "hawker.nextRenovation": "{from}부터 보수",
   "hawker.nextRedevelopment": "{from}부터 재개발",

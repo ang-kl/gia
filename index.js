@@ -19720,6 +19720,11 @@ async function cacheBotUsername() {
             // place actually IS — `status` offered only "Existing", which 108 of 123 share.
             marketStalls: Number.isFinite(c.marketStalls) ? c.marketStalls : null,
             description: c.description || null,
+            // v0.62.914 — the managing agent, parsed by hawker-vault.js since v0.50 and never
+            // once forwarded; and NEA's photo URL, https-upgraded at build time because 88 of
+            // the 123 arrive as http:// and would be blocked as mixed content.
+            mgmt: c.mgmt || null,
+            photo: c.photo || null,
             status: c.status || null,
             // v0.62.553 — Michelin Bib Gourmand stall names in this centre
             // (from SG-michelin.js BIB_GOURMAND, joined in hawker-vault). Drives

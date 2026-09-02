@@ -38,12 +38,15 @@ export function activeClosure(closures) {
     const e = new Date(`${w.end}T23:59:59`);
     return today >= s && today <= e;
   };
+  // v0.62.914 — `partial` rides along when NEA's remark says only part of the centre shuts. It is
+  // carried rather than folded into `kind` on purpose: a partial CLEANING and a partial RENOVATION
+  // are still different works, and collapsing them would lose which one is happening.
   const redev = (closures.redevelopment || []).find(inWin);
-  if (redev) return { kind: 'redevelopment', end: redev.end };
+  if (redev) return { kind: 'redevelopment', end: redev.end, partial: redev.partial || null };
   const reno = (closures.renovation || []).find(inWin);
-  if (reno) return { kind: 'renovation', end: reno.end };
+  if (reno) return { kind: 'renovation', end: reno.end, partial: reno.partial || null };
   const clean = (closures.cleaning || []).find(inWin);
-  if (clean) return { kind: 'cleaning', end: clean.end };
+  if (clean) return { kind: 'cleaning', end: clean.end, partial: clean.partial || null };
   return null;
 }
 
@@ -72,11 +75,11 @@ export function nextClosure(closures) {
       const s = new Date(`${w.start}T00:00:00`);
       if (!(s > today)) continue;                    // today-or-past is activeClosure's business
       if (!best || s < best.date || (s.getTime() === best.date.getTime() && RANK[kind] < RANK[best.kind])) {
-        best = { kind, start: w.start, end: w.end, date: s };
+        best = { kind, start: w.start, end: w.end, partial: w.partial || null, date: s };
       }
     }
   }
-  return best ? { kind: best.kind, start: best.start, end: best.end } : null;
+  return best ? { kind: best.kind, start: best.start, end: best.end, partial: best.partial } : null;
 }
 
 // The date a closure STARTS, formatted like closureTill formats an end: "7th" inside this month,
@@ -84,15 +87,30 @@ export function nextClosure(closures) {
 // thin alias rather than a copy so the two can never format differently.
 export const closureFrom = closureTill;
 
+/**
+ * The colour key for a closure — `partial` when NEA says part of the centre stays open, otherwise
+ * the works kind. ONE function so the card tab and the map pin cannot disagree, which is the whole
+ * reason this file exists.
+ */
+export function closureKey(closure) {
+  if (!closure) return null;
+  return closure.partial ? 'partial' : closure.kind;
+}
+
 // Operator: the map pin's colour matches its card tab's background.
 //   cleaning → red · renovation → grey · redevelopment → near-black (light text).
 export const CLOSURE_PIN_COLOR = {
   cleaning: '#dc2626',        // red-600
   renovation: '#6b7280',      // gray-500
   redevelopment: '#111827',   // neutral-900 (near-black)
+  // v0.62.914 — PARTLY OPEN outranks the kind for colour, because the thing a reader needs at a
+  // glance is "can I eat here", not "which works are on". Amber is the repo's existing
+  // something-to-note colour (TEMP_PIN_COLOR in _shared/lib/temp-pin.js).
+  partial: '#f59e0b',         // amber-500
 };
 export const CLOSURE_TAB_BG = {
   cleaning: 'bg-red-600',
   renovation: 'bg-gray-500',
   redevelopment: 'bg-neutral-900',
+  partial: 'bg-amber-500',
 };

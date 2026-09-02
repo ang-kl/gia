@@ -26,7 +26,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, it, expect } from 'vitest';
 
-import { activeClosure, nextClosure, closureTill, closureFrom, CLOSURE_PIN_COLOR, CLOSURE_TAB_BG }
+import { activeClosure, nextClosure, closureTill, closureFrom, closureKey, CLOSURE_PIN_COLOR, CLOSURE_TAB_BG }
   from '../web/hawker/src/closure.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -178,6 +178,138 @@ describe('the data the card needs actually ships', () => {
   });
 });
 
+describe('⚠ partly open — the card used to say CLOSED while stalls were trading', () => {
+  it('the shipped data carries the partial remarks, and only the right ones', () => {
+    const partials = [];
+    for (const [name, c] of Object.entries(CLOSURES)) {
+      for (const k of KINDS) for (const w of (c[k] || [])) if (w.partial) partials.push({ name, k, w });
+    }
+    // Measured: 7 windows across 3 centres. A floor rather than an exact count would let the
+    // parser quietly stop finding them; an exact count makes a data refresh a deliberate bump.
+    expect(partials.length, 'the partial-window count moved — bump this deliberately').toBe(7);
+    expect(new Set(partials.map((p) => p.name)).size).toBe(3);
+    // Every one carries NEA's own prose, not a flag.
+    expect(partials.every((p) => typeof p.w.partial === 'string' && p.w.partial.length > 15)).toBe(true);
+  });
+
+  it('"Both closed" is NOT partial, in the shipped data', () => {
+    // Circuit Road's Q2 remark reads "Both closed from 22 June to 23 June 2026": same centre, same
+    // shape, opposite meaning. Marking it partial would tell a reader the place is open when it is
+    // shut, which is the worse of the two errors.
+    const cr = CLOSURES['Circuit Road Blk 79/79A'];
+    expect(cr, 'the Circuit Road key changed').toBeTruthy();
+    const both = cr.cleaning.find((w) => w.start === '2026-06-22');
+    expect(both, 'the June window vanished').toBeTruthy();
+    expect(both.partial, '"Both closed" was misread as partial').toBeFalsy();
+    // …while its neighbours in the same array ARE partial.
+    expect(cr.cleaning.filter((w) => w.partial).length).toBe(3);
+  });
+
+  it('⚠ the PARSER is tested directly, because the data alone cannot hold it', () => {
+    // A mutation deleting the "both closed" guard SURVIVED the assertion above, and the reason is
+    // worth writing down rather than patching over: NEA's current phrasing names no blocks, so the
+    // two-block floor already rejects it and the guard never runs. The guard is defence against a
+    // phrasing NEA has NOT used yet — and a test that only reads today's 123 rows cannot see the
+    // difference between a rule that works and a rule that is unreachable.
+    const { partialFrom } = require(path.join(ROOT, 'scripts/build-hawker-closures.js'));
+    // Partial: two separately-dated blocks, or something explicitly staying open.
+    expect(partialFrom('Blk 79 closed on 30/3/2026, Blk 79A closed on 31/3/2026.')).toBeTruthy();
+    expect(partialFrom('Only Cooked Food Section is closed for Gas Works.  Market is open and business as usual.')).toBeTruthy();
+    // NOT partial — and this is the case the guard exists for. Two blocks ARE named, so the floor
+    // passes; only the word "both" stops it being read as a split.
+    expect(partialFrom('Blk 79 and Blk 79A both closed on 30/3/2026'),
+      'the "both closed" guard is gone — a full closure would read as partly open').toBeNull();
+    // Not partial, and not through the guard: no blocks, nothing staying open.
+    expect(partialFrom('Both closed from 22 June to 23 June 2026')).toBeNull();
+    expect(partialFrom('Repairs and Redecoration')).toBeNull();
+    expect(partialFrom('nil')).toBeNull();
+    expect(partialFrom('')).toBeNull();
+    expect(partialFrom(null)).toBeNull();
+    // It returns NEA's own words, not a boolean — the card renders them verbatim.
+    expect(typeof partialFrom('Blk 1 closed on 1/1/2026, Blk 2 closed on 2/1/2026')).toBe('string');
+  });
+
+  it('the gas-works renovation is partial too — the market stays open', () => {
+    const b = Object.entries(CLOSURES).find(([n]) => /Bendemeer/.test(n));
+    expect(b, 'the Bendemeer row vanished').toBeTruthy();
+    const w = (b[1].renovation || []).find((x) => x.partial);
+    expect(w, 'the gas-works window lost its partial flag').toBeTruthy();
+    expect(w.partial).toMatch(/Market is open/i);
+  });
+
+  it('closureKey routes partial ahead of the works kind, and both colours exist', () => {
+    expect(closureKey({ kind: 'cleaning', partial: 'Blk 13 closed…' })).toBe('partial');
+    expect(closureKey({ kind: 'renovation', partial: 'Only Cooked Food…' })).toBe('partial');
+    expect(closureKey({ kind: 'cleaning', partial: null })).toBe('cleaning');
+    expect(closureKey(null)).toBeNull();
+    expect(CLOSURE_PIN_COLOR.partial).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(CLOSURE_TAB_BG.partial).toBeTruthy();
+    // …and partial must not collide with any works colour, or the state is invisible.
+    for (const k of KINDS) expect(CLOSURE_PIN_COLOR.partial).not.toBe(CLOSURE_PIN_COLOR[k]);
+  });
+
+  it('activeClosure and nextClosure both carry `partial` through', () => {
+    const win = { start: iso(-1), end: iso(+1), partial: 'Blk 1 closed today' };
+    expect(activeClosure({ cleaning: [win] }).partial).toBe('Blk 1 closed today');
+    const soon = { start: iso(+4), end: iso(+5), partial: 'Blk 2 closed then' };
+    expect(nextClosure({ cleaning: [soon] }).partial).toBe('Blk 2 closed then');
+    // absent → null, never undefined, so a caller can test it without optional chaining
+    expect(activeClosure({ cleaning: [{ start: iso(-1), end: iso(+1) }] }).partial).toBeNull();
+  });
+
+  it('⚠ the pin says PART, not CLOSE — colour never carries the state alone', () => {
+    expect(PANEL).toContain("closureKind === 'partial' ? 'PART'");
+  });
+
+  it('the card renders NEA\'s remark verbatim rather than paraphrasing it', () => {
+    expect(APP).toContain('{closure.partial}');
+    expect(APP).toContain("'hawker.partlyOpen'");
+    expect(APP).toContain("'hawker.partlyOpenNext'");
+  });
+});
+
+describe('the profile extras reach the card', () => {
+  it('every centre has a photo, and every URL is https', () => {
+    const withPhoto = CENTRES.filter((c) => c.photo);
+    expect(withPhoto.length, 'photos vanished from the build').toBe(123);
+    // ⚠ 88 of the 123 arrive from NEA as http://, and the Mini App is served over HTTPS — a
+    // browser blocks those as mixed content, so they would silently never load. The builder
+    // upgrades the scheme on the pinned nea.gov.sg host; four were fetched over https and
+    // returned 200 before that line was written.
+    const insecure = withPhoto.filter((c) => /^http:/i.test(c.photo));
+    expect(insecure.map((c) => c.photo), 'an http:// photo would be blocked as mixed content').toEqual([]);
+    expect(withPhoto.every((c) => /^https:\/\/www\.nea\.gov\.sg\//i.test(c.photo))).toBe(true);
+  });
+
+  it('mgmt is forwarded and is genuinely informative, not a constant', () => {
+    const vault = require(path.join(ROOT, 'hawker-vault.js'));
+    const all = vault.getAllCentres();
+    expect(all.filter((c) => c.mgmt).length).toBe(123);
+    // If it were "NEA" for all 123 the line would be noise. Measured: 20 distinct operators, and
+    // NEA itself runs only 27 — the rest are town councils and social enterprises.
+    const distinct = new Set(all.map((c) => c.mgmt));
+    expect(distinct.size, 'mgmt collapsed to a constant — the line stops earning its space')
+      .toBeGreaterThan(10);
+    const idx = read('index.js');
+    expect(idx, 'the API stopped forwarding mgmt').toContain('mgmt: c.mgmt || null,');
+    expect(idx, 'the API stopped forwarding photo').toContain('photo: c.photo || null,');
+  });
+
+  it('the mgmt line follows the operator\'s spec: own line, bracketed, italic, one size down', () => {
+    // Operator, verbatim: "in another line (italian bracket in smaller by one font size, not black
+    // font colour unless is white background) as it may confuse the foreigner to read this".
+    expect(APP).toContain("tn('hawker.managedBy', lang, { m: c.mgmt })");
+    expect(APP).toMatch(/text-\[10px\] text-tg-hint italic/);
+    // The surrounding description is 11px, so 10px IS one size down rather than an absolute guess.
+    expect(APP).toContain('text-[11px] text-tg-hint leading-snug">{c.description}');
+  });
+
+  it('the photo degrades rather than leaving a broken frame', () => {
+    expect(APP).toContain('loading="lazy"');
+    expect(APP).toMatch(/onError=\{\(e\) => \{ e\.currentTarget\.style\.display = 'none'; \}\}/);
+  });
+});
+
 describe('the card and the map render what the audit asked for', () => {
   it('the card shows the upcoming closure, and only when not already closed', () => {
     expect(APP).toContain('const upcoming = closure ? null : nextClosure(c.closures);');
@@ -212,7 +344,10 @@ describe('the card and the map render what the audit asked for', () => {
     expect(PANEL).toContain('const soonColor = (!closeColor && upcomingKind)');
     expect(PANEL).toMatch(/box-shadow:0 0 0 2px \$\{soonColor\}/);
     expect(PANEL).not.toMatch(/background:\$\{soonColor/);
-    expect(PANEL).toContain('nextClosure(c.closures)?.kind || null');
+    // v0.62.914 — now routed through closureKey(), so a partly-open centre reaches the amber
+    // colour without the pin having to know what `partial` means.
+    expect(PANEL).toContain('closureKey(nextClosure(c.closures))');
+    expect(PANEL).toContain('closureKey(activeClosure(c.closures))');
   });
 
   it('every new string exists in all nine locales', () => {
