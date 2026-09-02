@@ -16,6 +16,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { createRequire } from 'module';
+import { maskComments } from './helpers/mask-comments.js';
 
 const require = createRequire(import.meta.url);
 const ROOT = join(__dirname, '..');
@@ -35,21 +36,6 @@ const COUNTS = { cuisines: '55+', hawker: '100' };
 // and wrote maskComments for it; this is the fifth occurrence in the arc, so the
 // helper is reused rather than the assertions loosened. A scan that counts its
 // own explanation is not measuring the code.
-function maskComments(src) {
-  let out = '', i = 0; const n = src.length;
-  while (i < n) {
-    const c = src[i], d = src[i + 1];
-    if (c === '/' && d === '/') { let j = src.indexOf('\n', i); if (j < 0) j = n; out += ' '.repeat(j - i); i = j; continue; }
-    if (c === '/' && d === '*') { let j = src.indexOf('*/', i); j = j < 0 ? n : j + 2; out += src.slice(i, j).replace(/[^\n]/g, ' '); i = j; continue; }
-    if (c === '"' || c === "'" || c === '`') {
-      let j = i + 1;
-      while (j < n && src[j] !== c) { if (src[j] === '\\') j++; j++; }
-      out += src.slice(i, Math.min(j + 1, n)); i = j + 1; continue;
-    }
-    out += c; i++;
-  }
-  return out;
-}
 
 const INDEX_SRC = maskComments(read('index.js'));
 // Occurrences that are CALLS, not the declaration `function name(...)`.

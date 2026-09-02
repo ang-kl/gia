@@ -25,6 +25,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { maskComments } from './helpers/mask-comments.js';
 
 const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
@@ -36,21 +37,6 @@ const BOT_KEYS = [...STRINGS_SRC.matchAll(/^\s+"(bot\.[a-z]+\.[A-Za-z0-9]+)":/gm
 
 // Comments quote the very constructs these scans look for; the extractor itself produced a
 // phantom key from one before this was made reflexive. Fourth occurrence in this arc.
-function maskComments(src) {
-  let out = '', i = 0; const n = src.length;
-  while (i < n) {
-    const c = src[i], d = src[i + 1];
-    if (c === '/' && d === '/') { let j = src.indexOf('\n', i); if (j < 0) j = n; out += ' '.repeat(j - i); i = j; continue; }
-    if (c === '/' && d === '*') { let j = src.indexOf('*/', i); j = j < 0 ? n : j + 2; out += src.slice(i, j).replace(/[^\n]/g, ' '); i = j; continue; }
-    if (c === '"' || c === "'" || c === '`') {
-      let j = i + 1;
-      while (j < n && src[j] !== c) { if (src[j] === '\\') j++; j++; }
-      out += src.slice(i, Math.min(j + 1, n)); i = j + 1; continue;
-    }
-    out += c; i++;
-  }
-  return out;
-}
 
 describe('every swept key exists in all eight locales', () => {
   it('the sweep produced the number of keys it claims', () => {

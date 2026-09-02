@@ -29,9 +29,13 @@ const TABLES = [['CHROME', CHROME], ['DAY', DAY], ['DIR', DIR]];
 const ROWS = TABLES.flatMap(([n, t]) => Object.entries(t).map(([k, v]) => [`${n}.${k}`, v]));
 
 describe('the table is complete in every locale', () => {
-  it('thirty keys, nine locales, no gaps', () => {
+  it('thirty-five keys, nine locales, no gaps', () => {
     expect(LOCALES).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
-    expect(ROWS).toHaveLength(30);
+    // v0.62.911 — 30 → 35. Five keys added when the bus popup and the postal line were
+    // localised: stopFallback, arrivalsLoading, arrivalsNone, postal, stalls. Each had sat
+    // hardcoded in English inside all three mapOverlays.js copies while `busStopNo` directly
+    // above them was already localised across all nine — the bus popup was the outlier.
+    expect(ROWS).toHaveLength(35);
     const gaps = [];
     for (const [name, row] of ROWS) {
       for (const l of LOCALES) {
@@ -40,7 +44,7 @@ describe('the table is complete in every locale', () => {
       }
     }
     expect(gaps).toEqual([]);
-    expect(ROWS.length * LOCALES.length).toBe(270);
+    expect(ROWS.length * LOCALES.length).toBe(315);   // 35 keys x 9 locales
   });
 
   it('no locale silently serves the English, bar named cognates', () => {

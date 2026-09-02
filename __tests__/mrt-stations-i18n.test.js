@@ -134,12 +134,31 @@ describe('transport TMA — station names render in the reader\'s language (O-32
     expect(panel).toMatch(/s\.name === detail\.station\.name/);
   });
 
-  it('the map pill is deliberately NOT translated, and this records why', () => {
-    // stationPillNode draws a dense map label sized for short Latin text, and this
-    // environment cannot render the map to check the result. Changing a size-sensitive
-    // visual on faith is how an unverifiable regression ships, so the pill keeps the
-    // English name until someone can look at it. Reversible in one line.
-    expect(panel).toMatch(/stationPillNode\(s\.codes, s\.name, bg\)/);
+  it('⚠ the map pill IS translated now — the deferral named its own end condition', () => {
+    // ⚠ THIS ASSERTION USED TO SAY THE OPPOSITE, and reversing it is not overriding the old
+    // decision — it is the decision arriving at the condition it set for itself. The note read:
+    //
+    //   "this environment cannot render the map to check the result … so the pill keeps the
+    //    English name UNTIL SOMEONE CAN LOOK AT IT. Reversible in one line."
+    //
+    // The operator looked at it (02-09 '26) and reported the pill still English in the Transport
+    // TMA. Someone has now looked. So the line is reversed, and the old text is kept above rather
+    // than deleted, because a guard that flips without saying why reads like a mistake later.
+    //
+    // The size concern was real and is now MEASURED rather than guessed at. Mean pill-label width
+    // in Latin-character equivalents (CJK counted as two), across all 189 stations:
+    //
+    //   zh −27%   ko −46%   ja −29%      ← every CJK locale is NARROWER; no crowding risk
+    //   ru +2%    de +1%                 ← negligible
+    //   fr +5%    es +10%   id +17%      ← the only widening, and it is in the Latin locales
+    //
+    // Worst single label: "Prince Edward Road" in Spanish at 35 equivalents against English's
+    // widest at 26. That is the residual risk, it is confined to fr/es/id, and it is the one
+    // thing here no test in this repo can settle — the map has to be looked at.
+    expect(panel).toMatch(/stationPillNode\(s\.codes, s\.name, bg, lang\)/);
+    // …and `lang` is passed EXPLICITLY rather than left to mapOverlays' module-level _lang,
+    // which nothing in this file ever sets. See the comment at the call site.
+    expect(panel).not.toMatch(/stationPillNode\(s\.codes, s\.name, bg\)/);
   });
 });
 

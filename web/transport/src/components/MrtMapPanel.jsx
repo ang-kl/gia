@@ -901,7 +901,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // named pill (z15+), a line-coloured code chip (z12-14, possibly
   // overlap-demoted), or the plain coloured dot (z<12 / future stns).
   function transportStationContent(s, bg, mode, isFuture, crowded, centre) {
-    if (!isFuture && mode === 'pill') return stationPillNode(s.codes, s.name, bg);
+    // v0.62.911 — `lang` passed EXPLICITLY. stationPillNode falls back to mapOverlays' own
+    // module-level _lang, and nothing in this file ever calls setOverlayLang — so relying on
+    // that fallback would have left this one call site English while the popup two hundred
+    // lines up was already translating. One datum, several call sites, only one of them asked.
+    if (!isFuture && mode === 'pill') return stationPillNode(s.codes, s.name, bg, lang);
     if (!isFuture && typeof mode === 'string' && mode.indexOf('chip:') === 0) {
       return stationCodeNode(s.codes, bg, parseFloat(mode.slice(5)) || 1);
     }
