@@ -206,7 +206,11 @@ describe('i18n coverage', () => {
   });
 
   it('276 keys, and the count is asserted so a silent deletion shows up', () => {
-    expect(KEYS.length).toBe(278);
+    // v0.62.893 — 278 -> 279. `bot.error.generic`, the reply that sixteen
+    // unguarded `bot.onText` handlers never sent. The title's "276" is the
+    // figure the Register carried when this file was written and is kept as the
+    // heading it was; the assertion below is the measurement.
+    expect(KEYS.length).toBe(279);
   });
 
   it('no key is identical to English except the pinned ones', () => {
@@ -246,9 +250,13 @@ describe('i18n coverage', () => {
 
   it('raw locale entries are pinned at 2,112 of a possible 2,208', () => {
     const have = KEYS.reduce((n, k) => n + RAW[k].length, 0);
-    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2502);
-    expect(have).toBe(2385);
-    expect(absentPinned.size).toBe(2502 - 2385);
+    // v0.62.893 — 2,502 -> 2,511 and 2,385 -> 2,394: one key in all NINE locales,
+    // so the possible-cells total and the present-cells total move together and
+    // `absentPinned` does not move at all. That the third line still balances is
+    // the check that the new key really is complete rather than merely counted.
+    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2511);
+    expect(have).toBe(2394);
+    expect(absentPinned.size).toBe(2511 - 2394);
   });
 
   it('no locale entry is MISSING except the pinned ones', () => {

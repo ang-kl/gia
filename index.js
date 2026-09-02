@@ -794,6 +794,37 @@ async function safeSend(chatId, text, opts = {}) {
   }
 }
 
+// v0.62.893 — NEVER LET A COMMAND GO SILENT. Sixteen `bot.onText` handlers had no
+// try/catch: node-telegram-bot-api ignores the promise a handler returns, so a
+// rejection landed in `process.on('unhandledRejection')`, was logged to Sentry,
+// and the user saw NOTHING AT ALL. Every one of them opens with a Redis read
+// (`resolveLang`), so one Redis blip was a dead command with no feedback.
+//
+// The lesson was already written down in this file — `runSearchCommand` carries
+// it at the handleSearchTurn call: "never let a /s turn go silent … a throw in
+// any of them used to propagate out of the bot.onText callback with no
+// user-facing message". That guard was applied to ONE call inside ONE handler,
+// and bare `/s` — the commonest way anyone enters search — was still uncovered.
+// This applies the same rule at the registration, where it cannot be forgotten.
+//
+// `safeSend` is itself try/catch'd, and `resolveLang` is re-guarded here, so the
+// catch block cannot throw a second time and re-orphan the reply.
+function guarded(tag, fn) {
+  return async (msg, match) => {
+    try {
+      await fn(msg, match);
+    } catch (err) {
+      console.error(`[${tag}] handler failed:`, err.stack || err.message);
+      const chatId = msg?.chat?.id;
+      if (!chatId) return;
+      let lang = 'en';
+      try { lang = await resolveLang(redis, chatId, msg); } catch { /* the reply matters more than its locale */ }
+      await safeSend(chatId, t('bot.error.generic', lang));
+    }
+  };
+}
+
+
 // v0.61.156 — rule §2.5 feature gate. Returns `true` when the command
 // may proceed (locale unknown / SG); `false` after sending a friendly
 // "SG-only" reply (locale = JB / OTHER). Caller short-circuits on
@@ -1818,25 +1849,25 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 // the user's shared pin (or SG centroid); `/weather tampines` /
 // `/weather east` resolves to that area's lat/lng so a user can ask
 // "good window to head out over there?" before leaving.
-bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
+bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, guarded('weather', async (msg, match) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.61.156 — rule §2.5 feature gate. Weather pulls from NEA SG
   // feeds; gate it when the registered locale is non-SG.
   if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'weather', lang))) return;
   await runWeatherCommand(msg.chat.id, lang, (match && match[1]) ? match[1].trim() : null);
-});
+}));
 
 // v0.61.18 — /train added as an alias for /transport (operator
 // request), so the train status & map TMA has a memorable command.
-bot.onText(/^\/(?:transport|train|t)(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:transport|train|t)(?:@\w+)?$/, guarded('transport', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await sendTransportMenu(msg.chat.id, lang);
-});
+}));
 
-bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, guarded('carpark', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runCarparkCommand(msg.chat.id, lang);
-});
+}));
 
 // v0.59.31 — /hidden now accepts an optional free-text location after
 // the command. Per Human Lead 2026-05-07:
@@ -1853,7 +1884,7 @@ bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, async (msg) => {
 // command surface is just /hidden — the alias was undocumented in
 // setMyCommands anyway. Removes accidental triggers from chat /h
 // typos.
-bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, guarded('hidden', async (msg, match) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const freeText = (match && match[1] ? String(match[1]).trim() : '');
   if (freeText) {
@@ -1861,7 +1892,7 @@ bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   } else {
     await runSurpriseCommand(msg.chat.id, lang);
   }
-});
+}));
 
 // v0.62.165 — /ztest <type> — deterministic "set-menu" scout PROBE. Hidden dev
 // command (not in setMyCommands). Uses the caller's STORED location to pull
@@ -1966,28 +1997,28 @@ bot.onText(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i, async (msg) => {
 // v0.57.21: /privacy — what data the bot collects, how long it's
 // retained, and which third parties it queries. OPERATOR_LINKEDIN
 // env var (optional) appends an authorship credit line.
-bot.onText(/^\/privacy(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/privacy(?:@\w+)?$/, guarded('privacy', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runPrivacyCommand(msg.chat.id, lang);
-});
+}));
 
 // v0.57.23: /legal — hidden command (not in setMyCommands, same as
 // /ver). Surfaces disclaimer + IMDA Model AI Governance alignment +
 // builder credit. Discoverable via /help text.
-bot.onText(/^\/legal(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/legal(?:@\w+)?$/, guarded('legal', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runLegalCommand(msg.chat.id, lang);
-});
+}));
 
 // v0.57.25: /forgetme — self-service Redis erasure. PDPA Section
 // 13(c) / GDPR Article 17 right-to-erasure. Wipes loc:, proc:,
 // buddy-optin, buddy-blocks, buddy-day:* and recent-picks rows for
 // the chatId. /privacy advertises both this command and the 90-day
 // inactivity auto-purge.
-bot.onText(/^\/forgetme(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/forgetme(?:@\w+)?$/, guarded('forgetme', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runForgetMeCommand(msg.chat.id, lang);
-});
+}));
 
 // v0.59.0: /language [en|fr|auto] — per-user locale preference. Stored
 // in Redis (1-year TTL) so it survives across devices and across TMA /
@@ -2011,9 +2042,9 @@ const LANGUAGE_CMD_RE = new RegExp(
   `^\\/(?:language|la)(?:@\\w+)?(?:\\s+(${[...require('./user-prefs').SUPPORTED, 'auto'].join('|')}))?$`,
   'i',
 );
-bot.onText(LANGUAGE_CMD_RE, async (msg, match) => {
+bot.onText(LANGUAGE_CMD_RE, guarded('language', async (msg, match) => {
   await runLanguageCommand(msg, match?.[1] ? match[1].toLowerCase() : null);
-});
+}));
 
 // v0.61.84 — wake-from-idle location re-confirmation. The bot cannot
 // read device GPS unsolicited; when the first chat message after a
@@ -2791,12 +2822,12 @@ async function refreshChatMenuButton(chatId) {
 }
 
 // v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
-bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, guarded('hawker', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.61.156 — rule §2.5 feature gate. Hawker centres are SG-only.
   if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'hawker', lang))) return;
   await sendHawkerMenu(msg.chat.id, lang);
-});
+}));
 
 // v0.60.72 — /checkpoint — hidden shortcut to the SG ⟷ JB live
 // border-crossing camera view (Woodlands + Tuas 2nd Link). NOT in
@@ -2806,25 +2837,25 @@ bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
 // v0.60.103 — operator 2026-05-11: dropped the /causeway alias to
 // avoid confusion with /checkpoint (both used to dispatch the same
 // handler). Only /checkpoint accepted now.
-bot.onText(/^\/checkpoint(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/checkpoint(?:@\w+)?$/, guarded('checkpoint', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runTransportCauseway(msg.chat.id, lang);
-});
+}));
 
 // v0.60.61 — /b (alias /bus) — hidden shortcut to the bus-stop
 // nearest-stops view. NOT in setMyCommands (per Human Lead — keep
 // the public slash menu lean), but the handler is live for power
 // users who type the command directly.
-bot.onText(/^\/(?:bus|b)(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:bus|b)(?:@\w+)?$/, guarded('bus', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runTransportBus(msg.chat.id, 'nearest', lang);
-});
+}));
 
 // v0.60.56 — /menu (alias /m) — opens the Soleat menu hub Mini App.
 // Slash commands can't directly launch a Mini App; the handler sends
 // a one-tap button (`web_app`) that opens https://<host>/app/menu in
 // the same WebApp container the chat-menu button uses.
-bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, guarded('menu', async (msg) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.60.65 — refresh the per-chat menu-button binding so the
   // bottom-left Menu button opens the TMA on next tap (clears any
@@ -2845,7 +2876,7 @@ bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
       ]]
     }
   });
-});
+}));
 
 // v0.35.0: /recognised — nearest 5 award-winning venues (Michelin Star,
 // Bib Gourmand, Asia 50 Best, World Culinary Awards, Best Chef Awards,
@@ -2854,13 +2885,13 @@ bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
 // empty.
 // v0.37.0: optional category filter — /recognised michelin, /recognised bib,
 // /recognised michelin-star, etc. Falls through to all-categories when no arg.
-bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
+bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, guarded('recognised', async (msg, match) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.61.156 — rule §2.5 feature gate. /recognised reads the
   // Michelin SG list; gate it when the registered locale is non-SG.
   if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'recognised', lang))) return;
   await runRecognisedCommand(msg.chat.id, lang);
-});
+}));
 
 // v0.61.426 — /rating (alias /ra): per-chat minimum Google-rating floor,
 // shared with the Cuisine TMA's "≥3.7" rating pill via one Redis key
@@ -2872,7 +2903,7 @@ bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
 // NOTE: /r stays bound to /recognised; /ra is the rating alias (operator pick).
 // Applies to every eatery surface (the floor is read per-chat in deliverPicks
 // + /api/cuisine/search). Not country-gated — rating is universal.
-bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, guarded('rating', async (msg, match) => {
   const chatId = msg.chat.id;
   const lang = await resolveLang(redis, chatId, msg).catch(() => 'en');
   const arg = match && match[1] ? String(match[1]).trim() : '';
@@ -2894,7 +2925,7 @@ bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   }
   console.log(`[rating-pref] chat=${chatId} → ${parsed} (command)`);
   await safeSend(chatId, ratingPrefLib.ratingSavedMessage(parsed, lang), { parse_mode: 'Markdown' });
-});
+}));
 
 // v0.52.0: /heritage_food removed. The data source overlapped /recognised
 // (Michelin SG list) and the heritage signal was thin / inconsistent.
@@ -3118,11 +3149,11 @@ function resolvePending(pending) {
 //   /clip clear         → wipe history (asks confirm)
 // v0.60.148 — added `clipboard` as a third alias; some users typed
 // `/clipboard` expecting it to work (it's the natural spelling).
-bot.onText(/^\/(?:clip|cl|clipboard)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+bot.onText(/^\/(?:clip|cl|clipboard)(?:@\w+)?(?:\s+(.+))?$/i, guarded('clip', async (msg, match) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const arg = (match?.[1] || '').trim();
   await runClipCommand(msg.chat.id, arg, lang);
-});
+}));
 
 // v0.59.54: /search (alias /s) — conversational dish / ingredient /
 // kitchen-tool finder. Per Human Lead 2026-05-07.
@@ -3131,11 +3162,11 @@ bot.onText(/^\/(?:clip|cl|clipboard)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match)
 //   /s e | /s end   → end the conversation
 // Any other / command also ends the conversation (handled in
 // preEmptSearchOnSlash, called at the top of bot.on('text')).
-bot.onText(/^\/(?:search|s)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+bot.onText(/^\/(?:search|s)(?:@\w+)?(?:\s+(.+))?$/i, guarded('search', async (msg, match) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const arg = (match?.[1] || '').trim();
   await runSearchCommand(msg.chat.id, arg, lang);
-});
+}));
 
 bot.onText(/^🕘 Use my last location$/, async (msg) => {
   try {
@@ -16436,12 +16467,50 @@ async function cacheBotUsername() {
         // "tap again for variety" UX.
         const reqAnchored = req.body?.anchored === true;
         const skipCacheForShuffle = (cuisineQueries.length === 0 || isDessertPick) && !reqAnchored;
-        const SEARCH_CACHE_TTL_S = 30;     // retained for any code paths that still reference it
-        const skipCache = true;            // v0.60.11 — unconditional, restores v0.59.33
+        const SEARCH_CACHE_TTL_S = 30;
+        // v0.62.893 — THE CACHE IS BACK, AND THE v0.60.11 REGRESSION STAYS FIXED.
+        //
+        // What v0.60.11 got right, and this must not undo: the operator reported
+        // that "the 3 search buttons can't refresh after the first list" — tapping
+        // 🔍 Search, the search FAB or the Tell-Me arrow inside 30 s served the
+        // SAME list, which reads as broken. Unconditionally switching the cache
+        // back on reinstates exactly that. It was off for a real reason.
+        //
+        // What v0.60.11 threw away with it: `cacheKey` (:16401) has NO chatId in
+        // it — region, rounded coords, radius, cuisines, filters, prices, locale.
+        // It is a POOL key. Two different people searching Japanese near Orchard
+        // share it, and serving the second one from the pool is free and invisible
+        // to both. `skipCache = true` was aimed at one person tapping twice and hit
+        // everyone else as collateral: every tap re-bought ~3 searchText pages,
+        // Place Details, a Routes matrix, the Gemini dish pass and N Claude calls.
+        //
+        // So the bypass is scoped to the thing that actually regressed: THIS chat
+        // having already been served THIS key inside the window. First request may
+        // read the pool; a repeat from the same person never does, and re-runs
+        // Places exactly as it does today. Writes are NOT gated on it — a repeat
+        // still refreshes the pool for everybody else, which is the point.
+        //
+        // Fails to FRESH in every uncertain case: no Redis, no chatId, or a Redis
+        // error all leave `skipCacheRead` true. The failure mode of guessing wrong
+        // here is a stale list shown to a user, and that is the one this endpoint
+        // has already been punished for.
+        let skipCacheRead = true;
+        let seenKey = null;
+        if (redis.isOpen && csChatId) {
+          seenKey = `cuisine:seen:${csChatId}:${crypto.createHash('sha1').update(cacheKey).digest('hex')}`;
+          try {
+            const repeatTap = await redis.get(seenKey);
+            skipCacheRead = Boolean(repeatTap);
+            await redis.setEx(seenKey, SEARCH_CACHE_TTL_S, '1');
+          } catch (err) {
+            console.warn('[Cuisine-Search] repeat-tap probe failed:', err.message);
+            skipCacheRead = true;
+          }
+        }
         void skipCacheForSingaporean;      // kept for diagnostic logging surface
         void skipCacheForShuffle;
         try {
-          if (redis.isOpen && !skipCache) {
+          if (redis.isOpen && !skipCacheRead) {
             const cached = await redis.get(cacheKey);
             if (cached) {
               const parsed = JSON.parse(cached);
@@ -18074,7 +18143,10 @@ async function cacheBotUsername() {
         // the retry. Healthy result sets (≥3 venues) still get cached.
         const cacheableResult = top.length >= 3;
         try {
-          if (redis.isOpen && !skipCache && cacheableResult) {
+          // v0.62.893 — deliberately NOT gated on `skipCacheRead`. A repeat tap
+          // bypasses the READ so that person gets a fresh list, and then writes
+          // that fresh list back so the next person's first tap is free.
+          if (redis.isOpen && cacheableResult) {
             await redis.setEx(cacheKey, SEARCH_CACHE_TTL_S, JSON.stringify(payload));
           }
         } catch (err) { console.warn('[Cuisine-Search] cache write failed:', err.message); }
