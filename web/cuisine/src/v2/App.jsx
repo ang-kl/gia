@@ -71,6 +71,12 @@ import { takeStash, stashAndReload, mapsLanguageIsStale } from '../../../_shared
 // read from anywhere, and it resets on a genuine fresh page load because the
 // module is re-evaluated.
 let localeReloadRestored = false;
+// v0.62.892 — the restored payload, held between the two restore effects below.
+// It cannot all be applied in one place: the first effect sits ABOVE the
+// `locationAnchor` (:880) and `searchLocName` (:1283) declarations, and calling
+// their setters from there is the temporal-dead-zone white-screen this file took
+// at v0.62.841. `takeStash()` CLEARS on read, so it is read once and parked here.
+let localeRestorePending = null;
 import { initData } from '../api/tg.js';
 import { tg, hasInitData, getTelegramLocation, openTelegramLocationSettings } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
@@ -837,32 +843,28 @@ export default function App() {
       // After paint, or the list has no height yet and the scroll lands at 0.
       window.requestAnimationFrame(() => window.scrollTo(0, restored.scrollY));
     }
+    // v0.62.892 — THE PIN USED TO DIE HERE. Operator, with a screenshot: "You can
+    // see the location is in Japan. When i switch from Japanese language to
+    // Chinese, it switch to locale location which is in Singapore." The header
+    // said Fukuoka and the map showed Singapore because the two read DIFFERENT
+    // sources: the label came back from the server-side saved pick, and the camera
+    // came from the centroid of the restored (stale) result pins. The stash
+    // carried the results but never the camera, so nothing was left to pan back.
+    //
+    // The device-follow guard travels too. `explicitPickRef`'s own comment says
+    // "Resets to false on reload" — which was fine when a reload meant a fresh
+    // start, and is not fine now that a reload is how a locale change works: the
+    // 20 s sync would drag a correctly restored foreign pin back to the SG device
+    // GPS twenty seconds later.
+    if (restored.explicitPick) explicitPickRef.current = true;
+    if (restored.camera && Number.isFinite(restored.camera.lat) && Number.isFinite(restored.camera.lng)) {
+      // Re-stamped, never reused: `_k` is the identity MapPanel keys the fly on,
+      // and a value carried across a reload is by definition already spent.
+      setFlyTarget({ ...restored.camera, _k: Date.now() });
+    }
+    localeRestorePending = restored;
   }, []);   // once, on mount — takeStash CLEARS, so a re-run could not repeat it anyway
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const onLocale = (e) => {
-      const next = e && e.detail && e.detail.lang;
-      if (!next || !mapsLanguageIsStale(next)) return;
-      const payload = {
-        venues, searchCenter, userLoc, selectedCityLocation,
-        scrollY: window.scrollY || 0,
-      };
-      // DEFERRED ON PURPOSE. `setActiveLocale` writes localStorage, dispatches this event,
-      // and only THEN dynamically imports api.js to POST the preference to the server, which
-      // is what makes bot chat replies follow the toggle. Reloading synchronously here would
-      // race that import and could drop the POST. The map's own language is safe either way
-      // — it is read back out of localStorage, which was written before the dispatch — so
-      // the delay protects the server-side half only. It is a mitigation, not a guarantee:
-      // if the import is slower than this, the preference is simply re-sent the next time
-      // the toggle is used, which is why the reload is not gated on the POST completing.
-      window.setTimeout(() => stashAndReload(payload), 400);
-    };
-    window.addEventListener('gia:locale', onLocale);
-    return () => window.removeEventListener('gia:locale', onLocale);
-    // Re-subscribed as the results change, so the stash is never a stale closure over an
-    // older venue list — the exact failure `use-pronounce.js` had at v0.62.849.
-  }, [venues, searchCenter, userLoc, selectedCityLocation]);
   // v0.58.4: id of the rotating warm-start seed that produced the
   // initial venue list (e.g. 'open-now-cheap'). Cleared once the user
   // runs a real search via the 🔍 Search button.
@@ -1281,6 +1283,78 @@ export default function App() {
   // server anchor, e.g. a prior JB "Mid Valley Southkey"). Pinned at search
   // commit (runSearch) to the anchor's name; immune to the background refresh.
   const [searchLocName, setSearchLocName] = useState('');
+
+  // v0.62.892 — SECOND HALF OF THE LOCALE-RELOAD RESTORE, and it is down here for
+  // a reason. The first half runs at :826, above `locationAnchor` (:880) and above
+  // this line; calling either setter from there is the temporal dead zone that
+  // white-screened this app at v0.62.841. So the payload is parked in
+  // `localeRestorePending` up there and the pin is applied here, below both
+  // declarations. Both are `[]` mount effects and effects run in source order, so
+  // this one always sees what the first one parked.
+  //
+  // Restoring the LABEL's own inputs is the point. Before this, the header read
+  // "已设位置：Fukuoka" only because a server round-trip happened to re-deliver the
+  // saved pick in time; the map, reading a different source, showed Singapore. The
+  // label was accidentally right rather than restored.
+  useEffect(() => {
+    const p = localeRestorePending;
+    localeRestorePending = null;
+    if (!p) return;
+    if (p.locationAnchor) setLocationAnchor(p.locationAnchor);
+    if (typeof p.searchLocName === 'string' && p.searchLocName) setSearchLocName(p.searchLocName);
+  }, []);
+
+  // v0.62.892 — MOVED DOWN, and the repo's own guard is why. This listener now
+  // stashes `locationAnchor` (:923) and `searchLocName` (:1326), so its dependency
+  // array references them — and a dependency array is evaluated DURING RENDER, at
+  // the point the useEffect call appears. Left where it was (~:865) that is a
+  // temporal dead zone: `ReferenceError` on first render, a white screen, the exact
+  // v0.62.841 failure this file already carries a warning about. I wrote it there
+  // anyway; `__tests__/tma-hook-deps-tdz.test.js` caught it before it shipped.
+  //
+  // It is safe here: no early return sits between its old position and this one, so
+  // the "ABOVE any early return" half of the rule still holds.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const onLocale = (e) => {
+      const next = e && e.detail && e.detail.lang;
+      if (!next || !mapsLanguageIsStale(next)) return;
+      // v0.62.892 — the camera and the pin ride along. `locationAnchor` and
+      // `searchLocName` are what the header LABEL is built from (:4128); carrying
+      // them makes the label survive on its own rather than depending on a server
+      // round-trip that happened to arrive in time. `camera` is where the reader
+      // was actually looking, preferred over the anchor so a deliberate pan is not
+      // undone by the toggle.
+      const cam = (mapViewLocation && Number.isFinite(mapViewLocation.lat))
+        ? mapViewLocation
+        : (locationAnchor && Number.isFinite(locationAnchor.lat) ? locationAnchor : searchCenter);
+      const payload = {
+        venues, searchCenter, userLoc, selectedCityLocation,
+        locationAnchor, searchLocName,
+        explicitPick: explicitPickRef.current,
+        camera: (cam && Number.isFinite(cam.lat) && Number.isFinite(cam.lng))
+          ? { lat: cam.lat, lng: cam.lng, zoom: 14 } : null,
+        scrollY: window.scrollY || 0,
+      };
+      // DEFERRED ON PURPOSE. `setActiveLocale` writes localStorage, dispatches this event,
+      // and only THEN dynamically imports api.js to POST the preference to the server, which
+      // is what makes bot chat replies follow the toggle. Reloading synchronously here would
+      // race that import and could drop the POST. The map's own language is safe either way
+      // — it is read back out of localStorage, which was written before the dispatch — so
+      // the delay protects the server-side half only. It is a mitigation, not a guarantee:
+      // if the import is slower than this, the preference is simply re-sent the next time
+      // the toggle is used, which is why the reload is not gated on the POST completing.
+      window.setTimeout(() => stashAndReload(payload), 400);
+    };
+    window.addEventListener('gia:locale', onLocale);
+    return () => window.removeEventListener('gia:locale', onLocale);
+    // Re-subscribed as the results change, so the stash is never a stale closure over an
+    // older venue list — the exact failure `use-pronounce.js` had at v0.62.849.
+    // v0.62.892 — and now over the camera and the pin too, for the same reason: a
+    // listener that closed over an older `locationAnchor` would stash the pin the
+    // reader had BEFORE their last change, which is a subtler version of the bug
+    // this commit fixes.
+  }, [venues, searchCenter, userLoc, selectedCityLocation, locationAnchor, searchLocName, mapViewLocation]);
   // v0.62.173 — PR B2. When results are showing, the region pills collapse to a
   // one-line "Set location is: <X>. Click to change" to give the map more room;
   // tapping the line (or this flag) re-expands the pills.
@@ -4786,6 +4860,10 @@ export default function App() {
       >
       <MapPanel
         pronunciations={venueSay}
+        /* v0.62.892 — tells MapPanel this mount is a locale-reload restore, so it
+           does not read the re-hydrated `venues` as a brand-new search and throw
+           the camera onto their centroid. See MapPanel's `restoreSeededRef`. */
+        restoredMount={localeReloadRestored}
         /* v0.62.574 — O-54 (operator: "the map blacks out on the fullscreen
            tablet … Look into your codes and think why are cuisine TMA behaving
            this way"). ROOT CAUSE: the `fill` prop toggles ONE live map container

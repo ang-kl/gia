@@ -149,7 +149,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, pronunciations = null, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
+export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -756,8 +756,27 @@ export default function MapPanel({ venues, pronunciations = null, userLoc, focus
   // pins and the map never followed the pick. When searchCenter changes
   // without a new `venues` array, recentre on the picked anchor directly.
   const lastSearchCenterRef = useRef(null);
+  // v0.62.892 — A RESTORED MOUNT IS NOT A NEW SEARCH, and reading it as one is
+  // half of the bug the operator photographed ("the location is in Japan… it
+  // switch to locale location which is in Singapore"). A locale change reloads
+  // the page and re-hydrates `venues` from sessionStorage, so the array is always
+  // a BRAND-NEW object on the fresh mount — `lastFitVenuesRef.current !== venues`
+  // is unconditionally true, the new-result-set branch wins, and the camera goes
+  // to the centroid of results the reader had already navigated away from,
+  // skipping the `searchCenterChanged` branch that would have honoured their pin.
+  //
+  // Seeded HERE rather than in the ref's initialiser on purpose: MapPanel's mount
+  // is gated on `userLoc` resolving, so it can mount either side of the restore
+  // effect's setState. `useRef(restoredMount ? venues : null)` would capture `[]`
+  // on the unlucky ordering and silently do nothing. This fires on the first
+  // sync that actually HAS the restored results, whichever way the race lands.
+  const restoreSeededRef = useRef(false);
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
+    if (restoredMount && !restoreSeededRef.current && venues?.length) {
+      restoreSeededRef.current = true;
+      lastFitVenuesRef.current = venues;
+    }
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];

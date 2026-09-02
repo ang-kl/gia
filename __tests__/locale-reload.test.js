@@ -23,6 +23,27 @@ import { join } from 'path';
 const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 
+// v0.62.892 — SIXTH occurrence of this trap in this repo, and it caught me again:
+// MapPanel's comment explains the mount-order race by QUOTING the anti-pattern
+// (`useRef(restoredMount ? venues : null)`), so a negative scan matched the very
+// explanation of why the code does not do that. Lifted verbatim from
+// bot-ternary-sweep.test.js rather than re-derived.
+function maskComments(src) {
+  let out = '', i = 0; const n = src.length;
+  while (i < n) {
+    const c = src[i], d = src[i + 1];
+    if (c === '/' && d === '/') { let j = src.indexOf('\n', i); if (j < 0) j = n; out += ' '.repeat(j - i); i = j; continue; }
+    if (c === '/' && d === '*') { let j = src.indexOf('*/', i); j = j < 0 ? n : j + 2; out += src.slice(i, j).replace(/[^\n]/g, ' '); i = j; continue; }
+    if (c === '"' || c === "'" || c === '`') {
+      let j = i + 1;
+      while (j < n && src[j] !== c) { if (src[j] === '\\') j++; j++; }
+      out += src.slice(i, Math.min(j + 1, n)); i = j + 1; continue;
+    }
+    out += c; i++;
+  }
+  return out;
+}
+
 let mod;
 function fakeSession() {
   const store = {};
@@ -167,7 +188,62 @@ describe('it is wired into the cuisine App, in the position that matters', () =>
   it('the listener re-subscribes as results change, so the stash is never a stale closure', () => {
     // The v0.62.849 failure, in a new place: a handler closed over the first render's venues
     // would stash an empty list and "restore" nothing.
-    expect(app()).toMatch(/\}, \[venues, searchCenter, userLoc, selectedCityLocation\]\);/);
+    // v0.62.892 — the array grew by three. The camera and the pin are stashed now, and a
+    // listener closed over an older `locationAnchor` would carry the pin the reader had
+    // BEFORE their last change — a subtler form of the bug this version fixes. Updated
+    // deliberately rather than loosened to a substring match, because the point of pinning
+    // it verbatim is that a NEW input cannot be added without someone deciding it belongs.
+    expect(app()).toMatch(
+      /\}, \[venues, searchCenter, userLoc, selectedCityLocation, locationAnchor, searchLocName, mapViewLocation\]\);/,
+    );
+  });
+
+  it('THE PIN SURVIVES THE TOGGLE — the guard that did not exist', () => {
+    // Operator, with a screenshot: "You can see the location is in Japan. When i switch from
+    // Japanese language to Chinese, it switch to locale location which is in Singapore."
+    //
+    // Nothing tested this. The stash carried the RESULTS across the reload and never the
+    // CAMERA, so after the reload nothing was left to pan back to the pin; and the header
+    // label was correct only because a server round-trip happened to re-deliver the saved
+    // pick. Label and map read different sources, and only one of them survived.
+    const s = app();
+    // 1. the camera and the pin are stashed.
+    //    SCOPED TO THE PAYLOAD BLOCK, and that is not fussiness. The first draft
+    //    asserted /locationAnchor, searchLocName,/ against the whole file and a
+    //    mutation deleting that exact line from the payload STILL PASSED — because
+    //    the same two identifiers, in the same order, also appear in the effect's
+    //    dependency array seventeen lines below. The assertion was green for the
+    //    wrong reason, which is the failure mode a mutation run exists to find.
+    const payload = s.slice(s.indexOf('const payload = {'), s.indexOf('scrollY: window.scrollY || 0,'));
+    expect(payload, 'the payload block').toContain('const payload = {');
+    expect(payload, 'the pin itself').toMatch(/locationAnchor, searchLocName,/);
+    expect(payload, 'the device-follow guard travels too').toMatch(/explicitPick: explicitPickRef\.current,/);
+    expect(payload, 'the camera').toMatch(/camera: \(cam && Number\.isFinite\(cam\.lat\) && Number\.isFinite\(cam\.lng\)\)/);
+    // 2. the camera is re-issued on restore, with a FRESH key — `_k` is the identity the fly
+    //    is keyed on, and one carried across a reload is by definition already spent.
+    expect(s).toMatch(/setFlyTarget\(\{ \.\.\.restored\.camera, _k: Date\.now\(\) \}\)/);
+    expect(s, 'a reused _k would be a no-op').not.toMatch(/setFlyTarget\(restored\.camera\)/);
+    // 3. the guard is re-armed, or the 20 s device-follow drags the pin back to SG GPS
+    expect(s).toMatch(/if \(restored\.explicitPick\) explicitPickRef\.current = true;/);
+    // 4. and the pin is applied BELOW its own declarations — the v0.62.841 TDZ rule.
+    const decl = s.indexOf('const [searchLocName, setSearchLocName] = useState');
+    const apply = s.indexOf('if (p.locationAnchor) setLocationAnchor(p.locationAnchor);');
+    expect(decl, 'searchLocName declaration').toBeGreaterThan(-1);
+    expect(apply, 'the second restore effect').toBeGreaterThan(-1);
+    expect(apply, 'the pin restore must sit BELOW the state it sets').toBeGreaterThan(decl);
+  });
+
+  it('a restored mount is not read as a new search', () => {
+    // The other half. `venues` re-hydrated from sessionStorage is always a brand-new array,
+    // so MapPanel's identity check said "new result set" on every restored mount and framed
+    // the centroid of results the reader had already navigated away from — skipping the
+    // branch that would have honoured their pinned searchCenter.
+    const mp = readFileSync(join(ROOT, 'web/cuisine/src/v2/components/MapPanel.jsx'), 'utf8');
+    expect(mp).toMatch(/restoredMount = false/);
+    expect(mp).toMatch(/if \(restoredMount && !restoreSeededRef\.current && venues\?\.length\) \{/);
+    expect(maskComments(mp), 'seeding the ref initialiser would lose the mount-order race')
+      .not.toMatch(/useRef\(restoredMount \? venues : null\)/);
+    expect(app(), 'and App passes it').toMatch(/restoredMount=\{localeReloadRestored\}/);
   });
 
   it('the reload is deferred, so the server-preference POST is not raced away', () => {
