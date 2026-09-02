@@ -154,11 +154,38 @@ describe('the dish taxonomy overlay', () => {
     expect(src.slice(i, j), 'a taxonomy chip is title-casing a phrase again').not.toContain(' capitalize"');
   });
 
+  it('⚠ the backfill CHANGES THE ANSWER — the point of the whole arc', () => {
+    // The reachability check above says a period CAN be matched. This says the taxonomy actually
+    // discriminates: on a cuisine batch 1 classified, the top dish must differ across periods.
+    //
+    // Before batch 1, `japanese` had no typed dish at all, so every period returned the same
+    // answer chosen by a 1e-6 jitter over a flat field — `[AMD-165]` recorded that as a forty-way
+    // tie at exactly 1.0000. A guard that only counted rows would have been green either way.
+    for (const slug of ['japanese', 'cantonese', 'american']) {
+      const dishes = NATION_OVERLAY[slug].iconicDishes;
+      const at = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
+        { lang: 'en', slug })[0].dish;
+      const picks = new Set(['breakfast', 'afternoon', 'dinner', 'supper'].map(at));
+      expect(picks.size, `${slug} answers the same dish at every period`).toBeGreaterThan(2);
+    }
+    // And the tie band shrinks from saturated to merely wide: many dishes genuinely ARE
+    // lunch-and-dinner dishes, so a floor is the honest assertion, not a small exact number.
+    const jp = NATION_OVERLAY.japanese.iconicDishes;
+    const band = (p) => {
+      const r = score.scoreDishes(jp, { period: p, weather: 'unknown', bucketId: `x:${p}` }, { lang: 'en', slug: 'japanese' });
+      return r.filter((x) => r[0].score - x.score <= 0.01).length;
+    };
+    expect(band('breakfast'), 'breakfast is saturated again').toBeLessThan(10);
+    expect(band('afternoon'), 'afternoon is saturated again').toBeLessThan(10);
+  });
+
   it('the completeness count is pinned, so a dropped batch cannot pass quietly', () => {
     let dishes = 0;
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
     // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(99);
+    // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
+    // japanese in full. 99 → 254. Ten batches to go; the arc ends at 1,697.
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(254);
   });
 });
