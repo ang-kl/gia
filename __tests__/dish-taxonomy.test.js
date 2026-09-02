@@ -186,7 +186,10 @@ describe('the dish taxonomy overlay', () => {
       .filter(([, e]) => (e.iconicDishes || []).length
         && e.iconicDishes.every((d) => Array.isArray(d.mealTime) && d.mealTime.length))
       .map(([slug]) => slug);
-    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(33);
+    // 26 at v0.62.907 → 33 at v0.62.909 → 40 at v0.62.918, as each batch finishes another set of
+    // cuisines outright. Every one of the 40 passes the discrimination checks below unaided, so
+    // there is still no exemption list — and an exemption nobody needs is a hole nobody is watching.
+    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(40);
     for (const slug of classified) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
       const top = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
@@ -250,13 +253,22 @@ describe('the dish taxonomy overlay', () => {
     // the period is about where a diner in Singapore can eat at 3am, not about a cuisine's home
     // city. Batch 5 declined hokkien and turkish on the same reasoning. A wider number has been
     // available at every batch and has not been taken.
+    //
+    // ⚠ v0.62.918 — AND THIS GUARD NARROWED ITS OWN BATCH. Batch 7 was authored with FOUR new
+    // contributors and the bidirectional check below rejected all four as unnamed. Two were kept
+    // and are listed: sri-lankan (kottu) and bengali (kati roll) both have real Race Course Road
+    // and Desker Road late trade. Two were REMOVED from the batch — brazilian (caipirinha) and
+    // south-african (gatsby) — because both are late-night in São Paulo and Cape Town and neither
+    // is late-night here, which is the distinction this comment already drew for hong-kong and
+    // which I had walked past while authoring. Fourth batch running where the night_supper
+    // decision needed narrowing rather than widening.
     const by = new Map();
     for (const [slug, e] of Object.entries(NATION_OVERLAY)) {
       for (const d of (e.iconicDishes || [])) {
         if (Array.isArray(d.mealTime) && d.mealTime.includes('night_supper')) by.set(slug, (by.get(slug) || 0) + 1);
       }
     }
-    expect(by.size, 'night_supper lost cuisines — a 4am suggestion is narrowing again').toBeGreaterThanOrEqual(7);
+    expect(by.size, 'night_supper lost cuisines — a 4am suggestion is narrowing again').toBeGreaterThanOrEqual(9);
 
     // ⚠ AND THE SET IS PINNED, NOT JUST ITS SIZE. A mutation stripping `teochew`'s night_supper
     // rows SURVIVED the floor above: it took the count 6 → 5, and `> 4` accepts 5. A floor
@@ -274,6 +286,10 @@ describe('the dish taxonomy overlay', () => {
       korean:         'Tanjong Pagar fried chicken and the ox-bone soup shops',
       chinese:        'jianbing and baozi from pre-dawn carts',
       pakistani:      'nihari and paya at dawn, and the Desker Road eateries that keep those hours',
+      // v0.62.918 — batch 7. Both earn it on the SAME test the entries above pass: not "the
+      // dish is late-night somewhere", but "a diner in Singapore can eat this at 3am".
+      'sri-lankan':   'the Race Course Road kottu stalls, whose clatter runs past midnight',
+      bengali:        'the kati-roll shops around Desker Road and Little India, open into the small hours',
     };
     const lost = Object.keys(EARNED).filter((slug) => !by.has(slug));
     expect(lost, 'these cuisines earned night_supper and no longer carry it').toEqual([]);
@@ -293,6 +309,8 @@ describe('the dish taxonomy overlay', () => {
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
     // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
+    // Batch 7 (v0.62.918): +152 — bengali, russian, scandinavian, brazilian, south-african, hakka,
+    // sri-lankan. 1,025 → 1,177, past 69 % of the 1,697. Four batches to go, 520 rows.
     // Batch 6 (v0.62.909): +163 — australian, fusion, portuguese, dessert, hong-kong, pakistani,
     // argentinian. 862 → 1,025, past 60 % of the 1,697. Five batches to go.
     // Batch 5 (v0.62.908): +149 — hokkien, teochew, lebanese, greek, turkish, vietnamese.
@@ -303,6 +321,6 @@ describe('the dish taxonomy overlay', () => {
     // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
     // japanese in full. 99 → 254. Six batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(1025);
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(1177);
   });
 });
