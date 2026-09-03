@@ -121,11 +121,31 @@ describe('prepush-guard against the real X-31 history', () => {
   // reads the live repo must assert something true in every state the repo can
   // legitimately be in, not the state it happened to be in when written.
   //
-  // What IS invariant: the guard never blocks the repo's own HEAD against
-  // origin/main. Blocking needs content-identical AND fast-forward AND NOT an
-  // ancestor of main — and a tip identical to main IS an ancestor of it. So
-  // both legitimate positions are allowed, and the test names which one it saw
-  // rather than hard-coding one of them.
+  // X-36. The paragraph that used to sit here read, verbatim:
+  //
+  //     What IS invariant: the guard never blocks the repo's own HEAD against
+  //     origin/main. Blocking needs content-identical AND fast-forward AND NOT
+  //     an ancestor of main — and a tip identical to main IS an ancestor of it.
+  //     So both legitimate positions are allowed, and the test names which one
+  //     it saw rather than hard-coding one of them.
+  //
+  // THE LAST CLAUSE IS FALSE UNDER SQUASH MERGE, which is how every PR in this
+  // repo lands: the squashed commit is a NEW object carrying identical content,
+  // so the branch tip is not its ancestor. prepush-guard.mjs says so in its own
+  // words — "object, so `--is-ancestor` returns false even though the work
+  // landed" — and the X-31 test forty lines above asserts precisely that
+  // against the real history. This test contradicted the module it tests.
+  //
+  // So it failed in the ONE window the guard exists for: after a squash merge,
+  // before the branch is restarted from main. Green in every state where no
+  // guard is needed, red in the state where the guard fires correctly. CI never
+  // saw it — a shallow checkout takes the !mainRefResolved branch and returns.
+  //
+  // Same lesson as X-35 above, one turn further on: naming ONE legitimate state
+  // and omitting the other is the same defect as hard-coding the state you
+  // happened to be in. "Both legitimate positions" was two of five. The fix is
+  // to assert decide()'s CONTRACT — every outcome it can return — instead of a
+  // hardcoded action.
   // X-35b is FIXED IN inspect() NOW, not compensated for here. It used to
   // report a missing ref and an unmerged branch identically — both arrive as
   // remoteTipMergedIntoMain === false, because gitOk cannot tell "the answer is
@@ -137,28 +157,50 @@ describe('prepush-guard against the real X-31 history', () => {
   //
   // inspect() now measures mainRefResolved as its own fact, so the test asks
   // for it instead of guessing from a value that means two things.
-  it('reports which situation the repo is in, and never blocks its own HEAD when main resolves', () => {
+  it('reports which situation the repo is in, and matches decide() in every one of them', () => {
     const facts = inspect('HEAD', 'HEAD', 'origin/main');
+    const { action, reason } = decide(facts);
 
     if (!facts.mainRefResolved) {
-      // Shallow/detached checkout. The guard is BLIND, and must now say so
-      // rather than claim the branch is unmerged.
+      // (1) Shallow or detached checkout. The guard is BLIND and must say so
+      // rather than claim the branch is unmerged. This is the CI path.
       expect(facts.remoteTipMergedIntoMain).toBe(false);
-      expect(decide(facts).action).toBe('block');
-      expect(decide(facts).reason).toMatch(/DID NOT RUN/);
+      expect(action).toBe('block');
+      expect(reason).toMatch(/DID NOT RUN/);
       return;
     }
 
-    // Main resolves, so the guard can actually answer. Blocking needs
-    // content-identical AND fast-forward AND not-an-ancestor — and a tip
-    // identical to main IS an ancestor of it, so both legitimate branch
-    // positions are allowed. The test names which one it saw.
-    expect(decide(facts).action).toBe('allow');
-    if (facts.remoteTipMergedIntoMain) {
-      expect(facts.remoteTipIsAncestorOfMain).toBe(true);   // restarted from main after a merge
-    } else {
-      expect(facts.remoteTipIsAncestorOfMain).toBe(false);  // carrying unmerged work
+    if (!facts.remoteTipMergedIntoMain) {
+      // (2) The branch carries unmerged work — the ordinary mid-PR state.
+      expect(facts.remoteTipIsAncestorOfMain).toBe(false);
+      expect(action).toBe('allow');
+      expect(reason).toMatch(/unmerged/i);
+      return;
     }
+
+    if (facts.remoteTipIsAncestorOfMain) {
+      // (3) Sitting at main: restarted after a merge, or pushed at main and not
+      // yet diverged. Pushing work onto it is ordinary practice.
+      expect(action).toBe('allow');
+      expect(reason).toMatch(/ancestor of main/);
+      return;
+    }
+
+    if (!facts.isFastForward) {
+      // (4) Merged, not an ancestor, and NOT a fast-forward: the deliberate
+      // force-push that restarts the branch. Allowed on purpose.
+      expect(action).toBe('allow');
+      expect(reason).toMatch(/force push/i);
+      return;
+    }
+
+    // (5) Merged, not an ancestor, fast-forward. X-31 alive rather than in a
+    // fixture: the pull request has closed, and a plain push would append to it,
+    // SUCCEED, and never reach main. The guard blocked exactly this on
+    // 03-09 '26 against the author of this file, on the ordinary path — and it
+    // is the state the paragraph above called impossible.
+    expect(action).toBe('block');
+    expect(reason).toMatch(/CONTENT-IDENTICAL/);
   });
 
   it('distinguishes a missing ref from an unmerged branch — the X-35b fix itself', () => {
