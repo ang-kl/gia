@@ -187,6 +187,6 @@ describe('TMA i18n coverage (O-327)', () => {
       // v0.62.900 — cuisine 380 → 383: card.reviewRefresh / reviewAlready / reviewUnavailable,
       // the ↻ under the 💬 line. Bumped with the keys, in the same commit, which is what this
       // pin exists to force.
-      .toEqual({ clipboard: 251, cuisine: 401, hawker: 90, menu: 80, transport: 123 });   // v0.62.912 hawker 82 → 87
+      .toEqual({ clipboard: 251, cuisine: 401, hawker: 91, menu: 80, transport: 123 });   // v0.62.912 hawker 82 → 87; v0.62.923 90 → 91 (hawker.streetView)
   });
 });

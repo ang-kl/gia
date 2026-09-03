@@ -19741,6 +19741,10 @@ async function cacheBotUsername() {
             // the 123 arrive as http:// and would be blocked as mixed content.
             mgmt: c.mgmt || null,
             photo: c.photo || null,
+            // v0.62.923 — the Street View link. Four call sites carry a hawker datum from the CSV
+            // to a screen (builder → vault → this payload → the Mini App) and this arc has now
+            // recorded six defects where only SOME of them were updated. All four move together.
+            streetView: c.streetView || null,
             status: c.status || null,
             // v0.62.553 — Michelin Bib Gourmand stall names in this centre
             // (from SG-michelin.js BIB_GOURMAND, joined in hawker-vault). Drives

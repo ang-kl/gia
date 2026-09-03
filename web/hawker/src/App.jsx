@@ -728,6 +728,20 @@ export default function App() {
         {c.description && (
           <div className="text-[11px] text-tg-hint leading-snug">{c.description}</div>
         )}
+        {/* v0.62.923 — NEA's Street View link, on 111 of the 123 centres. Twelve rows carry the
+            literal string `nil` and the builder drops those, so `c.streetView` is absent rather
+            than a dead link; this renders nothing for them instead of a button that goes nowhere.
+            `openLink` rather than an <a>: Telegram's WebView needs the host to open an external
+            URL, which is the same reason the NEA button above uses it. The label is NOT "3D view"
+            even though the CSV column is called `google_3d_view` — every one of the 111 resolves
+            to a panorama, measured. */}
+        {c.streetView && (
+          <button
+            type="button"
+            onClick={() => openLink(c.streetView)}
+            className="self-start text-[11px] text-tg-link px-1.5 py-1 -mx-1.5 rounded-lg active:scale-95"
+          >{t('hawker.streetView', lang)} ↗</button>
+        )}
         {/* v0.62.914 — who runs the centre. Parsed by hawker-vault.js:164 since v0.50 and rendered
             nowhere until now. Operator's spec, verbatim: "in another line (italian bracket in
             smaller by one font size, not black font colour unless is white background) as it may

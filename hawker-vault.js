@@ -453,6 +453,10 @@ function loadAll() {
         // v0.62.914 — NEA's photo URL (https-upgraded by the builder). `mgmt` needs no line
         // here: it already comes off the MD vault at line ~164 and has simply never been sent.
         if (z.photo) c.photo = z.photo;
+        // v0.62.923 — NEA's Street View link, 111 of 123. Named `google_3d_view` in the CSV and
+        // that name is wrong: every one of the 111 resolves to a panorama, not a 3D view.
+        // Measured by resolving all 123, not by sampling. See build-hawker-closures.js.
+        if (z.streetView) c.streetView = z.streetView;
         if (z.status) c.status = z.status;
         if (z.isNew) c.isNew = true;
         // v0.62.596 — coord fallback from the closure CSV for centres missing from
