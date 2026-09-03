@@ -2,21 +2,32 @@
 //
 // ⚠ THE DEFECT THIS GUARDS IS NOT A WRONG REGISTER. IT IS A SILENT ONE.
 //
-// `doc/Register/` held `register-0_62_69-13_06_26-1545.md` as its newest snapshot from 13-06 '26
-// until 03-09 '26 — **855 patch versions**. Nothing failed. Nothing could: a stale doc is
-// indistinguishable from a current one to every check in this repo, and the folder's own contract
-// (`doc/CLAUDE.md`) is prose. Meanwhile the repo went from ~8 tracked open items to **200 distinct
-// `O-` ids** and from ~17 decisions to **78 `D-` ids**.
+// A stale snapshot is indistinguishable from a current one to every other check in this repo, and
+// the folder's own contract (`doc/CLAUDE.md`) is prose. `register-0_62_722-22_08_26-0620.md` sat
+// as the newest for **202 patch versions** and nothing objected. So the guard is a STALENESS
+// BUDGET, not a content check: a snapshot is allowed to age — that is what a snapshot is for — it
+// is not allowed to age unnoticed.
 //
-// Worse, it made one of the operator's own standing rules unexecutable. D-205 rule 3 says a held
-// merge record with no successor PR is logged as still due in the Journal **and in
-// `doc/Register/`**. The second half had nowhere to go: `Register.md` is an empty template and the
-// newest snapshot predated the rule by two months. Three held records in this arc were logged in
-// the Journal alone and the shortfall was noted each time — which is the shape of a rule that is
-// on, configured, and out of reach of what it guards.
+// ⚠ AND THE SHARPER LESSON CAME FROM THIS FILE'S OWN FIRST DRAFT, WHICH GOT THE HISTORY WRONG.
+// That draft said the newest snapshot was `register-0_62_69-13_06_26-1545.md`, **855 versions**
+// and three months stale, and that the folder had been abandoned since June. All of it false. The
+// real newest was `register-0_62_722`, 202 versions and twelve days old, in good order, already
+// carrying a `Still due (D-205 hold)` section.
 //
-// So the guard is a STALENESS BUDGET, not a content check. A snapshot is allowed to age; that is
-// what a snapshot is for. It is not allowed to age unnoticed.
+// The cause: the newest file was found with `ls -t` — MODIFICATION TIME. In a freshly cloned
+// container every file carries the same mtime, so that ordering is noise. A proxy was used for
+// version order and never checked.
+//
+// TWO THINGS SHOULD HAVE CAUGHT IT AND DID NOT, and both are the reason for the predecessor
+// assertion below:
+//   · this guard already sorted by parsed version, so it PASSED against the real newest — and
+//     that pass was read as agreement rather than as a disagreement with the prose;
+//   · a mutation printed `202 patch versions behind`, which is 924 - 722 exactly, and that number
+//     was read as consistent with the 855 story instead of contradicting it.
+//
+// A guard that quietly agrees with a false claim is not much better than no guard. Hence: the
+// newest snapshot must NAME its true version-predecessor, so a snapshot cannot assert a lineage
+// that skips over a file sitting between it and the one it cites.
 
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
@@ -24,6 +35,24 @@ import path from 'path';
 
 const ROOT = path.join(__dirname, '..');
 const REG = path.join(ROOT, 'doc/Register');
+
+/**
+ * The byte offset of a markdown heading, matched only at the START OF A LINE.
+ *
+ * ⚠ `indexOf('## …')` IS NOT GOOD ENOUGH HERE, and AU-7 is why. A retraction is required to quote
+ * the prior snapshot's text verbatim — headings included — so `register-0_62_925` contains the
+ * line `> "## ⚠ Owed records — the home D-205 rule 3 never had"` inside a blockquote, hundreds of
+ * lines ABOVE its own `## ⚠ Owed records` section. A substring search finds the quotation first,
+ * the section slice comes out empty, and the honesty checks below silently measure nothing.
+ *
+ * Fourteenth instance in this arc of a check reading PROSE as if it were structure — and the first
+ * caused by the authenticity rule itself, which makes it a permanent hazard in this folder rather
+ * than a one-off.
+ */
+function headingAt(src, heading) {
+  const m = new RegExp(`^${heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'm').exec(src);
+  return m ? m.index : -1;
+}
 
 /** Snapshots are `register-<major>_<minor>_<patch>-<date>.md`. */
 function snapshots() {
@@ -61,12 +90,28 @@ describe('doc/Register currency', () => {
       .toBeLessThanOrEqual(150);
   });
 
-  it('⚠ the newest snapshot gives D-205 rule 3 the home it never had', () => {
+  it('⚠ the newest snapshot names its TRUE version-predecessor', () => {
+    // The check that would have caught the false-history draft. It cited `register-0_62_69` as its
+    // predecessor while `register-0_62_722` sat between them, and nothing in the suite objected —
+    // because every other assertion here is about the newest file alone, and a lineage claim is a
+    // statement about TWO files.
+    //
+    // Directional, like the honesty checks below: a snapshot may say more than this, but it may
+    // not skip the file immediately before it.
+    expect(all.length, 'fewer than two snapshots — this assertion would be vacuous').toBeGreaterThan(1);
+    const prev = all[all.length - 2];
+    const src = fs.readFileSync(path.join(REG, newest.file), 'utf8');
+    expect(src, `the newest snapshot does not name its predecessor ${prev.file}`).toContain(prev.file);
+  });
+
+  it('⚠ the newest snapshot carries an owed-records section', () => {
     const src = fs.readFileSync(path.join(REG, newest.file), 'utf8');
     expect(src.length, 'the newest snapshot is empty').toBeGreaterThan(500);
-    // The section D-205 rule 3 requires. Matched case-insensitively, because an assertion about
-    // prose is an assertion about FORMATTING — a line wrap defeated the #1851 verifier and CASE
-    // defeated the #1855 one, both recorded.
+    // The section D-205 rule 3 requires. It is NOT a home the rule never had — `register-0_62_722`
+    // has carried `Still due (D-205 hold)` since 22-08 '26, the day D-205 was approved. This
+    // asserts the successor keeps it. Matched case-insensitively, because an assertion about prose
+    // is an assertion about FORMATTING — a line wrap defeated the #1851 verifier and CASE defeated
+    // the #1855 one, both recorded.
     expect(src, 'no owed-records section — D-205 rule 3 has nowhere to write again')
       .toMatch(/owed records/i);
     expect(src, 'the owed-records section names no held record').toMatch(/\[AMD-\d+\]/);
@@ -86,7 +131,10 @@ describe('doc/Register currency', () => {
     }
     expect(guarded.size, 'no O- ids found in the suite — the check below would be vacuous')
       .toBeGreaterThan(20);
-    const table = src.slice(src.indexOf('## Open Items'), src.indexOf('## Deferred'));
+    const a = headingAt(src, '## Open Items'), b = headingAt(src, '## Deferred / not settled by any test');
+    expect(a, 'no line-anchored `## Open Items` heading').toBeGreaterThan(-1);
+    expect(b, 'no line-anchored `## Deferred …` heading').toBeGreaterThan(a);
+    const table = src.slice(a, b);
     expect(table.length, 'the Open Items section was not found in the snapshot').toBeGreaterThan(100);
     const claimed = [...new Set([...table.matchAll(/\bO-\d{1,3}\b/g)].map((m) => m[0]))];
     expect(claimed.length, 'the snapshot lists no open items').toBeGreaterThan(20);
@@ -97,7 +145,10 @@ describe('doc/Register currency', () => {
   it('⚠ every decision it calls "in force" is actually pinned in CLAUDE.md', () => {
     const src = fs.readFileSync(path.join(REG, newest.file), 'utf8');
     const claude = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf8');
-    const sec = src.slice(src.indexOf('## Decisions in force'), src.indexOf('## ⚠ Owed records'));
+    const a = headingAt(src, '## Decisions in force'), b = headingAt(src, '## ⚠ Owed records');
+    expect(a, 'no line-anchored `## Decisions in force` heading').toBeGreaterThan(-1);
+    expect(b, 'no line-anchored `## ⚠ Owed records` heading').toBeGreaterThan(a);
+    const sec = src.slice(a, b);
     expect(sec.length, 'the decisions section was not found').toBeGreaterThan(100);
     const claimed = [...new Set([...sec.matchAll(/\bD-\d{1,3}\b/g)].map((m) => m[0]))];
     expect(claimed.length, 'the snapshot names no decisions in force').toBeGreaterThan(2);
