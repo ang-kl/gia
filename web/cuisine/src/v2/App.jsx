@@ -2575,7 +2575,7 @@ export default function App() {
       return;
     }
     // v0.62.35 — operator's Railway log: this effect's bare persist (step 5)
-    // wrote label-less device coords (`[set-location] → 1.2722,103.8112`)
+    // wrote label-less device coords (`[set-location] → <redacted>`)
     // over the labelled HCM pick on every boot — setUserLocation REPLACES
     // the payload, so the pick's label/region/country were wiped and the
     // next boot rendered the mixed "MY>KL with a 🇸🇬 flag" UI from a

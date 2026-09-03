@@ -28137,7 +28137,7 @@
       "category": "feature",
       "area": "Cuisine Picker",
       "intent": "Add: boot auto-detect respects labelled picks — kill the bare label-wiping set-location write",
-      "approach": "## What The operator's Railway log pinned the long-suspected first-load corruptor: three bare `[set-location] chat=… → 1.2722,103.8112` writes (label-less, region-less SG device coords) each **replacing** the labelled `\"Ho Chi Minh City\"…",
+      "approach": "## What The operator's Railway log pinned the long-suspected first-load corruptor: three bare `[set-location] chat=… → <redacted>` writes (label-less, region-less SG device coords) each **replacing** the labelled `\"Ho Chi Minh City\" VN…",
       "codeImpact": "4 files — TMA:cuisine, doc, package",
       "modules": [
         "doc",
