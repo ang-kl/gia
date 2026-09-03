@@ -107,18 +107,36 @@ describe('bot-fun-facts — _formatHtml', () => {
   // ── v0.62.915 — THE DRIFT THIS RELEASE REMOVED ────────────────────────────────────────────
   //
   // The bot held `_OVERLAY_LANGS = new Set(['id','ru','de'])` while `lib/fun-facts.js` had been
-  // corrected to read the overlay for zh/ja/es too. Measured on the shipped data: the generated
-  // overlay carries SIX locales x 72 facts, and the bot consulted three — so 216 written bodies
-  // were discarded at render time and a Chinese reader got English from the bot and Chinese
+  // corrected to read the overlay for zh/ja/es too. Measured on the shipped data AT THE TIME: the
+  // generated overlay carried SIX locales x 72 facts, and the bot consulted three — so 216 written
+  // bodies were discarded at render time and a Chinese reader got English from the bot and Chinese
   // from the Mini App, off the same file.
+  //
+  // ⚠ THAT 216 IS A MEASUREMENT WITH A DATE ON IT, not a constant. v0.62.919 added `ko` and the
+  // overlay now carries SEVEN locales, so the deleted path would discard 288. The live pin is in
+  // `__tests__/locale-allowlist-census.test.js`, which says the same thing and explains why the
+  // figure GROWS by 72 per locale rather than signalling a widening bug. Stated here because a
+  // comment asserting a measurement is an assertion, and three of those went stale in this file's
+  // neighbours before anybody looked.
 
   it('⚠ an overlay locale the bot used to discard now reaches the reply', async () => {
-    const withOverlay = { ...fact, _i18n: { zh: 'ZH overlay body', ja: 'JA overlay body' } };
+    // ⚠ `ko` IS HERE BECAUSE OF WHAT v0.62.919 CLAIMS, and it was missing when that shipped.
+    // That release put 72 Korean bodies in the overlay and said a Korean reader now gets Korean
+    // on BOTH surfaces. The Mini App side is proved by `__tests__/fun-facts-ko.test.js`, which
+    // calls the shared `factBody`; the BOT is a separate call site, and the only ko assertions
+    // here covered the header and the Source label — never a body. One datum, several call
+    // sites, only some of them asked: the shape this arc has now found in the Places ternaries,
+    // the Michelin cache key, the pool key and `runSearch`. A locale whose body path is unasserted
+    // on a surface is a locale that surface can quietly drop.
+    const withOverlay = { ...fact, _i18n: { zh: 'ZH overlay body', ja: 'JA overlay body', ko: 'KO overlay body' } };
     const zh = await _formatHtml(withOverlay, 'zh');
     expect(zh, 'zh still falls through to the English body').toContain('ZH overlay body');
     expect(zh).not.toContain('EN body text');
     const ja = await _formatHtml(withOverlay, 'ja');
     expect(ja).toContain('JA overlay body');
+    const ko = await _formatHtml(withOverlay, 'ko');
+    expect(ko, 'ko falls through to the English body — v0.62.919 does not reach the bot').toContain('KO overlay body');
+    expect(ko).not.toContain('EN body text');
   });
 
   it('⚠ a hand-authored flat body still beats the generated overlay', async () => {
