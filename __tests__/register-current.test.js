@@ -1,4 +1,4 @@
-// register-current.test.js — v0.62.924
+// register-current.test.js — v0.62.926
 //
 // ⚠ THE DEFECT THIS GUARDS IS NOT A WRONG REGISTER. IT IS A SILENT ONE.
 //
@@ -52,6 +52,41 @@ const REG = path.join(ROOT, 'doc/Register');
 function headingAt(src, heading) {
   const m = new RegExp(`^${heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'm').exec(src);
   return m ? m.index : -1;
+}
+
+/**
+ * The slice from a line-anchored `## ` heading up to the NEXT line-anchored `## `, or end of file.
+ * Same hazard as headingAt: a quoted heading inside a blockquote starts with `> `, not with `##`,
+ * so it can neither open nor close a section.
+ */
+function sectionAfter(src, heading) {
+  const a = headingAt(src, heading);
+  if (a < 0) return null;
+  const rest = src.slice(a + heading.length);
+  const m = /^## /m.exec(rest);
+  return m ? rest.slice(0, m.index) : rest;
+}
+
+/** The census heading. A snapshot states its absent ids HERE and nowhere else. */
+const CENSUS = '## \u26a0 Absent-id census';
+
+/**
+ * A snapshot with its DISCUSSION sections removed, leaving only where ids are actually FILED.
+ *
+ * \u26a0 MENTIONING AN ID IS NOT FILING IT, and the first draft of the census check got this wrong in
+ * the most direct way available: it stripped the census and nothing else, so \u2116 223's own
+ * correction row — which has to name D-4, D-5 and D-6 to correct the claim about them — filed all
+ * three, and the check reported them as an invented status. A correction and a census both exist
+ * to DISCUSS ids; neither confers a status on one. Only the Open / New Open / Completed / Accepted
+ * / Deferred / Decisions tables do that.
+ *
+ * Matched on the heading LINE, so a heading quoted inside a blockquote (`> "## \u26a0 Corrections \u2026"`,
+ * which AU-7 requires a retraction to carry) neither opens nor closes a block.
+ */
+const DISCUSSION = /^## .*(Corrections|Absent-id census)/;
+function filingSectionsOf(src) {
+  const parts = src.split(/^(?=## )/m);
+  return parts.filter((p) => !DISCUSSION.test(p)).join('');
 }
 
 /** Snapshots are `register-<major>_<minor>_<patch>-<date>.md`. */
@@ -157,5 +192,69 @@ describe('doc/Register currency', () => {
     // CLAUDE.md states what governs the present.
     expect(claimed.filter((d) => !claude.includes(d)),
       'the Register calls these in force and CLAUDE.md does not carry them').toEqual([]);
+  });
+
+  it('\u26a0 its absent-id census is COMPLETE — the check C-2 needed and did not have', () => {
+    // \u26a0 THE DEFECT THIS EXISTS FOR. `register-0_62_925` (\u2116 222) retracted three false claims in
+    // \u2116 221, and its own correction row C-2 ended: "Exactly **one** real id had never reached the
+    // folder — **D-204**". Measured, FOUR had: D-204 plus D-4, D-5 and D-6, three operator
+    // directives named in a single sentence of `journal-0_60_190-15_05_26-1407.md`. A retraction
+    // of three false claims carried a fourth, and nothing could see it, because the claim was
+    // prose about a set that had never been enumerated.
+    //
+    // So a snapshot must CENSUS that set rather than describe it, and this compares the census
+    // against the set derived here. Exact equality, in both directions — a census that understates
+    // is C-2 again, and one that overstates is an invented status.
+    //
+    // \u26a0 BEING LISTED AS ABSENT IS NOT BEING FILED, and neither is being argued about. Discussion
+    // sections — Corrections and the census itself — are stripped from every snapshot before ids
+    // are harvested (see filingSectionsOf). Without the census strip, writing an id into the census
+    // would make it "present in the folder", the derived set would empty, and the check would
+    // collapse to \u2205 === \u2205 at the exact moment it was first satisfied. Without the Corrections
+    // strip, a snapshot could not name the ids it is correcting a claim ABOUT without thereby
+    // filing them — which is how the first draft of this check failed.
+    //
+    // \u26a0 WHEN THIS FAILS, THE FIX IS A CENSUS ROW OR A REAL FILING — NEVER A NARROWER SCAN. An id
+    // allocated in a journal and not yet in the Register is precisely what this folder exists to
+    // track, so this doubles as a live staleness detector on id filing, sharper than the version
+    // budget above because it names what is missing.
+    const JRN = path.join(ROOT, 'doc/Journal');
+    const idsIn = (txt, pre) => [...txt.matchAll(new RegExp(`\\b${pre}-(\\d{1,4})\\b`, 'g'))].map((m) => +m[1]);
+
+    const journal = { D: new Set(), O: new Set() };
+    const jfiles = fs.readdirSync(JRN).filter((f) => /^journal-.*\.md$/.test(f));
+    expect(jfiles.length, 'no journal entries parsed — everything below would be vacuous')
+      .toBeGreaterThan(50);
+    for (const f of jfiles) {
+      const txt = fs.readFileSync(path.join(JRN, f), 'utf8');
+      for (const pre of ['D', 'O']) for (const n of idsIn(txt, pre)) journal[pre].add(n);
+    }
+    expect(journal.O.size, 'no O- ids found in doc/Journal').toBeGreaterThan(50);
+    expect(journal.D.size, 'no D- ids found in doc/Journal').toBeGreaterThan(20);
+
+    const filed = { D: new Set(), O: new Set() };
+    for (const s of all) {
+      const txt = filingSectionsOf(fs.readFileSync(path.join(REG, s.file), 'utf8'));
+      for (const pre of ['D', 'O']) for (const n of idsIn(txt, pre)) filed[pre].add(n);
+    }
+    expect(filed.O.size, 'no O- ids found in doc/Register').toBeGreaterThan(100);
+
+    const derived = [];
+    for (const pre of ['D', 'O'])
+      for (const n of [...journal[pre]].sort((a, b) => a - b))
+        if (!filed[pre].has(n)) derived.push(`${pre}-${n}`);
+
+    const src = fs.readFileSync(path.join(REG, newest.file), 'utf8');
+    const section = sectionAfter(src, CENSUS);
+    expect(section, `the newest snapshot carries no line-anchored \`${CENSUS}\` section`).toBeTruthy();
+    const stated = [...new Set([...section.matchAll(/\b[DO]-\d{1,4}\b/g)].map((m) => m[0]))];
+    expect(stated.length, 'the census section names no ids').toBeGreaterThan(0);
+
+    expect(derived.filter((id) => !stated.includes(id)),
+      'these ids are in doc/Journal, absent from doc/Register, and the census does not name them')
+      .toEqual([]);
+    expect(stated.filter((id) => !derived.includes(id)),
+      'the census names these as absent and they are filed in doc/Register — an invented status')
+      .toEqual([]);
   });
 });
