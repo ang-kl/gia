@@ -214,10 +214,20 @@ describe('the dish taxonomy overlay', () => {
       .filter(([, e]) => (e.iconicDishes || []).length
         && e.iconicDishes.every((d) => Array.isArray(d.mealTime) && d.mealTime.length))
       .map(([slug]) => slug);
-    // 26 at v0.62.907 → 33 at v0.62.909 → 40 at v0.62.918, as each batch finishes another set of
-    // cuisines outright. Every one of the 40 passes the discrimination checks below unaided, so
+    // 26 at v0.62.907 → 33 at v0.62.909 → 40 at v0.62.918 → 51 at v0.62.921 → **66 at v0.62.922**,
+    // as each batch finished another set of cuisines outright. 66 is EVERY cuisine in the overlay:
+    // the backfill is complete at 1,697 of 1,697, and this figure cannot rise again unless a new
+    // cuisine is added. Every one of the 66 passes the discrimination checks below unaided, so
     // there is still no exemption list — and an exemption nobody needs is a hole nobody is watching.
-    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(40);
+    //
+    // ⚠ THIS PIN SITS ABOVE THE LOOP, SO IT SHORT-CIRCUITS IT. When batch 8 landed, this line
+    // failed at 51-vs-40 and the discrimination loop below never ran at all — eleven new cuisines
+    // went unchecked while the file reported a failure that looked like it had checked them.
+    // Moving a count pin is therefore never the whole job: the run AFTER the bump is the first one
+    // that measures anything. `shanghainese` failed that second run on the first authoring pass,
+    // reaching only two of the four sampled periods, and was fixed by authoring its afternoon and
+    // supper trade rather than by padding a period to satisfy a count.
+    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(66);
     for (const slug of classified) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
       const top = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
@@ -336,7 +346,13 @@ describe('the dish taxonomy overlay', () => {
     let dishes = 0;
     for (const e of Object.values(NATION_OVERLAY)) dishes += (e.iconicDishes || []).length;
     expect(dishes, 'the dish catalogue changed size').toBe(1697);
-    // Bumped by every backfill batch. 99 today; the arc ends at 1,697.
+    // ⚠ THE ARC IS CLOSED. 99 → 1,697, and the assertion below is no longer a moving pin: there is
+    // nothing left to backfill, so a change here means the CATALOGUE moved, not the taxonomy.
+    // Batch 9 (v0.62.922): +310 — austrian, swiss, ukrainian, polish, georgian, persian, moroccan,
+    // israeli, uzbek, egyptian, jordanian, african, northwestern, new-zealand, australasia.
+    // 1,387 → 1,697. **100 %.** Nine batches, 1,598 hand-authored rows, no batches to go.
+    // Batch 8 (v0.62.921): +210 — gujarati, nepalese, goan, burmese, eurasian, macau, shanghainese,
+    // taiwanese, northeastern, hainanese, hunan. 1,177 → 1,387, past 81 %. One batch to go.
     // Batch 7 (v0.62.918): +152 — bengali, russian, scandinavian, brazilian, south-african, hakka,
     // sri-lankan. 1,025 → 1,177, past 69 % of the 1,697. Four batches to go, 520 rows.
     // Batch 6 (v0.62.909): +163 — australian, fusion, portuguese, dessert, hong-kong, pakistani,
@@ -349,6 +365,29 @@ describe('the dish taxonomy overlay', () => {
     // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
     // japanese in full. 99 → 254. Six batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(1177);
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(1697);
+  });
+
+  it('⚠ EVERY dish is classified — the closing property, which a row count cannot express', () => {
+    // ⚠ 1,697 ROWS AND 1,697 DISHES ARE NOT THE SAME CLAIM, and this reads the direction the rest
+    // of the file does not. `every key resolves to a dish that still exists` walks OVERLAY →
+    // CATALOGUE and catches a row pointing nowhere. This walks CATALOGUE → OVERLAY and catches a
+    // dish nothing points at. A re-key breaks both at once, so a mutation cannot separate them
+    // today — MEASURED, not assumed: re-keying `austrian::sachertorte` fails three tests, this one
+    // among them, and the ROW-COUNT pin above is not one of the three, because 1,697 rows is still
+    // 1,697 rows.
+    //
+    // So the honest claim is not "nobody was watching this". It is that the count pin stops being
+    // evidence the moment it is legitimately bumped: with the backfill closed, the next change to
+    // that number means the CATALOGUE moved, someone will move the pin to match, and this is the
+    // assertion that then says whether the taxonomy moved with it. A guard whose value arrives
+    // later is worth writing down as such rather than overstated now.
+    const missing = [];
+    for (const [slug, e] of Object.entries(NATION_OVERLAY))
+      for (const d of (e.iconicDishes || []))
+        if (!TAXONOMY[`${slug}::${String(d.name).toLowerCase()}`]) missing.push(`${slug}::${d.name}`);
+    expect(missing.length, 'the catalogue parsed as empty — this assertion would be vacuous')
+      .toBeLessThan(1697);
+    expect(missing, 'these dishes reach the drawer with no taxonomy').toEqual([]);
   });
 });
