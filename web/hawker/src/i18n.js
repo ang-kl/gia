@@ -36,6 +36,12 @@ const STRINGS = {
   'ui.refresh': { en: 'Refresh', fr: 'Actualiser' },
   'ui.centreMap': { en: 'Centre map', fr: 'Centrer la carte' },
   'hawker.centres': { en: 'centres', fr: 'centres' },
+  // v0.62.923 — the label on NEA's Street View link. The CSV column is `google_3d_view` and it is
+  // WRONG ABOUT ITS OWN CONTENTS: all 111 real values resolve to a panorama, measured by resolving
+  // every one of the 123 rather than sampling. Calling it "3D view" here would have shipped the
+  // CSV's error to the reader. fr/de/es/id keep the English brand name because Google does;
+  // ru/zh/ja/ko use Google Maps' own localisation of it.
+  'hawker.streetView': { en: 'Street View', fr: 'Street View' },
   'hawker.closedCleaning': { en: 'Closed for cleaning till {till}', fr: 'Fermé pour nettoyage jusqu\'au {till}' },
   'hawker.redevelopment': { en: 'Redevelopment till {till}', fr: 'Réaménagement jusqu\'au {till}' },
   'hawker.renovation': { en: 'Under Renovation till {till}', fr: 'En rénovation jusqu\'au {till}' },
@@ -198,6 +204,7 @@ const STRINGS = {
 // into STRINGS below (existing en/fr untouched; t()'s `entry[l] || entry.en`
 // degrades any unlisted key to English). Hawker "hawker centre" → "pusat jajan".
 const ID_STRINGS = {
+  'hawker.streetView': 'Street View',
   'hawker.partlyOpen': 'Sebagian buka · hingga {till}',
   'hawker.partlyOpenNext': 'Sebagian buka mulai {from}',
   'hawker.managedBy': '({m})',
@@ -296,6 +303,7 @@ for (const k in ID_STRINGS) {
 
 // ----- Russian (ru) overlay — v0.62.310. Control labels kept tight to fit EN pills. -----
 const RU_STRINGS = {
+  'hawker.streetView': 'Просмотр улиц',
   'hawker.partlyOpen': 'Частично открыт · до {till}',
   'hawker.partlyOpenNext': 'Частично открыт с {from}',
   'hawker.managedBy': '({m})',
@@ -391,6 +399,7 @@ const RU_STRINGS = {
 
 // ----- German (de) overlay — v0.62.310. Compounds abbreviated where chips are tight. -----
 const DE_STRINGS = {
+  'hawker.streetView': 'Street View',
   'hawker.partlyOpen': 'Teilweise geöffnet · bis {till}',
   'hawker.partlyOpenNext': 'Teilweise geöffnet ab {from}',
   'hawker.managedBy': '({m})',
@@ -488,6 +497,7 @@ for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k
 
 // ----- Chinese (zh) overlay — v0.62.491. Agent-drafted; SG terms (小贩中心/德士站). Control labels tight. -----
 const ZH_STRINGS = {
+  'hawker.streetView': '街景',
   'hawker.partlyOpen': '部分营业 · 至{till}',
   'hawker.partlyOpenNext': '{from} 起部分营业',
   'hawker.managedBy': '({m})',
@@ -584,6 +594,7 @@ for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k
 
 // ----- Japanese (ja) overlay — v0.62.491. Agent-drafted; verified Japanese (no Korean). Control labels tight. -----
 const JA_STRINGS = {
+  'hawker.streetView': 'ストリートビュー',
   'hawker.partlyOpen': '一部営業 · {till}まで',
   'hawker.partlyOpenNext': '{from} から一部営業',
   'hawker.managedBy': '({m})',
@@ -680,6 +691,7 @@ for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k
 
 // ----- Spanish (es) overlay — v0.62.491. Agent-drafted; no apostrophes. Control labels tight. -----
 const ES_STRINGS = {
+  'hawker.streetView': 'Street View',
   'hawker.partlyOpen': 'Parcialmente abierto · hasta el {till}',
   'hawker.partlyOpenNext': 'Parcialmente abierto desde el {from}',
   'hawker.managedBy': '({m})',
@@ -778,6 +790,7 @@ for (const k in ES_STRINGS) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k
 // the operator's standing instruction. `ko` is NOT in SUPPORTED yet, so this block is inert:
 // the merge below writes a column nothing reads until the K6 flip adds 'ko' to the list.
 const KO_STRINGS = {
+  "hawker.streetView": "스트리트 뷰",
   "hawker.partlyOpen": "일부 영업 · {till}까지",
   "hawker.partlyOpenNext": "{from}부터 일부 영업",
   "hawker.managedBy": "({m})",

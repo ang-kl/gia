@@ -10,7 +10,7 @@
 // Output: data/hawker-closures.json, keyed by the CSV's centre `name` (the vault
 // re-keys via _normaliseHawkerName, so formal NEA names reconcile with the vault):
 //   { "<name>": { cleaning:[{start,end}], renovation:[{start,end}],
-//                 foodStalls, marketStalls, status, isNew } }
+//                 foodStalls, marketStalls, status, isNew, streetView } }
 // Dates are ISO 'YYYY-MM-DD'; the client shows a tab only when TODAY is in a window.
 
 const fs = require('fs');
@@ -106,7 +106,30 @@ function partialFrom(remarks) {
 // June 2026") names no blocks and is already rejected by the two-block floor. The guard is real
 // defence for a phrasing NEA has not used YET — "Blk 79 and Blk 79A both closed on 30/3" — and
 // only a direct test can hold it.
-module.exports = { partialFrom, isRedevelopment, isRenovation, toISO };
+/**
+ * The Street View link for one CSV row, or null.
+ *
+ * ⚠ EXPORTED, AND THAT IS THE POINT. The first version of this rule was inline in `main()` and
+ * `__tests__/hawker-street-view.test.js` asserted the RESULT — that no centre in
+ * `data/hawker-closures.json` carries the literal `nil`. A mutation gutting the filter SURVIVED,
+ * because the test read the GENERATED file and the mutation changed the BUILDER; the committed
+ * json was still correct. That is the same defect [AMD-186] records for `description` in this very
+ * script, and `hawker-closure-card.test.js:112` says so in those words. Knowing it did not stop
+ * the second instance, so the rule is now callable and the test calls it.
+ *
+ * `nil` is NEA's own sentinel for "no link", used on 12 of the 123 rows. A non-empty check reads
+ * it as a value — which is how the first measurement of this column reported "123 of 123".
+ */
+function streetViewUrl(raw) {
+  const v = String(raw || '').trim();
+  return /^https:\/\/(goo\.gl|www\.google\.com|maps\.app\.goo\.gl)\//i.test(v) ? v : null;
+}
+
+// ⚠ `parseCsv` IS EXPORTED FOR THE SAME REASON `streetViewUrl` IS. The test's first attempt to
+// re-derive the column count used `line.split(',')` and measured 1 where the answer is 111 —
+// `description_myenv` carries commas and quotes, which is why this parser exists at all and says
+// so on its own first line. A test that re-implements the parser is testing its own copy.
+module.exports = { partialFrom, isRedevelopment, isRenovation, toISO, streetViewUrl, parseCsv };
 
 function main() {
   const rows = parseCsv(fs.readFileSync(CSV_PATH, 'utf8'));
@@ -165,6 +188,18 @@ function main() {
       ? photoRaw.replace(/^http:/i, 'https:') : photoRaw;
     // Postal from address_myenv ("…, Singapore 289876") — the reliable join key
     // (name-folding alone misses ~70% because the CSV re-orders block/street tokens).
+    // v0.62.923 — NEA's Street View link for the centre. The CSV column is named
+    // `google_3d_view` and that name is WRONG about its own contents: all 111 real values
+    // resolve to a Street View PANORAMA (`!1e1`, with a heading and tilt in the `2a,75y,…h,…t`
+    // segment), not to a 3D or aerial view. Measured by resolving every one of the 123, not by
+    // sampling — a label is a promise to the reader and "3D view" would have been a false one.
+    //
+    // ⚠ AND IT IS NOT 123 OF 123. Twelve rows carry the literal string `nil`, which a
+    // non-empty check reads as a value; the first measurement of this column said "123 of 123
+    // non-empty" and was wrong for exactly that reason. 111 have a link, 12 have none.
+    // `nil` is the same sentinel `scripts/harvest-sg-place-spans.mjs` already lists as noise.
+    const streetView = streetViewUrl(r[col('google_3d_view')]);
+
     const addr = (r[col('address_myenv')] || '').trim();
     const pm = addr.match(/(\d{6})\s*$/) || addr.match(/singapore\s+(\d{6})/i);
     out[name] = {
@@ -180,6 +215,7 @@ function main() {
       isNew: /\(new\)/i.test(status),
       description: description || null,
       photo: /^https:\/\//i.test(photo) ? photo : null,   // https only — see above
+      streetView,                                          // 111 of 123 — see above
     };
   }
   fs.writeFileSync(OUT_PATH, JSON.stringify(out, null, 0) + '\n');
