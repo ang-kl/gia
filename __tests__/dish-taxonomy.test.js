@@ -214,10 +214,19 @@ describe('the dish taxonomy overlay', () => {
       .filter(([, e]) => (e.iconicDishes || []).length
         && e.iconicDishes.every((d) => Array.isArray(d.mealTime) && d.mealTime.length))
       .map(([slug]) => slug);
-    // 26 at v0.62.907 → 33 at v0.62.909 → 40 at v0.62.918, as each batch finishes another set of
-    // cuisines outright. Every one of the 40 passes the discrimination checks below unaided, so
-    // there is still no exemption list — and an exemption nobody needs is a hole nobody is watching.
-    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(40);
+    // 26 at v0.62.907 → 33 at v0.62.909 → 40 at v0.62.918 → 51 at v0.62.921, as each batch finishes
+    // another set of cuisines outright. Every one of the 51 passes the discrimination checks below
+    // unaided, so there is still no exemption list — and an exemption nobody needs is a hole nobody
+    // is watching.
+    //
+    // ⚠ THIS PIN SITS ABOVE THE LOOP, SO IT SHORT-CIRCUITS IT. When batch 8 landed, this line
+    // failed at 51-vs-40 and the discrimination loop below never ran at all — eleven new cuisines
+    // went unchecked while the file reported a failure that looked like it had checked them.
+    // Moving a count pin is therefore never the whole job: the run AFTER the bump is the first one
+    // that measures anything. `shanghainese` failed that second run on the first authoring pass,
+    // reaching only two of the four sampled periods, and was fixed by authoring its afternoon and
+    // supper trade rather than by padding a period to satisfy a count.
+    expect(classified.length, 'the classified-cuisine count moved — bump this deliberately').toBe(51);
     for (const slug of classified) {
       const dishes = NATION_OVERLAY[slug].iconicDishes;
       const top = (p) => score.scoreDishes(dishes, { period: p, weather: 'unknown', bucketId: `x:${p}` },
@@ -349,6 +358,6 @@ describe('the dish taxonomy overlay', () => {
     // Batch 2 (v0.62.905): +150 — korean, malaysian, north-indian, italian, french. 254 → 404.
     // Batch 1 (v0.62.904): +155 — the 64 remaining singaporean rows plus american, cantonese and
     // japanese in full. 99 → 254. Six batches to go; the arc ends at 1,697.
-    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(1177);
+    expect(rows.length, 'a batch landed or vanished — bump this deliberately').toBe(1387);
   });
 });
