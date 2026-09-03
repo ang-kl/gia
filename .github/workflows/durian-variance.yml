@@ -78,7 +78,11 @@ jobs:
         run: node scripts/durian-variance-summary.js
 
       - name: Commit + push refreshed JSON + table
-        uses: stefanzweifel/git-auto-commit-action@v5
+        # SHA-pinned, not tag-pinned. A tag is mutable: whoever controls the
+        # upstream repo can repoint v5 at new code, and this workflow runs with
+        # `contents: write` and pushes to main. b863ae19 is what v5 resolved to
+        # on 03-09 '26, and is also tagged v5.2.0. Bump deliberately, by SHA.
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403  # v5.2.0
         with:
           commit_message: '[durian-variance auto-commit] refresh JSON + table (${{ github.sha }})'
           file_pattern: 'data/durian-variance/*.json doc/durian-variance-summary.md'

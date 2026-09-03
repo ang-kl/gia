@@ -24,6 +24,13 @@ on:
     - cron: '0 21 * * *'
   workflow_dispatch:  # allow manual trigger from Actions tab
 
+# Least privilege. Both jobs POST to the bot's own admin endpoints with
+# secrets; neither reads the repo contents nor writes them, so this is the
+# floor rather than a reduction. See the note in ci.yml on why an inherited
+# default is not good enough.
+permissions:
+  contents: read
+
 jobs:
   sync-vault:
     if: github.event.schedule == '0 19 * * *' || github.event_name == 'workflow_dispatch'

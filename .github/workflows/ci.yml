@@ -5,6 +5,15 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege. CI only reads the tree and runs tests — it never commits,
+# never comments, never publishes. Without this block the job inherits the
+# REPOSITORY DEFAULT, which on this repo is not visible to the API token that
+# audited it, so "probably read-only" was the only available answer. An
+# explicit grant is checkable; an inherited one is a setting somebody can
+# change without touching this file.
+permissions:
+  contents: read
+
 jobs:
   syntax:
     name: Syntax check (node --check on every .js)
