@@ -111,6 +111,60 @@ describe('repo security posture — the half that is checkable from inside the r
     expect(hits, `credential-shaped strings committed: ${hits.join(', ')}`).toEqual([]);
   });
 
+  it('⚠ no user location survives anywhere in the tracked tree', () => {
+    // R-4, closed 04-09 '26. The bot logged `[set-location] chat=… → <lat>,<lon>`
+    // at FOUR decimal places — about 11 m, which resolves to a building — and those
+    // lines sat in a PUBLIC repository. The chat id beside them had already been
+    // replaced by a placeholder in an earlier pass; the coordinates had not.
+    //
+    // ⚠ THE SCRUB WAS NOT ONE PLACE. The marker-keyed pass cleared log/ and left
+    // 78 copies standing: a hand-kept coordinate in __tests__/city-centroids.test.js
+    // pinning a real regression, a source comment in web/cuisine/src/v2/App.jsx, the
+    // VibeCodingRecord source data, the page GENERATED from it and SERVED at
+    // /doc/vibe-journal.html, 44 in doc/.serial-state.yml's anchor notes and 14
+    // across six merged doc/Journal/ entries. One datum, several call sites — the
+    // shape this repo keeps re-finding, and the reason this assertion scans the
+    // WHOLE tree rather than the directory the data came from.
+    //
+    // Scoped to coordinates a [set-location] marker carries, or a search centre it
+    // produced. Venue anchors, hawker centres, MRT stations and CITY_CENTROIDS are
+    // public places: a blanket coordinate ban would fail on the repo's own data and
+    // would protect nobody.
+    const files = execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' })
+      .split('\n').filter(Boolean)
+      .filter((f) => !/\.(png|jpe?g|gif|webp|ico|woff2?|ttf|pdf|zip)$/i.test(f));
+    expect(files.length, 'zero tracked files parsed — the scan would be vacuous').toBeGreaterThan(100);
+
+    const PAIR = /(\[set-location\][^\n]{0,110}?)(-?\d+\.\d{3,}\s*,\s*-?\d+\.\d{3,})/;
+    const hits = [];
+    for (const f of files) {
+      let src;
+      try { src = fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { continue; }
+      if (!src.includes('[set-location]')) continue;
+      if (PAIR.test(src)) hits.push(f);          // the FILE, never the coordinate
+    }
+    expect(hits, `user coordinates still tracked in: ${hits.join(', ')}`).toEqual([]);
+  });
+
+  it('the location scan can actually fire — D-204, on a synthetic pin', () => {
+    // A pin in the Java Sea, belonging to nobody, at the precision that matters.
+    //
+    // ⚠ IT IS ASSEMBLED AT RUNTIME, NOT WRITTEN OUT. The first draft spelled the
+    // decoy as a literal — and the assertion above, which scans EVERY tracked file,
+    // flagged this one. A guard whose own fixture trips it is the self-referential
+    // trap this repo has now hit more than a dozen times. Excluding this file would
+    // have been the easy fix and the wrong one: it would carve a hole exactly where
+    // a real coordinate could then hide. Building the pair from parts keeps the
+    // literal out of the file, so the scan can cover itself.
+    const PAIR = /(\[set-location\][^\n]{0,110}?)(-?\d+\.\d{3,}\s*,\s*-?\d+\.\d{3,})/;
+    const decoy = ['[set-location] chat=1 \u2192 -5', '.1234,110', '.5678'].join('');
+    expect(PAIR.test(decoy)).toBe(true);
+    // …and must NOT fire on the redaction that replaced the real ones,
+    // nor on a public venue anchor that has no [set-location] marker.
+    expect(PAIR.test('[set-location] chat=1 \u2192 <redacted>')).toBe(false);
+    expect(PAIR.test('place anchor "MOMOYA" center=1.3123,103.8456')).toBe(false);
+  });
+
   it('the credential scan can actually fire — a guard that cannot fail is not a guard', () => {
     // D-204. Replayed against strings that are structurally valid and belong to nobody:
     // the scan must bite on them, or the empty result above means nothing.
