@@ -183,12 +183,52 @@ function findHawker(text) {
   }
 }
 
-async function findGeocoded(text) {
+// v0.62.930 — `ctx` carries the reader's SET LOCATION: { lat, lng, countryCode }.
+//
+// ⚠ WITHOUT IT THIS FUNCTION IS SINGAPORE-ONLY BY CONSTRUCTION, and that was the
+// bug. It called `geocodeQuery`, which glues " Singapore" onto the query, and then
+// dropped anything outside a hardcoded SG bounding box. A reader with the location
+// set to Tokyo typing 銀座 いしだや got "銀座 いしだや Singapore" sent to Places, and
+// whatever came back was either nothing or a Singapore namesake — which, being
+// inside the box, was accepted and anchored the search in Singapore. The box could
+// not have let Ginza through; no coordinate in Japan satisfies it.
+//
+// With `ctx`, the country is passed to Places as a regionCode with a bias circle at
+// the set location, and a hit is judged by DISTANCE FROM THAT LOCATION. Called
+// without `ctx`, every line below behaves exactly as it did.
+async function findGeocoded(text, ctx = null) {
   const trimmed = String(text || '').trim();
   if (!trimmed || trimmed.length < 3) return null;
   try {
-    const { geocodeQuery } = require('./vibe-suggest');
-    const r = await geocodeQuery(trimmed);
+    const vs = (ctx && typeof ctx._geocoder === 'object' && ctx._geocoder)
+      ? ctx._geocoder                      // test seam: a network call needs one
+      : require('./vibe-suggest');
+    const cc = (ctx && typeof ctx.countryCode === 'string' && /^[A-Z]{2}$/i.test(ctx.countryCode))
+      ? ctx.countryCode.toUpperCase() : null;
+    const centre = (ctx && Number.isFinite(ctx.lat) && Number.isFinite(ctx.lng))
+      ? { lat: ctx.lat, lng: ctx.lng } : null;
+
+    if (cc && cc !== 'SG') {
+      const r = await vs.geocodeQueryRegion(trimmed, {
+        countryCode: cc,
+        biasCenter: centre,
+        biasRadiusM: Number.isFinite(ctx.biasRadiusM) ? ctx.biasRadiusM : 30000,
+        maxDistanceM: Number.isFinite(ctx.maxDistanceM) ? ctx.maxDistanceM : 150000
+      });
+      if (!r || typeof r.lat !== 'number' || typeof r.lng !== 'number') return null;
+      return {
+        kind: 'geocoded',
+        name: r.name || trimmed,
+        lat: r.lat,
+        lng: r.lng,
+        radius: GEOCODE_RADIUS_M,
+        source: 'geocode',
+        placeId: r.placeId || null,
+        address: r.address || null
+      };
+    }
+
+    const r = await vs.geocodeQuery(trimmed);
     if (!r || typeof r.lat !== 'number' || typeof r.lng !== 'number') return null;
     // SG bounding box sanity check — Places sometimes ignores the
     // " Singapore" suffix and returns a foreign match for an
@@ -214,9 +254,18 @@ async function findGeocoded(text) {
 // Async because geocode fallback is a Google Places call. The first
 // two ladder steps are sync; the third only runs when the cheaper
 // branches missed.
-async function detectPlaceName(text) {
+async function detectPlaceName(text, ctx = null) {
   const raw = String(text || '').trim();
   if (!raw || raw.length < 3) return null;
+  // v0.62.930 — the first three rungs of this ladder are SINGAPORE DATA: STB
+  // precincts, the MRT station table, and the hawker vault. Abroad they can only
+  // return a wrong answer, and a fuzzy one at that — the hawker matcher accepts an
+  // edit-distance score of 0.75, so a foreign name that half-rhymes with a Singapore
+  // block would anchor a Tokyo search in Singapore. Skip them when the reader's set
+  // country is not SG and go straight to the geocode, which now knows the country.
+  const ccIn = (ctx && typeof ctx.countryCode === 'string' && /^[A-Z]{2}$/i.test(ctx.countryCode))
+    ? ctx.countryCode.toUpperCase() : null;
+  if (ccIn && ccIn !== 'SG') return await findGeocoded(raw, ctx);
   // v0.61.124 — STB precinct first. An exact name match ("Marina Bay",
   // "Chinatown", "Joo Chiat and Katong") returns a precinct hit with
   // polygon + precinctId so downstream callers can do polygon-based
@@ -227,7 +276,7 @@ async function detectPlaceName(text) {
   if (mrt) return mrt;
   const hawker = findHawker(raw);
   if (hawker) return hawker;
-  return await findGeocoded(raw);
+  return await findGeocoded(raw, ctx);
 }
 
 module.exports = {

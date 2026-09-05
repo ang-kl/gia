@@ -425,12 +425,129 @@ async function geocodeQuery(text) {
 const SG_BBOX = { lat: [1.15, 1.55], lng: [103.55, 104.10] };
 const MY_BBOX = { lat: [1.20, 6.80],  lng: [99.50, 105.00] };  // West Malaysia + east coast bias zone
 
+// v0.62.930 — resolve a place INSIDE a named country, biased to the reader's set
+// location, and judged by distance from it.
+//
+// The Places call carries `regionCode` (ISO-3166-1 alpha-2) and a `locationBias`
+// circle instead of a country name glued onto the query string. That matters for
+// a non-Latin query: "銀座 いしだや Singapore" is a different search from
+// "銀座 いしだや" biased to (35.68, 139.77) with regionCode JP, and only the second
+// can find a Ginza izakaya.
+//
+// Acceptance is by DISTANCE from the bias centre, not by a bounding box. A box has
+// to be authored per country and silently rejects everything nobody thought to add
+// — which is exactly how the SG box in `place-detector` rejected all of Japan.
+async function geocodeQueryByCountry(text, opts = {}) {
+  const { countryCode, biasCenter, biasRadiusM, maxDistanceM, mapsApiKey } = opts || {};
+  if (!mapsApiKey || !text || !String(text).trim() || !countryCode) return null;
+  const body = {
+    textQuery: String(text).trim(),
+    regionCode: countryCode,
+    maxResultCount: 5   // several candidates so the distance filter has something to choose from
+  };
+  if (biasCenter && Number.isFinite(biasCenter.lat) && Number.isFinite(biasCenter.lng)) {
+    body.locationBias = {
+      circle: {
+        center: { latitude: biasCenter.lat, longitude: biasCenter.lng },
+        radius: Number.isFinite(biasRadiusM) ? biasRadiusM : 30000
+      }
+    };
+  }
+  try {
+    const { data } = await axios.post(PLACES_TEXT_URL, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': mapsApiKey,
+        'X-Goog-FieldMask': [
+          'places.id', 'places.displayName', 'places.location',
+          'places.formattedAddress', 'places.addressComponents'
+        ].join(',')
+      },
+      timeout: 8000
+    });
+    const candidates = data?.places ?? [];
+    const place = pickNearestInRange(candidates, biasCenter, maxDistanceM);
+    if (!place?.location) return null;
+    const parsed = parseAddressComponents(place.addressComponents);
+    return {
+      lat: place.location.latitude,
+      lng: place.location.longitude,
+      name: place.displayName?.text ?? String(text).trim(),
+      address: place.formattedAddress ?? '',
+      placeId: place.id ?? null,
+      region: 'OTHER',
+      countryCode,
+      ...(parsed || {})
+    };
+  } catch (err) {
+    logger.error({ text, countryCode, err: { message: err.message } }, 'geocodeQueryByCountry failed');
+    return null;
+  }
+}
+
+// Nearest candidate within `maxDistanceM` of the bias centre; null when every hit
+// is too far. With no centre or no limit, the first candidate stands — the caller
+// then has the same "trust Places" behaviour it had before.
+function pickNearestInRange(candidates, centre, maxDistanceM) {
+  const list = Array.isArray(candidates) ? candidates : [];
+  if (list.length === 0) return null;
+  const haveCentre = centre && Number.isFinite(centre.lat) && Number.isFinite(centre.lng);
+  if (!haveCentre || !Number.isFinite(maxDistanceM)) return list[0] || null;
+  let best = null, bestD = Infinity;
+  for (const p of list) {
+    const lat = p?.location?.latitude, lng = p?.location?.longitude;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    const d = haversineM(centre.lat, centre.lng, lat, lng);
+    if (d <= maxDistanceM && d < bestD) { best = p; bestD = d; }
+  }
+  return best;
+}
+
+function haversineM(aLat, aLng, bLat, bLng) {
+  const R = 6371000, r = (x) => (x * Math.PI) / 180;
+  const dLat = r(bLat - aLat), dLng = r(bLng - aLng);
+  const s = Math.sin(dLat / 2) ** 2
+    + Math.cos(r(aLat)) * Math.cos(r(bLat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
 async function geocodeQueryRegion(text, opts = {}) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey || !text || !text.trim()) return null;
   const region = (opts && typeof opts.region === 'string') ? opts.region : null;
   const bias = (opts && opts.biasCenter && Number.isFinite(opts.biasCenter.lat) && Number.isFinite(opts.biasCenter.lng))
     ? opts.biasCenter : null;
+  // v0.62.930 — COUNTRY-GENERIC BRANCH, and the reason it exists.
+  //
+  // Everything below this block resolves a place by APPENDING A COUNTRY NAME to
+  // the query — ' Singapore', ' Johor Bahru, Malaysia', ' Putrajaya, Malaysia'.
+  // That is the whole geographic model, and the branch immediately below says so
+  // in its own comment: *"if other-country OTHER anchors are added, this branch
+  // will need precinct-specific suffixes."* They were added — `city-centroids.js`
+  // carries 19 countries and 11 Japanese cities — and the suffix stayed.
+  //
+  // So a reader in Tokyo typing 銀座 いしだや had it sent to Places as
+  // "銀座 いしだや Putrajaya, Malaysia" (region OTHER), or as
+  // "銀座 いしだや Singapore" through the plain `geocodeQuery` that
+  // `place-detector` actually calls. Neither can resolve, and an SG namesake
+  // that does resolve then anchors the search in Singapore.
+  //
+  // The fix is the one the bot's /l path has used since v0.60: give Places the
+  // ISO regionCode and a locationBias circle at the set location, and judge the
+  // result by DISTANCE FROM THAT LOCATION rather than by a hardcoded bbox. Opt-in
+  // by `countryCode`, so every existing caller keeps today's behaviour exactly.
+  const ccRaw = (opts && typeof opts.countryCode === 'string') ? opts.countryCode.toUpperCase() : '';
+  const cc = /^[A-Z]{2}$/.test(ccRaw) ? ccRaw : null;
+  if (cc && cc !== 'SG') {
+    return await geocodeQueryByCountry(text, {
+      countryCode: cc,
+      biasCenter: bias,
+      biasRadiusM: Number.isFinite(opts?.biasRadiusM) ? opts.biasRadiusM : 30000,
+      maxDistanceM: Number.isFinite(opts?.maxDistanceM) ? opts.maxDistanceM : 150000,
+      mapsApiKey
+    });
+  }
+
   // Suffix + bbox per region (defaults to Singapore-only behaviour).
   let suffix = ' Singapore';
   let bbox = SG_BBOX;
@@ -525,4 +642,4 @@ async function geocodeQueryRegion(text, opts = {}) {
 // exported below for back-compat callers.
 const { parseAddressComponents } = require('./places-address-parser');
 
-module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, geocodeQueryRegion, rankByWalkingTime, parseAddressComponents };
+module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, geocodeQueryRegion, geocodeQueryByCountry, rankByWalkingTime, parseAddressComponents, _pickNearestInRange: pickNearestInRange };

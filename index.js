@@ -16085,12 +16085,28 @@ async function cacheBotUsername() {
           // "ramen in tiong bahru" is unaffected). Fail-open; saves a paid
           // geocode on every dish-text search.
           const { isKnownDishName } = require('./discovery-dish');
+          // v0.62.930 — D790: pass the reader's SET LOCATION into the detector.
+          //
+          // ⚠ Operator, 05-09 '26: location set to Tokyo, typed 銀座 いしだや, and the
+          // search ran in Singapore. The detector was Singapore-only by construction —
+          // its geocode glued " Singapore" onto the query and then dropped every hit
+          // outside a hardcoded SG bounding box, which no coordinate in Japan can
+          // satisfy. `requestCountry` and the set centre have been available at this
+          // call site since v0.61.271 and were simply never passed down.
+          const anchorCtx = {
+            lat, lng,
+            countryCode: requestCountry || (isJB ? 'MY' : 'SG'),
+            biasRadiusM: Number.isFinite(anchorCap) && anchorCap > 0 ? anchorCap : 30000,
+            // Same 300 km threshold the D789 backstop below uses, so one rule decides
+            // what "too far from the set location" means instead of two.
+            maxDistanceM: 300000
+          };
           const guardedDetect = async (candidate) => {
             if (isKnownDishName(candidate)) {
               console.log(`[Cuisine-TMA] D788 dish-name guard: "${String(candidate).slice(0, 50)}" is a curated dish — no place anchor`);
               return null;
             }
-            return detectPlaceName(candidate);
+            return detectPlaceName(candidate, anchorCtx);
           };
           const anchorResult = await detectAnchorFromFreeText({
             text: ftRawIn, isJB, detectPlaceName: guardedDetect,
