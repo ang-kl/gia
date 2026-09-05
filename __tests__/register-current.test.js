@@ -194,6 +194,43 @@ describe('doc/Register currency', () => {
       'the Register calls these in force and CLAUDE.md does not carry them').toEqual([]);
   });
 
+  it('\u26a0 every rule CLAUDE.md calls "in force" carries its approval AND a journal reference', () => {
+    // SR-1 (`doc/CLAUDE-FULL.md` §17.6) says a standing rule must carry the operator's approval
+    // and a journal reference. Nothing checked it, and the gap is not hypothetical: D-203 was
+    // proposed by Claude Code and INSTALLED HERE BEFORE APPROVAL — caught by a reviewer on #1719
+    // and kept as X-13 rather than tidied away. A rule that governs the repo while claiming an
+    // approval it never received is the worst case this file can hold, and it looks identical to
+    // a legitimate one from the outside.
+    //
+    // So: for each `### … · ✅ APPROVED` heading, the block beneath it must name the operator and
+    // point at a journal entry. Deliberately shape-based on the two things SR-1 actually demands,
+    // not on wording — a check that pins the sentence would fail the next time a rule is phrased
+    // differently, which is the prose-as-structure trap this arc has hit fifteen times.
+    const claude = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf8');
+    const lines = claude.split('\n');
+    const heads = lines
+      .map((l, i) => ({ l, i }))
+      .filter(({ l }) => /^### .*✅ APPROVED/.test(l));
+    expect(heads.length, 'no approved rules parsed from CLAUDE.md — the scan would be vacuous')
+      .toBeGreaterThan(1);
+
+    const missing = [];
+    for (let k = 0; k < heads.length; k++) {
+      const from = heads[k].i;
+      const to = k + 1 < heads.length ? heads[k + 1].i : lines.length;
+      const block = lines.slice(from, to).join('\n');
+      const id = (heads[k].l.match(/\bD-\d{1,3}\b/) || ['(unnamed)'])[0];
+      if (!/Operator,/.test(block)) missing.push(`${id}: no operator approval`);
+      // \u26a0 THIS PATTERN WAS WRONG ON ITS FIRST RUN, and the rules were fine. It read
+      // `journal-[0-9_]+-[0-9_]+\\.md`, which cannot span the SECOND hyphen in a real name like
+      // `journal-0_62_732-22_08_26-1108.md` — so it reported three rules as missing evidence they
+      // all carry. Sixteenth time this arc a check tripped on the SHAPE of text rather than its
+      // content, and the first inside a guard whose own comment warns against exactly that.
+      if (!/journal-[0-9A-Za-z_.-]+\.md/.test(block)) missing.push(`${id}: no journal reference`);
+    }
+    expect(missing, 'rules claiming approval without carrying its evidence').toEqual([]);
+  });
+
   it('\u26a0 its absent-id census is COMPLETE — the check C-2 needed and did not have', () => {
     // \u26a0 THE DEFECT THIS EXISTS FOR. `register-0_62_925` (\u2116 222) retracted three false claims in
     // \u2116 221, and its own correction row C-2 ended: "Exactly **one** real id had never reached the

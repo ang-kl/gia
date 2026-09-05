@@ -73,6 +73,41 @@ Two things this does **not** relax:
   pending `doc/Feature/` or `vault/` update already gets. A record folded forward into a PR
   that never arrives is a record that was dropped.
 
+### Amendment D-210 — a record never gets a PR of its own · ✅ APPROVED (G3), 04-09 '26
+
+> **In force, and it tightens D-205 above rather than replacing it.** SR-1 (`CLAUDE-FULL.md`
+> §17.6) requires a standing rule to carry the operator's approval and a journal reference. Both
+> hold. **Operator, 04-09 '26, choosing between three stated options: *"Stop holding — ship
+> records with the work only"*.** Journal reference: `journal-0_62_798-26_08_26-2019.md`
+> `[AMD-212]` (the finding that prompted the question) and `[AMD-213]` (this approval).
+
+**A merge record never gets a pull request of its own — not held for one, not eventually shipped
+as one.** It rides substantive work, or it waits in the Journal, unpushed, until substantive work
+arrives.
+
+**Why D-205 alone was not enough.** D-205 stopped a docs-only PR *recording* a merge, which broke
+the 22-08 chain of nine PRs. It did not stop the record from being *owed*, so the loop simply ran
+at one PR per cycle instead of two: #1863 shipped `[AMD-211]` alone, merged, and thereby owed
+`[AMD-212]` — a record of a record. Five entries running alternated substantive, record,
+substantive, record, record-of-a-record. Holding a record out of a PR terminates the recursion
+only while the next PR is substantive; when the held record is shipped alone instead, the cycle
+turns again.
+
+⚠ **The cost the operator accepted, stated plainly at the time they chose it.** A record can now
+sit unpushed indefinitely, and this repo runs in **ephemeral containers** — `CLAUDE-protocol.md`
+§1 calls an unpushed count the one thing that loses work, and the `3,232` ledger row describes a
+record that was fragile for exactly this reason. That is the trade: fewer PRs, and a longer window
+in which a container can die holding a record no remote has. It was named before the choice, not
+discovered after it.
+
+**Unchanged from D-205, and worth restating because this amendment could be misread as relaxing
+them:**
+
+- The record is still **written at merge time**, from the merged tree, verified by content
+  (D-123). This delays the *push*, never the *verification*.
+- A record with no carrier is still **owed and logged** — in the Journal's `[KNOWN GAPS]`, and in
+  `doc/Register/`'s Owed-records table when a snapshot is next cut. Waiting is not dropping.
+
 ### Anchor time — D-203 · ✅ APPROVED (G3), 22-08 '26
 
 > **In force.** SR-1 (`CLAUDE-FULL.md` §17.6) requires a standing rule to carry the
