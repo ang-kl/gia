@@ -1,6 +1,6 @@
 {
-  "generated": "2026-09-01",
-  "count": 1788,
+  "generated": "2026-09-08",
+  "count": 1837,
   "records": [
     {
       "pr": 1,
@@ -51034,6 +51034,1632 @@
       "title": "v0.62.876 — the duplicate cards a reader could actually see",
       "reworkCue": true,
       "reworkOf": 1814,
+      "burst": true
+    },
+    {
+      "pr": 1817,
+      "status": "merged",
+      "merged": "2026-09-01 00:23:33+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.877",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: the Vibe Journal caught up: 45 PRs, and the redaction step earning its keep",
+      "approach": "## What **Item 1** of your \"3, 2, 1\" — and the only one that **publishes**.",
+      "codeImpact": "12 files — doc, package, root-docs, public/",
+      "modules": [
+        "root-docs",
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 12,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.877 — the Vibe Journal caught up: 45 PRs, and the redaction step earning its keep",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1818,
+      "status": "merged",
+      "merged": "2026-09-01 01:43:49+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.878",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: Korean K1: 405 units, and the count that was wrong by two",
+      "approach": "First of the eleven-PR Korean arc, plus the `teh tarik` ruling, plus #1817's merge record riding along under D-205.",
+      "codeImpact": "8 files — i18n.js, nation-overlay.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "i18n.js",
+        "nation-overlay.js",
+        "package"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.878 — Korean K1: 405 units, and the count that was wrong by two",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1819,
+      "status": "merged",
+      "merged": "2026-09-01 03:01:52+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.880",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: Korean K2+K3: 916 Mini App units and 1,612 dish names",
+      "approach": "This PR now carries two stages, K2 and K3.** It was opened as K2 alone; K3 landed on the same branch because this session is bound to `claude/handover-july-11-49uzvf` and may not open a second one. Rather than leave the description wrong,…",
+      "codeImpact": "12 files — dish-names-i18n.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "dish-names-i18n.js",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.880 — Korean K2+K3: 916 Mini App units and 1,612 dish names",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1820,
+      "status": "merged",
+      "merged": "2026-09-01 03:52:26+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.881",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Korean K4: 1,684 overlay dish notes",
+      "approach": "K4 of five.",
+      "codeImpact": "7 files — nation-overlay-dishnotes-i18n.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-dishnotes-i18n.generated.js",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.881 — Korean K4: 1,684 overlay dish notes",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1821,
+      "status": "merged",
+      "merged": "2026-09-01 07:38:39+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.882",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: Korean K5: 1,670 classics dish notes",
+      "approach": "The last content PR of the arc.** One `ko:` line per entry in `classics-notes-i18n.generated.js` — the 📜 notes behind `CLASSIC_NOTES` and `CUISINE_NOTES`. After this, only K6 (the flip) remains. **No product code changed.** The fold at…",
+      "codeImpact": "8 files — classics-notes-i18n.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "classics-notes-i18n.generated.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.882 — Korean K5: 1,670 classics dish notes",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1822,
+      "status": "merged",
+      "merged": "2026-09-01 08:33:08+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.883",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: Korean K6: the flip",
+      "approach": "This is the first change in the arc a user can see.** K1–K5 put 6,277 Korean cells on `main` and every one of them was unreachable by construction — `ko` was deliberately absent from every `SUPPORTED` list, so `pickLang('ko')` returned…",
+      "codeImpact": "58 files — index.js, city-plates-i18n.generated.js, i18n.js, open-hours.js, privacy-html.js, prompt-locale.js, pronounce-name.js, +2 more, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "city-plates-i18n.generated.js",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "open-hours.js",
+        "package",
+        "privacy-html.js",
+        "prompt-locale.js",
+        "pronounce-name.js",
+        "scripts/",
+        "user-prefs.js",
+        "vibe-summary.js",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 58,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "privacy",
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.883 — Korean K6: the flip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1823,
+      "status": "merged",
+      "merged": "2026-09-01 09:35:33+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.884",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: the command menu follows the toggle, and the Mini Apps read the preference",
+      "approach": "Two bugs with the same symptom, both reported against #1822 within an hour of it merging.",
+      "codeImpact": "16 files — index.js, bot-commands.js, i18n.js, TMA:menu, TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "bot-commands.js",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 16,
+      "tmas": [
+        "menu",
+        "transport"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.884 — the command menu follows the toggle, and the Mini Apps read the preference",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1824,
+      "status": "merged",
+      "merged": "2026-09-01 11:00:04+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.886",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the bot's About pane, the station popup, and differsFrom",
+      "approach": "Two commits, and the second was added after this PR was opened** — the container holding it is ephemeral and the work would have been lost, so it went here rather than nowhere. Say the word and I'll split it. | | | | :--- | :--- | |…",
+      "codeImpact": "28 files — index.js, bot-commands.js, city-plate-names-i18n.generated.js, city-plates-differs-i18n.generated.js, city-plates-i18n.generated.js, city-plates.js, i18n.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "bot-commands.js",
+        "city-plate-names-i18n.generated.js",
+        "city-plates-differs-i18n.generated.js",
+        "city-plates-i18n.generated.js",
+        "city-plates.js",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 28,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.886 — the bot's About pane, the station popup, and differsFrom",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1825,
+      "status": "merged",
+      "merged": "2026-09-01 12:54:31+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.887",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: the 279 plate dish names, in all eight locales",
+      "approach": "> *\"The recommended dish is still describe in English and not spanish.\"* You were right, and it was a **defect**, not a translation gap.",
+      "codeImpact": "5 files — city-plate-names-i18n.generated.js, city-plates.js, tests, package",
+      "modules": [
+        "tests",
+        "city-plate-names-i18n.generated.js",
+        "city-plates.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.887 — the 279 plate dish names, in all eight locales",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1826,
+      "status": "merged",
+      "merged": "2026-09-01 13:14:10+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.888",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: MRT line names get a second line in the reader's language",
+      "approach": "> *\"MRT stays English or Chinese or Malay or Tamil but second line has the translated words in bracket and one font size smaller.\"* ## The gate did not need inverting — and that's the finding Read literally, the request could mean *show…",
+      "codeImpact": "12 files — TMA:transport, tests, package",
+      "modules": [
+        "tests",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.888 — MRT line names get a second line in the reader's language",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1827,
+      "status": "merged",
+      "merged": "2026-09-01 22:57:14+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.889",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: MRT station names get a second line in the reader's language",
+      "approach": "The station half of your request, after #1826 shipped it for the twelve lines: > *\"MRT stays English or Chinese or Malay or Tamil but second line has the translated words in bracket and one font size smaller\"* **189 stations, 752 cells.**…",
+      "codeImpact": "10 files — TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.889 — MRT station names get a second line in the reader's language",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1828,
+      "status": "merged",
+      "merged": "2026-09-01 23:43:40+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.890",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: the locale dropdown's phantom divider, and the line names that never resolved",
+      "approach": "Two defects you found by running the Mini Apps in Korean.",
+      "codeImpact": "24 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 24,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.890 — the locale dropdown's phantom divider, and the line names that never resolved",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1829,
+      "status": "merged",
+      "merged": "2026-09-01 23:58:25+00:00",
+      "day": "2026-09-01",
+      "version": "0.62.891",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: the /language keyboard stopped orphaning Korean on its own row",
+      "approach": "> *\"fix the bot language keyboard too\"* The second half of *\"KR should be together with the rest\"* — and the half that was **literally true**.",
+      "codeImpact": "7 files — index.js, bot-keyboard.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "bot-keyboard.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.891 — the /language keyboard stopped orphaning Korean on its own row",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1830,
+      "status": "merged",
+      "merged": "2026-09-02 00:55:59+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.892",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the pinned location survives a language toggle",
+      "approach": "> *\"You can see the location is in Japan.",
+      "codeImpact": "7 files — TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.892 — the pinned location survives a language toggle",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1831,
+      "status": "merged",
+      "merged": "2026-09-02 01:07:44+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.893",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Language / i18n",
+      "intent": "Fix: the search cache, sixteen silent handlers, and a finding that was false",
+      "approach": "> *\"fix the skipCache and the unguarded handlers, French, 57 missing keys in Cuisine\"* Three headline items from the audits.",
+      "codeImpact": "11 files — index.js, i18n.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 11,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.893 — the search cache, sixteen silent handlers, and a finding that was false",
+      "reworkCue": false,
+      "reworkOf": 1829,
+      "burst": true
+    },
+    {
+      "pr": 1832,
+      "status": "merged",
+      "merged": "2026-09-02 01:22:25+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.894",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: two arrows on every station card, and a header that lied in triplicate",
+      "approach": "> *\"fix the mapOverlays byte-identity claim and the double arrow\"* The two audit findings that were genuine defects rather than analysis errors.",
+      "codeImpact": "10 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.894 — two arrows on every station card, and a header that lied in triplicate",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1833,
+      "status": "merged",
+      "merged": "2026-09-02 02:08:52+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.895",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the anchor guard that let me through, and the Korean reader with no Korean",
+      "approach": "> *\"plan the fix for §2,869·A , §2,869·B\"* A process defect I committed, and a product defect your own design question uncovered.",
+      "codeImpact": "12 files — local-name.js, venue-templates.js, TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "local-name.js",
+        "package",
+        "venue-templates.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.895 — the anchor guard that let me through, and the Korean reader with no Korean",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1834,
+      "status": "merged",
+      "merged": "2026-09-02 02:42:07+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.896",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: Places speaks nine languages, and a sub-menu that spoke one",
+      "approach": "> *\"do the places languageCode change.",
+      "codeImpact": "15 files — index.js, cuisine-geo-scope.js, pipeline.js, places-language.js, venue-type-label.js, TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "cuisine-geo-scope.js",
+        "doc",
+        "index.js",
+        "package",
+        "pipeline.js",
+        "places-language.js",
+        "venue-type-label.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 15,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.896 — Places speaks nine languages, and a sub-menu that spoke one",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1835,
+      "status": "merged",
+      "merged": "2026-09-02 03:50:37+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.897",
+      "minor": "0.62",
+      "category": "copy",
+      "area": "Cuisine Picker",
+      "intent": "Reword: nothing was missing; four sites were throwing translations away",
+      "approach": "> *\"before you build §2,911·C.",
+      "codeImpact": "9 files — index.js, nation-overlay-i18n.generated.js, places-language.js, prompt-locale.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "nation-overlay-i18n.generated.js",
+        "package",
+        "places-language.js",
+        "prompt-locale.js"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.897 — nothing was missing; four sites were throwing translations away",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1836,
+      "status": "merged",
+      "merged": "2026-09-02 04:41:53+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.898",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Privacy / legal",
+      "intent": "Add: /forgetme kept most of what it promised to erase",
+      "approach": "> *\"Fix it first, as its own PR\"* Found while tracing storage for §2,911·C, not while looking for it.",
+      "codeImpact": "6 files — user-data.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "user-data.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.898 — /forgetme kept most of what it promised to erase",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1837,
+      "status": "merged",
+      "merged": "2026-09-02 05:07:44+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.899",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: 900 — the locale toggle's search, and the ↻ under the 💬",
+      "approach": "Two of your three asks in one branch.",
+      "codeImpact": "16 files — index.js, review-refresh.js, TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "review-refresh.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 16,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.899-900 — the locale toggle's search, and the ↻ under the 💬",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1838,
+      "status": "merged",
+      "merged": "2026-09-02 06:56:24+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.901",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: 902 — the anonymous context recommender, and the spinner that never stopped",
+      "approach": "Two releases on one branch.",
+      "codeImpact": "18 files — index.js, i18n.js, taste-aggregate.js, taste-context.js, taste-graph.js, taste-score.js, taste-suggest.js, +1 more, TMA:cuisine, TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package",
+        "taste-aggregate.js",
+        "taste-context.js",
+        "taste-graph.js",
+        "taste-score.js",
+        "taste-suggest.js",
+        "taste-why.js",
+        "TMA:cuisine",
+        "TMA:transport"
+      ],
+      "nFiles": 18,
+      "tmas": [
+        "cuisine",
+        "transport"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.901-902 — the anonymous context recommender, and the spinner that never stopped",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1839,
+      "status": "merged",
+      "merged": "2026-09-02 07:41:21+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.903",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: sizing the taxonomy backfill found three defects in the taxonomy",
+      "approach": "The dish taxonomy covers **99 of 1,697 dishes, all `singaporean`**, so the recommender's `mealFit` and `weatherFit` terms are inert outside one cuisine.",
+      "codeImpact": "12 files — nation-overlay-taxonomy.generated.js, taste-score.js, TMA:cuisine, tests, doc, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package",
+        "scripts/",
+        "taste-score.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.903 — sizing the taxonomy backfill found three defects in the taxonomy",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1840,
+      "status": "merged",
+      "merged": "2026-09-02 08:00:57+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.904",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: backfill batch 1: 155 dishes, and the recommender starts telling periods apart",
+      "approach": "The first of eleven measured batches.",
+      "codeImpact": "6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.904 — backfill batch 1: 155 dishes, and the recommender starts telling periods apart",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1841,
+      "status": "merged",
+      "merged": "2026-09-02 09:32:52+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.905",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: backfill batch 2: 150 dishes, and night_supper stops being Singapore-only",
+      "approach": "The second of eleven batches: **korean, malaysian, north-indian, italian, french — 30 each.** Overlay **254 → 404**.",
+      "codeImpact": "6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.905 — backfill batch 2: 150 dishes, and night_supper stops being Singapore-only",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1842,
+      "status": "merged",
+      "merged": "2026-09-02 10:10:22+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.906",
+      "minor": "0.62",
+      "category": "test",
+      "area": "Cuisine Picker",
+      "intent": "Add tests: backfill batch 3: 147 dishes, and a test satisfied by randomness",
+      "approach": "Third of eleven batches: **spanish (30), mexican (30), peranakan (29), indonesian (29), thai (29).** Overlay **404 → 551**.",
+      "codeImpact": "6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.906 — backfill batch 3: 147 dishes, and a test satisfied by randomness",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1843,
+      "status": "merged",
+      "merged": "2026-09-02 10:40:56+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.907",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: backfill batch 4: 162 dishes, night_supper past half, and a floor that moved",
+      "approach": "Largest and widest batch of the arc: **south-indian (28), german (28), british (28), sichuan (26), chinese (26), filipino (26).** Overlay **551 → 713 — past 40 %** of the 1,697.",
+      "codeImpact": "6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.907 — backfill batch 4: 162 dishes, night_supper past half, and a floor that moved",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1844,
+      "status": "merged",
+      "merged": "2026-09-02 11:05:59+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.908",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: backfill batch 5: past halfway, and two guards watching the wrong thing",
+      "approach": "Batch 5 of eleven in the dish-taxonomy backfill.",
+      "codeImpact": "6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.908 — backfill batch 5: past halfway, and two guards watching the wrong thing",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1845,
+      "status": "merged",
+      "merged": "2026-09-02 11:43:10+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.910",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: backfill batch 6, and the owner's chat id leaves the public tree",
+      "approach": "Two things.",
+      "codeImpact": "31 files — index.js, nation-overlay-taxonomy.generated.js, user-data.js, tests, doc, package, root-docs, log/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "log/",
+        "nation-overlay-taxonomy.generated.js",
+        "package",
+        "user-data.js"
+      ],
+      "nFiles": 31,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.910 — backfill batch 6, and the owner's chat id leaves the public tree",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1846,
+      "status": "merged",
+      "merged": "2026-09-02 12:48:27+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.911",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: the map layer speaks the reader's language",
+      "approach": "You reported three things.",
+      "codeImpact": "18 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 18,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.911 — the map layer speaks the reader's language",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1847,
+      "status": "merged",
+      "merged": "2026-09-02 13:27:08+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.912",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: the Hawker card answers the audit",
+      "approach": "## The pin question answers itself: yes, already `hawkerPinNode(isNew, centreNo, hasBib, activeClosure(c.closures)?.kind)` recolours **red cleaning / grey renovation / near-black redevelopment** and stamps a `CLOSE` badge, sharing…",
+      "codeImpact": "15 files — index.js, hawker-vault.js, TMA:hawker, tests, doc, data, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "data",
+        "doc",
+        "hawker-vault.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:hawker"
+      ],
+      "nFiles": 15,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.912 — the Hawker card answers the audit",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1848,
+      "status": "merged",
+      "merged": "2026-09-02 16:14:08+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.913",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: the hawker join reaches all 123, and the obvious fix was wrong",
+      "approach": "#1847 shipped the Hawker card and left **nine centres out of it** — named in its own body and pinned at 9 in its guard.",
+      "codeImpact": "6 files — hawker-vault.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "hawker-vault.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.913 — the hawker join reaches all 123, and the obvious fix was wrong",
+      "reworkCue": false,
+      "reworkOf": 1847,
+      "burst": false
+    },
+    {
+      "pr": 1849,
+      "status": "merged",
+      "merged": "2026-09-02 16:49:18+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.914",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: partly open is a third state, not a shade of closed",
+      "approach": "Seven cleaning and renovation windows across three centres close **one block** and leave the other one serving.",
+      "codeImpact": "15 files — index.js, hawker-vault.js, TMA:hawker, tests, doc, data, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "data",
+        "doc",
+        "hawker-vault.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:hawker"
+      ],
+      "nFiles": 15,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.914 — partly open is a third state, not a shade of closed",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1850,
+      "status": "merged",
+      "merged": "2026-09-02 17:12:50+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.915",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Buddy / sharing",
+      "intent": "Add: the reader's language survives the round trip",
+      "approach": "Seven sites each restated which locales the app speaks.",
+      "codeImpact": "15 files — index.js, bot-fun-facts.js, clip-store.js, open-hours.js, TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "bot-fun-facts.js",
+        "clip-store.js",
+        "doc",
+        "index.js",
+        "open-hours.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 15,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.915 — the reader's language survives the round trip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1851,
+      "status": "merged",
+      "merged": "2026-09-02 22:36:33+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.916",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: a comment asserting a safeguard is not a safeguard",
+      "approach": "`sg-terms-i18n.js` has said since v0.62.911 that its `ABBREV` map *\"is duplicated on purpose and `__tests__/sg-terms.test.js` asserts the two agree\"*.",
+      "codeImpact": "9 files — sg-address.js, tests, doc, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "scripts/",
+        "sg-address.js"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.916 — a comment asserting a safeguard is not a safeguard",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1852,
+      "status": "merged",
+      "merged": "2026-09-02 23:10:34+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.917",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: the proper nouns land, and zh is the column that cannot be guessed",
+      "approach": "195 rows** in `web/_shared/lib/sg-nouns-i18n.generated.js` — the file `sg-terms-i18n.js` has named as the home of proper nouns since v0.62.911, and which v0.62.916 recorded as never having existed. Three batches by frequency: 29 at ≥4, 65…",
+      "codeImpact": "12 files — tests, doc, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 12,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.917 — the proper nouns land, and zh is the column that cannot be guessed",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1853,
+      "status": "merged",
+      "merged": "2026-09-02 23:33:04+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.918",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: dish taxonomy batch 7, and the guard that narrowed its own batch",
+      "approach": "152 rows** across bengali, russian, scandinavian, brazilian, south-african, hakka and sri-lankan. Overlay **1,025 → 1,177**, past **69%** of the 1,697. Four more cuisines fully classified, taking that count **33 → 40**. Second of the…",
+      "codeImpact": "6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.918 — dish taxonomy batch 7, and the guard that narrowed its own batch",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1854,
+      "status": "merged",
+      "merged": "2026-09-02 23:58:00+00:00",
+      "day": "2026-09-02",
+      "version": "0.62.919",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the Korean fun facts, and a defect that another defect was hiding",
+      "approach": "Closes the last of the operator's three: *\"do the ¶C·1 - 185 proper nouns … dish-taxonomy batch 7 .",
+      "codeImpact": "12 files — nation-overlay-taxonomy.generated.js, taste-score.js, TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package",
+        "taste-score.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.919 — the Korean fun facts, and a defect that another defect was hiding",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1855,
+      "status": "merged",
+      "merged": "2026-09-03 00:45:16+00:00",
+      "day": "2026-09-03",
+      "version": "0.62.920",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: the claim v0.62.919 made about the bot was true and unasserted",
+      "approach": "A stale scheduled check-in fired asking for work already finished — ship the Korean fun facts, verify #1853 — and every line of it was obsolete except one: *\"extend `__tests__/bot-fun-facts.test.js` so the overlay-locale assertions…",
+      "codeImpact": "5 files — tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.920 — the claim v0.62.919 made about the bot was true and unasserted",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1856,
+      "status": "merged",
+      "merged": "2026-09-03 03:09:08+00:00",
+      "day": "2026-09-03",
+      "version": "0.62.921",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: 922 — all 520 taxonomy rows, and the backfill closes at 1,697 of 1,697",
+      "approach": "\"do the 520 taxonomy rows\"* — **all 520, in two commits.** The overlay is **complete**: 1,177 → **1,697 of 1,697, 100 %**. Nine batches and **1,598 hand-authored rows** since v0.62.903's 99. `classified` is now **66 — every cuisine in the…",
+      "codeImpact": "6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "nation-overlay-taxonomy.generated.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.921–922 — all 520 taxonomy rows, and the backfill closes at 1,697 of 1,697",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1857,
+      "status": "merged",
+      "merged": "2026-09-03 03:51:55+00:00",
+      "day": "2026-09-03",
+      "version": "0.62.923",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: the hawker Street View link, and three of my own measurements were wrong",
+      "approach": "First of the two outstanding items.",
+      "codeImpact": "13 files — index.js, hawker-vault.js, TMA:hawker, tests, doc, data, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "data",
+        "doc",
+        "hawker-vault.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:hawker"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.923 — the hawker Street View link, and three of my own measurements were wrong",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1858,
+      "status": "merged",
+      "merged": "2026-09-03 04:44:58+00:00",
+      "day": "2026-09-03",
+      "version": "0.62.924",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: the Register comes current, and a correction against myself",
+      "approach": "## ⚠ Read this first — the earlier version of this PR was wrong three times You asked me to reconstruct the Register backlog.",
+      "codeImpact": "6 files — tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.924 — the Register comes current, and a correction against myself",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1859,
+      "status": "merged",
+      "merged": "2026-09-03 05:35:12+00:00",
+      "day": "2026-09-03",
+      "version": "0.62.925",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: retracting № 221, which merged before the correction was ready",
+      "approach": "## ⚠ #1858 shipped three false claims.",
+      "codeImpact": "6 files — tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.925 — retracting № 221, which merged before the correction was ready",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1860,
+      "status": "merged",
+      "merged": "2026-09-03 07:11:26+00:00",
+      "day": "2026-09-03",
+      "version": "0.62.926",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: the retraction of three false claims carried a fourth",
+      "approach": "Verifying #1859 by content from the merged tree (**23/23**, D-123) turned up two defects that PR did not fix.",
+      "codeImpact": "7 files — tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.926 — the retraction of three false claims carried a fourth",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1861,
+      "status": "merged",
+      "merged": "2026-09-03 09:01:37+00:00",
+      "day": "2026-09-03",
+      "version": "0.62.927",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: the repo's security posture, and the half of it a container cannot see",
+      "approach": "You asked me to *\"ensure the github repo is fully secure\"*, after the **\"recent pushes\"** banner led you to write *\"someone spook my code\"*.",
+      "codeImpact": "9 files — tests, doc, ci, package, root-docs",
+      "modules": [
+        "ci",
+        "root-docs",
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.927 — the repo's security posture, and the half of it a container cannot see",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1862,
+      "status": "merged",
+      "merged": "2026-09-04 00:24:00+00:00",
+      "day": "2026-09-04",
+      "version": "0.62.928",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: R-4 closed, and one of my own recommendations corrected",
+      "approach": "You said *\"fix §3,350·A\"*.",
+      "codeImpact": "26 files — TMA:cuisine, tests, doc, package, root-docs, log/, public/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "log/",
+        "package",
+        "public/",
+        "TMA:cuisine"
+      ],
+      "nFiles": 26,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.928 — R-4 closed, and one of my own recommendations corrected",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1863,
+      "status": "merged",
+      "merged": "2026-09-04 06:36:47+00:00",
+      "day": "2026-09-04",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: [AMD-211] — #1862's merge record",
+      "approach": "⚠ **This PR exists because of a rule conflict, and I applied your own prior ruling rather than asking you the same question twice.** D-205 forbids a PR whose only content is a merge record, so `[AMD-211]` was written and **held**.",
+      "codeImpact": "3 files — doc, root-docs",
+      "modules": [
+        "root-docs",
+        "doc"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "[AMD-211] — #1862's merge record",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1864,
+      "status": "merged",
+      "merged": "2026-09-05 08:26:44+00:00",
+      "day": "2026-09-05",
+      "version": "0.62.930",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the Cuisine TMA place anchor was Singapore-only by construction (+ D-210)",
+      "approach": "You set the app to **Tokyo**, typed **`銀座 いしだや`** in the free-text bar, and the search ran in **Singapore**.",
+      "codeImpact": "10 files — index.js, place-detector.js, vibe-suggest.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "place-detector.js",
+        "vibe-suggest.js"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.930 — the Cuisine TMA place anchor was Singapore-only by construction (+ D-210)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1865,
+      "status": "merged",
+      "merged": "2026-09-08 03:01:34+00:00",
+      "day": "2026-09-08",
+      "version": "0.62.931",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: the stop hook vs D-210, and the first held record lost with its container",
+      "approach": "## Intent Operator: **\"Fix 3,362·D\"** — teach the stop hook to compare against `origin/main` and stay quiet when the only unpushed commits are merge records.",
+      "codeImpact": "9 files — tests, doc, package, root-docs, .claude/, scripts/",
+      "modules": [
+        ".claude/",
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.931 — the stop hook vs D-210, and the first held record lost with its container",
+      "reworkCue": false,
+      "reworkOf": null,
       "burst": true
     }
   ],
