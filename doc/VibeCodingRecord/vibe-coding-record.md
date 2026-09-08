@@ -1,47 +1,47 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-09-01 from a snapshot of all 1788 pull requests (#1–#1816).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-09-08 from a snapshot of all 1837 pull requests (#1–#1865).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1788 total — 1778 merged, 10 closed without merge.
+- **PRs:** 1837 total — 1827 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1816 · 2026-09-01 00:02:01+00:00 · _v0.62.876 — the duplicate cards a reader could actually see_
+- **Latest:** #1865 · 2026-09-08 03:01:34+00:00 · _v0.62.931 — the stop hook vs D-210, and the first held record lost with its container_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1211 |
-| fix | 250 |
-| docs | 117 |
-| copy | 70 |
+| feature | 1255 |
+| fix | 252 |
+| docs | 118 |
+| copy | 71 |
 | refactor | 49 |
 | prompt-tune | 47 |
-| test | 23 |
+| test | 24 |
 | infra | 21 |
 
 ### By feature / UX area
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 649 |
-| Docs / vault | 301 |
-| Hawker NEA | 128 |
-| Transport / carpark | 81 |
+| Cuisine Picker | 666 |
+| Docs / vault | 308 |
+| Hawker NEA | 132 |
+| Language / i18n | 88 |
+| Transport / carpark | 84 |
 | Recognised lists | 79 |
-| Language / i18n | 73 |
 | Core / misc | 70 |
 | Search / free-text | 60 |
-| Infra / setup | 57 |
-| Buddy / sharing | 52 |
+| Infra / setup | 58 |
+| Buddy / sharing | 53 |
 | Menu hub | 48 |
 | /hidden surprise | 47 |
 | Weather | 45 |
 | Pipeline / discovery | 27 |
 | Maps / geo / location | 21 |
-| Privacy / legal | 17 |
+| Privacy / legal | 18 |
 | /eat /drink flow | 15 |
 | Commands / chat UX | 13 |
 | Oversight / usage stats | 5 |
@@ -1840,6 +1840,55 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1814 | merged | 2026-08-31 13:01:45+00:00 | 0.62.874 | feature | Language / i18n | Add: batch 7b: the last 52, and the guarantee that outlives COVERED | ## What The last batch. | 6 files — dish-names-i18n.js, tests, doc, package, root-docs | — | tests; doc/vault |
 | 1815 | merged | 2026-08-31 23:20:04+00:00 | 0.62.875 | feature | Docs / vault | Add: the arc closes: #1814's record, one measurement, and a correction | ## What Bookkeeping owed after batch 7b merged. | 5 files — doc, package, root-docs | — | doc/vault |
 | 1816 | merged | 2026-09-01 00:02:01+00:00 | 0.62.876 | feature | Language / i18n | Add: the duplicate cards a reader could actually see | ## What Your ruling on the overlay duplicates, plus **`[AMD-119]`**, #1815's merge record. | 10 files — classics-notes-i18n.generated.js, classics-notes.js, dish-names-i18n.js, nation-overlay.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1817 | merged | 2026-09-01 00:23:33+00:00 | 0.62.877 | docs | Docs / vault | Update docs: the Vibe Journal caught up: 45 PRs, and the redaction step earning its keep | ## What **Item 1** of your "3, 2, 1" — and the only one that **publishes**. | 12 files — doc, package, root-docs, public/ | — | doc/vault |
+| 1818 | merged | 2026-09-01 01:43:49+00:00 | 0.62.878 | feature | Language / i18n | Add: Korean K1: 405 units, and the count that was wrong by two | First of the eleven-PR Korean arc, plus the `teh tarik` ruling, plus #1817's merge record riding along under D-205. | 8 files — i18n.js, nation-overlay.js, tests, doc, package, root-docs | — | privacy; legal; tests; doc/vault |
+| 1819 | merged | 2026-09-01 03:01:52+00:00 | 0.62.880 | feature | Language / i18n | Add: Korean K2+K3: 916 Mini App units and 1,612 dish names | This PR now carries two stages, K2 and K3.** It was opened as K2 alone; K3 landed on the same branch because this session is bound to `claude/handover-july-11-49uzvf` and may not open a second one. Rather than leave the description wrong,… | 12 files — dish-names-i18n.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package, root-docs | cuisine+menu+hawker+transport | tests; doc/vault |
+| 1820 | merged | 2026-09-01 03:52:26+00:00 | 0.62.881 | feature | Cuisine Picker | Add: Korean K4: 1,684 overlay dish notes | K4 of five. | 7 files — nation-overlay-dishnotes-i18n.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1821 | merged | 2026-09-01 07:38:39+00:00 | 0.62.882 | feature | Language / i18n | Add: Korean K5: 1,670 classics dish notes | The last content PR of the arc.** One `ko:` line per entry in `classics-notes-i18n.generated.js` — the 📜 notes behind `CLASSIC_NOTES` and `CUISINE_NOTES`. After this, only K6 (the flip) remains. **No product code changed.** The fold at… | 8 files — classics-notes-i18n.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1822 | merged | 2026-09-01 08:33:08+00:00 | 0.62.883 | feature | Language / i18n | Add: Korean K6: the flip | This is the first change in the arc a user can see.** K1–K5 put 6,277 Korean cells on `main` and every one of them was unreachable by construction — `ko` was deliberately absent from every `SUPPORTED` list, so `pickLang('ko')` returned… | 58 files — index.js, city-plates-i18n.generated.js, i18n.js, open-hours.js, privacy-html.js, prompt-locale.js, pronounce-name.js, +2 more, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package, root-docs, scripts/ | cuisine+menu+hawker+transport | privacy; legal; tests; doc/vault |
+| 1823 | merged | 2026-09-01 09:35:33+00:00 | 0.62.884 | feature | Language / i18n | Add: the command menu follows the toggle, and the Mini Apps read the preference | Two bugs with the same symptom, both reported against #1822 within an hour of it merging. | 16 files — index.js, bot-commands.js, i18n.js, TMA:menu, TMA:transport, tests, doc, package, root-docs | menu+transport | privacy; tests; doc/vault |
+| 1824 | merged | 2026-09-01 11:00:04+00:00 | 0.62.886 | feature | Cuisine Picker | Add: the bot's About pane, the station popup, and differsFrom | Two commits, and the second was added after this PR was opened** — the container holding it is ephemeral and the work would have been lost, so it went here rather than nowhere. Say the word and I'll split it. \| \| \| \| :--- \| :--- \| \|… | 28 files — index.js, bot-commands.js, city-plate-names-i18n.generated.js, city-plates-differs-i18n.generated.js, city-plates-i18n.generated.js, city-plates.js, i18n.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package, root-docs | cuisine+hawker+transport | Redis/state; tests; doc/vault |
+| 1825 | merged | 2026-09-01 12:54:31+00:00 | 0.62.887 | feature | Language / i18n | Add: the 279 plate dish names, in all eight locales | > *"The recommended dish is still describe in English and not spanish."* You were right, and it was a **defect**, not a translation gap. | 5 files — city-plate-names-i18n.generated.js, city-plates.js, tests, package | — | tests; doc/vault |
+| 1826 | merged | 2026-09-01 13:14:10+00:00 | 0.62.888 | feature | Transport / carpark | Add: MRT line names get a second line in the reader's language | > *"MRT stays English or Chinese or Malay or Tamil but second line has the translated words in bracket and one font size smaller."* ## The gate did not need inverting — and that's the finding Read literally, the request could mean *show… | 12 files — TMA:transport, tests, package | transport | tests; doc/vault |
+| 1827 | merged | 2026-09-01 22:57:14+00:00 | 0.62.889 | feature | Transport / carpark | Add: MRT station names get a second line in the reader's language | The station half of your request, after #1826 shipped it for the twelve lines: > *"MRT stays English or Chinese or Malay or Tamil but second line has the translated words in bracket and one font size smaller"* **189 stations, 752 cells.**… | 10 files — TMA:transport, tests, doc, package, root-docs | transport | tests; doc/vault |
+| 1828 | merged | 2026-09-01 23:43:40+00:00 | 0.62.890 | feature | Language / i18n | Add: the locale dropdown's phantom divider, and the line names that never resolved | Two defects you found by running the Mini Apps in Korean. | 24 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package, root-docs | cuisine+menu+hawker+transport | tests; doc/vault |
+| 1829 | merged | 2026-09-01 23:58:25+00:00 | 0.62.891 | feature | Language / i18n | Add: the /language keyboard stopped orphaning Korean on its own row | > *"fix the bot language keyboard too"* The second half of *"KR should be together with the rest"* — and the half that was **literally true**. | 7 files — index.js, bot-keyboard.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1830 | merged | 2026-09-02 00:55:59+00:00 | 0.62.892 | feature | Cuisine Picker | Add: the pinned location survives a language toggle | > *"You can see the location is in Japan. | 7 files — TMA:cuisine, tests, doc, package, root-docs | cuisine | tests; doc/vault |
+| 1831 | merged | 2026-09-02 01:07:44+00:00 | 0.62.893 | fix | Language / i18n | Fix: the search cache, sixteen silent handlers, and a finding that was false | > *"fix the skipCache and the unguarded handlers, French, 57 missing keys in Cuisine"* Three headline items from the audits. | 11 files — index.js, i18n.js, tests, doc, package, root-docs | — | Redis/state; tests; doc/vault |
+| 1832 | merged | 2026-09-02 01:22:25+00:00 | 0.62.894 | feature | Transport / carpark | Add: two arrows on every station card, and a header that lied in triplicate | > *"fix the mapOverlays byte-identity claim and the double arrow"* The two audit findings that were genuine defects rather than analysis errors. | 10 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package, root-docs | cuisine+hawker+transport | tests; doc/vault |
+| 1833 | merged | 2026-09-02 02:08:52+00:00 | 0.62.895 | feature | Cuisine Picker | Add: the anchor guard that let me through, and the Korean reader with no Korean | > *"plan the fix for §2,869·A , §2,869·B"* A process defect I committed, and a product defect your own design question uncovered. | 12 files — local-name.js, venue-templates.js, TMA:cuisine, tests, doc, package, root-docs | cuisine | tests; doc/vault |
+| 1834 | merged | 2026-09-02 02:42:07+00:00 | 0.62.896 | feature | Language / i18n | Add: Places speaks nine languages, and a sub-menu that spoke one | > *"do the places languageCode change. | 15 files — index.js, cuisine-geo-scope.js, pipeline.js, places-language.js, venue-type-label.js, TMA:cuisine, tests, doc, package, root-docs | cuisine | tests; doc/vault |
+| 1835 | merged | 2026-09-02 03:50:37+00:00 | 0.62.897 | copy | Cuisine Picker | Reword: nothing was missing; four sites were throwing translations away | > *"before you build §2,911·C. | 9 files — index.js, nation-overlay-i18n.generated.js, places-language.js, prompt-locale.js, tests, doc, package, root-docs | — | Redis/state; privacy; tests; doc/vault |
+| 1836 | merged | 2026-09-02 04:41:53+00:00 | 0.62.898 | feature | Privacy / legal | Add: /forgetme kept most of what it promised to erase | > *"Fix it first, as its own PR"* Found while tracing storage for §2,911·C, not while looking for it. | 6 files — user-data.js, tests, doc, package, root-docs | — | Redis/state; privacy; tests; doc/vault |
+| 1837 | merged | 2026-09-02 05:07:44+00:00 | 0.62.899 | feature | Language / i18n | Add: 900 — the locale toggle's search, and the ↻ under the 💬 | Two of your three asks in one branch. | 16 files — index.js, review-refresh.js, TMA:cuisine, tests, doc, package, root-docs | cuisine | Redis/state; tests; doc/vault |
+| 1838 | merged | 2026-09-02 06:56:24+00:00 | 0.62.901 | feature | Language / i18n | Add: 902 — the anonymous context recommender, and the spinner that never stopped | Two releases on one branch. | 18 files — index.js, i18n.js, taste-aggregate.js, taste-context.js, taste-graph.js, taste-score.js, taste-suggest.js, +1 more, TMA:cuisine, TMA:transport, tests, doc, package, root-docs | cuisine+transport | privacy; tests; doc/vault |
+| 1839 | merged | 2026-09-02 07:41:21+00:00 | 0.62.903 | feature | Cuisine Picker | Add: sizing the taxonomy backfill found three defects in the taxonomy | The dish taxonomy covers **99 of 1,697 dishes, all `singaporean`**, so the recommender's `mealFit` and `weatherFit` terms are inert outside one cuisine. | 12 files — nation-overlay-taxonomy.generated.js, taste-score.js, TMA:cuisine, tests, doc, package, root-docs, scripts/ | cuisine | tests; doc/vault |
+| 1840 | merged | 2026-09-02 08:00:57+00:00 | 0.62.904 | feature | Cuisine Picker | Add: backfill batch 1: 155 dishes, and the recommender starts telling periods apart | The first of eleven measured batches. | 6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1841 | merged | 2026-09-02 09:32:52+00:00 | 0.62.905 | feature | Cuisine Picker | Add: backfill batch 2: 150 dishes, and night_supper stops being Singapore-only | The second of eleven batches: **korean, malaysian, north-indian, italian, french — 30 each.** Overlay **254 → 404**. | 6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1842 | merged | 2026-09-02 10:10:22+00:00 | 0.62.906 | test | Cuisine Picker | Add tests: backfill batch 3: 147 dishes, and a test satisfied by randomness | Third of eleven batches: **spanish (30), mexican (30), peranakan (29), indonesian (29), thai (29).** Overlay **404 → 551**. | 6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1843 | merged | 2026-09-02 10:40:56+00:00 | 0.62.907 | feature | Cuisine Picker | Add: backfill batch 4: 162 dishes, night_supper past half, and a floor that moved | Largest and widest batch of the arc: **south-indian (28), german (28), british (28), sichuan (26), chinese (26), filipino (26).** Overlay **551 → 713 — past 40 %** of the 1,697. | 6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1844 | merged | 2026-09-02 11:05:59+00:00 | 0.62.908 | feature | Cuisine Picker | Add: backfill batch 5: past halfway, and two guards watching the wrong thing | Batch 5 of eleven in the dish-taxonomy backfill. | 6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1845 | merged | 2026-09-02 11:43:10+00:00 | 0.62.910 | feature | Cuisine Picker | Add: backfill batch 6, and the owner's chat id leaves the public tree | Two things. | 31 files — index.js, nation-overlay-taxonomy.generated.js, user-data.js, tests, doc, package, root-docs, log/ | — | privacy; tests; doc/vault |
+| 1846 | merged | 2026-09-02 12:48:27+00:00 | 0.62.911 | feature | Language / i18n | Add: the map layer speaks the reader's language | You reported three things. | 18 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package, root-docs | cuisine+hawker+transport | tests; doc/vault |
+| 1847 | merged | 2026-09-02 13:27:08+00:00 | 0.62.912 | feature | Hawker NEA | Add: the Hawker card answers the audit | ## The pin question answers itself: yes, already `hawkerPinNode(isNew, centreNo, hasBib, activeClosure(c.closures)?.kind)` recolours **red cleaning / grey renovation / near-black redevelopment** and stamps a `CLOSE` badge, sharing… | 15 files — index.js, hawker-vault.js, TMA:hawker, tests, doc, data, package, root-docs, scripts/ | hawker | tests; doc/vault |
+| 1848 | merged | 2026-09-02 16:14:08+00:00 | 0.62.913 | fix | Hawker NEA | Fix: the hawker join reaches all 123, and the obvious fix was wrong | #1847 shipped the Hawker card and left **nine centres out of it** — named in its own body and pinned at 9 in its guard. | 6 files — hawker-vault.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1849 | merged | 2026-09-02 16:49:18+00:00 | 0.62.914 | feature | Hawker NEA | Add: partly open is a third state, not a shade of closed | Seven cleaning and renovation windows across three centres close **one block** and leave the other one serving. | 15 files — index.js, hawker-vault.js, TMA:hawker, tests, doc, data, package, root-docs, scripts/ | hawker | tests; doc/vault |
+| 1850 | merged | 2026-09-02 17:12:50+00:00 | 0.62.915 | feature | Buddy / sharing | Add: the reader's language survives the round trip | Seven sites each restated which locales the app speaks. | 15 files — index.js, bot-fun-facts.js, clip-store.js, open-hours.js, TMA:cuisine, tests, doc, package, root-docs | cuisine | Redis/state; tests; doc/vault |
+| 1851 | merged | 2026-09-02 22:36:33+00:00 | 0.62.916 | feature | Language / i18n | Add: a comment asserting a safeguard is not a safeguard | `sg-terms-i18n.js` has said since v0.62.911 that its `ABBREV` map *"is duplicated on purpose and `__tests__/sg-terms.test.js` asserts the two agree"*. | 9 files — sg-address.js, tests, doc, package, root-docs, scripts/ | — | tests; doc/vault |
+| 1852 | merged | 2026-09-02 23:10:34+00:00 | 0.62.917 | feature | Language / i18n | Add: the proper nouns land, and zh is the column that cannot be guessed | 195 rows** in `web/_shared/lib/sg-nouns-i18n.generated.js` — the file `sg-terms-i18n.js` has named as the home of proper nouns since v0.62.911, and which v0.62.916 recorded as never having existed. Three batches by frequency: 29 at ≥4, 65… | 12 files — tests, doc, package, root-docs, scripts/ | — | Redis/state; tests; doc/vault |
+| 1853 | merged | 2026-09-02 23:33:04+00:00 | 0.62.918 | feature | Cuisine Picker | Add: dish taxonomy batch 7, and the guard that narrowed its own batch | 152 rows** across bengali, russian, scandinavian, brazilian, south-african, hakka and sri-lankan. Overlay **1,025 → 1,177**, past **69%** of the 1,697. Four more cuisines fully classified, taking that count **33 → 40**. Second of the… | 6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1854 | merged | 2026-09-02 23:58:00+00:00 | 0.62.919 | feature | Cuisine Picker | Add: the Korean fun facts, and a defect that another defect was hiding | Closes the last of the operator's three: *"do the ¶C·1 - 185 proper nouns … dish-taxonomy batch 7 . | 12 files — nation-overlay-taxonomy.generated.js, taste-score.js, TMA:cuisine, tests, doc, package, root-docs | cuisine | Redis/state; tests; doc/vault |
+| 1855 | merged | 2026-09-03 00:45:16+00:00 | 0.62.920 | feature | Docs / vault | Add: the claim v0.62.919 made about the bot was true and unasserted | A stale scheduled check-in fired asking for work already finished — ship the Korean fun facts, verify #1853 — and every line of it was obsolete except one: *"extend `__tests__/bot-fun-facts.test.js` so the overlay-locale assertions… | 5 files — tests, doc, package, root-docs | — | Redis/state; tests; doc/vault |
+| 1856 | merged | 2026-09-03 03:09:08+00:00 | 0.62.921 | feature | Cuisine Picker | Add: 922 — all 520 taxonomy rows, and the backfill closes at 1,697 of 1,697 | "do the 520 taxonomy rows"* — **all 520, in two commits.** The overlay is **complete**: 1,177 → **1,697 of 1,697, 100 %**. Nine batches and **1,598 hand-authored rows** since v0.62.903's 99. `classified` is now **66 — every cuisine in the… | 6 files — nation-overlay-taxonomy.generated.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1857 | merged | 2026-09-03 03:51:55+00:00 | 0.62.923 | feature | Hawker NEA | Add: the hawker Street View link, and three of my own measurements were wrong | First of the two outstanding items. | 13 files — index.js, hawker-vault.js, TMA:hawker, tests, doc, data, package, root-docs, scripts/ | hawker | tests; doc/vault |
+| 1858 | merged | 2026-09-03 04:44:58+00:00 | 0.62.924 | feature | Docs / vault | Add: the Register comes current, and a correction against myself | ## ⚠ Read this first — the earlier version of this PR was wrong three times You asked me to reconstruct the Register backlog. | 6 files — tests, doc, package, root-docs | — | tests; doc/vault |
+| 1859 | merged | 2026-09-03 05:35:12+00:00 | 0.62.925 | feature | Docs / vault | Add: retracting № 221, which merged before the correction was ready | ## ⚠ #1858 shipped three false claims. | 6 files — tests, doc, package, root-docs | — | tests; doc/vault |
+| 1860 | merged | 2026-09-03 07:11:26+00:00 | 0.62.926 | feature | Docs / vault | Add: the retraction of three false claims carried a fourth | Verifying #1859 by content from the merged tree (**23/23**, D-123) turned up two defects that PR did not fix. | 7 files — tests, doc, package, root-docs | — | tests; doc/vault |
+| 1861 | merged | 2026-09-03 09:01:37+00:00 | 0.62.927 | feature | Infra / setup | Add: the repo's security posture, and the half of it a container cannot see | You asked me to *"ensure the github repo is fully secure"*, after the **"recent pushes"** banner led you to write *"someone spook my code"*. | 9 files — tests, doc, ci, package, root-docs | — | tests; doc/vault |
+| 1862 | merged | 2026-09-04 00:24:00+00:00 | 0.62.928 | feature | Cuisine Picker | Add: R-4 closed, and one of my own recommendations corrected | You said *"fix §3,350·A"*. | 26 files — TMA:cuisine, tests, doc, package, root-docs, log/, public/ | cuisine | privacy; tests; doc/vault |
+| 1863 | merged | 2026-09-04 06:36:47+00:00 |  | feature | Docs / vault | Add: [AMD-211] — #1862's merge record | ⚠ **This PR exists because of a rule conflict, and I applied your own prior ruling rather than asking you the same question twice.** D-205 forbids a PR whose only content is a merge record, so `[AMD-211]` was written and **held**. | 3 files — doc, root-docs | — | doc/vault |
+| 1864 | merged | 2026-09-05 08:26:44+00:00 | 0.62.930 | feature | Cuisine Picker | Add: the Cuisine TMA place anchor was Singapore-only by construction (+ D-210) | You set the app to **Tokyo**, typed **`銀座 いしだや`** in the free-text bar, and the search ran in **Singapore**. | 10 files — index.js, place-detector.js, vibe-suggest.js, tests, doc, package, root-docs | — | tests; doc/vault |
+| 1865 | merged | 2026-09-08 03:01:34+00:00 | 0.62.931 | feature | Docs / vault | Add: the stop hook vs D-210, and the first held record lost with its container | ## Intent Operator: **"Fix 3,362·D"** — teach the stop hook to compare against `origin/main` and stay quiet when the only unpushed commits are merge records. | 9 files — tests, doc, package, root-docs, .claude/, scripts/ | — | tests; doc/vault |
 
 ---
 
