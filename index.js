@@ -156,6 +156,14 @@ const bot = new TelegramBot(
   useWebhook ? {} : { polling: true }
 );
 const redis = createClient({ url: process.env.REDIS_URL });
+// v0.62.933 ([AMD-220]): the error listener is not optional. Without it
+// node-redis never reaches its own reconnect after a socket error, and the
+// client sits isOpen=true / isReady=false with every command queued forever
+// — seven hours of a green /healthz over a dead bot on 09-09 '26. The guard
+// also runs a bounded watchdog PING and forces a reconnect after three
+// consecutive failures. See redis-guard.js.
+const { attachRedisGuard, healthProbe: redisHealthProbe } = require('./redis-guard');
+const redisGuard = attachRedisGuard(redis, { logger });
 
 // v0.42.1 (B3): bot polling/webhook error handlers. Without these, a
 // transient Telegram outage (502, polling drop, ECONNRESET) crashes
@@ -13168,8 +13176,21 @@ async function cacheBotUsername() {
     // a status-only probe. Probe now hits /healthz and verifies the
     // response is OUR app — only when JSON.service === 'gia' does
     // the host count as healthy.
-    app.get('/healthz', (req, res) => {
-      res.json({ service: 'gia', version: pkgJson.version, ok: true });
+    // v0.62.933 ([AMD-220]): the probe now reports what USERS get. On 09-09
+    // '26 this route answered 200 for seven hours while every Redis-backed
+    // handler hung; `ok` is false and the status 503 when Redis is not
+    // ready or a PING does not come back inside 1.5 s. `service` stays
+    // 'gia' on both paths so webhook-domain's content check still
+    // identifies the host; it reads status === 200 as healthy, which is
+    // now the truthful answer.
+    app.get('/healthz', async (req, res) => {
+      const redisHealth = await redisHealthProbe(redis, { timeoutMs: 1500 });
+      const ok = redisHealth.ready === true;
+      res.status(ok ? 200 : 503).json({
+        service: 'gia', version: pkgJson.version, ok,
+        redis: redisHealth,
+        watchdog: redisGuard.state(),
+      });
     });
 
     // v0.29.0: aggressive no-cache headers on TMA HTML responses so
