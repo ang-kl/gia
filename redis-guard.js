@@ -17,14 +17,60 @@
 // So: attachRedisGuard() registers the listeners (which makes the library's
 // own reconnect path reachable), and runs a watchdog PING with a timeout;
 // after `failuresBeforeReset` consecutive failures it forces
-// disconnect()+connect(). healthProbe() is what /healthz reports, so the
-// health check sees what users see.
+// disconnect()+connect(). healthProbe() is what /readyz reports, so the
+// readiness check sees what users see.
+//
+// v0.62.934 — two Codex findings on #1867 ([AMD-222]):
+//   P2. A timed-out PING was only abandoned by its awaiter; node-redis kept
+//       the command queued until the watchdog's reset, so every probe during
+//       a blackholed connection added one more. Now (a) the PING carries an
+//       AbortSignal and is REMOVED from the queue on timeout (node-redis only
+//       aborts commands still waiting to be sent — which is exactly the
+//       production shape, isOpen && !isReady), and (b) probes COALESCE: one
+//       PING in flight per client, shared by every concurrent caller, so the
+//       queue can hold at most one of ours whatever the request rate.
+//   P1. /healthz stopped returning 503 — that is index.js's side; see there.
 
 const DEFAULTS = Object.freeze({
   pingIntervalMs: 60_000,
   pingTimeoutMs: 5_000,
   failuresBeforeReset: 3,
 });
+
+let commandOptions = null;
+try { ({ commandOptions } = require('redis')); } catch { /* tests may run without it; fakes ignore the arg */ }
+
+// One PING, bounded by `ms`. Returns the wrapper promise (times out) and the
+// raw command promise (rejects with node-redis's AbortError when the abort
+// removes it from the queue), so a test can watch both.
+function startPing(redis, ms) {
+  const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+  const opts = ctrl && commandOptions ? commandOptions({ signal: ctrl.signal }) : undefined;
+  const commandPromise = Promise.resolve().then(() => (opts ? redis.ping(opts) : redis.ping()));
+  commandPromise.catch(() => {});                      // observed via the wrapper; never unhandled
+  let timer;
+  const promise = new Promise((resolve, reject) => {
+    timer = setTimeout(() => {
+      if (ctrl) ctrl.abort();                          // P2: take it OUT of the queue, not just off our await
+      reject(new Error(`redis ping timed out after ${ms}ms`));
+    }, ms);
+    commandPromise.then(resolve, reject);
+  }).finally(() => clearTimeout(timer));
+  return { promise, commandPromise, abort: () => ctrl && ctrl.abort() };
+}
+
+// Coalesced: at most one probe PING in flight per client. Concurrent
+// callers share it; the first caller's timeout governs.
+const inflight = new WeakMap();
+function boundedPing(redis, ms) {
+  const existing = inflight.get(redis);
+  if (existing) return existing;
+  const { promise } = startPing(redis, ms);
+  const shared = promise.finally(() => { if (inflight.get(redis) === shared) inflight.delete(redis); });
+  shared.catch(() => {});
+  inflight.set(redis, shared);
+  return shared;
+}
 
 function withTimeout(promise, ms, label = 'operation') {
   let timer;
@@ -34,7 +80,7 @@ function withTimeout(promise, ms, label = 'operation') {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-// What /healthz reports. `ready` is the answer users get: it is true only
+// What /readyz reports (and /healthz carries as `ready`, without changing its status). `ready` is the answer users get: it is true only
 // when the client says it is ready AND a real PING came back inside the
 // timeout. `connectIfClosed` mirrors the lazy `if (!redis.isOpen)
 // await redis.connect()` guard the rest of index.js uses, so a probe before
@@ -50,7 +96,7 @@ async function healthProbe(redis, { timeoutMs = 1500, connectIfClosed = true } =
     if (!redis.isReady) {
       out.error = 'client not ready';
     } else {
-      out.ping = await withTimeout(redis.ping(), timeoutMs, 'redis ping');
+      out.ping = await boundedPing(redis, timeoutMs);
       out.ready = out.ping === 'PONG';
       if (!out.ready) out.error = `unexpected ping reply: ${String(out.ping).slice(0, 40)}`;
     }
@@ -82,7 +128,7 @@ function attachRedisGuard(redis, opts = {}) {
     state.ticks++;
     if (!redis.isOpen) return snapshot();           // nothing has connected yet; nothing to heal
     try {
-      const reply = await withTimeout(redis.ping(), o.pingTimeoutMs, 'redis watchdog ping');
+      const reply = await boundedPing(redis, o.pingTimeoutMs);
       if (reply !== 'PONG') throw new Error(`unexpected ping reply: ${String(reply).slice(0, 40)}`);
       state.consecutiveFailures = 0;
       state.lastOkAt = Date.now();
@@ -110,4 +156,4 @@ function attachRedisGuard(redis, opts = {}) {
   return { tick, state: snapshot, stop() { if (timer) clearInterval(timer); timer = null; } };
 }
 
-module.exports = { attachRedisGuard, healthProbe, withTimeout, DEFAULTS };
+module.exports = { attachRedisGuard, healthProbe, withTimeout, DEFAULTS, _startPing: startPing, _boundedPing: boundedPing };

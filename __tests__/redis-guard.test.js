@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const { attachRedisGuard, healthProbe, withTimeout } = await import(path.join(ROOT, 'redis-guard.js')).then(m => m.default || m);
+const { attachRedisGuard, healthProbe, withTimeout, _startPing } = await import(path.join(ROOT, 'redis-guard.js')).then(m => m.default || m);
 
 // [AMD-220], 09-09 '26. Production was down for seven hours with every
 // health check green: a `read ETIMEDOUT` on the Redis socket at 05:49 SGT
@@ -34,18 +34,23 @@ function respReplies(buf) {
   }
   return out.join('');
 }
-function fakeRedis({ dropFirst = false } = {}) {
+// `refuseReconnect` also stops LISTENING when it drops the first connection.
+// node-redis reconnects immediately once and only then honours the strategy's
+// delay, so a server that keeps accepting cannot produce the production
+// shape; one that refuses the reconnect leaves the client isOpen && !isReady
+// for as long as the strategy says — which is the 05:49 state.
+function fakeRedis({ dropFirst = false, refuseReconnect = false } = {}) {
   const sockets = [];
   const server = net.createServer((sock) => {
     sockets.push(sock);
-    if (dropFirst && sockets.length === 1) setTimeout(() => sock.destroy(), 250);
+    if (dropFirst && sockets.length === 1) setTimeout(() => { sock.destroy(); if (refuseReconnect) server.close(); }, 250);
     sock.on('data', (buf) => { const r = respReplies(buf); if (r) sock.write(r); });
     sock.on('error', () => {});
   });
   return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve({
     server, port: server.address().port,
     connections: () => sockets.length,
-    close: () => new Promise((r) => { for (const s of sockets) s.destroy(); server.close(() => r()); }),
+    close: () => new Promise((r) => { for (const s of sockets) s.destroy(); server.close(() => r()); if (!server.listening) r(); }),
   })));
 }
 
@@ -220,12 +225,79 @@ describe('index.js wiring', () => {
     expect(code.match(/attachRedisGuard\(redis, \{ logger \}\)/g)?.length).toBe(1);
     expect(code).toMatch(/const redis = createClient\(\{ url: process\.env\.REDIS_URL \}\);/);
   });
-  it('/healthz asks the probe and returns 503 when Redis is not ready', () => {
+  // [AMD-222], Codex P1 on #1867: webhook-domain.js decides "is the primary
+  // host reachable" from /healthz's status + body.service, and both hosts
+  // share one Redis. A 503 here on a Redis blip would fail the webhook over
+  // and re-register it with drop_pending_updates:true — twice. So /healthz is
+  // liveness + identity and ALWAYS 200; readiness lives at /readyz.
+  it('/healthz is always 200 with service:gia — it must never fail the webhook over on a Redis blip', () => {
     const i = code.indexOf("app.get('/healthz'");
     expect(i).toBeGreaterThan(0);
-    const block = code.slice(i, i + 700);
-    expect(block).toMatch(/redisHealthProbe\(redis/);
-    expect(block).toMatch(/ok \? 200 : 503/);
-    expect(block).toMatch(/service: 'gia'/);
+    const block = code.slice(i, code.indexOf("app.get('/readyz'", i));
+    expect(block).toMatch(/res\.status\(200\)/);
+    expect(block).not.toMatch(/503/);
+    expect(block).toMatch(/ok: true/);
+  });
+  it('/readyz asks the probe and returns 503 when Redis is not ready', () => {
+    const i = code.indexOf("app.get('/readyz'");
+    expect(i).toBeGreaterThan(0);
+    const block = code.slice(i, i + 400);
+    expect(block).toMatch(/body\.ready \? 200 : 503/);
+    expect(code.slice(code.indexOf('async function healthBody'), i)).toMatch(/redisHealthProbe\(redis/);
+  });
+  it('webhook-domain reads only status + service, so a not-ready body is still "this is gia"', () => {
+    const wd = fs.readFileSync(path.join(ROOT, 'webhook-domain.js'), 'utf8');
+    expect(wd).toMatch(/HEALTH_PATH = '\/healthz'/);
+    expect(wd).toMatch(/r\.status !== 200/);
+    expect(wd).not.toMatch(/\.ready\b/);
+  });
+});
+
+// [AMD-222], Codex P2 on #1867: a timed-out PING used to stay in node-redis's
+// queue until the watchdog reset; every probe during a blackholed
+// connection added one more. Two properties close that: probes coalesce,
+// and the PING carries an AbortSignal that removes it from the queue.
+describe('probe pressure — P2', () => {
+  it('fifty concurrent probes against a hung client issue exactly ONE ping', async () => {
+    let pings = 0;
+    const c = { isOpen: true, isReady: true, ping: () => { pings++; return new Promise(() => {}); }, on() { return c; } };
+    const results = await Promise.all(Array.from({ length: 50 }, () => healthProbe(c, { timeoutMs: 40 })));
+    expect(pings).toBe(1);
+    expect(results.every((r) => r.ready === false && /timed out/.test(r.error))).toBe(true);
+    // and after it settles, the next probe issues a fresh one
+    await healthProbe(c, { timeoutMs: 20 });
+    expect(pings).toBe(2);
+  });
+
+  it('the fake receives an AbortSignal that is aborted on timeout', async () => {
+    let seen = null;
+    const c = { isOpen: true, isReady: true, on() { return c; },
+      ping: (opts) => { seen = opts?.signal || null; return new Promise((_, rej) => { seen?.addEventListener('abort', () => rej(new Error('aborted by client'))); }); } };
+    const { promise, commandPromise } = _startPing(c, 30);
+    await expect(promise).rejects.toThrow(/timed out/);
+    expect(seen).not.toBeNull();
+    expect(seen.aborted).toBe(true);
+    await expect(commandPromise).rejects.toThrow(/aborted by client/);
+  });
+
+  it('REAL node-redis, production shape (isOpen, not ready): the timed-out PING is removed from the queue, not left behind', async () => {
+    // Build the exact 05:49 state: connected, then dropped, with a reconnect
+    // that will not happen for a minute — isOpen true, isReady false, every
+    // command going to the offline queue.
+    const srv = await fakeRedis({ dropFirst: true, refuseReconnect: true });
+    const { createClient } = await import('redis');
+    const c = createClient({ url: `redis://127.0.0.1:${srv.port}`, socket: { reconnectStrategy: () => 60_000 } });
+    c.on('error', () => {});
+    try {
+      await c.connect();
+      await new Promise((r) => setTimeout(r, 600));       // server drops us at ~250 ms
+      expect(c.isOpen).toBe(true);
+      expect(c.isReady).toBe(false);
+      const { promise, commandPromise } = _startPing(c, 40);
+      await expect(promise).rejects.toThrow(/timed out/);
+      // node-redis rejects a queued command with AbortError ONLY when the abort
+      // listener removed it from waitingToBeSent — this is the queue proof.
+      await expect(commandPromise).rejects.toThrow(/The command was aborted/);
+    } finally { try { await c.disconnect(); } catch {} await srv.close(); }
   });
 });
