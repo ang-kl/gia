@@ -40,36 +40,84 @@ const DEFAULTS = Object.freeze({
 let commandOptions = null;
 try { ({ commandOptions } = require('redis')); } catch { /* tests may run without it; fakes ignore the arg */ }
 
-// One PING, bounded by `ms`. Returns the wrapper promise (times out) and the
-// raw command promise (rejects with node-redis's AbortError when the abort
-// removes it from the queue), so a test can watch both.
-function startPing(redis, ms) {
+// v0.62.935 — two more Codex findings, on #1868's coalescing ([AMD-224]):
+//   P2-a. Sharing one WRAPPER promise meant a joiner inherited the creator's
+//         deadline: /readyz (1.5 s) joining the watchdog's PING waited 5 s, and
+//         /healthz joining it could outlast webhook-domain's 5 s axios
+//         timeout — which reads as an unreachable host, the very failover
+//         v0.62.934 existed to prevent. Now the COMMAND is shared and every
+//         caller races it against its OWN deadline.
+//   P2-b. The in-flight entry was dropped when the wrapper timed out, but an
+//         in-flight PING on a ready-but-blackholed socket cannot be aborted, so
+//         the next probe started another. Now the entry lives until the RAW
+//         command settles — by reply, by abort (queued commands), or by the
+//         watchdog's disconnect (in-flight ones) — so there is never more than
+//         one outstanding probe PING per client, whatever the request rate.
+//   The abort is scheduled at the LATEST deadline among the callers that joined,
+//   so a short caller's timeout never cancels a longer caller's wait.
+
+// One raw PING carrying an AbortSignal. No timeout of its own.
+function issuePing(redis) {
   const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
   const opts = ctrl && commandOptions ? commandOptions({ signal: ctrl.signal }) : undefined;
   const commandPromise = Promise.resolve().then(() => (opts ? redis.ping(opts) : redis.ping()));
-  commandPromise.catch(() => {});                      // observed via the wrapper; never unhandled
-  let timer;
-  const promise = new Promise((resolve, reject) => {
-    timer = setTimeout(() => {
-      if (ctrl) ctrl.abort();                          // P2: take it OUT of the queue, not just off our await
-      reject(new Error(`redis ping timed out after ${ms}ms`));
-    }, ms);
-    commandPromise.then(resolve, reject);
-  }).finally(() => clearTimeout(timer));
-  return { promise, commandPromise, abort: () => ctrl && ctrl.abort() };
+  commandPromise.catch(() => {});                      // observed via the wrappers; never unhandled
+  return { commandPromise, abort: () => { if (ctrl) ctrl.abort(); } };
 }
 
-// Coalesced: at most one probe PING in flight per client. Concurrent
-// callers share it; the first caller's timeout governs.
+// Single-caller bounded PING (tests drive this): times out at `ms` and aborts
+// the command at the same moment.
+function startPing(redis, ms) {
+  const { commandPromise, abort } = issuePing(redis);
+  const promise = withTimeout(commandPromise, ms, 'redis ping').catch((err) => { abort(); throw err; });
+  return { promise, commandPromise, abort };
+}
+
+// Coalesced: at most one probe PING OUTSTANDING per client. Callers share the
+// command, keep their own deadlines, and the entry outlives every wrapper.
 const inflight = new WeakMap();
 function boundedPing(redis, ms) {
-  const existing = inflight.get(redis);
-  if (existing) return existing;
-  const { promise } = startPing(redis, ms);
-  const shared = promise.finally(() => { if (inflight.get(redis) === shared) inflight.delete(redis); });
-  shared.catch(() => {});
-  inflight.set(redis, shared);
-  return shared;
+  let entry = inflight.get(redis);
+  if (!entry) {
+    const { commandPromise, abort } = issuePing(redis);
+    entry = { commandPromise, abort, abortAt: 0, abortFired: false, timer: null, startedAt: Date.now() };
+    inflight.set(redis, entry);
+    commandPromise.finally(() => {
+      if (entry.timer) clearTimeout(entry.timer);
+      if (inflight.get(redis) === entry) inflight.delete(redis);
+    }).catch(() => {});
+  }
+  // Abort at the latest deadline any joiner asked for (P2-a); only a queued
+  // command can be removed by it, an in-flight one settles on its own. The
+  // abort timer is armed BEFORE this caller's own timer on purpose: Node fires
+  // equal-duration timers in arming order, so the command is settled — and the
+  // entry released, in the same microtask drain — before the caller resumes.
+  // Armed the other way round, a probe arriving between the two would join a
+  // command already doomed (measured: the intermittent-blip test reset).
+  const abortAt = Date.now() + ms;
+  if (abortAt > entry.abortAt) {
+    entry.abortAt = abortAt;
+    if (entry.timer) clearTimeout(entry.timer);
+    entry.timer = setTimeout(() => { entry.abortFired = true; entry.abort(); }, ms);
+    if (typeof entry.timer.unref === 'function') entry.timer.unref();
+  }
+  // This caller's deadline, nobody else's. When our own abort is what settled
+  // the command, the caller is told it TIMED OUT — node-redis's `The command
+  // was aborted` says what we did, not why.
+  return withTimeout(entry.commandPromise, ms, 'redis ping').catch((err) => {
+    if (entry.abortFired && /abort/i.test(`${err?.name} ${err?.message}`)) throw new Error(`redis ping timed out after ${ms}ms`);
+    throw err;
+  });
+}
+// The watchdog's reset tears the connection down; node-redis rejects every
+// command on it (DisconnectsClientError), which settles the entry. Forgetting
+// it here as well makes that independent of the library doing so: a probe
+// from BEFORE the reset belongs to the dead connection either way.
+function forgetPing(redis) {
+  const entry = inflight.get(redis);
+  if (!entry) return;
+  if (entry.timer) clearTimeout(entry.timer);
+  inflight.delete(redis);
 }
 
 function withTimeout(promise, ms, label = 'operation') {
@@ -141,6 +189,7 @@ function attachRedisGuard(redis, opts = {}) {
         state.consecutiveFailures = 0;
         log.error({ resets: state.resets, err: state.lastError }, 'redis watchdog: forcing disconnect + reconnect');
         try { await redis.disconnect(); } catch (e) { log.warn({ err: String(e?.message || e).slice(0, 120) }, 'redis watchdog: disconnect threw'); }
+        forgetPing(redis);
         try { await redis.connect(); } catch (e) { log.error({ err: String(e?.message || e).slice(0, 120) }, 'redis watchdog: reconnect failed'); }
       }
     }
@@ -156,4 +205,4 @@ function attachRedisGuard(redis, opts = {}) {
   return { tick, state: snapshot, stop() { if (timer) clearInterval(timer); timer = null; } };
 }
 
-module.exports = { attachRedisGuard, healthProbe, withTimeout, DEFAULTS, _startPing: startPing, _boundedPing: boundedPing };
+module.exports = { attachRedisGuard, healthProbe, withTimeout, DEFAULTS, _startPing: startPing, _boundedPing: boundedPing, _issuePing: issuePing };

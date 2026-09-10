@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const { attachRedisGuard, healthProbe, withTimeout, _startPing } = await import(path.join(ROOT, 'redis-guard.js')).then(m => m.default || m);
+const { attachRedisGuard, healthProbe, withTimeout, _startPing, _boundedPing } = await import(path.join(ROOT, 'redis-guard.js')).then(m => m.default || m);
 
 // [AMD-220], 09-09 '26. Production was down for seven hours with every
 // health check green: a `read ETIMEDOUT` on the Redis socket at 05:49 SGT
@@ -148,11 +148,18 @@ describe('the mechanism, against node-redis itself', () => {
 
 // A stand-in for the exact production state: isOpen true, isReady false,
 // ping() never settles.
+// The 05:49 shape: isOpen, not ready, every command QUEUED — and a queued
+// command is exactly what node-redis's AbortSignal removes, so this fake's
+// hung PING settles when the guard aborts it (the real client rejects with
+// AbortError). The in-flight shape, where abort is ignored, is `blackholed()`.
 function hungClient() {
   const calls = { disconnect: 0, connect: 0, on: [] };
+  const queuedPing = (opts) => new Promise((_, rej) => {
+    opts?.signal?.addEventListener('abort', () => rej(new Error('The command was aborted')));
+  });
   const c = {
     isOpen: true, isReady: false,
-    ping: () => new Promise(() => {}),
+    ping: queuedPing,
     disconnect: async () => { calls.disconnect++; c.isOpen = false; },
     connect: async () => { calls.connect++; c.isOpen = true; c.isReady = true; c.ping = async () => 'PONG'; },
     on: (ev) => { calls.on.push(ev); return c; },
@@ -184,9 +191,29 @@ describe('the watchdog, against the hung-client shape', () => {
     const g = attachRedisGuard(c, { pingIntervalMs: 0, pingTimeoutMs: 20, failuresBeforeReset: 3 });
     await g.tick(); await g.tick();                   // 2 failures
     c.ping = async () => 'PONG'; await g.tick();      // ok → reset to 0
-    c.ping = () => new Promise(() => {}); await g.tick(); await g.tick();   // 2 more
+    c.ping = hungClient().c.ping; await g.tick(); await g.tick();   // 2 more
     expect(calls.disconnect).toBe(0);
     expect(g.state().consecutiveFailures).toBe(2);
+  });
+
+  // [AMD-224] P2-b, the other shape: ready but blackholed — the PING is IN
+  // FLIGHT, ignores the abort, and this fake's disconnect() does not settle it
+  // either (the real one does). The reset must still forget it, or every tick
+  // after the reconnect would join a probe that belongs to the dead connection.
+  it('after a reset the watchdog forgets the blackholed PING and the next tick issues a fresh one', async () => {
+    let pings = 0;
+    const calls = { disconnect: 0, connect: 0 };
+    const c = { isOpen: true, isReady: true, on() { return c; },
+      ping: () => { pings++; return new Promise(() => {}); },
+      disconnect: async () => { calls.disconnect++; },
+      connect: async () => { calls.connect++; c.ping = async () => { pings++; return 'PONG'; }; } };
+    const g = attachRedisGuard(c, { pingIntervalMs: 0, pingTimeoutMs: 15, failuresBeforeReset: 3 });
+    await g.tick(); await g.tick(); await g.tick();       // three joins of ONE in-flight PING → reset
+    expect(pings).toBe(1);
+    expect(calls.disconnect).toBe(1); expect(calls.connect).toBe(1);
+    const s = await g.tick();                             // healed: a fresh PING on the new connection
+    expect(pings).toBe(2);
+    expect(s.consecutiveFailures).toBe(0); expect(s.lastOkAt).not.toBeNull();
   });
 
   it('does nothing while nothing has connected yet (isOpen false)', async () => {
@@ -264,9 +291,55 @@ describe('probe pressure — P2', () => {
     const results = await Promise.all(Array.from({ length: 50 }, () => healthProbe(c, { timeoutMs: 40 })));
     expect(pings).toBe(1);
     expect(results.every((r) => r.ready === false && /timed out/.test(r.error))).toBe(true);
-    // and after it settles, the next probe issues a fresh one
+    // [AMD-224] P2-b: the fake's PING never settles and ignores the abort — the
+    // ready-but-blackholed shape — so a LATER probe must NOT start another.
     await healthProbe(c, { timeoutMs: 20 });
+    expect(pings).toBe(1);
+  });
+
+  // [AMD-224] Codex P2 (a) on #1868: a joiner must keep its OWN deadline. A
+  // watchdog PING (200 ms here, 5 s in production) is in flight; /readyz joins
+  // with 30 ms and must fail at ~30 ms, not wait out the watchdog's window.
+  it('a joiner keeps its own deadline — the endpoint fails at its 30 ms, not the watchdog\'s 200 ms', async () => {
+    let pings = 0;
+    const c = { isOpen: true, isReady: true, ping: () => { pings++; return new Promise(() => {}); }, on() { return c; } };
+    const watchdog = _boundedPing(c, 200); watchdog.catch(() => {});
+    await new Promise((r) => setTimeout(r, 10));
+    const t0 = Date.now();
+    await expect(_boundedPing(c, 30)).rejects.toThrow(/timed out after 30ms/);
+    const took = Date.now() - t0;
+    expect(took).toBeLessThan(120);
+    expect(pings).toBe(1);
+    const t1 = Date.now();
+    await expect(watchdog).rejects.toThrow(/timed out after 200ms/);
+    expect(Date.now() - t1).toBeGreaterThan(100);       // the long caller was not cut short either
+  });
+
+  // [AMD-224] Codex P2 (b): the in-flight entry outlives every caller's timeout
+  // and is released only when the RAW command settles.
+  it('sequential probes reuse one outstanding PING until the command settles, then start a fresh one', async () => {
+    let pings = 0; let settle;
+    const c = { isOpen: true, isReady: true, on() { return c; },
+      ping: () => { pings++; return new Promise((res) => { settle = res; }); } };   // in-flight: abort is ignored
+    for (let i = 0; i < 5; i++) await healthProbe(c, { timeoutMs: 15 });
+    expect(pings).toBe(1);
+    settle('PONG');                                       // the reply finally arrives (or the watchdog flushed it)
+    await new Promise((r) => setTimeout(r, 5));
+    await healthProbe(c, { timeoutMs: 15 });
     expect(pings).toBe(2);
+  });
+
+  it('the shared command is aborted at the LATEST joined deadline, not the first', async () => {
+    let seen = null;
+    const c = { isOpen: true, isReady: true, on() { return c; },
+      ping: (opts) => { seen = opts?.signal || null; return new Promise(() => {}); } };
+    const short = _boundedPing(c, 30); short.catch(() => {});
+    const long = _boundedPing(c, 120); long.catch(() => {});
+    await new Promise((r) => setTimeout(r, 60));
+    expect(seen).not.toBeNull();
+    expect(seen.aborted).toBe(false);                     // the 30 ms caller's timeout did not abort the 120 ms caller's command
+    await new Promise((r) => setTimeout(r, 90));
+    expect(seen.aborted).toBe(true);
   });
 
   it('the fake receives an AbortSignal that is aborted on timeout', async () => {
