@@ -13176,21 +13176,36 @@ async function cacheBotUsername() {
     // a status-only probe. Probe now hits /healthz and verifies the
     // response is OUR app — only when JSON.service === 'gia' does
     // the host count as healthy.
-    // v0.62.933 ([AMD-220]): the probe now reports what USERS get. On 09-09
-    // '26 this route answered 200 for seven hours while every Redis-backed
-    // handler hung; `ok` is false and the status 503 when Redis is not
-    // ready or a PING does not come back inside 1.5 s. `service` stays
-    // 'gia' on both paths so webhook-domain's content check still
-    // identifies the host; it reads status === 200 as healthy, which is
-    // now the truthful answer.
-    app.get('/healthz', async (req, res) => {
+    // v0.62.933 ([AMD-220]) made this route answer 503 when Redis was not
+    // ready. v0.62.934 ([AMD-222], Codex P1 on #1867) SPLITS the two signals:
+    //   /healthz — "is this host the Gia app and is the process up": ALWAYS
+    //              200 with service:'gia'. webhook-domain.js reads exactly
+    //              that (status 200 + body.service) to decide whether to fail
+    //              the webhook over to the fallback host, and both hosts
+    //              share one Redis — so a Redis blip must never look like an
+    //              unreachable host, because the switch re-registers the
+    //              webhook with drop_pending_updates:true, twice.
+    //   /readyz  — "can this process serve a user right now": 503 when Redis
+    //              is not ready or a PING does not come back inside 1.5 s.
+    //              This is the one for the Pulse, for humans, and for any
+    //              platform health check that should restart the process.
+    // Both carry the same body so a reader of either sees the whole picture.
+    async function healthBody() {
       const redisHealth = await redisHealthProbe(redis, { timeoutMs: 1500 });
-      const ok = redisHealth.ready === true;
-      res.status(ok ? 200 : 503).json({
-        service: 'gia', version: pkgJson.version, ok,
+      return {
+        service: 'gia', version: pkgJson.version,
+        ready: redisHealth.ready === true,
         redis: redisHealth,
         watchdog: redisGuard.state(),
-      });
+      };
+    }
+    app.get('/healthz', async (req, res) => {
+      const body = await healthBody();
+      res.status(200).json({ ...body, ok: true });
+    });
+    app.get('/readyz', async (req, res) => {
+      const body = await healthBody();
+      res.status(body.ready ? 200 : 503).json({ ...body, ok: body.ready });
     });
 
     // v0.29.0: aggressive no-cache headers on TMA HTML responses so
