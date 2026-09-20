@@ -11767,7 +11767,25 @@ bot.on('message', async (msg) => {
           if (cls && cls.intent === 'venue') {
             try {
               const { detectPlaceName } = require('./place-detector');
-              const place = await detectPlaceName(text);
+              // v0.62.936 — D-after-224: thread the reader's resolved country into
+              // the detector so a query typed abroad (set location via the Menu
+              // TMA) takes place-detector.js's ctx.countryCode-aware
+              // geocodeQueryRegion branch instead of silently falling through to
+              // the hardcoded SG bounding box. Without this, the chat free-text
+              // path was the one call site still bare — see
+              // __tests__/place-anchor-set-location.test.js for the defect this
+              // fixes at the Cuisine TMA's sibling call site.
+              let placeCtx = null;
+              try {
+                const loc = await getUserLocation(redis, msg.chat.id);
+                const cc = resolveRegionCode(loc);
+                if (cc && cc !== 'SG' && Number.isFinite(loc?.lat) && Number.isFinite(loc?.lng)) {
+                  placeCtx = { lat: loc.lat, lng: loc.lng, countryCode: cc };
+                }
+              } catch (ctxErr) {
+                console.warn('[free-text] place-ctx resolve failed (SG default):', ctxErr.message);
+              }
+              const place = await detectPlaceName(text, placeCtx);
               if (place) {
                 try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: `place-${place.kind}`, resultCount: null }); } catch { /* best-effort */ }
                 console.log(`[free-text] D774 place-anchored — "${String(text).slice(0, 60)}" → ${place.kind}: ${place.name} (${place.lat.toFixed(4)},${place.lng.toFixed(4)}, r=${place.radius}m)`);

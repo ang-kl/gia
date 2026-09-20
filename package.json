@@ -1,6 +1,8 @@
 {
   "name": "soleat",
-  "version": "0.62.935",
+  "version": "0.62.936",
+  "private": true,
+  "license": "UNLICENSED",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
