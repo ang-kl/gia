@@ -12,7 +12,7 @@
 
 ```yaml
 contract:
-  version: 0.0.5
+  version: 0.0.4
   owner: <human-lead-name>
   reader_primary: claude-code
   reader_secondary: human-lead
@@ -47,11 +47,6 @@ contract:
         - A11_added_section_17_operational_patterns_seven_codifications_from_the_arc
         - A12_added_section_18_vibe_journal_framework_convention
       prior_archived_at: doc/Archive/CLAUDE-FULL-0.0.3-15_05_26.md
-    - version: 0.0.5
-      date: 24-09 '26 12:29 SGT
-      changes:
-        - A13_appended_flow_kit_v0_1_1_block_at_end_of_file_operator_approved_24_09_26_amd226
-      prior_archived_at: doc/Archive/CLAUDE-FULL-0.0.4-24_09_26.md
 ```
 
 **Strict enforcement means:** Claude Code MUST refuse to proceed when a rule below is violated, and MUST surface the violation to the Human Lead before continuing.
@@ -1042,11 +1037,3 @@ Soleat serves the bundled HTML + JSON from `public/doc/` at `/doc/vibe-journal.h
 6. Deploy: copy `dist/vibe-journal/` to any static host OR configure bundled mode for an in-app route.
 
 **Rule VJ-1:** A project that adopts `.vibe-journal/` MUST regen on every push to `main` (manually, via postinstall hook, or via CI). Stale data is worse than no data — it suggests the surface is reliable when it isn't.
-
-<!-- flow-kit v0.1.1 · appended 24-09 '26 12:29 SGT · do not edit this block by hand; re-run the installer to upgrade -->
-## Build Flow (flow-kit)
-This repo runs the six-stage build flow: Intent → Interpretation → Assumptions → Invariants → Execution → Evidence.
-- Rules: `.claude/rules/flow.md` (loaded automatically, at the same priority as this file, and re-injected after compaction).
-- Enforcement: hooks and permission rules in `.claude/settings.json`; skills `/flow-spec` and `/flow-check`.
-- On any conflict between those rules and other instructions in this repo, raise a FLOW ALERT and ask rather than choosing.
-<!-- /flow-kit -->
