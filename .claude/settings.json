@@ -9,7 +9,96 @@
             "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/install-stop-hook.sh\""
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/flow.cjs",
+              "session"
+            ],
+            "timeout": 20
+          }
+        ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/flow.cjs",
+              "prompt"
+            ],
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/flow.cjs",
+              "gate"
+            ],
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/flow.cjs",
+              "bash"
+            ],
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/flow.cjs",
+              "stop"
+            ],
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "deny": [
+      "Edit(/.claude/flow/**)",
+      "Edit(/.claude/hooks/**)",
+      "Edit(/.claude/settings.json)",
+      "Edit(/.claude/rules/flow*.md)",
+      "Edit(/.claude/skills/flow-*/**)",
+      "Read(/.env)",
+      "Read(/.env.*)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(vercel *--prod*)",
+      "Bash(railway up*)"
     ]
   }
 }

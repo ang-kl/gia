@@ -68,12 +68,15 @@ function venueMapsUrl(v) {
   return v.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' Singapore')}`;
 }
 
-// v0.58.51: open the Google Maps URL inside Telegram's WebApp shell.
+// v0.58.51: open a Google Maps URL inside Telegram's WebApp shell.
 // tg.openLink delegates to the system browser, which auto-routes via
 // Universal Link to the Google Maps app on iOS. Plain window.open
 // often does nothing inside the TMA WebView.
-function openInGoogleMaps(v) {
-  const url = venueMapsUrl(v);
+// v0.62.937 — split out of openInGoogleMaps(v) so the popup CTA can call it
+// with a URL it already has (baked into the card's href at render time),
+// instead of going through window.__giaOpenMap's old placeId lookup — see
+// the CTA comment below for why that lookup could go stale.
+function openMapsUrl(url) {
   if (!url) return;
   const w = tg();
   if (w && typeof w.openLink === 'function') {
@@ -81,6 +84,21 @@ function openInGoogleMaps(v) {
   } else {
     window.open(url, '_blank', 'noopener');
   }
+}
+
+function openInGoogleMaps(v) {
+  openMapsUrl(venueMapsUrl(v));
+}
+
+// v0.62.937 — encodeURIComponent deliberately leaves `!'()*` unescaped (RFC3986
+// "unreserved" marks kept for compat), so a venue name with an apostrophe (e.g.
+// "Jack's Place") produces a venueMapsUrl() containing a literal '. escapeHtml
+// (used throughout this file for text nodes) does not touch quote characters at
+// all, so that URL needs its own quotes closed off before it can sit safely
+// inside an href="..." attribute. Percent-encoding both quote characters here is
+// equivalent, from Google Maps' side, to the literal character in a query string.
+function hrefSafeUrl(u) {
+  return String(u || '').replace(/'/g, '%27').replace(/"/g, '%22');
 }
 
 function escapeHtml(s) {
@@ -228,10 +246,11 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
   // v0.61.89 — troubleshooting: live Google Maps zoom level, surfaced in a tiny
   // bottom-right readout. Updated on every `zoom_changed`.
   const [zoomLevel, setZoomLevel] = useState(null);
-  // v0.58.54: cache the current venues array in a ref so the global
-  // `window.__giaOpenMap(placeId)` handler (registered once at mount,
-  // invoked from inside the InfoWindow's HTML) can resolve back to a
-  // venue object without going through React state.
+  // v0.58.54: cache the current venues array in a ref so effects that run
+  // outside React's render cycle (the focus effect below, and formerly the
+  // global window.__giaOpenMap handler — v0.62.937 moved that one to reading
+  // a URL baked into the card instead, see the CTA comment further down) can
+  // resolve back to a venue object without going through React state.
   const venuesRef = useRef([]);
   useEffect(() => { venuesRef.current = venues || []; }, [venues]);
   // v0.62.589 — pinFocusRef removed: a pin tap and a card tap now run the same
@@ -303,12 +322,12 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
     touchMql.addEventListener?.('change', onTouchChange);
     tabletMql.addEventListener?.('change', onTabletChange);
     // Global handler invoked from inside the InfoWindow's HTML CTA.
-    // Looks the venue up by placeId from the live `venuesRef` so the
-    // closure doesn't go stale across re-renders.
-    window.__giaOpenMap = (placeId) => {
-      const v = (venuesRef.current || []).find((x) => x.placeId === placeId);
-      if (v) openInGoogleMaps(v);
-    };
+    // v0.62.937 — was: look the venue up by placeId from the live `venuesRef`.
+    // That could silently do nothing if the venue had scrolled out of the
+    // current results by the time the tap landed (e.g. after "Back to last
+    // search area" or a new search). Now just opens the URL the CTA already
+    // carries in its own href — see the CTA comment further down.
+    window.__giaOpenMap = openMapsUrl;
     // v0.62.108 — operator: the venue card's 🚆 station link jumps to that
     // station ON THIS map and opens its info (stay in the Cuisine TMA — was an
     // out-of-TMA Train-app deep link).
@@ -890,10 +909,20 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
         }
       }
       // v0.61.31 — every map pin popup ends with the standard
-      // "Google Map ↗" text hyperlink (no blue button). The global
-      // `window.__giaOpenMap(placeId)` handler routes through
-      // openInGoogleMaps for proper Telegram WebApp deep-linking.
-      const ctaHtml = `<div style="margin-top:6px;"><a href="#" onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}'); return false;" style="color:${p.link};font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;">${escapeHtml(tr('card.googleMap', lang))} ↗</a></div>`;
+      // "Google Map ↗" text hyperlink (no blue button).
+      // v0.62.937 — the URL is now baked into a real href at render time
+      // (operator report: the link "sometimes" did nothing — the old
+      // onclick looked the venue up by placeId in the live venues list,
+      // which could go stale). onclick still routes through Telegram's
+      // openLink (window.__giaOpenMap) for proper WebApp deep-linking, and
+      // reads the URL from `this.href` rather than re-embedding it as a
+      // quoted JS argument, so a venue name carrying an apostrophe (e.g.
+      // "Jack's Place") can't break out of a quoted string. `target`/`rel`
+      // are there so the real href still works if that onclick ever
+      // doesn't fire. Position is unchanged (operator: "it was working
+      // before" — don't move it).
+      const mapsHref = escapeHtml(hrefSafeUrl(venueMapsUrl(v)));
+      const ctaHtml = `<div style="margin-top:6px;"><a href="${mapsHref}" target="_blank" rel="noopener" onclick="window.__giaOpenMap(this.href); return false;" style="color:${p.link};font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;">${escapeHtml(tr('card.googleMap', lang))} ↗</a></div>`;
       // v0.62.0 — HPB Healthier Choice + inside-building rows.
       const healthierHtml = v.healthierChoice
         ? `<div style="font-size:12px;color:${p.good};margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`

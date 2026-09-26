@@ -279,3 +279,27 @@ before committing/opening a PR after any change to `index.js`, the bot handlers,
 free-text search flow, venue rendering, `i18n.js`, or a fuzzy matcher. Non-negotiable every
 time: `node --check` on each changed `.js`, `npm test -- --run` 100 % green, a `web/` build if
 `web/` changed, and a `package.json` version bump.
+
+### Build flow — flow-kit v0.1.1 · ✅ APPROVED (G3), 24-09 '26
+
+> **In force.** SR-1 (`CLAUDE-FULL.md` §17.6) requires a standing rule to carry the operator's
+> verbatim approval and a journal reference. Both hold.
+> **Operator, 24-09 '26, verbatim: *"Install flow-kit v0.1.1 into this repository and update its .md files."*.**
+> Approved in two steps: the four Phase 1 conflicts answered, then the install plan approved at 24-09 '26 12:16 SGT.
+> Journal reference: `journal-0_62_798-26_08_26-2019.md` `[AMD-226]`.
+
+The rules are `.claude/rules/flow.md`, enforced by the hooks and permission rules the installer
+merged into `.claude/settings.json`; the flow-kit block below points to them.
+
+Specs go in `doc/Spec/`, a new folder the operator approved under F-4 on 24-09 '26. The kit ships
+with `doc/Feature` written into `.claude/flow/config.json`, `.claude/rules/flow.md` and
+`.claude/skills/flow-spec/SKILL.md`, and only the operator edits those. Until all three name
+`doc/Spec`, raise a FLOW ALERT rather than writing a spec to either folder.
+
+<!-- flow-kit v0.1.1 · appended 24-09 '26 12:29 SGT · do not edit this block by hand; re-run the installer to upgrade -->
+## Build Flow (flow-kit)
+This repo runs the six-stage build flow: Intent → Interpretation → Assumptions → Invariants → Execution → Evidence.
+- Rules: `.claude/rules/flow.md` (loaded automatically, at the same priority as this file, and re-injected after compaction).
+- Enforcement: hooks and permission rules in `.claude/settings.json`; skills `/flow-spec` and `/flow-check`.
+- On any conflict between those rules and other instructions in this repo, raise a FLOW ALERT and ask rather than choosing.
+<!-- /flow-kit -->

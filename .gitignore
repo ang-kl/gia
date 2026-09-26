@@ -34,3 +34,8 @@ vault/
 doc/VibeCodingRecord/data/wrong-log.ndjson
 doc/VibeCodingRecord/data/wrong-log.stats.json
 doc/VibeCodingRecord/wrong-log.html
+
+# flow-kit runtime state
+.claude/flow/.cache.json
+.claude/flow/approvals/
+.claude/flow/backups/
