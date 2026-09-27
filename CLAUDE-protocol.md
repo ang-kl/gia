@@ -235,3 +235,36 @@ P8. Never infer or invent the model, reasoning setting, hidden routing or
   (bullet-tight, no ceremony) for quick asks; DENSE (full framework) when the owner asks or the
   question warrants it. A yes/no question gets one line plus the reason; a strategic question
   gets a framework; a how-to gets numbered steps.
+
+## 14. Build request gate - before and after
+
+Applies to a FRESH build request: new work the owner asks for. It does not
+apply to CI CR work (continuous integration paired with continuous
+resilience or response): a CI failure, a review thread, a merge conflict or
+an incident on work already under way proceeds under the drive-to-green
+rules with no fresh gate. When a message could be either, say in one line
+which reading you took.
+
+Before any build, reply with:
+
+- TL;DR.
+- The first four stages of §9, each in a few lines: Intent (outcome, force,
+  done-check); Interpretation (UNDERSTANDING and GAPS); Assumptions (each
+  marked verified, inferred or unverified, with a confidence); Invariants
+  (each with the check that will prove it).
+
+Then proceed WITHOUT waiting for a reply, unless any assumption is below 95%
+confidence or the plan would break an invariant. In either case stop, ask
+one question, and wait; silence is not approval.
+
+After the build, reply with:
+
+- TL;DR.
+- A reassessment of the same four stages: what held, what Execution
+  corrected, with the correction quoted.
+- The last two stages: Execution (what changed, file by file, within what
+  scope) and Evidence (the verify command's result, and the INVARIANTS
+  REPORT with each invariant Passed, Failed or Not Verifiable).
+
+The BEFORE writeup is the acknowledgement ask: the owner reads it and
+intervenes. The wait is reserved for genuine uncertainty.
