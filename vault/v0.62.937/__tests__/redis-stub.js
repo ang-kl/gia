@@ -1,0 +1,246 @@
+// __tests__/redis-stub.js — minimal in-memory Redis mock (ESM).
+//
+// Surface-area: only what we use across the codebase.
+// get / set (with EX) / del / incr / incrBy / hSet / hGet / hGetAll /
+// hDel / hIncrBy / expire / exists / sAdd / sMembers / sRem / sIsMember /
+// sCard / lPush / lPop / lRange / lLen / lTrim / ping / connect / quit /
+// isOpen.
+
+export class RedisStub {
+  constructor() {
+    this.store = new Map();
+    this.hashes = new Map();
+    this.sets = new Map();
+    this.lists = new Map();
+    this.isOpen = true;
+  }
+
+  _isExpired(entry) {
+    return entry?.expiresAt && entry.expiresAt < Date.now();
+  }
+
+  async connect() { this.isOpen = true; }
+  async quit() { this.isOpen = false; }
+  async ping() { return 'PONG'; }
+
+  async get(key) {
+    const e = this.store.get(key);
+    if (!e) return null;
+    if (this._isExpired(e)) { this.store.delete(key); return null; }
+    return e.value;
+  }
+
+  async set(key, value, opts) {
+    let expiresAt = null;
+    if (opts?.EX) expiresAt = Date.now() + opts.EX * 1000;
+    this.store.set(key, { value, expiresAt });
+    return 'OK';
+  }
+
+  async setEx(key, seconds, value) {
+    return this.set(key, value, { EX: seconds });
+  }
+
+  async del(...keys) {
+    let n = 0;
+    for (const key of keys) {
+      if (this.store.delete(key)) n++;
+      if (this.hashes.delete(key)) n++;
+      if (this.sets.delete(key)) n++;
+      if (this.lists.delete(key)) n++;
+    }
+    return n;
+  }
+
+  async exists(key) {
+    return (this.store.has(key) || this.hashes.has(key) || this.sets.has(key) || this.lists.has(key)) ? 1 : 0;
+  }
+
+  // v0.60.155 — minimal glob KEYS support (supports the `*` wildcard only,
+  // matching the production redis client's signature). Used by the
+  // session-start handler to wipe all `cuisine:seen:<chatId>:*` entries on
+  // TMA mount so each Cuisine TMA launch starts from list #1.
+  async keys(pattern) {
+    const escape = (s) => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+    const rx = new RegExp('^' + pattern.split('*').map(escape).join('.*') + '$');
+    const out = [];
+    for (const k of this.store.keys()) if (rx.test(k)) out.push(k);
+    for (const k of this.hashes.keys()) if (rx.test(k) && !out.includes(k)) out.push(k);
+    for (const k of this.sets.keys()) if (rx.test(k) && !out.includes(k)) out.push(k);
+    for (const k of this.lists.keys()) if (rx.test(k) && !out.includes(k)) out.push(k);
+    return out;
+  }
+
+  async expire(key, seconds) {
+    const e = this.store.get(key);
+    if (e) { e.expiresAt = Date.now() + seconds * 1000; return 1; }
+    return 0;
+  }
+
+  async incr(key) { return this.incrBy(key, 1); }
+
+  async incrBy(key, n) {
+    const cur = Number((await this.get(key)) || 0);
+    const next = cur + n;
+    await this.set(key, String(next));
+    return next;
+  }
+
+  async hSet(key, field, value) {
+    let h = this.hashes.get(key);
+    if (!h) { h = new Map(); this.hashes.set(key, h); }
+    if (typeof field === 'object') {
+      for (const [k, v] of Object.entries(field)) h.set(k, String(v));
+      return Object.keys(field).length;
+    }
+    const existed = h.has(field);
+    h.set(field, String(value));
+    return existed ? 0 : 1;
+  }
+
+  async hGet(key, field) {
+    return this.hashes.get(key)?.get(field) ?? null;
+  }
+
+  async hGetAll(key) {
+    const h = this.hashes.get(key);
+    if (!h) return {};
+    return Object.fromEntries(h.entries());
+  }
+
+  async hDel(key, ...fields) {
+    const h = this.hashes.get(key);
+    if (!h) return 0;
+    let n = 0;
+    for (const f of fields) if (h.delete(f)) n++;
+    return n;
+  }
+
+  async hIncrBy(key, field, n) {
+    let h = this.hashes.get(key);
+    if (!h) { h = new Map(); this.hashes.set(key, h); }
+    const next = Number(h.get(field) || 0) + Number(n);
+    h.set(field, String(next));
+    return next;
+  }
+
+  async sAdd(key, ...values) {
+    let s = this.sets.get(key);
+    if (!s) { s = new Set(); this.sets.set(key, s); }
+    let n = 0;
+    for (const v of values.flat()) {
+      if (!s.has(String(v))) { s.add(String(v)); n++; }
+    }
+    return n;
+  }
+
+  async sMembers(key) {
+    return [...(this.sets.get(key) || [])];
+  }
+
+  async sRem(key, ...values) {
+    const s = this.sets.get(key);
+    if (!s) return 0;
+    let n = 0;
+    for (const v of values.flat()) if (s.delete(String(v))) n++;
+    return n;
+  }
+
+  async sIsMember(key, value) {
+    return (this.sets.get(key)?.has(String(value)) ? 1 : 0);
+  }
+
+  async sCard(key) {
+    return this.sets.get(key)?.size || 0;
+  }
+
+  async lPush(key, ...values) {
+    let l = this.lists.get(key);
+    if (!l) { l = []; this.lists.set(key, l); }
+    for (const v of values.flat()) l.unshift(String(v));
+    return l.length;
+  }
+
+  async lPop(key) {
+    const l = this.lists.get(key);
+    if (!l || !l.length) return null;
+    return l.shift();
+  }
+
+  async lRange(key, start, stop) {
+    const l = this.lists.get(key) || [];
+    // node-redis returns the slice inclusive of `stop`. -1 = end of list.
+    const s = start < 0 ? Math.max(0, l.length + start) : start;
+    const e = stop < 0 ? l.length + stop : stop;
+    return l.slice(s, e + 1);
+  }
+
+  async lLen(key) {
+    return (this.lists.get(key) || []).length;
+  }
+
+  async lTrim(key, start, stop) {
+    const l = this.lists.get(key);
+    if (!l) return 'OK';
+    const s = start < 0 ? Math.max(0, l.length + start) : start;
+    const e = stop < 0 ? l.length + stop : stop;
+    this.lists.set(key, l.slice(s, e + 1));
+    return 'OK';
+  }
+
+  async lIndex(key, index) {
+    const l = this.lists.get(key) || [];
+    const i = index < 0 ? l.length + index : index;
+    if (i < 0 || i >= l.length) return null;
+    return l[i];
+  }
+
+  async lSet(key, index, value) {
+    const l = this.lists.get(key);
+    if (!l) throw new Error('ERR no such key');
+    const i = index < 0 ? l.length + index : index;
+    if (i < 0 || i >= l.length) throw new Error('ERR index out of range');
+    l[i] = String(value);
+    return 'OK';
+  }
+
+  async lRem(key, count, value) {
+    const l = this.lists.get(key);
+    if (!l) return 0;
+    const target = String(value);
+    let removed = 0;
+    const next = [];
+    let toRemove = count;
+    if (count === 0) {
+      // remove all matching
+      for (const v of l) { if (v === target) { removed++; } else { next.push(v); } }
+    } else if (count > 0) {
+      for (const v of l) {
+        if (v === target && toRemove > 0) { removed++; toRemove--; }
+        else { next.push(v); }
+      }
+    } else {
+      // count < 0 — remove from tail. The current callers always pass count > 0; keep behavior simple.
+      const reversed = [...l].reverse();
+      const acc = [];
+      for (const v of reversed) {
+        if (v === target && toRemove < 0) { removed++; toRemove++; }
+        else { acc.push(v); }
+      }
+      next.push(...acc.reverse());
+    }
+    this.lists.set(key, next);
+    return removed;
+  }
+
+  _reset() {
+    this.store.clear();
+    this.hashes.clear();
+    this.sets.clear();
+    this.lists.clear();
+  }
+}
+
+export function createStub() {
+  return new RedisStub();
+}

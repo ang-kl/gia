@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="{{ boxStyle }}">
+  <div style="{{ stripStyle }}"></div>
+  <div style="display:flex;align-items:flex-start;gap:8px">
+    <div style="{{ nameStyle }}"><span style="color:#8a93b2;font-weight:700">{{ numberLabel }}</span>{{ name }}</div>
+    <sc-if value="{{ showBadge }}" hint-placeholder-val="{{ false }}">
+      <span style="flex-shrink:0;font-size:11px;font-weight:700;color:#1d3aa0;background:#eaf0fd;border-radius:8px;padding:2px 7px;white-space:nowrap">{{ ratingStr }}</span>
+    </sc-if>
+    <sc-if value="{{ showHeaderAdd }}" hint-placeholder-val="{{ false }}">
+      <button type="button" onClick="{{ onAddClick }}" style="flex-shrink:0;font-size:11px;font-weight:600;color:#fff;background:#2b59c9;border:none;border-radius:8px;padding:4px 9px;cursor:pointer;white-space:nowrap">＋ File</button>
+    </sc-if>
+    <sc-if value="{{ showHeaderRemove }}" hint-placeholder-val="{{ false }}">
+      <button type="button" onClick="{{ onRemoveClick }}" style="flex-shrink:0;font-size:13px;line-height:1;color:#b7bed6;background:transparent;border:none;cursor:pointer;padding:2px">✕</button>
+    </sc-if>
+  </div>
+  <sc-if value="{{ hasType }}" hint-placeholder-val="{{ true }}">
+    <div style="font-size:12px;color:#3a4577;line-height:1.25">{{ type }}</div>
+  </sc-if>
+  <div style="font-size:12px;color:#7e88a8;line-height:1.35">{{ metaLine }}</div>
+  <sc-if value="{{ hasPrice }}" hint-placeholder-val="{{ true }}">
+    <div style="font-size:12px;color:#2c3566;line-height:1.35">{{ priceLine }}</div>
+  </sc-if>
+  <sc-if value="{{ showTrySummary }}" hint-placeholder-val="{{ false }}">
+    <div style="font-size:13px;color:#141a36;margin-top:2px;line-height:1.35">🍲 <span style="font-weight:600">Try:</span> {{ tryLine }}</div>
+  </sc-if>
+  <sc-if value="{{ hasMichelin }}" hint-placeholder-val="{{ false }}">
+    <div style="font-size:12px;font-weight:700;color:#141a36;margin-top:2px">{{ michelinLine }}</div>
+  </sc-if>
+  <button type="button" onClick="{{ onToggle }}" style="align-self:flex-start;margin-top:6px;font-size:11px;font-weight:500;color:#2b59c9;background:transparent;border:1px solid rgba(43,89,201,0.4);border-radius:999px;padding:2px 10px;cursor:pointer">{{ toggleLabel }}</button>
+  <sc-if value="{{ expanded }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:5px">
+      <sc-if value="{{ showTryExpanded }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:13px;color:#141a36;line-height:1.35">🍲 <span style="font-weight:600">Try:</span> {{ tryLine }}</div>
+      </sc-if>
+      <sc-if value="{{ hasArea }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:12px;color:#7e88a8;line-height:1.45">{{ area }}</div>
+      </sc-if>
+      <sc-if value="{{ hasReview }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:5px;font-size:12px;color:#7e88a8;font-style:italic;line-height:1.45"><span aria-hidden="true">💬</span><span>"{{ review }}" <span style="font-style:normal;color:#9aa3bf">{{ reviewAgo }}</span></span></div>
+      </sc-if>
+      <sc-if value="{{ hasVibe }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:13px;color:#3a4577;line-height:1.45">{{ vibe }}</div>
+      </sc-if>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;align-items:center">
+        <button type="button" style="font-size:12px;padding:3px 9px;border-radius:7px;border:1px solid #e4e8f2;background:#f4f7fd;color:#2c3566;cursor:pointer">📍 Maps</button>
+        <button type="button" onClick="{{ onCopyClick }}" style="font-size:12px;padding:3px 9px;border-radius:7px;border:1px solid #e4e8f2;background:#f4f7fd;color:#2c3566;cursor:pointer">📋 Copy</button>
+        <button type="button" style="font-size:11px;font-weight:700;width:28px;height:26px;border-radius:7px;border:1px solid #e4e8f2;background:#f4f7fd;color:#9aa3bf;cursor:pointer">IG</button>
+        <button type="button" style="font-size:13px;font-weight:700;width:28px;height:26px;border-radius:7px;border:1px solid #e4e8f2;background:#f4f7fd;color:#9aa3bf;cursor:pointer">f</button>
+        <sc-if value="{{ showHeaderAdd }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ onAddClick }}" style="margin-left:auto;font-size:12px;font-weight:600;padding:4px 11px;border-radius:7px;border:none;background:#2b59c9;color:#fff;cursor:pointer">＋ Add to cabinet</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:360,&quot;height&quot;:160},&quot;venue&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;classic&quot;,&quot;compact&quot;,&quot;rich&quot;],&quot;default&quot;:&quot;classic&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;context&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;clipboard&quot;,&quot;drawer&quot;],&quot;default&quot;:&quot;clipboard&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onAdd&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(id:string)=&gt;void&quot;},&quot;onRemove&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(v:object)=&gt;void&quot;},&quot;onCopy&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(v:object)=&gt;void&quot;}}">
+class Component extends DCLogic {
+  state = { expanded: false };
+  renderVals() {
+    const v = this.props.venue || {};
+    const variant = this.props.variant || 'classic';
+    const context = this.props.context || 'clipboard';
+    const isRich = variant === 'rich';
+    const isCompact = variant === 'compact';
+    const expanded = !!this.state.expanded;
+
+    const ratingStr = (typeof v.rating === 'number') ? `★${v.rating.toFixed(1)}` : '';
+    const distMeta = (typeof v.distanceKm === 'number')
+      ? `📍 ~${v.distanceKm} km away`.replace(/ /g, '\u00A0') : '';
+
+    const metaParts = [];
+    if (!isRich && ratingStr) metaParts.push(ratingStr);
+    if (v.priceTier) metaParts.push(v.priceTier);
+    if (v.openLabel) metaParts.push(v.openLabel);
+    if (distMeta) metaParts.push(distMeta);
+    const metaLine = metaParts.join(' · ');
+
+    const dot = v.crowd === 'quiet' ? '🟢' : v.crowd === 'moderate' ? '🟡' : v.crowd === 'busy' ? '🔴' : '';
+    const priceParts = [];
+    if (v.price) priceParts.push(v.priceConv ? `${v.price} (${v.priceConv})` : v.price);
+    if (v.web) priceParts.push('🌐');
+    if (dot) priceParts.push(`${dot} ${v.crowd}`);
+    const priceLine = priceParts.join(' · ');
+
+    const dishes = Array.isArray(v.dishes) ? v.dishes : [];
+    const hasTry = dishes.length > 0;
+    const tryLine = dishes.join(' · ');
+
+    const michelinMap = {
+      'three-star': '✳️ Michelin · ⭐⭐⭐',
+      'two-star': '✳️ Michelin · ⭐⭐',
+      'one-star': '✳️ Michelin · ⭐',
+      'bib-gourmand': '✳️ Bib Gourmand',
+    };
+    const hasMichelin = !!v.michelin;
+    const michelinLine = hasMichelin ? `${michelinMap[v.michelin] || '✳️ Michelin'} · ${v.michelinYear || 2025}` : '';
+
+    const numberLabel = (context !== 'drawer' && Number.isFinite(v.n)) ? `${v.n} · ` : '';
+
+    const boxStyle = {
+      position: 'relative',
+      display: 'flex', flexDirection: 'column',
+      gap: isCompact ? '1px' : '2px',
+      background: '#ffffff',
+      border: '1px solid #e4e8f2',
+      borderRadius: isRich ? '14px' : '12px',
+      padding: isCompact ? '7px 10px' : '10px 11px',
+      paddingLeft: isRich ? '16px' : (isCompact ? '10px' : '11px'),
+      boxShadow: isRich ? '0 1px 3px rgba(20,30,80,0.06)' : '0 1px 1px rgba(20,30,80,0.02)',
+    };
+    const stripStyle = isRich
+      ? { position: 'absolute', left: 0, top: 0, bottom: 0, width: '5px', borderRadius: '14px 0 0 14px', background: 'linear-gradient(#2b59c9,#1d3aa0)' }
+      : { display: 'none' };
+    const nameStyle = {
+      flex: 1,
+      fontSize: isRich ? '14.5px' : (isCompact ? '12.5px' : '13px'),
+      fontWeight: 700, color: '#141a36', lineHeight: 1.25,
+    };
+
+    return {
+      boxStyle, stripStyle, nameStyle,
+      numberLabel, name: v.name || '',
+      ratingStr,
+      showBadge: isRich && !!ratingStr,
+      hasType: !!v.type, type: v.type || '',
+      metaLine,
+      hasPrice: priceParts.length > 0, priceLine,
+      hasTry,
+      showTrySummary: hasTry && !isCompact,
+      showTryExpanded: hasTry && isCompact,
+      tryLine,
+      hasMichelin, michelinLine,
+      expanded,
+      toggleLabel: expanded ? '⌃ less' : '⌄ details, review & links',
+      hasArea: !!v.area, area: v.area || '',
+      hasReview: !!v.review, review: v.review || '', reviewAgo: v.reviewAgo || '',
+      hasVibe: !!v.vibe, vibe: v.vibe || '',
+      showHeaderAdd: context === 'clipboard',
+      showHeaderRemove: context === 'drawer',
+      onToggle: () => this.setState(s => ({ expanded: !s.expanded })),
+      onAddClick: (e) => { e && e.stopPropagation(); if (this.props.onAdd) this.props.onAdd(v.id); },
+      onRemoveClick: (e) => { e && e.stopPropagation(); if (this.props.onRemove) this.props.onRemove(v); },
+      onCopyClick: (e) => { e && e.stopPropagation(); if (this.props.onCopy) this.props.onCopy(v); },
+    };
+  }
+}
+</script>
+</body>
+</html>

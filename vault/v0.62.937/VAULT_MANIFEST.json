@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.0",
+  "document_date": "2026-09-28",
+  "status": "draft-pending-full-verification",
+  "repository": "ang-kl/gia",
+  "application_version": "0.62.937",
+  "source_commit": "439cf204312b5ad892ec8bd57f37a3d105212f7e",
+  "source_tree": "e8cc36558cbfbb6f3325615625449082bb5cb5f9",
+  "prepared_at": "2026-09-28T07:15:27+08:00",
+  "destination": "vault/v0.62.937",
+  "inventory": {
+    "kind": "git-tree-reference",
+    "object_id_algorithm": "sha1",
+    "description": "The source Git tree is the transitive path/type/mode/object inventory. This draft reuses it without removing tracked entries. No leaf-by-leaf export is claimed.",
+    "source_file_count": null,
+    "source_blob_bytes": null,
+    "excluded_tracked_paths": null,
+    "full_exclusion_audit": "not-yet-verified"
+  },
+  "archive_metadata": ["VAULT_README.md", "VAULT_MANIFEST.json", "VAULT_VERIFY.mjs"],
+  "required_exclusions": ["**/node_modules/**", "**/.git/**", "**/vault/**", "public/*/assets/**", "**/.claude/settings.local.json", "**/.env", "**/.env.* except .env.example", "**/*.log", "**/tmp/**", "migration_audit.log"],
+  "verify_command": "node vault/v0.62.937/VAULT_VERIFY.mjs",
+  "review_branch": "archive/vault-v0.62.937-20260928",
+  "feature_map_work": "deferred",
+  "runtime_state_backed_up": false,
+  "production_deployment_authorised": false,
+  "limitations": [
+    "Filename search is preliminary evidence, not a complete recursive or content-wide secret audit.",
+    "Local repository download was unavailable; no full checkout verification or restore was run.",
+    "Gitlinks or LFS pointers, if present, do not include external payloads.",
+    "Keep the PR in draft until exclusions, counts, source integrity and restore requirements are checked."
+  ]
+}

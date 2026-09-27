@@ -1,0 +1,703 @@
+DEPLOYMENT PROMPT - paste this entire message into a Claude Code session
+started inside the target repo. It is repo-agnostic: "this repo" always
+means the working directory of the current session.
+
+Propose the full change set first and wait for my approval before writing
+anything. Then deploy as follows.
+
+WHAT CHANGED IN THIS REVISION (22-08 '26). The previous revision of this
+prompt shipped a protocol and a reference script that were WRONG in four
+ways, each of which produced a confident wrong number rather than an error:
+
+  1. The script matched only tool_use name "Task". Newer CLI builds emit
+     "Agent". It therefore reported `agents_total: 0` on a corpus that
+     really contained subagent calls - and 0-out-of-0 and 0-out-of-1,810
+     print identically.
+  2. The script summed token usage PER TRANSCRIPT LINE. The transcript
+     repeats the identical usage object on every content block of a
+     message, so every token figure was inflated by blocks-per-message -
+     measured at 1.938x on a real corpus.
+  3. The protocol's reply FOOTER was mandatory and required four per-turn
+     numbers that no implementation produces. A rule that is on, required,
+     and unmeasurable gets satisfied by estimating - which §5 forbids.
+  4. Serial measurement read ONE project folder, derived from the working
+     directory. Claude Code keys transcripts on the cwd PATH, so a repo
+     opened at more than one path (e.g. also from a `web/` subdirectory)
+     has SEVERAL folders. Reading one gave 4,090 replies where the true
+     total was 6,822 - a 40% undercount that looked like a clean answer.
+     TWO defects were needed to produce it, and neither failed loudly:
+     the munge replaced only / \ . _ and space, so a path containing '~'
+     (com~apple~CloudDocs) did not match its own folder; and even on a
+     match it returned ONLY that folder, discarding the sibling one for
+     sessions run in a subdirectory. Both are fixed in the SCRIPT block
+     below - it now munges every non-alphanumeric character, claims the
+     repo folder plus any subdirectory folder, prints which folders it
+     scanned, and names near-miss folders it did NOT count.
+
+All four are fixed in the PROTOCOL and SCRIPT blocks below. Deploy those,
+not any copy you may already have.
+
+STEP 1 - Create CLAUDE-protocol.md in this repo's root with exactly the
+content between the PROTOCOL BEGIN/END markers below.
+
+STEP 2 - Edit this repo's CLAUDE.md:
+  - Keep all existing project-specific content (PR policy, rebase records,
+    local rules). Do not delete or rewrite anything you have not shown me.
+  - Add one line at the top: @CLAUDE-protocol.md
+  - If this repo's CLAUDE.md already contains its own reply-protocol
+    section (serial, time, paragraph numbering), propose replacing that
+    section with the import line, but retain any serial-origin or rebase
+    record block VERBATIM - it is the audit trail for this repo's count
+    and must not be regenerated or summarised.
+  - If this repo has NO "Serial rebase records" section, propose adding
+    one (see STEP 5). Its absence is why a count drifts: protocol §1 has
+    always required the write-back and it is the step most often skipped.
+
+STEP 3 - Create four command files under .claude/commands/ :
+  - understanding.md containing:
+    What do you think I mean, including what you are treating as given?
+  - gaps.md containing:
+    Which unresolved interpretations could materially change the outcome?
+  - delta.md containing:
+    What has changed from your earlier understanding?
+  - invariants.md containing:
+    What must hold for this to be correct, and does it? Report each as
+    Passed, Failed or Not Verifiable.
+
+STEP 4 - Counting script:
+  - There must be EXACTLY ONE copy, at scripts/count-interactions.js.
+    Search the whole repo first. If another copy exists anywhere, report
+    every path and propose deleting all but scripts/ - do not delete
+    without approval. A duplicate measuring tool does not fail loudly; it
+    succeeds with wrong numbers, and whichever copy `find` happens to
+    return first is the one that gets run.
+  - If scripts/count-interactions.js exists, verify it carries BOTH fixes
+    before trusting any figure it prints:
+        grep -c "name === 'Agent'"  scripts/count-interactions.js   # must be >= 1
+        grep -c "seenMessageIds"    scripts/count-interactions.js   # must be >= 1
+    If either is 0, it is the superseded version - propose replacing it
+    with the reference implementation between the SCRIPT BEGIN/END markers.
+  - If it does not exist, create it with exactly that implementation.
+
+STEP 5 - Establish the serial base. THIS IS THE STEP THAT IS USUALLY WRONG.
+
+  5a. Measure across EVERY project folder for this repo. The fixed script
+      does this itself - `--sessions` prints a `# scanning:` line per
+      folder, and those lines are the evidence; report them.
+
+      Use the inline scan below INSTEAD when the script is not usable -
+      not yet deployed, repo will not pull, or an older copy is shadowing
+      it. All three happened on the machine this fix came from. It needs
+      no script file, no git state, and no correctly-derived folder name:
+
+        node -e '
+        const fs=require("fs"),path=require("path"),os=require("os");
+        const root=path.join(os.homedir(),".claude","projects");
+        if(!fs.existsSync(root)){console.log("no ~/.claude/projects");process.exit(0);}
+        const NAME=path.basename(process.cwd());
+        const dirs=fs.readdirSync(root).filter(d=>d.toLowerCase().includes(NAME.toLowerCase()));
+        if(!dirs.length){console.log("no folder matching "+NAME+". Present:");fs.readdirSync(root).forEach(d=>console.log("  "+d));process.exit(0);}
+        let total=0,files=0;
+        for(const d of dirs){
+          const p=path.join(root,d);
+          const js=fs.readdirSync(p).filter(f=>f.endsWith(".jsonl"));
+          let sub=0;
+          for(const f of js){
+            for(const line of fs.readFileSync(path.join(p,f),"utf8").split("\n")){
+              if(!line.trim())continue;
+              let e;try{e=JSON.parse(line)}catch{continue}
+              if(e.type!=="assistant"||e.isSidechain===true)continue;
+              const c=(e.message&&e.message.content)||[];
+              if(Array.isArray(c)&&c.some(b=>b&&b.type==="text"&&typeof b.text==="string"&&b.text.trim()))sub++;
+            }
+          }
+          console.log(d+"  ->  "+js.length+" session(s), "+sub+" replies");
+          total+=sub; files+=js.length;
+        }
+        console.log("");
+        console.log("TRANSCRIPT FILES : "+files);
+        console.log("SERIAL_MEASURED  : "+total);
+        '
+
+      Report EVERY folder it lists and its own subtotal, not just the sum.
+      Sibling folders are the normal case, not an anomaly, and a reader
+      needs to see which ones were included.
+
+  5b. Apply the ratchet BEFORE recording anything. If the total is LOWER
+      than a base already recorded in this repo's CLAUDE.md, that is
+      evidence of a PARTIAL CORPUS, not a correction. Do not adopt it. Say
+      which figure you used and why. Silently taking the smaller number
+      resets the count by thousands while looking like diligence, and it
+      is the single most damaging thing this step can do.
+
+  5c. Write the result into CLAUDE.md under "Serial rebase records" as a
+      dated row: when, WHERE it was measured, the figure, and a one-line
+      derivation naming the folders included. Append a row; never overwrite
+      one. A remote container and a local machine hold DIFFERENT, disjoint
+      transcript sets, so both rows are true and the running count is the
+      base plus the current session's own measured replies.
+
+  5d. From then on the script may be run with --base <n>, and its
+      `serial_rebased` line is the reply serial.
+
+STEP 6 - Output a per-file summary: path, action taken or proposed, lines
+added/removed. Then run:
+  node scripts/count-interactions.js --sessions --all
+and show me the output as verification evidence. Report the `# scanning:`
+lines verbatim - they say WHICH folders were counted, and a serial is not
+checkable without them. If any `# note: NOT counted` or `# warning:` line
+appears, quote it too and say whether the exclusion looks right; those
+lines exist so a wrongly-scoped count is visible rather than silent.
+
+=============================== PROTOCOL BEGIN ===============================
+# Claude Code Reply Protocol (project-neutral)
+
+Portable instruction layer. One copy per repo root, imported by that repo's
+`CLAUDE.md` via `@CLAUDE-protocol.md`. Contains no project names, paths
+beyond repo-relative ones, rebase history, or hardcoded counts — those live
+in each project's own `CLAUDE.md`. All counters are MEASURED from disk,
+never remembered from context.
+
+---
+
+## 1. Serial — measured, not remembered
+
+Source of truth is the session transcript on disk, read via the repo's
+counting script:
+
+```
+node scripts/count-interactions.js --serial     # next serial number
+node scripts/count-interactions.js --file ~/.claude/projects/<project>/<session>.jsonl
+```
+
+`reply turns` = assistant entries on the main thread carrying a non-empty
+text block. Tool calls and subagent chatter are excluded. Never restart at
+1; re-measure rather than guess if the thread is lost. Any rebase of the
+count is recorded in the project's own `CLAUDE.md`, not here.
+
+**WHICH DISK. The script measures the corpus it can see, and that is not
+always the whole corpus.** A remote or web session runs in a fresh container
+holding only the transcripts of sessions that ran there; a local machine
+holds the rest. Measured case, 2026-08-22: the same script returned 788 in a
+remote container and 6,253 against the owner's local corpus six days
+earlier — same rule, same code, different disk.
+
+So: a measurement BELOW the last rebase recorded in the project's
+`CLAUDE.md` is evidence of a partial corpus, not a correction. Treat it as
+unavailable, continue from the recorded rebase plus the replies since, and
+say which of the two you used. Re-measuring is only authoritative where the
+full transcript set is present. Silently adopting the smaller number is the
+exact failure this section exists to prevent — it resets the count by
+thousands while looking like diligence.
+
+AND THE RATCHET NEEDS A WRITE-BACK, or it drifts through the other door.
+Replies made in a container the local corpus never sees are correctly refused
+as a reading, but nothing records that they happened — so a later local
+re-measure legitimately reads below the running count, gets discarded as
+"partial corpus", and from then on the serial advances only by context-carried
+increments. That is the drift this section exists to stop, arriving from the
+opposite direction. So: at the end of any session whose corpus was partial,
+append a rebase line to the project's own `CLAUDE.md` recording the count
+reached and where it was measured. The file is the ledger; a container is not.
+
+Prefix every substantive reply, on its own line:
+
+```
+№ N · DD-MM'YY HH:MM TZ
+```
+
+`№` is U+2116; no leading zeros; comma thousands (№ 1,024).
+
+## 2. Time — fetched, not guessed
+
+Before stamping: run `date -u` via Bash and convert to the active
+timezone. Resolve TZ in this order: (a) owner states one this session;
+(b) system zone via `date +%Z`; (c) default SGT. Re-run on session start,
+on resume from idle, or if more than 60 minutes have elapsed since the
+last fetch. If Bash is unavailable, derive from the newest timestamp in
+context; if more than roughly an hour of drift is possible, ask rather
+than invent.
+
+## 3. Paragraph numbering
+
+Once a reply carries 2+ distinct points:
+
+- Letter sections `§N·A`, `§N·B`, ... where N is the reply serial.
+- Number paragraphs within each section `¶A·1`, `¶A·2`, ... restarting
+  at 1 per section.
+- Skip markers on short single-point replies.
+
+This enables references like "expand §1,774·B ¶B·2".
+
+## 4. Agent count — measured from the same transcript
+
+A subagent is spawned per subagent-tool invocation (`Task` on older CLI
+builds, `Agent` on newer ones).
+
+```
+node scripts/count-interactions.js --agents
+# prints: agents_total, breakdown by subagent_type, agents in the latest SESSION
+```
+
+Counting rule: assistant entries whose content includes a `tool_use`
+block named `Task` (older CLI builds) OR `Agent` (newer ones); group by
+`input.subagent_type`. MATCH BOTH — matching one name reported a confident
+`agents_total: 0` on a corpus that really contained subagent calls, and
+fixing it moved bot-trade's own count from 0 to 2. The output also prints
+`tool_use_blocks_seen`, because 0 agents out of 0 tool calls and 0 out of
+4,263 are different facts and a bare zero cannot tell them apart.
+
+## 5. Token count — measured from the same transcript
+
+```
+node scripts/count-interactions.js --tokens
+# sums input_tokens, cache_creation_input_tokens, cache_read_input_tokens
+# (these three reconcile into tokens_in_total) and output_tokens;
+# prints per-SESSION figures only
+```
+
+USAGE IS PER MESSAGE, NOT PER TRANSCRIPT LINE. The transcript writes one line
+per content block and repeats the identical usage object on each, so summing
+per entry inflates every figure by blocks-per-message — measured at 1.91x.
+Dedupe on `message.id`. And with prompt caching on, `input_tokens` is often 2
+while the real input sits in the two cache fields: reporting it alone is a
+confident wrong number, not a partial one.
+
+There is no per-turn accounting here, and §6 depends on there being some —
+which is why §6 stays off. Do not read `agents_latest_session` or
+`latest_session_*` as turn figures: a session routinely runs to thousands of
+replies, so the two differ by three orders of magnitude.
+
+If a usage block is absent, report "unavailable" — never estimate. The
+§1 corpus caveat applies here too: these figures cover the transcripts
+this machine can see, not necessarily every session ever run.
+
+## 6. Reply footer — off until it can be measured
+
+The intended line is:
+
+```
+[agents: {n} turn | {total} session] [tokens: {in}/{out} turn | {cum_in}/{cum_out} session]
+```
+
+**OMIT IT unless the counting script emits PER-TURN figures.** Flag
+existence is not the test, and the first draft of this section got that
+wrong: it said to omit while `--agents` was unimplemented, so the footer
+would unlock the moment the flag was added — while the format still needs
+four per-turn numbers (`{n} turn`, `{in}/{out} turn`) that no
+implementation produces. `--agents` and `--tokens` report per-SESSION
+totals (`agents_latest_session`, `latest_session_in/out`); there is no
+per-turn accounting anywhere, and §5 forbids estimating one. A mandatory
+line with two unmeasurable fields is a rule that is on, configured, and
+out of reach of what it guards — the same shape as a guard whose trigger
+never fires.
+
+So the footer stays OFF until a script emits per-turn figures — e.g. a
+`--turn` mode reading the last assistant entry of the newest transcript.
+Until then do not print it, do not print "unavailable" in its place, and
+do not estimate. Whoever adds per-turn accounting turns this section on in
+the same change, and not before.
+
+## 7. On-demand dashboards (prompts, not native CLI)
+
+Per-project — run inside the repo:
+
+```
+Run scripts/count-interactions.js with --serial, --agents and --tokens.
+Render one table: current serial, agents_total, breakdown (descending),
+token totals, last time fetch.
+```
+
+Cross-project — run from the parent folder holding all repos:
+
+```
+For each */.claude/projects transcript set, run count-interactions.js
+--serial --agents --tokens. Render one table, one row per project plus a
+TOTAL row, then the three most-used subagent types overall.
+```
+
+## 8. Invariants
+
+| # | Invariant | Check |
+|---|-----------|-------|
+| 1 | Serial never decreases or resets mid-project | measured from transcript, §1 corpus rule applied |
+| 2 | Transcript is the sole authority; every text reply counts | script rule |
+| 3 | TZ read from owner or environment, never hardcoded | §2 order |
+| 4 | Counts unavailable are reported, never estimated | §4-6 |
+| 5 | Dashboards read transcripts; they never mutate them | §7 |
+
+## 9. Mental model for building
+
+Every build or change follows this chain, in order:
+
+**Intent → Interpretation → Assumptions → Invariants → Execution → Evidence**
+
+## 10. Custom commands
+
+Register in each repo's `.claude/commands/` so they work as
+slash-commands:
+
+- `/UNDERSTANDING` — What do you think I mean, including what you are
+  treating as given?
+- `/GAPS` — Which unresolved interpretations could materially change the
+  outcome?
+- `/DELTA` — What has changed from your earlier understanding?
+- `/INVARIANTS` — What must hold for this to be correct, and does it? Each
+  reported Passed, Failed or Not Verifiable. This is the handle on P3, added
+  2026-08-22 at the owner's request; until then P3 was the only protocol
+  point with no command.
+
+## 11. Protocol for important or consequential work
+
+Points are lettered `P1`–`P8` rather than numbered so that a bare "#N" in
+a repo keeps pointing at whatever that repo already numbers — several
+projects cite their own numbered lists that way from code comments and
+tests.
+
+P1. Lead with the final answer or recommendation.
+P2. Identify the authoritative sources used and distinguish verified facts
+    from inference.
+P3. State the material invariants and report each as Passed, Failed or
+    Not Verifiable.
+P4. Briefly disclose any material search, retrieval, calculation or
+    external tool used. If this information is unavailable, say so rather
+    than guessing.
+P5. Use deterministic tools for exact calculations where available.
+P6. Flag missing evidence, conflicting sources and assumptions requiring
+    confirmation.
+P7. Ask for the owner's approval before any external, destructive,
+    financial, legal, personnel-related or otherwise consequential action.
+P8. Never infer or invent the model, reasoning setting, hidden routing or
+    unavailable system metadata.
+
+## 12. Language and reply style
+
+- Cambridge-Oxford grammar, Singaporean English structure; Singaporean lingua franca where
+  context permits.
+- Hyphens only — never em dashes or en dashes.
+
+## 13. Reply format
+
+- **TL;DR.** When a reply runs past roughly 10 lines, open it, right after the serial, with a
+  paragraph labelled "TL;DR:" of two or three sentences: the main answer or recommendation, the
+  key reason, and any material caveat or next action. It never replaces requested detail or a
+  required safeguard, and adds no claim the rest of the reply does not support. Shorter replies
+  need none.
+- **Compression bands.** BALANCED by default (structured paragraphs, light formatting); LEAN
+  (bullet-tight, no ceremony) for quick asks; DENSE (full framework) when the owner asks or the
+  question warrants it. A yes/no question gets one line plus the reason; a strategic question
+  gets a framework; a how-to gets numbered steps.
+
+## 14. Build request gate - before and after
+
+Applies to a FRESH build request: new work the owner asks for. It does not
+apply to CI CR work (continuous integration paired with continuous
+resilience or response): a CI failure, a review thread, a merge conflict or
+an incident on work already under way proceeds under the drive-to-green
+rules with no fresh gate. When a message could be either, say in one line
+which reading you took.
+
+Before any build, reply with:
+
+- TL;DR.
+- The first four stages of §9, each in a few lines: Intent (outcome, force,
+  done-check); Interpretation (UNDERSTANDING and GAPS); Assumptions (each
+  marked verified, inferred or unverified, with a confidence); Invariants
+  (each with the check that will prove it).
+
+Then proceed WITHOUT waiting for a reply, unless any assumption is below 95%
+confidence or the plan would break an invariant. In either case stop, ask
+one question, and wait; silence is not approval.
+
+After the build, reply with:
+
+- TL;DR.
+- A reassessment of the same four stages: what held, what Execution
+  corrected, with the correction quoted.
+- The last two stages: Execution (what changed, file by file, within what
+  scope) and Evidence (the verify command's result, and the INVARIANTS
+  REPORT with each invariant Passed, Failed or Not Verifiable).
+
+The BEFORE writeup is the acknowledgement ask: the owner reads it and
+intervenes. The wait is reserved for genuine uncertainty.
+================================ PROTOCOL END ================================
+
+================================ SCRIPT BEGIN ================================
+#!/usr/bin/env node
+/**
+ * count-interactions.js
+ * Measures serial, agent and token counts from Claude Code session
+ * transcripts (JSONL) on disk. Transcript is the sole authority - nothing
+ * is remembered from context.
+ *
+ * Usage:
+ *   node scripts/count-interactions.js --serial
+ *   node scripts/count-interactions.js --agents
+ *   node scripts/count-interactions.js --tokens
+ *   node scripts/count-interactions.js --all
+ *   node scripts/count-interactions.js --file <path-to-session.jsonl> [--serial|--agents|--tokens|--all]
+ *   node scripts/count-interactions.js --sessions        # aggregate across ALL sessions of this project
+ *   node scripts/count-interactions.js --base <n>        # add rebase offset to serial (e.g. --base 1773)
+ *
+ * Counting rules (protocol §1, §4, §5):
+ *   serial  = assistant entries on the MAIN thread (isSidechain !== true)
+ *             carrying at least one non-empty text block. Tool-only turns
+ *             and subagent chatter are excluded.
+ *   agents  = tool_use blocks named "Task" (older CLI builds) OR "Agent"
+ *             (newer ones), grouped by input.subagent_type. Sidechain entries
+ *             are excluded so a subagent spawning nothing is not double-counted.
+ *             MATCHING ONLY ONE NAME reports a confident agents_total: 0 on a
+ *             corpus that really contains subagent calls - protocol §4 names
+ *             this exact failure. tool_use_blocks_seen is printed alongside,
+ *             because "0 of 0" and "0 of 1,810" are different facts and a bare
+ *             zero cannot tell them apart.
+ *   tokens  = sum of usage.input_tokens, usage.output_tokens,
+ *             usage.cache_read_input_tokens, usage.cache_creation_input_tokens
+ *             across main-thread assistant entries, DEDUPED ON message.id.
+ *             Usage is per MESSAGE, not per transcript line: the transcript
+ *             writes one line per content block and repeats the identical usage
+ *             object on each, so summing per entry inflates every figure by
+ *             blocks-per-message. Measured on this repo's own transcript:
+ *             1.938x (2,799,020 -> 1,444,213 output tokens). Protocol §5.
+ *             Absent usage blocks are counted as "unavailable", never estimated.
+ */
+
+'use strict';
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+// ---------- CLI ----------
+const argv = process.argv.slice(2);
+const has = (f) => argv.includes(f);
+const val = (f) => {
+  const i = argv.indexOf(f);
+  return i !== -1 && argv[i + 1] ? argv[i + 1] : null;
+};
+
+const wantSerial = has('--serial') || has('--all');
+const wantAgents = has('--agents') || has('--all');
+const wantTokens = has('--tokens') || has('--all');
+const wantAny = wantSerial || wantAgents || wantTokens;
+const allSessions = has('--sessions');
+const explicitFile = val('--file');
+const base = parseInt(val('--base') || '0', 10) || 0;
+
+const RUN_AS_CLI = typeof require !== 'undefined' && require.main === module;
+
+if (RUN_AS_CLI && !wantAny && !allSessions) {
+  console.log('Usage: count-interactions.js [--serial|--agents|--tokens|--all] [--file <session.jsonl>] [--sessions] [--base <n>]');
+  process.exit(0);
+}
+
+// ---------- Locate transcript(s) ----------
+// Claude Code stores transcripts under ~/.claude/projects/<munged-cwd>/*.jsonl,
+// keyed on the WORKING DIRECTORY the session ran in. One repo therefore has
+// SEVERAL folders if it has ever been opened at more than one path — notably
+// from a subdirectory.
+//
+// O-215. This function had two defects, and BOTH were needed to produce the
+// undercount that prompted the fix (4,090 replies reported against a true
+// 6,822 — 40% low, and it looked like a clean answer):
+//
+//   1. The munge replaced only / \ . _ and space. A real path contained '~'
+//      (`com~apple~CloudDocs`, an iCloud Drive path), which Claude Code had
+//      replaced with '-'. The exact match therefore MISSED, silently, and
+//      fell through to a loose `endsWith(basename)` scan.
+//   2. Even on a hit, it returned ONLY the exactly-matching folder. A repo
+//      opened both at `…/gia` and `…/gia/web` has two folders; the second
+//      holds real replies and was discarded. `endsWith('gia')` did not save
+//      it either — `…-gia-web` does not end in 'gia'.
+//
+// Fixed by munging every non-alphanumeric character, and by treating the
+// repo's own folder AND any folder for a subdirectory of it as in scope.
+// Verified against both observed cases:
+//   /home/user/gia                       -> -home-user-gia
+//   /Users/…/com~apple~CloudDocs/…/gia   -> -Users-…-com-apple-CloudDocs-…-gia
+function mungePath(p) {
+  return p.replace(/[^A-Za-z0-9-]/g, '-');
+}
+
+// A folder belongs to this project if it IS the repo's own munged path, or is
+// a subdirectory of it (munged path + '-' + something). Deliberately
+// case-SENSITIVE: a sibling like `…-Github-Gia-WA` is a different project, and
+// case-folding would swallow it. Near-misses are reported rather than silently
+// dropped, so a wrongly-excluded folder is visible instead of invisible.
+function matchesProject(dirName, cwdMunged) {
+  return dirName === cwdMunged || dirName.startsWith(cwdMunged + '-');
+}
+
+function projectDirCandidates(reportExcluded) {
+  const root = path.join(os.homedir(), '.claude', 'projects');
+  if (!fs.existsSync(root)) return [];
+  const cwdMunged = mungePath(process.cwd());
+  const names = fs.readdirSync(root)
+    .filter((d) => fs.statSync(path.join(root, d)).isDirectory());
+
+  const hits = names.filter((d) => matchesProject(d, cwdMunged));
+  if (hits.length) {
+    if (reportExcluded) {
+      // Anything sharing the repo's folder name but not matching the rule —
+      // a different casing, a sibling project. Named, never silently cut.
+      const base = mungePath(path.basename(process.cwd()));
+      const near = names.filter((d) => !hits.includes(d) && d.toLowerCase().includes(base.toLowerCase()));
+      for (const d of near) console.log(`# note: NOT counted (different project path): ${d}`);
+    }
+    return hits.map((d) => path.join(root, d));
+  }
+
+  // Last resort only: nothing matched the repo's path at all, so fall back to
+  // folder-name similarity and SAY SO, because this can over-match.
+  const base = mungePath(path.basename(process.cwd()));
+  const loose = names.filter((d) => d.toLowerCase().includes(base.toLowerCase()));
+  if (loose.length) {
+    console.log(`# warning: no folder matched this repo's path (${cwdMunged}).`);
+    console.log(`# falling back to name similarity on "${base}" — verify these are yours:`);
+    for (const d of loose) console.log(`#   ${d}`);
+  }
+  return loose.map((d) => path.join(root, d));
+}
+
+function sessionFiles() {
+  if (explicitFile) return [path.resolve(explicitFile)];
+  const dirs = projectDirCandidates(allSessions);
+  if (allSessions) for (const d of dirs) console.log(`# scanning: ${path.basename(d)}`);
+  const files = [];
+  for (const d of dirs) {
+    for (const f of fs.readdirSync(d)) {
+      if (f.endsWith('.jsonl')) files.push(path.join(d, f));
+    }
+  }
+  files.sort((a, b) => fs.statSync(a).mtimeMs - fs.statSync(b).mtimeMs);
+  if (!files.length) {
+    console.error('No session transcripts found. Pass --file <session.jsonl>.');
+    process.exit(1);
+  }
+  return allSessions ? files : [files[files.length - 1]]; // newest only by default
+}
+
+// ---------- Measure ----------
+function freshTally() {
+  return {
+    serial: 0,
+    userTurns: 0,
+    agentsTotal: 0,
+    agentsBreakdown: {},
+    tokens: { input: 0, output: 0, cache_read: 0, cache_creation: 0 },
+    usageMissing: 0,
+    toolUseBlocks: 0,
+    seenMessageIds: new Set(),
+    lines: 0,
+    badLines: 0,
+  };
+}
+
+function measureFile(file, t) {
+  const raw = fs.readFileSync(file, 'utf8');
+  for (const line of raw.split('\n')) {
+    if (!line.trim()) continue;
+    t.lines++;
+    let e;
+    try { e = JSON.parse(line); } catch { t.badLines++; continue; }
+
+    const sidechain = e.isSidechain === true;
+    const msg = e.message || {};
+    const content = Array.isArray(msg.content) ? msg.content : [];
+
+    if (e.type === 'user' && !sidechain) t.userTurns++;
+
+    if (e.type === 'assistant' && !sidechain) {
+      // serial: non-empty text block on main thread
+      const hasText = content.some(
+        (b) => b && b.type === 'text' && typeof b.text === 'string' && b.text.trim().length > 0
+      );
+      if (hasText) t.serial++;
+
+      // agents: Task tool invocations
+      for (const b of content) {
+        if (!b || b.type !== 'tool_use') continue;
+        t.toolUseBlocks++;
+        // Both names, per protocol §4 - 'Task' on older CLI builds, 'Agent' on newer.
+        if (b.name === 'Task' || b.name === 'Agent') {
+          t.agentsTotal++;
+          const st = (b.input && b.input.subagent_type) || 'unspecified';
+          t.agentsBreakdown[st] = (t.agentsBreakdown[st] || 0) + 1;
+        }
+      }
+
+      // tokens
+      const u = msg.usage;
+      // Dedupe on message.id: the same usage object is repeated on every content
+      // block of a message, so a per-entry sum inflates by blocks-per-message (§5).
+      const mid = msg.id;
+      if (mid && t.seenMessageIds.has(mid)) {
+        continue;
+      }
+      if (mid) t.seenMessageIds.add(mid);
+      if (u && typeof u === 'object') {
+        t.tokens.input += u.input_tokens || 0;
+        t.tokens.output += u.output_tokens || 0;
+        t.tokens.cache_read += u.cache_read_input_tokens || 0;
+        t.tokens.cache_creation += u.cache_creation_input_tokens || 0;
+      } else if (hasText) {
+        t.usageMissing++;
+      }
+    }
+  }
+  return t;
+}
+
+// Exported for tests. The CLI below still runs on direct invocation; requiring
+// this file for a unit test must not execute it, or the test suite inherits a
+// process.exit on a machine with no transcripts.
+if (typeof module !== 'undefined') module.exports = { mungePath, matchesProject };
+
+// ---------- Run ----------
+// Guarded so a unit test can require this file for its pure helpers without
+// the CLI measuring, printing, or calling process.exit — which it does on a
+// machine with no transcripts, and which turns an import into a suite failure.
+if (RUN_AS_CLI) main();
+
+function main() {
+const files = sessionFiles();
+const t = freshTally();
+for (const f of files) measureFile(f, t);
+
+const fmt = (n) => n.toLocaleString('en-SG');
+const scope = allSessions ? `${files.length} session(s)` : path.basename(files[0]);
+
+console.log(`# Transcript scope: ${scope}`);
+if (t.badLines) console.log(`# Warning: ${t.badLines} unparseable line(s) skipped`);
+
+if (wantSerial || allSessions) {
+  console.log(`serial_measured   : ${fmt(t.serial)}  (main-thread assistant text replies)`);
+  console.log(`user_turns        : ${fmt(t.userTurns)}`);
+  if (base) console.log(`serial_rebased    : ${fmt(base + t.serial)}  (base ${fmt(base)} + measured)`);
+  console.log(`next_serial       : ${fmt((base || 0) + t.serial + 1)}`);
+}
+
+if (wantAgents || allSessions) {
+  console.log(`agents_total      : ${fmt(t.agentsTotal)}  (Task + Agent tool invocations)`);
+  const entries = Object.entries(t.agentsBreakdown).sort((a, b) => b[1] - a[1]);
+  if (entries.length) {
+    console.log('agents_breakdown  :');
+    for (const [k, v] of entries) console.log(`  ${k.padEnd(24)} ${fmt(v)}`);
+  } else {
+    console.log('agents_breakdown  : none');
+  }
+  // §4: a bare zero cannot distinguish "no subagents" from "nothing was read".
+  console.log(`tool_use_blocks_seen: ${fmt(t.toolUseBlocks)}`);
+}
+
+if (wantTokens || allSessions) {
+  console.log(`tokens_input      : ${fmt(t.tokens.input)}`);
+  console.log(`tokens_output     : ${fmt(t.tokens.output)}`);
+  console.log(`tokens_cache_read : ${fmt(t.tokens.cache_read)}`);
+  console.log(`tokens_cache_new  : ${fmt(t.tokens.cache_creation)}`);
+  if (t.usageMissing) {
+    console.log(`tokens_note       : ${fmt(t.usageMissing)} reply(ies) had no usage block - reported, not estimated`);
+  }
+}
+}
+================================= SCRIPT END =================================

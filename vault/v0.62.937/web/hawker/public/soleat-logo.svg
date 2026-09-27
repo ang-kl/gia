@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  soleat brand mark — v0.34.2 starter.
+  Concept: a fork stem curving into a leaf — solo (single stem) +
+  sanctuary/eat (leaf). Hard-coded Telegram accent colour so the SVG
+  renders visibly when loaded via <img>. For a polished iteration,
+  use DALL-E / Midjourney with the prompt:
+    "Minimalist single-color logo, fork tine that curves into a leaf,
+     for a solo-dining concierge bot called soleat, Singapore vibe,
+     vector, flat, no text"
+-->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#3390ec" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Fork handle: vertical stem -->
+  <line x1="32" y1="58" x2="32" y2="34" />
+  <!-- Leaf head: anchored at top of stem -->
+  <path d="M32 34 C 22 30, 18 18, 32 12 C 46 18, 42 30, 32 34 Z" fill="#3390ec" fill-opacity="0.18" />
+  <!-- Leaf vein -->
+  <line x1="32" y1="34" x2="32" y2="14" stroke-width="1.5" stroke-opacity="0.55" />
+</svg>

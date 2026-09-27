@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soleat — Cuisine TMA floating layout (MVP mockup)</title>
+<style>
+  :root{
+    --ink:#1c1c1f; --soft:#55555c; --hint:#86868f; --line:#e3e3e8;
+    --bg:#ffffff; --paper:#fbfbfc; --accent:#1565C0; --good:#0a7d4d; --sg:#c0392b;
+    --card:#ffffff; --cardline:#e6e6ec; --chipline:#c9c9d2; --glass:rgba(255,255,255,.72);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#d8d8dc;color:var(--ink);
+    font:13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .page{background:var(--bg);max-width:940px;margin:14px auto;padding:22px 26px;box-shadow:0 2px 14px rgba(0,0,0,.18);}
+  h1{font-size:23px;margin:0 0 2px;letter-spacing:-.4px;}
+  .sub{color:var(--soft);font-size:13px;margin:0 0 2px;}
+  .meta{color:var(--hint);font-size:10.5px;margin:0 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;}
+  h2{font-size:15px;margin:22px 0 8px;padding-bottom:3px;border-bottom:2px solid var(--ink);display:flex;gap:7px;align-items:center;}
+  h2 .n{font-size:11px;color:#fff;background:var(--ink);border-radius:4px;padding:1px 6px;font-weight:700;}
+  h3{font-size:12px;margin:14px 0 7px;color:var(--soft);text-transform:uppercase;letter-spacing:.4px;}
+  p{margin:7px 0;} code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:#f1f1f4;border-radius:4px;padding:.5px 5px;}
+  .cols{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  .col{flex:1;min-width:280px;}
+  /* phone frame */
+  .phone{position:relative;width:300px;height:540px;margin:0 auto;border-radius:22px;background:#0e0e10;overflow:hidden;border:1px solid #000;}
+  .map{position:absolute;inset:0;background:linear-gradient(135deg,#dfe8ef,#e9efe6);}
+  .map .pin{position:absolute;left:46%;top:34%;background:var(--accent);color:#fff;width:22px;height:22px;border-radius:50% 50% 50% 0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;transform:rotate(-45deg);border:2px solid #fff;}
+  .map .pin b{transform:rotate(45deg);}
+  /* floating header */
+  .fhead{position:absolute;top:0;left:0;right:0;z-index:5;backdrop-filter:blur(8px);background:var(--glass);border-bottom:1px solid var(--line);padding:7px 9px;}
+  .fhead .title{display:flex;align-items:center;gap:6px;font-weight:800;font-size:15px;}
+  .fhead .title .ic{width:20px;height:20px;border-radius:50%;background:#b5402f;}
+  .fhead .title .sp{flex:1;}
+  .fhead .title .wx{font-size:10px;color:var(--soft);font-weight:600;}
+  .fhead .pills{display:flex;gap:5px;margin-top:6px;}
+  .fhead .pill{flex:1;text-align:center;font-size:9.5px;border:1px solid var(--chipline);border-radius:9px;padding:3px 2px;background:rgba(255,255,255,.6);}
+  .fhead .pill.sel{border-color:var(--accent);color:var(--accent);background:rgba(21,101,192,.12);}
+  /* footer chrome */
+  .footer{position:absolute;left:0;right:0;bottom:0;z-index:6;padding:8px;}
+  .carousel{display:flex;gap:7px;align-items:flex-end;height:118px;margin-bottom:8px;}
+  .carousel .peek{flex:0 0 22px;background:#ffffff;border-radius:9px 0 0 9px;box-shadow:0 4px 14px rgba(0,0,0,.4);writing-mode:vertical-rl;font-size:9px;color:var(--hint);display:flex;align-items:center;justify-content:center;}
+  .carousel .peek.r{border-radius:0 9px 9px 0;}
+  .carousel .cardC{flex:1;background:var(--card);border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.5);padding:8px 9px;overflow:hidden;}
+  .carousel .cardC .nm{font-weight:700;font-size:12px;}
+  .carousel .cardC .row{font-size:10px;color:var(--soft);margin-top:2px;}
+  .searchbar{display:flex;align-items:center;gap:7px;}
+  .sbar{flex:1;background:var(--card);border:1px solid var(--cardline);border-radius:22px;box-shadow:0 4px 14px rgba(0,0,0,.4);padding:9px 13px;font-size:12px;color:var(--soft);display:flex;align-items:center;gap:7px;}
+  .fab{width:34px;height:34px;border-radius:11px;background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid var(--cardline);}
+  .fab.accent{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .dots{text-align:center;color:rgba(255,255,255,.55);font-size:11px;letter-spacing:3px;margin-bottom:5px;}
+  .dots b{color:#fff;}
+  /* expanded search card */
+  .scard{background:var(--card);border:1px solid var(--cardline);border-radius:16px;box-shadow:0 8px 26px rgba(0,0,0,.5);padding:11px;}
+  .scard .hd{display:flex;align-items:center;font-weight:700;font-size:13px;}
+  .scard .hd .x{margin-left:auto;color:var(--hint);}
+  .chip{display:inline-block;border:1px solid var(--chipline);border-radius:11px;padding:3px 8px;margin:3px 3px 0 0;font-size:10.5px;}
+  .chip.on{background:rgba(21,101,192,.12);border-color:var(--accent);color:var(--accent);}
+  .leg{font-size:10px;color:var(--hint);margin-top:6px;}
+  table{border-collapse:collapse;width:100%;font-size:12px;margin:8px 0;}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top;}
+  th{background:var(--paper);font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--soft);}
+  ul{margin:6px 0;padding-left:18px;} li{margin:4px 0;}
+  .open-q{background:#fff8e9;border:1px solid #f0e2bf;border-radius:8px;padding:9px 13px;}
+  .foot{border-top:1px solid var(--line);padding-top:6px;margin-top:18px;color:var(--hint);font-size:10px;display:flex;justify-content:space-between;}
+</style>
+</head>
+<body>
+<section class="page">
+  <h1>Cuisine TMA — floating layout</h1>
+  <p class="sub">Chrome floats over a full-bleed map: a sticky header on top, and a footer stack — the result carousel above a search-bar FAB, beside the end/down FABs. The vertical result list is replaced by the carousel.</p>
+  <p class="meta">Mockup only — NOT built · builds on the shipped carousel (v0.62.125) + region pills (v0.62.126) · biggest layout change yet — staged build proposed in §4</p>
+
+  <h2><span class="n">1</span> The two states</h2>
+  <div class="cols">
+    <div class="col" style="flex:0 0 auto">
+      <h3>Browsing — carousel + search bar</h3>
+      <div class="phone">
+        <div class="map"><span class="pin"><b>3</b></span></div>
+        <div class="fhead">
+          <div class="title"><span class="ic"></span><span>Cuisine</span><span class="sp"></span><span>🇬🇧·🇫🇷</span><span class="wx">⛅29°</span></div>
+          <div class="pills"><span class="pill">📍 Current</span><span class="pill sel">🇸🇬 Singapore</span><span class="pill">JB</span><span class="pill">🌏 Cities</span></div>
+        </div>
+        <div class="footer">
+          <div class="dots">○ ○ <b>●</b> ○ ○</div>
+          <div class="carousel">
+            <div class="peek">2 · Wheeler's</div>
+            <div class="cardC">
+              <div class="nm">3 · Keng Eng Kee</div>
+              <div class="row">Seafood · ★4.3 · 📍~1.7km</div>
+              <div class="row">🍲 Try · Moonlight Hor Fun</div>
+              <div class="row" style="color:var(--accent)">⌄ details, review &amp; links</div>
+            </div>
+            <div class="peek r">4 · Lucha</div>
+          </div>
+          <div class="searchbar">
+            <div class="sbar">🔍 <span>Search eateries · 🇸🇬 Bukit Merah</span></div>
+            <div class="fab">↩</div>
+            <div class="fab" style="font-size:10px">⤓</div>
+          </div>
+        </div>
+      </div>
+      <p class="leg">Carousel sits at the footer (not over the map): swipe ‹ › between eateries, the centred card expands/collapses in place. Below it, the search bar + the ↩/end FABs. Tap a card → it centres + the map pin recenters.</p>
+    </div>
+
+    <div class="col" style="flex:0 0 auto">
+      <h3>Searching — search bar expanded (still a FAB)</h3>
+      <div class="phone">
+        <div class="map"><span class="pin"><b>3</b></span></div>
+        <div class="fhead">
+          <div class="title"><span class="ic"></span><span>Cuisine</span><span class="sp"></span><span>🇬🇧·🇫🇷</span><span class="wx">⛅29°</span></div>
+          <div class="pills"><span class="pill">📍 Current</span><span class="pill sel">🇸🇬 Singapore</span><span class="pill">JB</span><span class="pill">🌏 Cities</span></div>
+        </div>
+        <div class="footer">
+          <div class="scard">
+            <div class="hd"><span>🔍 Search</span><span class="x">⌄ collapse</span></div>
+            <div style="font-size:11px;color:var(--soft);margin-top:6px">📍 Bukit Merah · change</div>
+            <div style="margin-top:6px">
+              <span class="chip on">Japanese</span><span class="chip">Korean</span><span class="chip">Italian</span><span class="chip">Halal</span><span class="chip">$$</span><span class="chip">Open now</span><span class="chip">⭐ Recommend</span>
+            </div>
+            <div style="margin-top:8px;display:flex;gap:7px">
+              <div class="sbar" style="flex:1;box-shadow:none">💬 Tell me what you feel like…</div>
+              <div class="fab accent">🔍</div>
+            </div>
+          </div>
+          <div style="height:6px"></div>
+          <div class="searchbar" style="justify-content:flex-end">
+            <div class="fab">↩</div>
+            <div class="fab">⤓</div>
+          </div>
+        </div>
+      </div>
+      <p class="leg">Tapping the search bar expands it into the full search card (cuisine chips, filters, location, Tell-me + 🔍) — still a floating FAB layer, not a static page section. "⌄ collapse" returns it to the slim bar.</p>
+    </div>
+  </div>
+
+  <h2><span class="n">2</span> What moves where</h2>
+  <table>
+    <thead><tr><th>Element</th><th>Today</th><th>Proposed</th></tr></thead>
+    <tbody>
+      <tr><td>Header (soleat · Cuisine · 🇬🇧🇫🇷 · weather · region pills)</td><td>scrolls with the page</td><td><b>floating, always visible</b> (sticky top, frosted)</td></tr>
+      <tr><td>Search criteria + location field</td><td>static collapsible card in the page body</td><td><b>a floating search-bar FAB</b> beside the end/down FABs; tap → full search card, ⌄ → slim bar</td></tr>
+      <tr><td>Result list</td><td>vertical list below the map</td><td><b>replaced by the carousel</b> at the footer (swipe + expand/collapse)</td></tr>
+      <tr><td>Carousel (v0.62.125)</td><td>overlays the lower map</td><td><b>floats at the footer</b>, above the search bar — not over the map</td></tr>
+      <tr><td>🔍 Search / ↩ end / ⤓ down FABs</td><td>fixed bottom-right cluster</td><td>kept; the search bar joins this floating layer</td></tr>
+      <tr><td>Map</td><td>fixed-height panel near the top</td><td>full-bleed background behind the floating chrome (can still expand)</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">3</span> Behaviour</h2>
+  <ul>
+    <li><b>Floating header</b> — sticky/fixed, frosted (.glass), always on top; region pills stay reachable without scrolling.</li>
+    <li><b>Search-bar FAB</b> — collapsed = a slim "🔍 Search · &lt;area&gt;" bar; tap → expands to the full search card (cuisines, filters, location, Tell-me, 🔍 run); ⌄ collapses back. Lives in the floating layer (FAB), never the static body.</li>
+    <li><b>Footer carousel</b> — replaces the vertical list; horizontal swipe between ranked cards, the centred card expand/collapses (the v0.62.124 collapse). Selecting recenters the map (existing wiring). Sits ABOVE the search bar.</li>
+    <li><b>Map</b> — full-bleed behind everything; the carousel no longer covers it (footer-docked), so map + cards are both visible.</li>
+  </ul>
+
+  <h2><span class="n">4</span> Staged build (proposed)</h2>
+  <ol>
+    <li><b>Move the carousel to the footer</b> (off the map) — smallest, refines what's shipped.</li>
+    <li><b>Floating sticky header</b> (header + region pills).</li>
+    <li><b>Search-bar FAB</b> — strip the criteria/location card into a floating bar that expands/collapses.</li>
+    <li><b>Replace the vertical list with the footer carousel</b> as the primary result surface.</li>
+  </ol>
+
+  <h2><span class="n">5</span> Open questions</h2>
+  <div class="open-q"><ul style="margin:0">
+    <li><b>Vertical list:</b> remove it entirely (carousel-only), or keep it as a "scroll down for the full list" fallback below the fold?</li>
+    <li><b>Footer height:</b> carousel ~120px + search bar — that's ~30% of a phone screen pinned at the bottom. OK, or should the carousel auto-hide until a card is tapped?</li>
+    <li><b>Search-bar FAB placement:</b> full-width bar with the ↩/end/⤓ FABs to its right (as drawn), or a compact 🔍 circle that expands?</li>
+    <li><b>Header content:</b> keep the region pills in the floating header (as drawn), or only the title/lang/weather, with pills in the search card?</li>
+  </ul></div>
+
+  <div class="foot"><span>Soleat · Cuisine TMA floating layout — MVP mockup, nothing built</span><span>16 Jun 2026</span></div>
+</section>
+</body>
+</html>
