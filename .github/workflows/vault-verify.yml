@@ -1,0 +1,36 @@
+name: Vault archive verification
+
+on:
+  pull_request:
+    paths:
+      - 'vault/**'
+      - 'scripts/verify-vault-archives.mjs'
+      - '__tests__/vault-archives.test.js'
+      - '__tests__/repo-security-posture.test.js'
+      - '__tests__/gemini-models.test.js'
+      - '__tests__/no-duplicate-tooling.test.js'
+      - '.gitignore'
+      - 'doc/Feature/2026-09-28-vault-main-restoration.spec.md'
+      - 'doc/Journal/2026-09-28-vault-main-restoration.md'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-vault:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: Fetch pinned source trees only
+        run: |
+          git fetch --no-tags --depth=1 origin 439cf204312b5ad892ec8bd57f37a3d105212f7e
+          git fetch --no-tags --depth=1 origin 10ac96a7e412b42cde4a04d98e153befe0c3cdc4
+      - name: Verify current vault object inventory
+        run: node vault/v0.62.937/VAULT_VERIFY.mjs
+      - name: Scan historical vaults before restoration
+        run: node scripts/verify-vault-archives.mjs --ref 10ac96a7e412b42cde4a04d98e153befe0c3cdc4 --path vault
