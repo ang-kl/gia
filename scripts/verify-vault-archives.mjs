@@ -52,7 +52,7 @@ function git(args, allowOne=false) {
 }
 function parseZ(text){ return text.split('\0').filter(Boolean); }
 function grepPaths(ref,path,pattern){
-  const r=git(['grep','-I','-l','-E',pattern,ref,'--',path],true);
+  const r=git(['grep','-I','-l','-E','-e',pattern,ref,'--',path],true);
   if(r.status===1) return [];
   return r.stdout.split('\n').filter(Boolean).map(x=>x.slice(x.indexOf(':')+1));
 }
