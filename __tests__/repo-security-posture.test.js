@@ -24,6 +24,12 @@ const WF = path.join(ROOT, '.github', 'workflows');
 const workflows = () =>
   fs.readdirSync(WF).filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'));
 
+// 28 September 2026: restored archives exceed the default child-process buffer.
+// Keep ALL tracked paths, including archives; use NUL framing for Unicode/newlines.
+const trackedFiles = () => execFileSync('git', ['ls-files', '-z'], {
+  cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+}).split('\0').filter(Boolean);
+
 describe('repo security posture — the half that is checkable from inside the repo', () => {
   it('the workflow set parses — a zero-length list would make everything below vacuous', () => {
     // [AMD-181]'s defect, and [AMD-207]'s: a check that cannot tell "the property
@@ -71,8 +77,7 @@ describe('repo security posture — the half that is checkable from inside the r
   it('⚠ .gitignore excludes .env, and no real .env is tracked', () => {
     const ignore = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
     expect(/^\.env\s*$/m.test(ignore), '.gitignore does not exclude .env').toBe(true);
-    const tracked = execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' })
-      .split('\n')
+    const tracked = trackedFiles()
       .filter((f) => /(^|\/)\.env($|\.)/.test(f))
       .filter((f) => !/\.example$/.test(f));   // .env.example is a template of KEYS, no values
     expect(tracked, `tracked env files: ${tracked.join(', ')}`).toEqual([]);
@@ -93,17 +98,14 @@ describe('repo security posture — the half that is checkable from inside the r
       private_key_block: /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
       telegram_bot_token: /[0-9]{8,10}:AA[A-Za-z0-9_-]{33}/,
     };
-    const files = execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' })
-      .split('\n')
-      .filter(Boolean)
+    const files = trackedFiles()
       .filter((f) => !/(^|\/)__tests__\//.test(f) && !/(^|\/)node_modules\//.test(f))
       .filter((f) => !/\.(png|jpe?g|gif|webp|ico|woff2?|ttf|pdf|zip)$/i.test(f));
     expect(files.length, 'zero tracked files parsed — the scan would be vacuous').toBeGreaterThan(100);
 
     const hits = [];
     for (const f of files) {
-      let src;
-      try { src = fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { continue; }
+      const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
       for (const [name, re] of Object.entries(PATTERNS)) {
         if (re.test(src)) hits.push(`${f}: ${name}`);   // name of the SHAPE, never the value
       }
@@ -130,16 +132,14 @@ describe('repo security posture — the half that is checkable from inside the r
     // produced. Venue anchors, hawker centres, MRT stations and CITY_CENTROIDS are
     // public places: a blanket coordinate ban would fail on the repo's own data and
     // would protect nobody.
-    const files = execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' })
-      .split('\n').filter(Boolean)
+    const files = trackedFiles()
       .filter((f) => !/\.(png|jpe?g|gif|webp|ico|woff2?|ttf|pdf|zip)$/i.test(f));
     expect(files.length, 'zero tracked files parsed — the scan would be vacuous').toBeGreaterThan(100);
 
     const PAIR = /(\[set-location\][^\n]{0,110}?)(-?\d+\.\d{3,}\s*,\s*-?\d+\.\d{3,})/;
     const hits = [];
     for (const f of files) {
-      let src;
-      try { src = fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { continue; }
+      const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
       if (!src.includes('[set-location]')) continue;
       if (PAIR.test(src)) hits.push(f);          // the FILE, never the coordinate
     }

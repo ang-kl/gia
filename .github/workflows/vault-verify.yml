@@ -7,6 +7,7 @@ on:
       - 'scripts/verify-vault-archives.mjs'
       - '__tests__/vault-archives.test.js'
       - '__tests__/repo-security-posture.test.js'
+      - '__tests__/no-nul-bytes.test.js'
       - '__tests__/gemini-models.test.js'
       - '__tests__/no-duplicate-tooling.test.js'
       - '.github/workflows/vault-verify.yml'
@@ -52,11 +53,9 @@ jobs:
           VAULT_TRANSFER: ${{ runner.temp }}/vault-transfer.json
           VAULT_REPORT: ${{ runner.temp }}/vault-report.json
           RESTORATION_BRANCH: ${{ github.event.pull_request.head.ref }}
-          RESTORATION_PR: ${{ github.event.pull_request.number }}
         run: |
           if [ ! -f vault/RESTORATION_MANIFEST.json ]; then
-            test "$RESTORATION_BRANCH" = 'archive/vault-v0.62.937-20260928'
-            test "$RESTORATION_PR" = '1873'
+            test "$RESTORATION_BRANCH" = 'archive/restore-historical-vaults-20260928'
           fi
           node scripts/verify-vault-archives.mjs --prepare
       - name: Test the complete proposed repository tree
@@ -74,15 +73,17 @@ jobs:
           npm run build
           npm run test:render
       - name: Recheck committed archive identities after tests
+        env:
+          VAULT_REPORT: ${{ runner.temp }}/vault-report.json
         run: node scripts/verify-vault-archives.mjs --verify
-      - name: Transfer only verified sanitised objects
+      - name: Export only verified sanitised objects
         if: steps.prepare.outputs.changed == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: sanitised-vault-objects
           path: ${{ runner.temp }}/vault-transfer.json
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
       - name: Export complete verified vault for operator recovery
         run: git archive --format=tar HEAD:vault | gzip > "$RUNNER_TEMP/vault-sanitised.tar.gz"
       - uses: actions/upload-artifact@v4
@@ -91,3 +92,17 @@ jobs:
           path: ${{ runner.temp }}/vault-sanitised.tar.gz
           if-no-files-found: error
           retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vault-verification-report
+          path: ${{ runner.temp }}/vault-report.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Require actual published archive files before merge
+        env:
+          PUBLISHED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # A green runner-local candidate is not publication to the PR branch.
+          # This gate intentionally stays red until the exact archives are committed.
+          git cat-file -e "$PUBLISHED_HEAD:vault/RESTORATION_MANIFEST.json"
+          test "$(git rev-parse HEAD:vault)" = "$(git rev-parse "$PUBLISHED_HEAD:vault")"

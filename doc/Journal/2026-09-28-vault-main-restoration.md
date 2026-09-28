@@ -41,3 +41,23 @@ Prior wording retained verbatim above: "Fourteen historical versions require rem
 [TEST] Require green ordinary CI, successful --prepare/--verify, exact 18/9 partition, all 28 version folders, zero missing/unexpected/unapproved differences, and isolated current-vault build/render evidence. After an authorised merge, read the folder set back from main.
 
 [KNOWN GAPS] Actual main publication, candidate verification, isolated restoration and deployment-trigger review are still pending. Global serial-state counters remain unchanged rather than guessed. Historical application build compatibility is not certified. Feature-map work remains deferred.
+
+### [AMD-2] Historical restoration follow-up after PR #1873 merged
+
+Amendment version 2.3. Date: 28 September 2026 (Asia/Singapore).
+
+[INTENT] Latest user directive: "move the older historical archives" and "Auto-merge". The approved preservation partition remains 18 sanitised historical versions, nine unchanged historical versions and unchanged v0.62.937. The requested destination is still main/vault, not merely a runner-local archive.
+
+[MERGE RECORD] GitHub reports PR #1873 merged on 2026-09-28T01:39:55Z (09:39:55 SGT), commit 8356a26dd7deb5d90fe411204f074871e5a5da85. Live main read-back contains only vault/v0.62.937 at tree f9941f040e4af3f39ea0e135ddf72a509aa41810. The 27 historical versions were not published by that merge. This record accompanies substantive guardrail fixes rather than opening a record-only PR.
+
+[DELTA] Work continues from the merged main on archive/restore-historical-vaults-20260928. The three security enumerations now share a 64 MiB, NUL-delimited git ls-files reader; no archive security paths are exempted, and unreadable tracked files now fail instead of being skipped. The NUL-byte guard permits only the 20 known historical paths at two exact original Git blob identities; live/new/mutated files still fail. No historical bytes are changed to satisfy that guard. Its additional path is __tests__/no-nul-bytes.test.js; the necessity is evidenced by the previous candidate run, not a weakening of privacy policy.
+
+[VERIFICATION (sandbox)] Node syntax check passed for the amended NUL guard. A synthetic 30,001-path Git index reproduced ENOBUFS with the former child-process limit and passed complete Unicode-safe enumeration with the repaired limit. Local assertions rejected live, new and altered NUL samples and confirmed exactly 20 pinned paths. These are fixture tests, not a full application test or completed restoration.
+
+[EVIDENCE] Prior full candidate run 36366160748/job/108752890995 passed the archive verifier with 25,247 historical source entries and 2,897,160,727 source/restored bytes; 343 changed paths, 721 coordinate replacements and 9,348 identifier replacements. It failed three security tests on ENOBUFS and the NUL-byte test on 20 historical paths. The new run must establish actual repair results.
+
+[INVARIANTS] Runtime files, package/lockfiles, privacy transformation, original historical Git objects, the current snapshot, Railway settings and feature-map work remain unchanged. Workflow permissions remain contents: read. No blocked repository-write workflow is recreated. A final publication gate requires the actual PR-head vault tree to equal the verified candidate tree, preventing preparation-only work being reported as restoration.
+
+[STATUS / AUTO-MERGE] Auto-merge is requested, but must not be enabled for a preparation-only branch. First require the actual complete archive files on the PR head and successful complete-candidate checks, then invoke the supported GitHub auto-merge action and report its response. No merge or publication is claimed at this amendment.
+
+[KNOWN GAPS] Full candidate CI, isolated restore/build/render, supported transfer of the verified historical objects to the PR head, final merge and main read-back remain pending. Branch-protection settings returned 403 to this integration, so enforcement must not be assumed. Global serial counters are not guessed; reconciliation remains due. No merge-only follow-up PR is to be opened.
