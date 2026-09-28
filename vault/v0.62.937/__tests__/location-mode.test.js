@@ -1,0 +1,317 @@
+// __tests__/location-mode.test.js — v0.61.155
+//
+// Unit tests for the location-mode classifier (PR 1 of 5 in the
+// 10-rule location-classification phased build). Covers the
+// coarse-gate haversine, the country/admin-area mapping, and the
+// orchestrator's gate-fail / geocode-fail / SG / JB / OTHER paths.
+
+import { describe, it, expect } from 'vitest';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+const {
+  SG_CENTROID,
+  COARSE_GATE_M,
+  FEATURE_KIND,
+  ALWAYS_ALLOWED,
+  haversineMeters,
+  coarseGate,
+  classifyByCountry,
+  classifyLocation,
+  isFeatureAllowed,
+  insideSgBbox,
+  jbFocusNear,
+  insideJohorExtent
+} = require('../location-mode');
+
+// Well-known anchors used across the cases. Coordinates are the
+// standard "city centre" pins; small drift (a block or two) doesn't
+// change the classification.
+const ANCHORS = {
+  sgCentroid:     SG_CENTROID,
+  sgRafflesPlace: { lat: 1.2843, lng: 103.8519 },
+  sgChangi:       { lat: 1.3644, lng: 103.9915 },
+  jbCBD:          { lat: 1.4927, lng: 103.7414 },
+  batam:          { lat: 1.0810, lng: 104.0305 },     // Indonesia, ~30 km SE of SG
+  bintan:         { lat: 1.1542, lng: 104.4170 },     // Indonesia, ~80 km E of SG
+  ioiPutrajaya:   { lat: 2.9742, lng: 101.7060 },     // Malaysia, ~330 km N of SG
+  kualaLumpur:    { lat: 3.1390, lng: 101.6869 },     // Malaysia, ~330 km N of SG
+  bangkok:        { lat: 13.7563, lng: 100.5018 },    // Thailand, ~1400 km N
+  hongKong:       { lat: 22.3193, lng: 114.1694 }     // ~2570 km N
+};
+
+describe('haversineMeters', () => {
+  it('returns 0 for identical points', () => {
+    expect(haversineMeters(ANCHORS.sgCentroid, ANCHORS.sgCentroid)).toBe(0);
+  });
+  it('matches the SG→JB CBD known distance (≈ 18 km — SG centroid is Bishan, not Raffles)', () => {
+    const d = haversineMeters(ANCHORS.sgCentroid, ANCHORS.jbCBD);
+    expect(d).toBeGreaterThan(15000);
+    expect(d).toBeLessThan(25000);
+  });
+  it('matches the SG→Putrajaya known distance (≈ 290-330 km)', () => {
+    const d = haversineMeters(ANCHORS.sgCentroid, ANCHORS.ioiPutrajaya);
+    expect(d).toBeGreaterThan(280000);
+    expect(d).toBeLessThan(350000);
+  });
+  it('returns +Infinity for malformed input', () => {
+    expect(haversineMeters(null, ANCHORS.sgCentroid)).toBe(Number.POSITIVE_INFINITY);
+    expect(haversineMeters({ lat: 'x', lng: 0 }, ANCHORS.sgCentroid)).toBe(Number.POSITIVE_INFINITY);
+    expect(haversineMeters(ANCHORS.sgCentroid, { lat: 0 })).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe('coarseGate (120 km from SG centroid)', () => {
+  it('passes SG centroid + Raffles Place + Changi', () => {
+    expect(coarseGate(ANCHORS.sgCentroid)).toBe(true);
+    expect(coarseGate(ANCHORS.sgRafflesPlace)).toBe(true);
+    expect(coarseGate(ANCHORS.sgChangi)).toBe(true);
+  });
+  it('passes JB CBD (≈ 26 km)', () => {
+    expect(coarseGate(ANCHORS.jbCBD)).toBe(true);
+  });
+  it('passes Batam + Bintan (Indonesian islands inside the gate)', () => {
+    expect(coarseGate(ANCHORS.batam)).toBe(true);
+    expect(coarseGate(ANCHORS.bintan)).toBe(true);
+  });
+  it('fails Putrajaya / KL (≈ 330 km)', () => {
+    expect(coarseGate(ANCHORS.ioiPutrajaya)).toBe(false);
+    expect(coarseGate(ANCHORS.kualaLumpur)).toBe(false);
+  });
+  it('fails Bangkok / Hong Kong (≈ 1400 / 2570 km)', () => {
+    expect(coarseGate(ANCHORS.bangkok)).toBe(false);
+    expect(coarseGate(ANCHORS.hongKong)).toBe(false);
+  });
+  it('returns false for non-finite input', () => {
+    expect(coarseGate({ lat: NaN, lng: 103 })).toBe(false);
+    expect(coarseGate({})).toBe(false);
+    expect(coarseGate(null)).toBe(false);
+  });
+  it('respects an explicit radiusM override (JB CBD ≈ 18 km from SG centroid)', () => {
+    expect(coarseGate({ ...ANCHORS.jbCBD, radiusM: 25000 })).toBe(true);
+    expect(coarseGate({ ...ANCHORS.jbCBD, radiusM: 15000 })).toBe(false);
+  });
+});
+
+describe('classifyByCountry (pure mapping)', () => {
+  it('Singapore → SG', () => {
+    expect(classifyByCountry({ country: 'Singapore' })).toBe('SG');
+    expect(classifyByCountry({ country: 'singapore' })).toBe('SG');
+    expect(classifyByCountry({ country: '  Singapore  ' })).toBe('SG');
+  });
+  it('Malaysia + Johor admin → JB', () => {
+    expect(classifyByCountry({ country: 'Malaysia', adminAreaLevel1: 'Johor' })).toBe('JB');
+    expect(classifyByCountry({ country: 'Malaysia', adminAreaLevel1: 'johor' })).toBe('JB');
+    expect(classifyByCountry({ country: 'Malaysia', adminAreaLevel1: "Johor Darul Ta'zim" })).toBe('JB');
+  });
+  it('Malaysia + non-Johor admin → OTHER (Selangor / Putrajaya / KL)', () => {
+    expect(classifyByCountry({ country: 'Malaysia', adminAreaLevel1: 'Selangor' })).toBe('OTHER');
+    expect(classifyByCountry({ country: 'Malaysia', adminAreaLevel1: 'Wilayah Persekutuan Putrajaya' })).toBe('OTHER');
+    expect(classifyByCountry({ country: 'Malaysia', adminAreaLevel1: 'Kuala Lumpur' })).toBe('OTHER');
+  });
+  it('Malaysia + no adminAreaLevel1 → OTHER (conservative)', () => {
+    expect(classifyByCountry({ country: 'Malaysia' })).toBe('OTHER');
+    expect(classifyByCountry({ country: 'Malaysia', adminAreaLevel1: '' })).toBe('OTHER');
+  });
+  it('Indonesia / Thailand / HK / unknown → OTHER', () => {
+    expect(classifyByCountry({ country: 'Indonesia' })).toBe('OTHER');
+    expect(classifyByCountry({ country: 'Thailand' })).toBe('OTHER');
+    expect(classifyByCountry({ country: 'Hong Kong' })).toBe('OTHER');
+    expect(classifyByCountry({ country: 'Atlantis' })).toBe('OTHER');
+  });
+  it('missing / empty country → OTHER', () => {
+    expect(classifyByCountry({})).toBe('OTHER');
+    expect(classifyByCountry({ country: '' })).toBe('OTHER');
+    expect(classifyByCountry({ country: '   ' })).toBe('OTHER');
+    expect(classifyByCountry({ country: null })).toBe('OTHER');
+    expect(classifyByCountry({ country: 42 })).toBe('OTHER');
+    expect(classifyByCountry()).toBe('OTHER');
+  });
+});
+
+describe('classifyLocation (orchestrator)', () => {
+  const sgGeo = async () => ({ country: 'Singapore', adminAreaLevel1: 'Central Region', placeName: 'Raffles Place' });
+  const jbGeo = async () => ({ country: 'Malaysia',  adminAreaLevel1: 'Johor',         placeName: 'Johor Bahru' });
+  const otherGeo = async () => ({ country: 'Indonesia', adminAreaLevel1: 'Kepulauan Riau', placeName: 'Batam' });
+
+  it('gate-skips Putrajaya / KL — no geocode call, mode=OTHER, gated=true', async () => {
+    let calls = 0;
+    const out = await classifyLocation({
+      ...ANCHORS.ioiPutrajaya,
+      reverseGeocodeFn: async () => { calls++; return otherGeo(); }
+    });
+    expect(out.mode).toBe('OTHER');
+    expect(out.gated).toBe(true);
+    expect(out.geocoded).toBe(false);
+    expect(out.distanceM).toBeGreaterThan(280000);
+    expect(calls).toBe(0);
+  });
+  it('passes SG fix through geocode → SG', async () => {
+    const out = await classifyLocation({
+      ...ANCHORS.sgRafflesPlace,
+      reverseGeocodeFn: sgGeo
+    });
+    expect(out.mode).toBe('SG');
+    expect(out.country).toBe('Singapore');
+    expect(out.placeName).toBe('Raffles Place');
+    expect(out.gated).toBe(false);
+    expect(out.geocoded).toBe(true);
+  });
+  it('passes JB fix through geocode → JB', async () => {
+    const out = await classifyLocation({
+      ...ANCHORS.jbCBD,
+      reverseGeocodeFn: jbGeo
+    });
+    expect(out.mode).toBe('JB');
+    expect(out.country).toBe('Malaysia');
+    expect(out.adminAreaLevel1).toBe('Johor');
+  });
+  it('passes Batam (within gate) → OTHER via geocode', async () => {
+    const out = await classifyLocation({
+      ...ANCHORS.batam,
+      reverseGeocodeFn: otherGeo
+    });
+    expect(out.mode).toBe('OTHER');
+    expect(out.country).toBe('Indonesia');
+    expect(out.gated).toBe(false);
+    expect(out.geocoded).toBe(true);
+  });
+  it('geocode throws → conservative OTHER, geocoded=false', async () => {
+    const out = await classifyLocation({
+      ...ANCHORS.sgRafflesPlace,
+      reverseGeocodeFn: async () => { throw new Error('quota'); }
+    });
+    expect(out.mode).toBe('OTHER');
+    expect(out.gated).toBe(false);
+    expect(out.geocoded).toBe(false);
+  });
+  it('no reverseGeocodeFn supplied → OTHER (within gate, no geocode)', async () => {
+    const out = await classifyLocation({ ...ANCHORS.sgRafflesPlace });
+    expect(out.mode).toBe('OTHER');
+    expect(out.gated).toBe(false);
+    expect(out.geocoded).toBe(false);
+  });
+  it('non-finite lat/lng → OTHER + gated=true (defensive)', async () => {
+    const out = await classifyLocation({ lat: NaN, lng: 103, reverseGeocodeFn: sgGeo });
+    expect(out.mode).toBe('OTHER');
+    expect(out.gated).toBe(true);
+  });
+  it('honours an explicit radiusM (tighter 15 km gate excludes JB)', async () => {
+    let calls = 0;
+    const out = await classifyLocation({
+      ...ANCHORS.jbCBD,
+      radiusM: 15000,
+      reverseGeocodeFn: async () => { calls++; return jbGeo(); }
+    });
+    expect(out.mode).toBe('OTHER');
+    expect(out.gated).toBe(true);
+    expect(calls).toBe(0);
+  });
+});
+
+describe('isFeatureAllowed (rule §2.5 feature gate)', () => {
+  it('exposes a stable FEATURE_KIND map', () => {
+    expect(FEATURE_KIND.HAWKER).toBe('hawker');
+    expect(FEATURE_KIND.WEATHER).toBe('weather');
+    expect(FEATURE_KIND.RECOGNISED).toBe('recognised');
+    expect(FEATURE_KIND.CARPARK).toBe('carpark');
+    expect(FEATURE_KIND.CUISINE_SEARCH).toBe('cuisine-search');
+  });
+
+  it('cuisine / freetext / Michelin / carpark / drive / location are always allowed', () => {
+    for (const f of ALWAYS_ALLOWED) {
+      expect(isFeatureAllowed('SG', f)).toBe(true);
+      expect(isFeatureAllowed('JB', f)).toBe(true);
+      expect(isFeatureAllowed('OTHER', f)).toBe(true);
+    }
+  });
+
+  it('SG-only features run for SG, not for JB / OTHER', () => {
+    const sgOnly = [
+      FEATURE_KIND.HAWKER, FEATURE_KIND.WEATHER, FEATURE_KIND.RECOGNISED,
+      FEATURE_KIND.TRANSPORT_TRAIN, FEATURE_KIND.TRANSPORT_BUS, FEATURE_KIND.TRANSPORT_TAXI,
+      FEATURE_KIND.TMA_BUSSTOP, FEATURE_KIND.TMA_TAXISTAND, FEATURE_KIND.TMA_TRAINLINE,
+      FEATURE_KIND.TMA_PARKS, FEATURE_KIND.TMA_ATTRACTIONS
+    ];
+    for (const f of sgOnly) {
+      expect(isFeatureAllowed('SG', f)).toBe(true);
+      expect(isFeatureAllowed('JB', f)).toBe(false);
+      expect(isFeatureAllowed('OTHER', f)).toBe(false);
+    }
+  });
+
+  it('unknown feature → false (defensive deny)', () => {
+    expect(isFeatureAllowed('SG', 'unknown-feature')).toBe(false);
+    expect(isFeatureAllowed('SG', null)).toBe(false);
+    expect(isFeatureAllowed('SG', 42)).toBe(false);
+  });
+
+  it('unknown mode treats SG-only as not allowed (defensive)', () => {
+    expect(isFeatureAllowed('XX', FEATURE_KIND.HAWKER)).toBe(false);
+    expect(isFeatureAllowed(null, FEATURE_KIND.HAWKER)).toBe(false);
+  });
+});
+
+// v0.62.17 — split SG bbox (mirrors the client coords-to-country v0.61.281).
+// The cuisine-search route uses this so a region='JB' pick at a JB
+// sub-location keeps the picked coords instead of snapping to JB_CBD.
+describe('insideSgBbox — west-of-strait carve-out (JB sub-locations are NOT SG)', () => {
+  it('classifies JB sub-location chips as NOT inside SG', () => {
+    // The 5 JB focus-point chips (web/.../jb-focus-points.js).
+    expect(insideSgBbox({ lat: 1.4296, lng: 103.6321 })).toBe(false); // Legoland
+    expect(insideSgBbox({ lat: 1.4773, lng: 103.6645 })).toBe(false); // Bukit Indah
+    expect(insideSgBbox({ lat: 1.4927, lng: 103.7414 })).toBe(false); // JB CBD
+    expect(insideSgBbox({ lat: 1.4912, lng: 103.7665 })).toBe(false); // Southkey
+    expect(insideSgBbox({ lat: 1.5252, lng: 103.7935 })).toBe(false); // Mt Austin
+  });
+
+  it('keeps genuine Singapore points inside SG', () => {
+    expect(insideSgBbox({ lat: 1.3048, lng: 103.8318 })).toBe(true);  // Orchard
+    expect(insideSgBbox({ lat: 1.4382, lng: 103.7890 })).toBe(true);  // Woodlands
+    expect(insideSgBbox({ lat: 1.3521, lng: 103.8198 })).toBe(true);  // SG centroid
+    expect(insideSgBbox({ lat: 1.3644, lng: 103.9915 })).toBe(true);  // Changi
+  });
+
+  it('defensive on bad input', () => {
+    expect(insideSgBbox(null)).toBe(false);
+    expect(insideSgBbox({})).toBe(false);
+    expect(insideSgBbox({ lat: 'x', lng: 1 })).toBe(false);
+  });
+});
+
+// v0.62.18 — JB focus-point tight-radius + Johor-extent guard.
+describe('jbFocusNear — detect a JB sub-location pick by coords', () => {
+  it('matches each registered focus point on its exact coords', () => {
+    expect(jbFocusNear({ lat: 1.4296, lng: 103.6321 })).toBe('legoland');
+    expect(jbFocusNear({ lat: 1.4773, lng: 103.6645 })).toBe('bukitIndah');
+    expect(jbFocusNear({ lat: 1.4927, lng: 103.7414 })).toBe('cbd');
+    expect(jbFocusNear({ lat: 1.4912, lng: 103.7665 })).toBe('southkey');
+    expect(jbFocusNear({ lat: 1.5252, lng: 103.7935 })).toBe('mtAustin');
+  });
+
+  it('tolerates a small offset (≤400 m) but not a far coord', () => {
+    expect(jbFocusNear({ lat: 1.4296 + 0.0025, lng: 103.6321 })).toBe('legoland'); // ~280 m
+    expect(jbFocusNear({ lat: 1.51, lng: 103.76 })).toBe(null);                     // ~2 km off
+    expect(jbFocusNear({ lat: 1.3048, lng: 103.8318 })).toBe(null);                 // Orchard SG
+  });
+
+  it('defensive on bad input', () => {
+    expect(jbFocusNear(null)).toBe(null);
+    expect(jbFocusNear({})).toBe(null);
+    expect(jbFocusNear({ lat: 'x', lng: 1 })).toBe(null);
+  });
+});
+
+describe('insideJohorExtent — coarse Johor-state bbox guard', () => {
+  it('true inside the Johor extent, false for KL / overseas', () => {
+    expect(insideJohorExtent({ lat: 1.4296, lng: 103.6321 })).toBe(true);  // Legoland
+    expect(insideJohorExtent({ lat: 1.4927, lng: 103.7414 })).toBe(true);  // JB CBD
+    expect(insideJohorExtent({ lat: 3.139, lng: 101.687 })).toBe(false);   // Kuala Lumpur
+    expect(insideJohorExtent({ lat: 33.81, lng: -117.92 })).toBe(false);   // Legoland California
+  });
+
+  it('defensive on bad input', () => {
+    expect(insideJohorExtent(null)).toBe(false);
+    expect(insideJohorExtent({ lat: 'x', lng: 1 })).toBe(false);
+  });
+});

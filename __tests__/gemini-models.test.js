@@ -72,7 +72,10 @@ describe('gemini-models', () => {
         ':(exclude)gemini-models.js',
         // api-cost.js keeps retired names ON PURPOSE: Redis holds per-day
         // receipts stamped with them and /cost must price history correctly.
-        ':(exclude)api-cost.js'], { encoding: 'utf8' });
+        ':(exclude)api-cost.js',
+        // Frozen vaults are historical evidence, not live source. They retain
+        // retired names by design and are integrity-checked separately.
+        ':(exclude)vault/**'], { encoding: 'utf8' });
     } catch (err) {
       if (err.status !== 1) throw err;   // 1 = no matches, which is the pass case
     }

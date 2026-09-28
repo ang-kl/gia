@@ -79,8 +79,8 @@ describe('repo security posture — the half that is checkable from inside the r
   });
 
   it('⚠ no credential-shaped string is committed anywhere in the tracked tree', () => {
-    // Shape-based, so it catches a key nobody has told this test about. Test files and
-    // the mutation harnesses are excluded because they legitimately carry PLANTED
+    // Shape-based, so it catches a key nobody has told this test about. Test fixtures
+    // at any depth (including frozen vault copies) are excluded because they carry PLANTED
     // defects — the same reason `prove-validator.js` needs an override.
     const PATTERNS = {
       google_api_key: /AIza[0-9A-Za-z_-]{35}/,
@@ -96,7 +96,7 @@ describe('repo security posture — the half that is checkable from inside the r
     const files = execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' })
       .split('\n')
       .filter(Boolean)
-      .filter((f) => !f.startsWith('__tests__/') && !f.startsWith('node_modules/'))
+      .filter((f) => !/(^|\/)__tests__\//.test(f) && !/(^|\/)node_modules\//.test(f))
       .filter((f) => !/\.(png|jpe?g|gif|webp|ico|woff2?|ttf|pdf|zip)$/i.test(f));
     expect(files.length, 'zero tracked files parsed — the scan would be vacuous').toBeGreaterThan(100);
 

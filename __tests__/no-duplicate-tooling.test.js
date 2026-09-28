@@ -19,13 +19,14 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 //
 // The operator's ruling (22-08 '26): "delete instr copy, keep scripts one".
 // This keeps it deleted, because the journal entry that recorded the decision
-// cannot stop the next upload.
+// cannot stop the next upload. Frozen vault copies are deliberately out of this
+// LIVE-tree uniqueness check and are verified against their source trees instead.
 describe('measurement tooling is not duplicated', () => {
   const NAME = 'count-interactions.js';
 
   function walk(dir, hits = []) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (e.name === 'node_modules' || e.name === '.git' || e.name === 'public') continue;
+      if (e.name === 'node_modules' || e.name === '.git' || e.name === 'public' || e.name === 'vault') continue;
       const p = path.join(dir, e.name);
       if (e.isDirectory()) walk(p, hits);
       else if (e.name === NAME) hits.push(path.relative(ROOT, p));
