@@ -31,14 +31,32 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
+import { createHash } from 'node:crypto';
 
 const ROOT = join(__dirname, '..');
 const NUL = String.fromCharCode(0);
 const EXTS = ['.js', '.jsx', '.mjs', '.cjs', '.json', '.md', '.yml', '.yaml', '.html', '.css'];
 
+// 28 September 2026: preservation is not permission to introduce new defects.
+// Only these 20 original paths may retain their pre-existing NULs, and only
+// with the exact historical blob identity from pinned source 10ac96a7.
+// The separate vault verifier also compares every archive against that source.
+const HISTORICAL_NUL_BLOBS = new Map([
+  ...['v0.61.28', 'v0.61.76', 'v0.61.90', 'v0.61.116', 'v0.61.208',
+    'v0.61.308', 'v0.61.378', 'v0.62.37', 'v0.62.69', 'v0.62.76',
+    'v0.62.153', 'v0.62.302', 'v0.62.386', 'v0.62.504'].map(v =>
+    [`vault/${v}/.vibe-journal/templates/app.js`, '7b84a5e045d3b4111ab2ffc98718be78da08476a']),
+  ...['v0.62.69', 'v0.62.76', 'v0.62.153', 'v0.62.302', 'v0.62.386',
+    'v0.62.504'].map(v => [`vault/${v}/name-gloss.js`, '93c9a5e30d1aaecce2c76adb7431475510b2ab89']),
+]);
+const blobId = bytes => createHash('sha1')
+  .update(Buffer.from(`blob ${bytes.length}\0`)).update(bytes).digest('hex');
+const preservedHistoricalBlob = (file, bytes) =>
+  HISTORICAL_NUL_BLOBS.has(file) && HISTORICAL_NUL_BLOBS.get(file) === blobId(bytes);
+
 function trackedSourceFiles() {
-  const out = execSync('git ls-files', { cwd: ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-  return out.split('\n').filter((f) => f && EXTS.some((e) => f.endsWith(e)));
+  const out = execSync('git ls-files -z', { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  return out.split('\0').filter((f) => f && EXTS.some((e) => f.endsWith(e)));
 }
 
 describe('no source file contains a literal NUL byte', () => {
@@ -49,19 +67,36 @@ describe('no source file contains a literal NUL byte', () => {
     expect("const sentinel = '\\u0000';".includes(NUL)).toBe(false);
   });
 
-  it('every tracked source file is free of them', () => {
+  it('every tracked source file is NUL-free or an exact pinned historical blob', () => {
     const offenders = [];
     for (const f of trackedSourceFiles()) {
-      let text;
-      try { text = readFileSync(join(ROOT, f), 'utf8'); } catch { continue; }
-      const n = text.split(NUL).length - 1;
-      if (n) offenders.push(f + ' (' + n + ')');
+      // A missing/unreadable tracked file is an error, not a silently skipped scan.
+      const bytes = readFileSync(join(ROOT, f));
+      let n = 0;
+      for (let i = bytes.indexOf(0); i >= 0; i = bytes.indexOf(0, i + 1)) n++;
+      if (n && !preservedHistoricalBlob(f, bytes)) offenders.push(f + ' (' + n + ')');
     }
     expect(
       offenders,
       'a literal NUL makes git treat the file as BINARY, so its diffs become unreviewable. '
-      + 'Use the escape backslash-u-0000, which is the same string at runtime.',
+      + 'Use the escape backslash-u-0000 in live source; frozen exceptions must match their original blob exactly.',
     ).toEqual([]);
+  });
+
+  it('historical exceptions cannot exempt live, new or altered files', () => {
+    const bad = Buffer.from('const sentinel = ' + NUL + ';');
+    expect(HISTORICAL_NUL_BLOBS.size).toBe(20);
+    expect(preservedHistoricalBlob('name-gloss.js', bad)).toBe(false);
+    expect(preservedHistoricalBlob('vault/v0.62.937/name-gloss.js', bad)).toBe(false);
+    expect(preservedHistoricalBlob('vault/v0.62.504/name-gloss.js', bad)).toBe(false);
+    expect(preservedHistoricalBlob('vault/v9.9.9/name-gloss.js', bad)).toBe(false);
+    expect(preservedHistoricalBlob('vault/v0.62.504/new-file.js', bad)).toBe(false);
+    // Inspect actual historic bytes when present, then prove one added byte fails.
+    for (const f of trackedSourceFiles().filter(f => HISTORICAL_NUL_BLOBS.has(f))) {
+      const bytes = readFileSync(join(ROOT, f));
+      expect(preservedHistoricalBlob(f, bytes), f).toBe(true);
+      expect(preservedHistoricalBlob(f, Buffer.concat([bytes, Buffer.from(' ')])), f).toBe(false);
+    }
   });
 
   it('name-gloss.js in particular — it carried two, and it is translation code', () => {
