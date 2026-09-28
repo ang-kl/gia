@@ -56,8 +56,15 @@ export function redactProtectedData(data, identify=standin) {
   // latin1 is an exact byte-to-codepoint mapping. Unrelated UTF-8 bytes stay identical.
   const original=Buffer.isBuffer(data)?data:Buffer.from(data), text=original.toString('latin1');
   let locations=0, identifiers=0;
-  const transformed=text.replace(locationRE(), (_m,prefix)=>{locations++; return prefix+'<redacted>';})
-    .replace(/\d{8,12}/g, run=>{const replacement=identify(run); if(!replacement)return run; identifiers++; return replacement;});
+  // Preserve each coordinate span's length so another pair cannot move inside
+  // the 110-character window merely because the first pair was shortened.
+  let transformed=text;
+  for(let pass=0;hasProtectedLocation(transformed)&&pass<32;pass++){
+    transformed=transformed.replace(locationRE(), (_m,prefix,pair)=>{
+      locations++; return prefix+'<redacted>'.padEnd(pair.length,' ');
+    });
+  }
+  transformed=transformed.replace(/\d{8,12}/g, run=>{const replacement=identify(run); if(!replacement)return run; identifiers++; return replacement;});
   if ((locations||identifiers) && original.includes(0)) throw new Error('Protected data found in a binary blob; no automatic modification');
   if(hasProtectedLocation(transformed)) throw new Error('Additional protected location remains; fail closed');
   return {data:Buffer.from(transformed,'latin1'),locations,identifiers};
@@ -211,7 +218,7 @@ function selfTest(){
   const input=Buffer.from('unchanged 中文\n'+decoy+'\nvenue 1.3123,103.8456\n');
   const result=redactProtectedData(input,()=>null);
   assert.equal(result.locations,1);assert.equal(result.identifiers,0);assert.equal(hasProtectedLocation(result.data.toString()),false);
-  assert.equal(result.data.toString(),'unchanged 中文\n[set-location] chat=100000001 -> <redacted>\nvenue 1.3123,103.8456\n');
+  assert.equal(result.data.toString(),'unchanged 中文\n[set-location] chat=100000001 -> '+ '<redacted>'.padEnd(16,' ')+'\nvenue 1.3123,103.8456\n');
   assert.deepEqual(redactProtectedData(result.data,()=>null).data,result.data);
   assert.deepEqual(redactProtectedData(Buffer.from([0,255,254,12]),()=>null).data,Buffer.from([0,255,254,12]));
   assert.equal(redactProtectedData('fixture 100000009',s=>s==='100000009'?'100000001':null).identifiers,1);
@@ -220,7 +227,15 @@ function selfTest(){
   assert.equal(EXPECTED_FOLDERS.size,27);assert.equal(ALLOWED_SANITISED.size,14);
   assert.deepEqual(credentialShapesInText('AIza'+'B'.repeat(35)),['google_api_key']);
   assert.equal(isCredentialFixturePath('v0.62.504/__tests__/x.js'),true);
-  console.log('14 local assertions passed: byte preservation, privacy redaction, idempotence, fixture detection and exclusion policy');
+  const pair=['-5','.1234,110','.5678'].join('');
+  const multi=redactProtectedData('[set-location] '+pair+' -> '+pair,()=>null);
+  assert.equal(multi.locations,2);
+  assert.equal(hasProtectedLocation(multi.data.toString()),false);
+  const far='[set-location] '+pair+' '.repeat(115)+pair;
+  const farResult=redactProtectedData(far,()=>null);
+  assert.equal(farResult.locations,1);
+  assert.ok(farResult.data.toString().endsWith(pair));
+  console.log('18 local assertions passed: byte preservation, bounded multi-pair redaction, idempotence and exclusion policy');
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
   try{if(process.argv.includes('--self-test'))selfTest();else if(process.argv.includes('--prepare'))await prepare();else if(process.argv.includes('--verify'))await verify();else throw new Error('Use --prepare, --verify or --self-test');}
