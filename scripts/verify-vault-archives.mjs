@@ -128,6 +128,10 @@ async function prepare() {
   const changed=[];
   for(const e of source){const c=cache.get(e.oid);candidates.set(e.path,{...e,oid:c.oid,size:c.size});if(c.oid!==e.oid)changed.push({path:e.path,source_oid:e.oid,result_oid:c.oid,locations:c.locations,identifiers:c.identifiers});}
   const affected=sortVersions([...new Set(changed.map(x=>x.path.split('/')[0]))]);
+  console.log(JSON.stringify({scope_audit:{historical_files:source.length,affected_versions:affected,
+    additional_versions:affected.filter(v=>!ALLOWED_SANITISED.has(v)),
+    coordinate_paths:changed.filter(e=>e.locations>0).length,
+    private_identifier_paths:changed.filter(e=>e.identifiers>0).length}}));
   assert.deepEqual(affected,sortVersions([...ALLOWED_SANITISED]),'Additional archives require changed scope; original 13 must stay identical');
   const temp=mkdtempSync(join(tmpdir(),'vault-restore-')), hi=join(temp,'history-index'), ci=join(temp,'candidate-index');
   git(['read-tree',`${HISTORICAL_REF}:vault`],{env:indexEnv(hi)});
@@ -215,10 +219,11 @@ async function verify() {
 
 function selfTest(){
   const decoy=['[set-location] chat=100000001 -> -5','.1234,110','.5678'].join('');
-  const input=Buffer.from('unchanged 中文\n'+decoy+'\nvenue 1.3123,103.8456\n');
+  const publicVenue=['venue 1','.3123,103','.8456'].join('');
+  const input=Buffer.from('unchanged 中文\n'+decoy+'\n'+publicVenue+'\n');
   const result=redactProtectedData(input,()=>null);
   assert.equal(result.locations,1);assert.equal(result.identifiers,0);assert.equal(hasProtectedLocation(result.data.toString()),false);
-  assert.equal(result.data.toString(),'unchanged 中文\n[set-location] chat=100000001 -> '+ '<redacted>'.padEnd(16,' ')+'\nvenue 1.3123,103.8456\n');
+  assert.equal(result.data.toString(),'unchanged 中文\n[set-location] chat=100000001 -> '+ '<redacted>'.padEnd(16,' ')+'\n'+publicVenue+'\n');
   assert.deepEqual(redactProtectedData(result.data,()=>null).data,result.data);
   assert.deepEqual(redactProtectedData(Buffer.from([0,255,254,12]),()=>null).data,Buffer.from([0,255,254,12]));
   assert.equal(redactProtectedData('fixture 100000009',s=>s==='100000009'?'100000001':null).identifiers,1);
