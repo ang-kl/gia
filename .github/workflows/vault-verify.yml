@@ -9,6 +9,7 @@ on:
       - '__tests__/repo-security-posture.test.js'
       - '__tests__/gemini-models.test.js'
       - '__tests__/no-duplicate-tooling.test.js'
+      - '.github/workflows/vault-verify.yml'
       - '.gitignore'
       - 'doc/Feature/2026-09-28-vault-main-restoration.spec.md'
       - 'doc/Journal/2026-09-28-vault-main-restoration.md'
@@ -16,21 +17,77 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: vault-restoration-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   verify-vault:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      changed: ${{ steps.prepare.outputs.changed }}
+      parent: ${{ steps.prepare.outputs.parent }}
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v5
         with:
           node-version: 20
-      - name: Fetch pinned source trees only
+      - name: Fetch pinned source trees without production credentials
         run: |
           git fetch --no-tags --depth=1 origin 439cf204312b5ad892ec8bd57f37a3d105212f7e
           git fetch --no-tags --depth=1 origin 10ac96a7e412b42cde4a04d98e153befe0c3cdc4
-      - name: Verify current vault object inventory
-        run: node vault/v0.62.937/VAULT_VERIFY.mjs
-      - name: Scan historical vaults before restoration
-        run: node scripts/verify-vault-archives.mjs --ref 10ac96a7e412b42cde4a04d98e153befe0c3cdc4 --path vault
+      - name: Test sanitiser and verify current snapshot
+        run: |
+          node scripts/verify-vault-archives.mjs --self-test
+          node vault/v0.62.937/VAULT_VERIFY.mjs
+      - name: Prepare or verify the sanitised candidate locally
+        id: prepare
+        env:
+          VAULT_TRANSFER: ${{ runner.temp }}/vault-transfer.json
+          VAULT_REPORT: ${{ runner.temp }}/vault-report.json
+          RESTORATION_BRANCH: ${{ github.event.pull_request.head.ref }}
+          RESTORATION_PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ ! -f vault/RESTORATION_MANIFEST.json ]; then
+            test "$RESTORATION_BRANCH" = 'archive/vault-v0.62.937-20260928'
+            test "$RESTORATION_PR" = '1873'
+          fi
+          node scripts/verify-vault-archives.mjs --prepare
+      - name: Test the complete proposed repository tree
+        run: |
+          npm install --no-audit --no-fund --ignore-scripts
+          npm test
+      - name: Restore and build the current vault in isolation
+        env:
+          RESTORE_DIR: ${{ runner.temp }}/soleat-vault-restore
+        run: |
+          mkdir "$RESTORE_DIR"
+          git archive HEAD:vault/v0.62.937 | tar -x -C "$RESTORE_DIR"
+          cd "$RESTORE_DIR"
+          npm install --no-audit --no-fund --ignore-scripts
+          npm run build
+          npm run test:render
+      - name: Recheck committed archive identities after tests
+        run: node scripts/verify-vault-archives.mjs --verify
+      - name: Transfer only verified sanitised objects
+        if: steps.prepare.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitised-vault-objects
+          path: ${{ runner.temp }}/vault-transfer.json
+          if-no-files-found: error
+          retention-days: 1
+      - name: Export complete verified vault for operator recovery
+        run: git archive --format=tar HEAD:vault | gzip > "$RUNNER_TEMP/vault-sanitised.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: complete-sanitised-vault
+          path: ${{ runner.temp }}/vault-sanitised.tar.gz
+          if-no-files-found: error
+          retention-days: 7
