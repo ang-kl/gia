@@ -1,4 +1,4 @@
-// Vault restoration v2.0 - 28 September 2026. Never prints matched private values.
+// Vault restoration v2.1 - 28 September 2026. Never prints matched private values.
 import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
@@ -17,7 +17,7 @@ export const EXPECTED_FOLDERS = new Set([
   'v0.61.28','v0.61.76','v0.61.90','v0.61.116','v0.61.208','v0.61.308','v0.61.378',
   'v0.62.37','v0.62.69','v0.62.76','v0.62.153','v0.62.302','v0.62.386','v0.62.504'
 ]);
-const ALLOWED_SANITISED = new Set(['v0.60.166','v0.60.172','v0.61.90','v0.61.116',
+export const ALLOWED_SANITISED = new Set(['v0.60.153','v0.60.157','v0.61.28','v0.61.76','v0.60.166','v0.60.172','v0.61.90','v0.61.116',
   'v0.61.208','v0.61.308','v0.61.378','v0.62.37','v0.62.69','v0.62.76',
   'v0.62.153','v0.62.302','v0.62.386','v0.62.504']);
 const MANIFEST = 'vault/RESTORATION_MANIFEST.json';
@@ -132,14 +132,14 @@ async function prepare() {
     additional_versions:affected.filter(v=>!ALLOWED_SANITISED.has(v)),
     coordinate_paths:changed.filter(e=>e.locations>0).length,
     private_identifier_paths:changed.filter(e=>e.identifiers>0).length}}));
-  assert.deepEqual(affected,sortVersions([...ALLOWED_SANITISED]),'Additional archives require changed scope; original 13 must stay identical');
+  assert.deepEqual(affected,sortVersions([...ALLOWED_SANITISED]),'Additional archives require changed scope; original 9 must stay identical');
   const temp=mkdtempSync(join(tmpdir(),'vault-restore-')), hi=join(temp,'history-index'), ci=join(temp,'candidate-index');
   git(['read-tree',`${HISTORICAL_REF}:vault`],{env:indexEnv(hi)});
   updateIndex(hi,[...candidates.values()]);
   const historicalResult=gitText(['write-tree'],{env:indexEnv(hi)}), versionResults=new Map(trees(historicalResult).map(x=>[x.name,x.oid]));
-  const manifest={version:'2.0',date:'2026-09-28',source_commit:HISTORICAL_REF,source_tree:HISTORICAL_VAULT_TREE,
+  const manifest={version:'2.1',date:'2026-09-28',source_commit:HISTORICAL_REF,source_tree:HISTORICAL_VAULT_TREE,
     sanitised_historical_tree:historicalResult,current_source_commit:CURRENT_SOURCE,current_vault_tree:CURRENT_VAULT_TREE,
-    policy:'Only protected set-location coordinate pairs and their digest-pinned private chat identifiers are replaced. No source file is removed. Thirteen historical version trees are unchanged.',
+    policy:'Only protected set-location coordinate pairs and their digest-pinned private chat identifiers are replaced. No source file is removed. Nine historical version trees are unchanged.',
     historical_blob_count:source.length,historical_source_bytes:source.reduce((n,e)=>n+e.size,0),
     historical_result_bytes:[...candidates.values()].reduce((n,e)=>n+e.size,0),
     sanitised_version_count:affected.length,unchanged_version_count:27-affected.length,
@@ -148,7 +148,7 @@ async function prepare() {
     files:source.map(e=>({path:e.path,mode:e.mode,source_oid:e.oid,result_oid:candidates.get(e.path).oid,source_bytes:e.size,result_bytes:candidates.get(e.path).size})),
     security_scope:'All historical blob contents checked for the nine repository credential patterns, marker-associated coordinates, and two digest-pinned identifiers. No matched private values logged. This is not a universal personal-data or vulnerability audit.',
     exclusions:[],symlinks:source.filter(e=>e.mode==='120000').map(e=>e.path),submodules:[]};
-  const readme=`# Soleat source vault\n\nVersion 2.0 - 28 September 2026.\n\nThis folder contains 28 source snapshots: 27 historical versions recovered from ${HISTORICAL_REF}, plus v0.62.937 from ${CURRENT_SOURCE}. These are source archives, not backups of Redis, credentials or production state.\n\n## Provenance and privacy\n\nThirteen historical folders retain their exact original Git trees. Fourteen are explicitly **sanitised derivatives**, not byte-identical originals: only protected location traces and their private chat identifiers were replaced. No source file was removed. Original objects remain in Git history. RESTORATION_MANIFEST.json lists every file's identity and size, every changed path and both tree identities. It never includes the removed private values. The v0.62.937 snapshot is unchanged.\n\n| Version | Status | Original tree | Restored tree |\n|---|---|---|---|\n${manifest.versions.map(v=>`| ${v.name} | ${v.status} | ${v.source_tree} | ${v.result_tree} |`).join('\n')}\n| v0.62.937 | Unchanged current snapshot | ${CURRENT_VAULT_TREE} | ${CURRENT_VAULT_TREE} |\n\n## Verify and restore\n\nRun \`node scripts/verify-vault-archives.mjs --verify\` from the repository root. The recorded original commits must be available locally. Export an individual version into an isolated directory with \`git archive HEAD:vault/<version>\`; install dependencies there with scripts disabled first. Do not start a historic bot with production credentials. Historical builds are not certified against today's dependencies; preserve the source rather than silently upgrading it.\n\nThe current v0.62.937 snapshot is separately checked and built in an isolated temporary directory by the vault verification workflow. See its actual run for results. The claimed v0.62.655 local archive was not recoverable and is not represented as an original folder here. Feature-map work remains deferred.\n`;
+  const readme=`# Soleat source vault\n\nVersion 2.1 - 28 September 2026.\n\nThis folder contains 28 source snapshots: 27 historical versions recovered from ${HISTORICAL_REF}, plus v0.62.937 from ${CURRENT_SOURCE}. These are source archives, not backups of Redis, credentials or production state.\n\n## Provenance and privacy\n\nNine historical folders retain their exact original Git trees. Eighteen are explicitly **sanitised derivatives**, not byte-identical originals: only protected location traces and their private chat identifiers were replaced. No source file was removed. Original objects remain in Git history. RESTORATION_MANIFEST.json lists every file's identity and size, every changed path and both tree identities. It never includes the removed private values. The v0.62.937 snapshot is unchanged.\n\n| Version | Status | Original tree | Restored tree |\n|---|---|---|---|\n${manifest.versions.map(v=>`| ${v.name} | ${v.status} | ${v.source_tree} | ${v.result_tree} |`).join('\n')}\n| v0.62.937 | Unchanged current snapshot | ${CURRENT_VAULT_TREE} | ${CURRENT_VAULT_TREE} |\n\n## Verify and restore\n\nRun \`node scripts/verify-vault-archives.mjs --verify\` from the repository root. The recorded original commits must be available locally. Export an individual version into an isolated directory with \`git archive HEAD:vault/<version>\`; install dependencies there with scripts disabled first. Do not start a historic bot with production credentials. Historical builds are not certified against today's dependencies; preserve the source rather than silently upgrading it.\n\nThe current v0.62.937 snapshot is separately checked and built in an isolated temporary directory by the vault verification workflow. See its actual run for results. The claimed v0.62.655 local archive was not recoverable and is not represented as an original folder here. Feature-map work remains deferred.\n`;
   git(['read-tree','HEAD'],{env:indexEnv(ci)});
   updateIndex(ci,[...[...candidates.values()].map(e=>({...e,path:'vault/'+e.path})),
     {path:MANIFEST,mode:'100644',oid:hash(Buffer.from(JSON.stringify(manifest,null,2)+'\n'))},
@@ -211,7 +211,7 @@ async function verify() {
     assert.equal(gitText(['rev-parse',`${HISTORICAL_REF}:vault/${v.name}`]),v.source_tree);
     if(!ALLOWED_SANITISED.has(v.name))assert.equal(v.result_tree,v.source_tree);
   }
-  const result={passed:true,version_folders:28,historical_source_entries:source.length,historical_source_bytes:sourceBytes,historical_restored_bytes:resultBytes,unchanged_historical_trees:13,sanitised_historical_trees:14,changed_paths:changed,coordinate_replacements:locs,identifier_replacements:ids,remaining_scanned_credentials:0,remaining_scanned_locations:0,remaining_pinned_identifiers:0,missing:0,unexpected:0,unapproved_differences:0,historical_builds:'not executed'};
+  const result={passed:true,version_folders:28,historical_source_entries:source.length,historical_source_bytes:sourceBytes,historical_restored_bytes:resultBytes,unchanged_historical_trees:EXPECTED_FOLDERS.size-affected.length,sanitised_historical_trees:affected.length,changed_paths:changed,coordinate_replacements:locs,identifier_replacements:ids,remaining_scanned_credentials:0,remaining_scanned_locations:0,remaining_pinned_identifiers:0,missing:0,unexpected:0,unapproved_differences:0,historical_builds:'not executed'};
   console.log(JSON.stringify(result,null,2));
   if(process.env.VAULT_REPORT)writeFileSync(process.env.VAULT_REPORT,JSON.stringify(result,null,2)+'\n');
   return result;
@@ -229,7 +229,7 @@ function selfTest(){
   assert.equal(redactProtectedData('fixture 100000009',s=>s==='100000009'?'100000001':null).identifiers,1);
   assert.equal(forbiddenArchivePath('v0.62.504/.env'),true);assert.equal(forbiddenArchivePath('v0.62.504/.env.example'),false);
   assert.equal(forbiddenArchivePath('v0.62.504/public/cuisine/assets/x.js'),true);
-  assert.equal(EXPECTED_FOLDERS.size,27);assert.equal(ALLOWED_SANITISED.size,14);
+  assert.equal(EXPECTED_FOLDERS.size,27);assert.equal(ALLOWED_SANITISED.size,18);
   assert.deepEqual(credentialShapesInText('AIza'+'B'.repeat(35)),['google_api_key']);
   assert.equal(isCredentialFixturePath('v0.62.504/__tests__/x.js'),true);
   const pair=['-5','.1234,110','.5678'].join('');

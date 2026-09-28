@@ -21,3 +21,23 @@ Creation of the initial preparation commit was blocked by the platform's safety 
 ## Limits
 
 Security coverage is the repository's defined credential patterns, marker-associated coordinates and protected-identifier digests, not a universal privacy or vulnerability certification. Historical application builds are not certified. The v0.62.655 folder described in a prior record remains unrecovered. Main-branch automation consequences must be checked before any merge. No manual Railway action, history rewrite, force push or branch deletion is included.
+
+## Amendments
+
+### [AMD-1] Extend the preservation partition to the four additional versions
+
+Amendment version 2.2. Date: 28 September 2026, Asia/Singapore. Review baseline: 30bdcc763bcbca6c2314eed5113b1219e637717b.
+
+Prior wording retained verbatim above: "Fourteen historical versions require removal of protected location traces. Thirteen original trees and the current snapshot must remain identical."
+
+[INTENT] In response to the question about extending sanitisation to v0.60.153, v0.60.157, v0.61.28 and v0.61.76, the user directed: "unlock thoe versions that are locked. proceed to ensure backup is moved out of branch". This extends the existing sanitised-restoration scope to those four versions. It does not remove the privacy scanner or permit changes to any other historical version.
+
+[DELTA] The verifier now permits exactly 18 sanitised historical versions and requires the remaining nine historical trees plus v0.62.937 to remain unchanged. Generated manifest/README wording and reported counts use the corrected partition. Two regression tests pin the exact affected and unaffected sets. The coordinate and identifier replacement implementation is byte-for-byte unchanged from the review baseline.
+
+[VERIFICATION (sandbox)] Reconstructed local source blob matched GitHub's 01ecf2e91c60135a7176ab95167f33b1a114b380 before editing. The baseline failed the new 18-version permission criterion. The edited script passed node --check, its 18 existing self-test assertions and 11 additional scope/privacy assertions under Node v22.16.0. Full candidate CI, privacy verification, isolated restore and publication remain pending at this amendment; no result is inferred from local fixture tests.
+
+[STATUS] Continue the existing PR towards main/vault/. No standalone replacement branch or partial archive set is the requested outcome. The workflow remains verification-only. Any publication must use a supported authorised operation after the complete candidate checks succeed; no blocked operation is bypassed.
+
+[TEST] Require green ordinary CI, successful --prepare/--verify, exact 18/9 partition, all 28 version folders, zero missing/unexpected/unapproved differences, and isolated current-vault build/render evidence. After an authorised merge, read the folder set back from main.
+
+[KNOWN GAPS] Actual main publication, candidate verification, isolated restoration and deployment-trigger review are still pending. Global serial-state counters remain unchanged rather than guessed. Historical application build compatibility is not certified. Feature-map work remains deferred.
