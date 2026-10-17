@@ -55,7 +55,7 @@ jobs:
           RESTORATION_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           if [ ! -f vault/RESTORATION_MANIFEST.json ]; then
-            test "$RESTORATION_BRANCH" = 'archive/restore-historical-vaults-20260928'
+            test "$RESTORATION_BRANCH" = 'claude/handover-july-11-49uzvf'
           fi
           node scripts/verify-vault-archives.mjs --prepare
       - name: Test the complete proposed repository tree
