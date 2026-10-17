@@ -39,10 +39,17 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      # The repository is private (observed 17-10 '26), so an anonymous fetch fails with
+      # "could not read Username". The job's read-only token is handed to THIS step
+      # only, as a one-shot header; persist-credentials stays false, so the tests and
+      # the historical npm installs below never see it.
       - name: Fetch pinned source trees without production credentials
+        env:
+          FETCH_TOKEN: ${{ github.token }}
         run: |
-          git fetch --no-tags --depth=1 origin 439cf204312b5ad892ec8bd57f37a3d105212f7e
-          git fetch --no-tags --depth=1 origin 10ac96a7e412b42cde4a04d98e153befe0c3cdc4
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$FETCH_TOKEN" | base64 -w0)"
+          git -c http.https://github.com/.extraheader="$auth" fetch --no-tags --depth=1 origin 439cf204312b5ad892ec8bd57f37a3d105212f7e
+          git -c http.https://github.com/.extraheader="$auth" fetch --no-tags --depth=1 origin 10ac96a7e412b42cde4a04d98e153befe0c3cdc4
       - name: Test sanitiser and verify current snapshot
         run: |
           node scripts/verify-vault-archives.mjs --self-test
