@@ -10,6 +10,7 @@ scope:
   - "__tests__/gemini-models.test.js"
   - "__tests__/no-duplicate-tooling.test.js"
   - "__tests__/vault-archives.test.js"
+  - "__tests__/no-nul-bytes.test.js"
   - "scripts/verify-vault-archives.mjs"
   - ".github/workflows/vault-verify.yml"
   - "doc/Feature/2026-09-28-vault-main-restoration.spec.md"
@@ -148,3 +149,21 @@ This file is a review proposal, not a declaration that approval has occurred. Th
 - https://github.com/ang-kl/gia/pull/1621
 - https://github.com/ang-kl/gia/blob/439cf204312b5ad892ec8bd57f37a3d105212f7e/.gitignore
 - https://github.com/ang-kl/gia/blob/439cf204312b5ad892ec8bd57f37a3d105212f7e/__tests__/repo-security-posture.test.js
+
+## Amendment 0.4 - 17 October 2026 (Asia/Singapore)
+
+Prior wording retained above. Two changes, both directed by the operator on 17-10 '26.
+
+1. **Scope gains `__tests__/no-nul-bytes.test.js`.** Commit `1eb1ff5f` on #1874 changes that test so
+   20 frozen historical files may keep their original NUL bytes, restricted to exact paths and two
+   pinned blob identities. The scope list above omitted it, so carrying that commit would have been
+   outside the approved scope (flow alert F3).
+2. **The carrier is a new PR from `claude/handover-july-11-49uzvf`, superseding #1874.** Operator,
+   verbatim: *"new PR"*. Step 5 above says not to create a replacement "solely to avoid the existing
+   checks". This replacement runs the same checks unchanged: the workflow's head-branch pin moves
+   from `archive/restore-historical-vaults-20260928` to `claude/handover-july-11-49uzvf`, and
+   nothing else in its verification changes. #1874 is commented as superseded and closed only once
+   the new PR is green and the operator agrees.
+
+This spec stays in `doc/Feature/` as a one-time exception to the `doc/Spec/` rule in `CLAUDE.md`.
+The operator chose that when the F5 alert was raised on 17-10 '26.
