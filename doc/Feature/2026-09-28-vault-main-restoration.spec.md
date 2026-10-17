@@ -61,14 +61,14 @@ Located set: 27 historical folders plus the current `v0.62.937` folder, with no 
 
 ## Assumptions and gaps
 
-| ID | Item | Status |
-|---|---|---|
-| A1 | Main is the final destination; feature-map work is excluded | Explicit user directive |
-| A2 | The 27-folder historical tree and the current one-folder tree exist | Observed live GitHub facts |
-| A3 | Historical contents are safe to republish unchanged | Unverified; do not assume |
-| A4 | Current snapshot meets every previously specified exclusion | Unverified |
-| A5 | A later claimed v0.62.655 archive is recoverable as a committed folder | Not established |
-| A6 | Main can be updated without triggering deployment automation | Not established; inspect before merge |
+| ID | Assumption | Status | Note |
+|----|------------|--------|------|
+| A1 | `main` is the final destination; feature-map work is excluded | confirmed | Operator directive, 28-09 |
+| A2 | `10ac96a7:vault` holds 27 historical folders: 25,247 files, 2,897,160,727 bytes, largest 59.6 MB | confirmed | Measured 17-10 with `git ls-tree -r -l` |
+| A3 | Historical contents are NOT safe to republish unchanged; exactly 18 go out as sanitised derivatives (protected coordinates and chat ids replaced) and 9 unchanged | confirmed | Replaces the earlier "unverified" wording |
+| A4 | `vault/v0.62.937` (already on main via #1873) stays byte-identical, tree `f9941f04` | confirmed | |
+| A5 | The claimed v0.62.655 archive is not recoverable and is not represented | confirmed | PR #1666 holds no `vault/` path |
+| A6 | Merging to `main` triggers Railway's normal deploy. No runtime code reads `vault/`, but with no `.railwayignore` every deploy carries ~2.9 GB more checkout; build time or size limits are untested | confirmed | Risk to accept, not a fact |
 
 The historical folders predate the later privacy-cleanup record in the current repository security test. They could reintroduce removed personal data or credentials. This is a risk requiring inspection, not a finding that an actual credential is present.
 
@@ -76,17 +76,17 @@ Direct repository download from this container failed DNS resolution. The connec
 
 ## Invariants
 
-| ID | Requirement | Check and limit |
-|---|---|---|
-| I1 | Final folders are on main, not merely the review branch | After an approved merge, fetch main and enumerate `vault/`; read back all approved version tree identities |
-| I2 | Preserve original archive identity and avoid historical overwrites | Compare names, modes, object identities and recursive manifests with pinned source trees; stop on conflicts |
-| I3 | No unsafe content is republished, including on a public review branch | Scan complete candidate contents for actual secrets and protected personal data before writing them remotely; unresolved findings block publication |
-| I4 | Apply approved exclusions transparently | Full recursive inventory, exact exclusion ledger, file counts and byte totals; do not hide omitted source or silently rewrite frozen files |
-| I5 | Runtime source and feature-map work are unchanged | Diff approved paths; no application source, package, lockfile, API, UI or feature-map edits outside archived mirrors |
-| I6 | Existing guardrails still detect real defects | Focused negative/positive regression tests for archive-aware path handling; no blanket disabling of security scans or failing tests |
-| I7 | CI and restoration evidence are real | Green CI plus recorded current-vault verification and isolated restore checks; historical build compatibility is reported separately by version |
-| I8 | No history rewrite, branch deletion or uncontrolled rollout | Normal reviewed merge with expected-head guard; no force push, manual deploy, service restart or Railway variable/configuration change |
-| I9 | Follow append-only documentation and approval rules | Append provenance and verification records; preserve earlier specifications; do not edit hooks or write approval records |
+| ID | Maxim | Scope | Limit | Contrary | Check |
+|----|-------|-------|-------|----------|-------|
+| I1 | The folders end on `main`, not only on a branch | `main` after merge | branch state before merge | a green PR read as completion | `git ls-tree origin/main vault/` lists 28 folders after merge |
+| I2 | Original archive identity is preserved | the 9 unchanged folders and every manifest entry | the 18 sanitised folders, whose trees change by design | silent overwrite of history | `node scripts/verify-vault-archives.mjs --verify`; `__tests__/vault-archives.test.js` |
+| I3 | No protected personal data or secret is republished | every committed file under `vault/` | values already in public git history | speed over safety | `node scripts/verify-vault-archives.mjs --self-test`; `__tests__/no-owner-chat-id.test.js`; `__tests__/repo-security-posture.test.js` |
+| I4 | Exclusions and redactions are transparent | `vault/RESTORATION_MANIFEST.json` | the removed values, which are never recorded | hiding what changed | `--verify` counts 18 sanitised + 9 unchanged + v0.62.937 |
+| I5 | Runtime source is unchanged | everything outside `vault/`, `doc/` and this spec's scope | archived mirrors inside `vault/` | scope creep | `git diff --stat origin/main` touches only scope paths |
+| I6 | Guardrails still catch real defects | NUL-byte and security-posture tests | the 20 pinned historical NUL-byte paths | disabling a check to get green | `__tests__/no-nul-bytes.test.js`; `__tests__/repo-security-posture.test.js` |
+| I7 | CI and restoration evidence are real | the PR head | historical app builds (not certified) | inferred green | `npm test`; the `vault-verify.yml` run on the PR head, final gate included |
+| I8 | No history rewrite or uncontrolled rollout | branch pushes and the merge | the operator's own merge decision | force push, manual deploy | plain `git push` (no force); merge with `expectedHeadSha` |
+| I9 | Documentation stays append-only | journal and this spec | none | tidying prior records | `git diff origin/main -- doc/` shows additions only |
 
 If byte preservation and privacy/exclusion requirements conflict for an archive, stop that archive and report the exact affected paths without revealing sensitive values. Do not silently redact, drop files, claim a complete original restoration, or merge a partial set under a promise of all archives.
 
@@ -167,3 +167,38 @@ Prior wording retained above. Two changes, both directed by the operator on 17-1
 
 This spec stays in `doc/Feature/` as a one-time exception to the `doc/Spec/` rule in `CLAUDE.md`.
 The operator chose that when the F5 alert was raised on 17-10 '26.
+
+## Amendment 0.5 - 17 October 2026 (Asia/Singapore)
+
+The approval hook refused 0.4: it needs a `Check` column on every invariant and a
+`pending`/`confirmed`/`corrected` status on every assumption, and only the operator confirms one.
+Both tables above were rewritten into that format. The prior tables are kept here verbatim (AU-7).
+
+Prior Assumptions table:
+
+| ID | Item | Status |
+|---|---|---|
+| A1 | Main is the final destination; feature-map work is excluded | Explicit user directive |
+| A2 | The 27-folder historical tree and the current one-folder tree exist | Observed live GitHub facts |
+| A3 | Historical contents are safe to republish unchanged | Unverified; do not assume |
+| A4 | Current snapshot meets every previously specified exclusion | Unverified |
+| A5 | A later claimed v0.62.655 archive is recoverable as a committed folder | Not established |
+| A6 | Main can be updated without triggering deployment automation | Not established; inspect before merge |
+
+Prior Invariants table:
+
+| ID | Requirement | Check and limit |
+|---|---|---|
+| I1 | Final folders are on main, not merely the review branch | After an approved merge, fetch main and enumerate `vault/`; read back all approved version tree identities |
+| I2 | Preserve original archive identity and avoid historical overwrites | Compare names, modes, object identities and recursive manifests with pinned source trees; stop on conflicts |
+| I3 | No unsafe content is republished, including on a public review branch | Scan complete candidate contents for actual secrets and protected personal data before writing them remotely; unresolved findings block publication |
+| I4 | Apply approved exclusions transparently | Full recursive inventory, exact exclusion ledger, file counts and byte totals; do not hide omitted source or silently rewrite frozen files |
+| I5 | Runtime source and feature-map work are unchanged | Diff approved paths; no application source, package, lockfile, API, UI or feature-map edits outside archived mirrors |
+| I6 | Existing guardrails still detect real defects | Focused negative/positive regression tests for archive-aware path handling; no blanket disabling of security scans or failing tests |
+| I7 | CI and restoration evidence are real | Green CI plus recorded current-vault verification and isolated restore checks; historical build compatibility is reported separately by version |
+| I8 | No history rewrite, branch deletion or uncontrolled rollout | Normal reviewed merge with expected-head guard; no force push, manual deploy, service restart or Railway variable/configuration change |
+| I9 | Follow append-only documentation and approval rules | Append provenance and verification records; preserve earlier specifications; do not edit hooks or write approval records |
+
+Assumptions A1 to A6 were confirmed by the operator on 17-10 '26, choosing *"Confirm all six"*
+when they were put as one question. For A6 that means accepting the untested deploy-size risk, to
+be measured on the PR and reported before merge.
