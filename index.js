@@ -73,6 +73,7 @@ const {
   listRecentLocations,
   addRecentLocation,
   removeRecentLocationAt: removeRecentLocationAtIdx,
+  locationOptsFromRecent,
   MAX_ENTRIES: RECENT_LOCATIONS_MAX
 } = require('./recent-locations');
 // v0.61.200 — city/country token detection in /location <text>.
@@ -2857,9 +2858,13 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     const label = smartPlaceLabel(top.displayName?.text || '', top.formattedAddress || '') || text;
     // OTHER region anchor so cuisine TMA + free-text searches know
     // this is non-SG; no radiusCap (per-precinct caps don't apply here).
+    // v0.62.938 — store the country too. Without it resolveRegionCode read
+    // this OTHER record as 'SG' and the free-text anchor fell back to the
+    // Singapore geocoder (Codex P1 on #1870, [AMD-232]).
     await setUserLocation(redis, chatId, lat, lng, {
       region: 'OTHER',
-      label
+      label,
+      country: countryCode
     });
     await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode
     // v0.61.197 — recent-locations LRU push.
@@ -3431,10 +3436,9 @@ bot.on('callback_query', async (q) => {
           await safeSend(chatId, '⚠️ That recent location is no longer available.');
           return;
         }
-        const opts = {};
-        if (entry.region) opts.region = entry.region;
-        if (entry.label) opts.label = entry.label;
-        await setUserLocation(redis, chatId, entry.lat, entry.lng, opts);
+        // v0.62.938 — opts built by recent-locations.js so an OTHER entry's
+        // country survives the re-pick (it was dropped here before).
+        await setUserLocation(redis, chatId, entry.lat, entry.lng, locationOptsFromRecent(entry));
         // Bubble to top of LRU.
         addRecentLocation(redis, chatId, entry).catch(() => {});
         const flag = entry.country ? (findCountryPref(entry.country)?.flag || '🌍') : '📍';

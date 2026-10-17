@@ -119,6 +119,25 @@ async function clearRecentLocationsExcept(redis, chatId, lat, lng) {
   }
 }
 
+// v0.62.938 — the setUserLocation opts for re-selecting a recent entry. The
+// inline version in index.js copied `region` and `label` and dropped
+// `entry.country`, so a recent OTHER pick (Tokyo, Bangkok, …) was stored with
+// no country and resolveRegionCode fell back to 'SG' (Codex P1 on #1870,
+// [AMD-232]). The country is carried ONLY for OTHER entries: SG and JB picks
+// keep exactly the payload they had, because resolveRegionCode already
+// derives their code from `region` and other readers (/s, the Menu payload)
+// should see no change for them.
+function locationOptsFromRecent(entry) {
+  const opts = {};
+  if (!entry || typeof entry !== 'object') return opts;
+  if (entry.region) opts.region = entry.region;
+  if (entry.label) opts.label = entry.label;
+  if (entry.region === 'OTHER' && typeof entry.country === 'string' && entry.country) {
+    opts.country = entry.country;
+  }
+  return opts;
+}
+
 module.exports = {
   MAX_ENTRIES,
   TTL_S,
@@ -126,5 +145,6 @@ module.exports = {
   addRecentLocation,
   removeRecentLocationAt,
   clearRecentLocations,
-  clearRecentLocationsExcept
+  clearRecentLocationsExcept,
+  locationOptsFromRecent
 };
