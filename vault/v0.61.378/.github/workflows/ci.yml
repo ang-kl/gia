@@ -1,0 +1,163 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  syntax:
+    name: Syntax check (node --check on every .js)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Diagnostics
+        run: |
+          echo "node $(node --version) | npm $(npm --version) | runner ${RUNNER_OS} | ref ${GITHUB_REF}"
+          ls -d vault .vibe-journal dist public 2>/dev/null || true
+      - name: Install root deps (skip postinstall TMA build)
+        run: npm install --no-audit --no-fund --ignore-scripts
+      # v0.60.205 — DF-105 follow-up: tightened scope to source code only.
+      # The prior expression walked 2,028 .js files including ./vault/*
+      # (1,873 historical snapshot files), ./.vibe-journal/node_modules/*
+      # (vendored 3rd-party), ./dist/* (ESM bundle output from the new
+      # vibe-journal framework), and ./public/*/assets/* (Vite-built ESM
+      # bundles when present). ANY of those failing on node 20 silently
+      # red-flagged the whole pipeline. Source code lives in:
+      #   - top-level .js (index.js, weather.js, michelin-walk.js, …)
+      #   - ./scripts/ (utility scripts)
+      #   - ./web/<tma>/ src files (covered by `web` exclusions; in
+      #     practice almost all web/ files are .jsx, not .js).
+      # Vault snapshots are immutable archives of past versions — they
+      # already passed syntax check when they were ship-current. No
+      # value in re-checking them on every PR.
+      - name: node --check on every source .js
+        run: |
+          set -euo pipefail
+          fails=0
+          fail_list=""
+          while IFS= read -r -d '' f; do
+            if ! node --check "$f" 2>err; then
+              echo "FAIL: $f"
+              sed 's/^/  /' err
+              fails=$((fails+1))
+              fail_list="$fail_list $f"
+            fi
+          # NOTE: We prune ./public/*/assets (per-TMA Vite output —
+          # hashed bundles that round-trip through Vite, not source),
+          # but NOT ./public itself — `public/app.js` is hand-written
+          # runtime code for the v0.4.0 sanctuary map TMA (served at
+          # /static/app.js by the express mount at index.js:8118).
+          # Thanks Codex (PR #456 review) for catching this.
+          done < <(find . \
+            \( \
+              -path './node_modules' -o \
+              -path './web/*/node_modules' -o \
+              -path './web/*/dist' -o \
+              -path './__tests__' -o \
+              -path './vault' -o \
+              -path './public/*/assets' -o \
+              -path './dist' -o \
+              -path './.vibe-journal/node_modules' -o \
+              -path './.git' \
+            \) -prune -o \
+            -name '*.js' -type f -print0)
+          if [ "$fails" -ne 0 ]; then
+            echo
+            echo "❌ $fails file(s) failed syntax check:$fail_list"
+            exit 1
+          fi
+          echo "✅ All source .js files pass node --check"
+
+  empty-blob:
+    name: Empty-blob guardrail (Register O-37)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect 0-byte source files
+        # v0.61.289 — Register O-37 mitigation. macOS iCloud eviction
+        # can return 0-byte reads to Node / Git while file metadata
+        # still shows the original size, so a naive `git add` or
+        # `JSON.parse(readFileSync(...))` produces an empty payload
+        # that then commits / persists silently. Pre-v0.61.289 this
+        # happened twice in production: `smart-place-label.js` (an
+        # empty-blob since first commit; restored in v0.61.278) and
+        # `durian-variance-runner.js` (v0.61.260-287 silently shipped
+        # without placeId-carry, fixed in v0.61.288). This guardrail
+        # fails CI if ANY tracked *.js / *.jsx / *.json / *.mjs file
+        # in source paths is 0 bytes. Mirrors the syntax-job's
+        # path-prune rules so vault snapshots + vendored deps don't
+        # produce false positives.
+        run: |
+          set -euo pipefail
+          empty=$(find . \
+            \( \
+              -path './node_modules' -o \
+              -path './web/*/node_modules' -o \
+              -path './web/*/dist' -o \
+              -path './vault' -o \
+              -path './public/*/assets' -o \
+              -path './dist' -o \
+              -path './.vibe-journal/node_modules' -o \
+              -path './.git' \
+            \) -prune -o \
+            \( -name '*.js' -o -name '*.jsx' -o -name '*.json' -o -name '*.mjs' \) \
+            -type f -size 0 -print)
+          if [ -n "$empty" ]; then
+            echo "❌ Empty-blob detection — these files are 0 bytes:"
+            echo "$empty" | sed 's/^/  /'
+            echo
+            echo "This usually means an iCloud-stale-checkout artifact (Register O-37)."
+            echo "Restore content from the local working tree or git history before merging."
+            echo
+            echo "Quick fix:"
+            echo "  cat <(git show HEAD:'<path>')   # check what HEAD has"
+            echo "  cat ~/Path/to/working/tree/<path> > <path>   # repair from a known-good copy"
+            exit 1
+          fi
+          echo "✅ No empty *.js / *.jsx / *.json / *.mjs files in source paths"
+
+  test:
+    name: Vitest unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Diagnostics
+        run: echo "node $(node --version) | npm $(npm --version)"
+      - name: Install root deps (skip postinstall TMA build)
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Run vitest
+        run: npm test
+
+  build:
+    name: TMA build (cuisine + menu + hawker + transport + oversight)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Diagnostics
+        run: echo "node $(node --version) | npm $(npm --version)"
+      # v0.60.205 — was relying on postinstall to chain `npm run build`
+      # via the root install. That works but the failure surface is
+      # opaque (postinstall is one giant log blob across 5 TMAs). Split
+      # into two explicit steps so a TMA-specific build failure is
+      # obvious in the Actions UI without scrolling.
+      - name: Install root deps (skip postinstall TMA build)
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Build all 5 TMAs
+        run: npm run build

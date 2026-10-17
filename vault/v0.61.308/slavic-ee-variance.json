@@ -1,0 +1,1430 @@
+{
+  "schemaVersion": 1,
+  "scriptVersion": "0.61.289",
+  "ranAtIso": "2026-05-31T00:13:05.323Z",
+  "config": {
+    "LIMIT_PER_QUERY": 10,
+    "RADIUS_M": 10000
+  },
+  "cuisines": {
+    "russian": {
+      "label": "Russian",
+      "seeds": [
+        "borscht",
+        "pelmeni",
+        "blini",
+        "пельмени",
+        "блины"
+      ],
+      "perCity": {
+        "Moscow": {
+          "cc": "RU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        },
+        "Warsaw": {
+          "cc": "PL",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        },
+        "Kyiv": {
+          "cc": "UA",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        },
+        "Prague": {
+          "cc": "CZ",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        },
+        "Budapest": {
+          "cc": "HU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        },
+        "Sofia": {
+          "cc": "BG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        },
+        "Bucharest": {
+          "cc": "RO",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        },
+        "Singapore": {
+          "cc": "SG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "borscht",
+              "count": 0
+            },
+            {
+              "seed": "pelmeni",
+              "count": 0
+            },
+            {
+              "seed": "blini",
+              "count": 0
+            },
+            {
+              "seed": "пельмени",
+              "count": 0
+            },
+            {
+              "seed": "блины",
+              "count": 0
+            }
+          ]
+        }
+      }
+    },
+    "polish": {
+      "label": "Polish",
+      "seeds": [
+        "pierogi",
+        "kielbasa",
+        "bigos",
+        "pierogi ruskie"
+      ],
+      "perCity": {
+        "Moscow": {
+          "cc": "RU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        },
+        "Warsaw": {
+          "cc": "PL",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        },
+        "Kyiv": {
+          "cc": "UA",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        },
+        "Prague": {
+          "cc": "CZ",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        },
+        "Budapest": {
+          "cc": "HU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        },
+        "Sofia": {
+          "cc": "BG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        },
+        "Bucharest": {
+          "cc": "RO",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        },
+        "Singapore": {
+          "cc": "SG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "pierogi",
+              "count": 0
+            },
+            {
+              "seed": "kielbasa",
+              "count": 0
+            },
+            {
+              "seed": "bigos",
+              "count": 0
+            },
+            {
+              "seed": "pierogi ruskie",
+              "count": 0
+            }
+          ]
+        }
+      }
+    },
+    "ukrainian": {
+      "label": "Ukrainian",
+      "seeds": [
+        "varenyky",
+        "salo",
+        "holubtsi",
+        "вареники"
+      ],
+      "perCity": {
+        "Moscow": {
+          "cc": "RU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        },
+        "Warsaw": {
+          "cc": "PL",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        },
+        "Kyiv": {
+          "cc": "UA",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        },
+        "Prague": {
+          "cc": "CZ",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        },
+        "Budapest": {
+          "cc": "HU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        },
+        "Sofia": {
+          "cc": "BG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        },
+        "Bucharest": {
+          "cc": "RO",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        },
+        "Singapore": {
+          "cc": "SG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "varenyky",
+              "count": 0
+            },
+            {
+              "seed": "salo",
+              "count": 0
+            },
+            {
+              "seed": "holubtsi",
+              "count": 0
+            },
+            {
+              "seed": "вареники",
+              "count": 0
+            }
+          ]
+        }
+      }
+    },
+    "czech": {
+      "label": "Czech",
+      "seeds": [
+        "svíčková",
+        "knedlík",
+        "česká kuchyně",
+        "goulash czech"
+      ],
+      "perCity": {
+        "Moscow": {
+          "cc": "RU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        },
+        "Warsaw": {
+          "cc": "PL",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        },
+        "Kyiv": {
+          "cc": "UA",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        },
+        "Prague": {
+          "cc": "CZ",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        },
+        "Budapest": {
+          "cc": "HU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        },
+        "Sofia": {
+          "cc": "BG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        },
+        "Bucharest": {
+          "cc": "RO",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        },
+        "Singapore": {
+          "cc": "SG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "svíčková",
+              "count": 0
+            },
+            {
+              "seed": "knedlík",
+              "count": 0
+            },
+            {
+              "seed": "česká kuchyně",
+              "count": 0
+            },
+            {
+              "seed": "goulash czech",
+              "count": 0
+            }
+          ]
+        }
+      }
+    },
+    "hungarian": {
+      "label": "Hungarian",
+      "seeds": [
+        "gulyás",
+        "paprikás",
+        "lángos",
+        "magyar étterem"
+      ],
+      "perCity": {
+        "Moscow": {
+          "cc": "RU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        },
+        "Warsaw": {
+          "cc": "PL",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        },
+        "Kyiv": {
+          "cc": "UA",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        },
+        "Prague": {
+          "cc": "CZ",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        },
+        "Budapest": {
+          "cc": "HU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        },
+        "Sofia": {
+          "cc": "BG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        },
+        "Bucharest": {
+          "cc": "RO",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        },
+        "Singapore": {
+          "cc": "SG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "gulyás",
+              "count": 0
+            },
+            {
+              "seed": "paprikás",
+              "count": 0
+            },
+            {
+              "seed": "lángos",
+              "count": 0
+            },
+            {
+              "seed": "magyar étterem",
+              "count": 0
+            }
+          ]
+        }
+      }
+    },
+    "bulgarian": {
+      "label": "Bulgarian",
+      "seeds": [
+        "shopska",
+        "banitsa",
+        "kavarma",
+        "българска кухня"
+      ],
+      "perCity": {
+        "Moscow": {
+          "cc": "RU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        },
+        "Warsaw": {
+          "cc": "PL",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        },
+        "Kyiv": {
+          "cc": "UA",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        },
+        "Prague": {
+          "cc": "CZ",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        },
+        "Budapest": {
+          "cc": "HU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        },
+        "Sofia": {
+          "cc": "BG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        },
+        "Bucharest": {
+          "cc": "RO",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        },
+        "Singapore": {
+          "cc": "SG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "shopska",
+              "count": 0
+            },
+            {
+              "seed": "banitsa",
+              "count": 0
+            },
+            {
+              "seed": "kavarma",
+              "count": 0
+            },
+            {
+              "seed": "българска кухня",
+              "count": 0
+            }
+          ]
+        }
+      }
+    },
+    "romanian": {
+      "label": "Romanian",
+      "seeds": [
+        "mămăligă",
+        "sarmale",
+        "mici",
+        "bucătărie românească"
+      ],
+      "perCity": {
+        "Moscow": {
+          "cc": "RU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        },
+        "Warsaw": {
+          "cc": "PL",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        },
+        "Kyiv": {
+          "cc": "UA",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        },
+        "Prague": {
+          "cc": "CZ",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        },
+        "Budapest": {
+          "cc": "HU",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        },
+        "Sofia": {
+          "cc": "BG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        },
+        "Bucharest": {
+          "cc": "RO",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        },
+        "Singapore": {
+          "cc": "SG",
+          "totalAcrossSeeds": 0,
+          "uniqueSampleNames": [],
+          "bySeed": [
+            {
+              "seed": "mămăligă",
+              "count": 0
+            },
+            {
+              "seed": "sarmale",
+              "count": 0
+            },
+            {
+              "seed": "mici",
+              "count": 0
+            },
+            {
+              "seed": "bucătărie românească",
+              "count": 0
+            }
+          ]
+        }
+      }
+    }
+  },
+  "totals": {
+    "byCuisine": {
+      "russian": 0,
+      "polish": 0,
+      "ukrainian": 0,
+      "czech": 0,
+      "hungarian": 0,
+      "bulgarian": 0,
+      "romanian": 0
+    },
+    "byCity": {
+      "Moscow": 0,
+      "Warsaw": 0,
+      "Kyiv": 0,
+      "Prague": 0,
+      "Budapest": 0,
+      "Sofia": 0,
+      "Bucharest": 0,
+      "Singapore": 0
+    }
+  }
+}

@@ -1,0 +1,1749 @@
+// i18n.js — v0.58.55
+//
+// Tiny EN/FR localisation layer for the cuisine TMA. Two languages
+// only (English + French per Human Lead). No dependency on a big i18n
+// runtime — a flat key-table + tiny React hook.
+//
+// Public surface:
+//   t(key, lang?)       — pure string lookup, EN fallback
+//   getActiveLocale()   — reads localStorage 'gia.locale' OR
+//                         Telegram WebApp language_code OR navigator,
+//                         maps to 'en' / 'fr' (default 'en')
+//   setActiveLocale(l)  — writes localStorage + dispatches 'gia:locale'
+//                         CustomEvent so all subscribed components
+//                         re-render
+//   useLocale()         — React hook returning [lang, setLang]
+//
+// Lookup is forgiving: missing keys fall back to the EN string. If the
+// EN string is also missing, returns the key itself (so a missing
+// translation still ships *some* legible text).
+
+import { useEffect, useState } from 'react';
+
+const LOCALE_KEY = 'gia.locale';
+const LOCALE_EVENT = 'gia:locale';
+
+const STRINGS = {
+  // ----- TMA chrome -----
+  'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
+  'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
+  'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
+  // v0.62.97 — 📍 Current: action button that anchors to the live device GPS.
+  'region.current':            { en: 'Current', fr: 'Ma position' },
+  'region.current.error':      { en: "Couldn't get your current location — check location permission.",
+                                 fr: "Impossible d'obtenir votre position — vérifiez l'autorisation de localisation." },
+  // v0.61.159 — third region pill on the Cuisine TMA, part of the
+  // location-classification phased build's PR 5/5.
+  // v0.61.185 — pill semantics generalised from "Putrajaya" → "Others"
+  // (matches location-mode.js's SG | JB | OTHER classifier). The
+  // pill now covers any non-SG/JB anchor: Putrajaya, KL, Penang,
+  // Batam, etc. Cap bumped 15 km → 20 km (operator's spec).
+  // v0.62.97 — operator renamed "Others" → "Cities" (the pill opens the
+  // country+city picker, so "Cities" reads truer than the vague "Others").
+  'region.others':             { en: 'Cities', fr: 'Villes' },
+  // v0.60.213 — two-line footer.
+  'footer.howto':              { en: '📍 Enter location or 💬 type dish · Tap 🔍 to search',
+                                 fr: '📍 Saisir un lieu ou 💬 taper un plat · 🔍 pour rechercher' },
+  'footer.experimental':       { en: 'Experimental', fr: 'Expérimental' },
+
+  // ----- Banners (above map) -----
+  'banner.locating':           { en: 'Searching nearby', fr: 'Recherche à proximité' },
+  'banner.locating.suffix':    { en: 'finding places…', fr: 'recherche de lieux…' },
+  'banner.anchor':             { en: 'Anchor set', fr: 'Point d’ancrage défini' },
+  'banner.no.match':           { en: 'no places match — try Tell me, or share a fresh pin via /location.', fr: 'aucun lieu ne correspond — essayez Dis-moi, ou partagez une nouvelle position via /location.' },
+  'banner.showing':            { en: 'Showing places', fr: 'Lieux affichés' },
+  'banner.places.one':         { en: '1 place nearby', fr: '1 lieu à proximité' },
+  'banner.places.many':        { en: '{n} places nearby', fr: '{n} lieux à proximité' },
+  // v0.61.170 — Results-panel counter copy. Range-based labels for
+  // the 24-first / 12-follow-up session model. Templates take
+  // `{first}` (first-tap count), `{start}` / `{end}` (cumulative
+  // range on subsequent taps), `{n}` (count for final/exhausted
+  // states), and `{total}` (Michelin curated pool).
+  // v0.61.174 — counter copy rewritten per operator's full spec
+  // table. Format: `Results: {known} · Showing {start}-{end}` when
+  // known total is known + multiple pages; `Results: {known} ·
+  // Showing all` when single-page (≤ PAGE_SIZE) OR final page with
+  // start=1; `Showing {n} results` when total still being
+  // discovered (server-side cap not yet known); `Results: {cap}+ ·
+  // Limit reached` when SEEN_CAP reached. Michelin keeps the curated
+  // pool size as known total.
+  // v0.61.190 — title is now rendered on TWO lines so the Copy
+  // all / Copy syntax buttons on the right stay un-crowded.
+  // line 1: "Results: {known}"
+  // line 2: "· Showing {start}-{end}"   (or "Showing first {n}",
+  //         or "Showing all", or "Limit reached")
+  // The i18n keys below carry the SECOND line only; line 1 is
+  // rendered inline by ResultPanel ("Results: {known}"). When the
+  // total is unknown, line 1 is omitted and we fall back to the
+  // single-line `panel.discovering` string.
+  'panel.line1':               { en: 'Results: {known}',
+                                 fr: 'Résultats : {known}' },
+  'panel.line2.first':         { en: '· Showing first {first}',
+                                 fr: '· Affichage des {first} premiers' },
+  'panel.line2.range':         { en: '· Showing {start}-{end}',
+                                 fr: '· Affichage de {start} à {end}' },
+  'panel.line2.all':           { en: '· Showing all',
+                                 fr: '· Tout afficher' },
+  'panel.line2.limit':         { en: '· Limit reached',
+                                 fr: '· Limite atteinte' },
+  // Single-line fallback when total isn't yet known.
+  'panel.discovering':         { en: 'Showing {n} results',
+                                 fr: 'Affichage de {n} résultats' },
+  // Helper line below header for the "too few results" state.
+  'panel.helperTooFew':        { en: 'Change search or tap 🔍',
+                                 fr: 'Modifiez la recherche ou touchez 🔍' },
+  'panel.helperLimit':         { en: 'Refine search',
+                                 fr: 'Affiner la recherche' },
+  // v0.61.174 — speech-bubble tooltip that flashes above the 🔍 FAB
+  // for 5 s after a fresh batch lands, replacing the v0.61.79 👉
+  // arrow that sat to the left of the FAB.
+  'panel.bubble.moreEats':     { en: 'More eats? Tap 🔍',
+                                 fr: 'Plus à manger ? Touchez 🔍' },
+
+  // v0.62.x — Search Insights strip (PR2). Short, objective read-out above the
+  // results. {n}/{name}/{rating}/{price} are interpolated via tn(). All 5
+  // locales inline (the id/ru/de merge only fills nulls, so these stand).
+  'insights.count':            { en: '{n} spots', fr: '{n} lieux', id: '{n} tempat', ru: '{n} мест', de: '{n} Orte' },
+  'insights.median':           { en: 'med {price}', fr: 'méd. {price}', id: 'med {price}', ru: 'медиана {price}', de: 'Median {price}' },
+  'insights.best':             { en: 'best {name} {rating} ({price})', fr: 'top {name} {rating} ({price})', id: 'terbaik {name} {rating} ({price})', ru: 'лучшее {name} {rating} ({price})', de: 'Top {name} {rating} ({price})' },
+  'insights.gems':             { en: '{n} gems', fr: '{n} pépites', id: '{n} permata', ru: '{n} находок', de: '{n} Geheimtipps' },
+
+  // v0.61.191 — OTHER-region country picker + place-search-by-country
+  // confirmation modal. Operator: "Times Square Kuala Lumpur" was
+  // resolving to a SG shop because OTHER autocomplete defaulted to
+  // regionCode=SG. New flow: pick country flag → type → search →
+  // confirmation list (no autocomplete dropdown for OTHER).
+  'loc.other.country':         { en: 'Country', fr: 'Pays' },
+  // v0.61.228 — cascading child city dropdown next to the country flag.
+  'loc.other.city':            { en: 'City',    fr: 'Ville' },
+  'loc.other.placeholder':     { en: 'Type a place name + 🔍',
+                                 fr: 'Tapez un lieu + 🔍' },
+  'loc.other.searchBtn':       { en: '🔍 Search', fr: '🔍 Rechercher' },
+  'loc.other.searching':       { en: 'Searching {country}…',
+                                 fr: 'Recherche {country}…' },
+  'loc.other.noMatch':         { en: 'No places found in {country}. Try a different name.',
+                                 fr: 'Aucun lieu trouvé en {country}. Essayez un autre nom.' },
+  'loc.other.confirmHeader':   { en: 'Found in {flag} {country}:',
+                                 fr: 'Trouvé en {flag} {country} :' },
+  'loc.other.cancel':          { en: '✕ Cancel · type again',
+                                 fr: '✕ Annuler · réessayer' },
+
+  // ----- Filters -----
+  'filter.openNow':            { en: 'Open now', fr: 'Ouvert' },
+  'filter.halal':              { en: 'Halal', fr: 'Halal' },
+  'filter.vegetarian':         { en: 'Vegetarian', fr: 'Végétarien' },
+  // v0.62.37 — ⭐ Recommend (capital R per operator): wires the search to the
+  // dish layer (cuisine special dishes + the city's unique dishes). The
+  // 7-second explainer below shows on check.
+  'filter.recommend':          { en: 'Recommend', fr: 'Recommander' },
+  'filter.recommend.hint':     {
+    en: '⭐ Recommend: show places known for this cuisine’s signature dishes or the city’s must-try dishes.',
+    fr: '⭐ Recommander : montre les lieux réputés pour les plats phares de cette cuisine ou les incontournables de la ville.'
+  },
+  'filter.homeBased':          { en: 'Home-based', fr: 'À domicile' },
+  'filter.newlyOpened':        { en: 'Newly opened', fr: 'Récemment ouvert' },
+  // v0.60.165 — 🐾 Pet allowed chip. Strict mode shows only Places
+  // tagged `allowsDogs=true`; text-query fallback when strict yields
+  // < 3 venues. v0.60.166: capital P per operator second-pass review
+  // ("Pet allowed", was "pet allowed").
+  // v0.60.168: FR tightened from 'Animaux acceptés' (literally
+  // "accepted") to 'Animaux autorisés' (literally "allowed") so it
+  // tracks the EN "Pet allowed" semantically per operator review.
+  // v0.60.182: shortened to "Pet" / "Animaux" (was "Pet allowed" /
+  // "Animaux autorisés") — chip promoted to PRIMARY row beside Halal,
+  // so the longer copy ate too much horizontal space on phones.
+  'filter.petFriendly':        { en: 'Pet', fr: 'Animaux' },
+  // v0.61.126 — Fruits + Durian exclusive special-mode toggles.
+  // Per scripts/Create_2_buttons.MD: short labels, distinct from the
+  // catalogue, mutually exclusive, grey-out normal cuisines + filters
+  // when active. activeNote sits below the special-mode row to
+  // remind the user other toggles are locked. limitedMatches surfaces
+  // when the server-side post-filter trimmed the result count below
+  // the spec's "8-12 relevant" target.
+  'special.fruits.label':      { en: 'Fruits', fr: 'Fruits' },
+  'special.durian.label':      { en: 'Durian', fr: 'Durian' },
+  'special.activeNote':        { en: '{mode} mode is on — other cuisine, Michelin and dessert filters are locked. Tap the active button to clear.',
+                                 fr: 'Mode {mode} activé — les autres filtres cuisine, Michelin et dessert sont verrouillés. Touchez le bouton actif pour effacer.' },
+  'special.fruits.limited':    { en: '🍉 Limited matches nearby. Showing the closest fruit-related results.',
+                                 fr: '🍉 Peu de résultats à proximité. Affichage des établissements liés aux fruits les plus proches.' },
+  'special.durian.limited':    { en: '🥥 Limited durian sellers nearby. Showing the closest relevant matches.',
+                                 fr: '🥥 Peu de vendeurs de durian à proximité. Affichage des résultats les plus proches.' },
+  // v0.62.14 — durian soft-rating: we prefer 3.7★+ but a durian stall is a
+  // durian stall, so lower-rated / unrated stalls are shown too (after the good ones).
+  'special.durian.softRating': { en: '🥥 Durian stalls: we list 3.7★+ first, but also show lower-rated and unrated stalls — a durian stall is a durian stall.',
+                                 fr: '🥥 Stands de durian : nous listons d’abord 3,7★+, mais affichons aussi les stands moins bien notés ou sans note — un stand de durian reste un stand de durian.' },
+  // v0.61.397 — operator: durian / fruits / durian-pastry only make sense in
+  // the SE-Asian durian belt; the server blocks them elsewhere and the panel
+  // shows this in place of the generic empty-state. Belt = SG/MY/ID/TH/PH/BN/VN.
+  'special.fruits.blocked':    { en: '🍉 Fruit search is only available in Singapore, Malaysia, Indonesia, Thailand, the Philippines, Brunei and Vietnam.',
+                                 fr: '🍉 La recherche de fruits n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines, au Brunei et au Vietnam.' },
+  'special.durian.blocked':    { en: '🥥 Durian search is only available in Singapore, Malaysia, Indonesia, Thailand, the Philippines, Brunei and Vietnam.',
+                                 fr: '🥥 La recherche de durian n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines, au Brunei et au Vietnam.' },
+  'special.durian-pastry.blocked': { en: '🥐 Durian-pastry search is only available in Singapore, Malaysia, Indonesia, Thailand, the Philippines, Brunei and Vietnam.',
+                                 fr: '🥐 La recherche de pâtisseries au durian n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines, au Brunei et au Vietnam.' },
+  // v0.61.411 — short tooltip on a durian / durian-pastry chip that's disabled
+  // because the current country is outside the belt (the chip is greyed, not
+  // tappable; the full sentence above only shows after a server-blocked search).
+  'special.beltOnly':          { en: 'Only available in SG, MY, ID, TH, PH, BN, VN',
+                                 fr: 'Disponible uniquement en SG, MY, ID, TH, PH, BN, VN' },
+  // v0.61.130 — UI surface for v0.61.129 O-23 backend. When the
+  // special-mode widening pass actually fired (radius escalated from
+  // X to Y), append "· widened to Y km" below the limited card so
+  // the user understands why the result list looks a bit further out
+  // than the slider suggests.
+  'special.widened':           { en: '· widened to {km} km',
+                                 fr: '· élargi à {km} km' },
+  // v0.61.130 — UI surface for v0.61.129 O-20 backend. Rendered as a
+  // pill above the result list when the Tell-me box typed text named
+  // a place (MRT station, hawker centre, STB precinct, or geocoded
+  // landmark). `anchor.searching` is the place-only form; if the user
+  // also typed a dish/qualifier alongside the place, the stripped
+  // remainder is shown via `anchor.showing` instead.
+  'anchor.searching':          { en: '📍 Searching near {place}',
+                                 fr: '📍 Recherche près de {place}' },
+  'anchor.showing':            { en: '📍 Showing "{query}" near {place}',
+                                 fr: '📍 Affichage de « {query} » près de {place}' },
+  'filter.price':              { en: 'Price', fr: 'Prix' },
+  'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
+  'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },
+  'filter.openMore':           { en: 'Open more filters', fr: 'Ouvrir plus de filtres' },
+  'filter.closeMore':          { en: 'Close more filters', fr: 'Fermer plus de filtres' },
+
+  // ----- Rating pill + panel (v0.61.426) -----
+  'rating.title':              { en: 'Minimum rating', fr: 'Note minimale' },
+  'rating.refineHeader':       { en: 'Refine Google Rating', fr: 'Affiner la note Google' },
+  'rating.openPanel':          { en: 'Open rating options', fr: 'Ouvrir les options de note' },
+  'rating.closePanel':         { en: 'Close rating options', fr: 'Fermer les options de note' },
+  'rating.noRating':           { en: 'Unrated', fr: 'Non noté' },
+  'rating.noRatingHint':       { en: 'New or no reviews yet', fr: 'Nouveau ou sans avis' },
+  'rating.anyRating':          { en: 'Any rating', fr: 'Toutes les notes' },
+  'rating.anyRatingHint':      { en: 'No minimum', fr: 'Aucun minimum' },
+  'rating.goodPlus':           { en: 'Good+', fr: 'Bien+' },
+  'rating.setRating':          { en: 'Set as', fr: 'Définir' },
+  'rating.custom':             { en: 'Custom', fr: 'Personnalisée' },
+  'rating.customHint':         { en: '1.0 to 5.0', fr: '1.0 à 5.0' },
+  // v0.62.x — operator pop-up copy (amended): every fresh entry / ≥2 min
+  // idle-return RESETS the rating to the Good+ 3.7 default (G3 decision:
+  // a custom rating lasts for the session only). Three messages:
+  'rating.resetTitle':         { en: 'Rating reset to Good+ ≥ 3.7⭐',
+                                 fr: 'Note réinitialisée à Bien+ ≥ 3.7⭐' },
+  'rating.resetBody':          { en: 'Showing eateries with generally good Google ratings.',
+                                 fr: 'Affiche les restaurants généralement bien notés sur Google.' },
+  'rating.savedToast':         { en: 'Search rating updated',
+                                 fr: 'Note de recherche mise à jour' },
+  'rating.introTitle':         { en: 'Rating set to Good+ ≥ 3.7⭐',
+                                 fr: 'Note définie sur Bien+ ≥ 3.7⭐' },
+  'rating.introBody':          { en: 'Change it anytime if you want more or fewer eateries.',
+                                 fr: 'Modifiez-la à tout moment pour plus ou moins de restaurants.' },
+  'rating.save':               { en: 'Save', fr: 'Valider' },
+  'rating.saved':              { en: 'Saved', fr: 'Validé' },
+  'rating.pillNoRating':       { en: 'Unrated', fr: 'Non noté' },
+
+  // ----- Zero-result reason notices (v0.62.13) — make an empty list EVIDENT -----
+  'zero.allSeen':              { en: 'No new places to show here — tap 🔍 again to refresh the list.',
+                                 fr: 'Plus de nouveaux lieux ici — touchez 🔍 pour rafraîchir la liste.' },
+  'zero.noMatchCriteria':      { en: 'No matches for this cuisine + filter combo — try removing a filter or a cuisine.',
+                                 fr: 'Aucune correspondance pour cette combinaison cuisine + filtre — retirez un filtre ou une cuisine.' },
+  'zero.noVenuesNearby':       { en: 'No rated places found nearby — try a wider area or a different spot.',
+                                 fr: 'Aucun lieu noté à proximité — élargissez la zone ou changez d’endroit.' },
+  // v0.62.x item 10 — honest-empty for a tapped dish: nothing nearby has
+  // verified evidence of serving it (after the distance + off-cuisine gate).
+  'zero.dishNoSpot':           { en: 'No spot nearby has verified evidence of this dish — try another dish, or search a city where the cuisine is common.',
+                                 fr: 'Aucun établissement à proximité n’a de preuve vérifiée de ce plat — essayez un autre plat ou une ville où cette cuisine est courante.' },
+  // ----- Michelin zero/miss notices (v0.61.437) -----
+  'michelin.noList':           { en: 'No Michelin Guide covers this country yet — pick another country or deselect ✳️ Michelin.',
+                                 fr: "Aucun Guide Michelin ne couvre encore ce pays — choisissez un autre pays ou désélectionnez ✳️ Michelin." },
+  'michelin.unresolved':       { en: 'Could not work out which country to load the Michelin list for — pick a city or country, then search again.',
+                                 fr: "Impossible de déterminer le pays pour la liste Michelin — choisissez une ville ou un pays, puis relancez la recherche." },
+  'michelin.comboMiss':        { en: 'No match for your selected cuisine in this Michelin list — showing the full Michelin list instead.',
+                                 fr: "Aucune correspondance pour la cuisine choisie dans cette liste Michelin — affichage de la liste Michelin complète." },
+  // ----- Michelin city-jump rows (v0.62.6; v0.62.x — count/total ratio) -----
+  // Text BEFORE the tappable city name in "{count}/{total} Michelin picks in
+  // {city}" (the city itself renders as a styled <span>, so the string stops
+  // at "in "). count = cards for that city in the current visible batch;
+  // total = the visible batch size (e.g. 8/12). Operator (11-06) switched the
+  // copy from the bare count to the count/total ratio.
+  'michelin.cityJump.before':  { en: '{count}/{total} Michelin picks in ',
+                                 fr: '{count}/{total} choix Michelin à ' },
+  'rating.pillAny':            { en: 'Any', fr: 'Toutes' },
+
+  // ----- Map overlay layers (v0.61.0) -----
+  'layer.parks':               { en: 'Park', fr: 'Parc' },
+  'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
+  'layer.taxis':               { en: 'Taxi Stand', fr: 'Station de taxi' },
+  'layer.clinics':             { en: 'Clinic / Pharmacy', fr: 'Clinique / Pharmacie' },
+  'layer.hospitals':           { en: 'Hospital', fr: 'Hôpital' },
+  'layer.police':              { en: 'Police', fr: 'Police' },
+  'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
+  'layer.exits':               { en: 'Station Exits', fr: 'Sorties de station' },
+  'layer.train':               { en: 'Train', fr: 'Train' },
+  'layer.busstop':             { en: 'Bus Stop', fr: 'Arrêt de bus' },
+  'layer.hawker':              { en: 'Hawker', fr: 'Hawker' },
+  'layer.colour':              { en: 'Colour', fr: 'Couleur' },
+  'layer.colour.on':           { en: '☑️ Monochrome', fr: '☑️ Monochrome' },
+  'layer.colour.off':          { en: '🎨 Color', fr: '🎨 Couleur' },
+  'layer.open24':              { en: '24 hours', fr: '24 heures' },
+  'map.reset':                 { en: 'Reset view', fr: 'Réinitialiser' },
+  'map.more':                  { en: 'More layers', fr: 'Plus de couches' },
+  'layer.all':                 { en: 'All', fr: 'Tout' },
+
+  // ----- Cuisine drawer -----
+  'cuisine.drawerTitle':       { en: 'Cuisines', fr: 'Cuisines' },
+  'cuisine.back':              { en: 'Back', fr: 'Retour' },
+  'cuisine.done':              { en: 'Done', fr: 'Terminé' },
+
+  // ----- Buttons -----
+  'btn.search':                { en: '🔍 Search', fr: '🔍 Rechercher' },
+  'btn.searching':             { en: 'Searching…', fr: 'Recherche…' },
+  // v0.60.43 — replaces the hardcoded "…" literal in the criteria-card
+  // Search pill. Per Human Lead 2026-05-08 — the bare ellipsis read
+  // as "broken" rather than "loading"; explicit prose reassures.
+  'btn.searchPleaseWait':      { en: 'Please wait …', fr: 'Veuillez patienter …' },
+  'btn.searchFull':            { en: '🔍 Search · Show me places to eat', fr: '🔍 Rechercher · Trouvez où manger' },
+  'btn.clear':                 { en: 'Clear', fr: 'Effacer' },
+  // v0.60.43 — drawer "Clear all" relabel. The criteria-card pill
+  // ("Clear") wipes EVERYTHING (cuisines + filters + region); the
+  // drawer's button only wipes cuisines. Renaming makes the narrower
+  // scope explicit.
+  'btn.clearCuisines':         { en: 'Clear cuisines', fr: 'Effacer les cuisines' },
+  'btn.copyAll':               { en: '📋 Copy all', fr: '📋 Tout copier' },
+  'btn.copied':                { en: '✓ Copied to chat', fr: '✓ Copié vers le chat' },
+  'btn.copySyntax':            { en: '🔗 Copy /cuisine command', fr: '🔗 Copier la commande /cuisine' },
+  'btn.copyOne':               { en: '📋 Copy', fr: '📋 Copier' },
+  'btn.collapse':              { en: 'Collapse ▴', fr: 'Réduire ▴' },
+  'btn.editSearch':            { en: 'Edit search ▾', fr: 'Modifier ▾' },
+  'btn.backToTop':             { en: 'Back to top', fr: 'Retour en haut' },
+  // v0.60.106 — FAB labels (back / end). Operator FR audit 2026-05-11.
+  'btn.fabBack':               { en: 'back',  fr: 'retour' },
+  'btn.fabEnd':                { en: 'end',   fr: 'fermer' },
+  'btn.fabBackAria':           { en: 'Back',  fr: 'Retour' },
+  'btn.fabEndAria':            { en: 'End',   fr: 'Fermer' },
+  // v0.60.58 — short-form label for the FAB ("⇡ top" / "⇡ haut").
+  // The long-form key above stays as the aria-label for screen readers.
+  'btn.topShort':              { en: '⇡ top', fr: '⇡ haut' },
+  // v0.60.95 — operator standardised down/top/end labels across TMAs.
+  'btn.downShort':             { en: '⇣ down', fr: '⇣ bas' },
+  'btn.showLocation':          { en: 'Show your location', fr: 'Afficher votre position' },
+
+  // ----- Result card -----
+  'card.open':                 { en: 'Open', fr: 'Ouvert' },
+  'card.closed':               { en: 'Closed', fr: 'Fermé' },
+  'card.closedNow':            { en: 'Closed Now', fr: 'Fermé' },
+  'card.openInMin':            { en: 'Open in {n} min', fr: 'Ouvre dans {n} min' },
+  'card.opensRange':           { en: 'Opens {start} ~ {end}', fr: 'Ouvre {start} ~ {end}' },
+  'card.opensAt':              { en: 'Opens {start}', fr: 'Ouvre {start}' },
+  'card.closingSoon':          { en: 'Closing in {n} min', fr: 'Ferme dans {n} min' },
+  // v0.59.23 / v0.59.24 — "Try ·" line on cuisine ResultCards
+  // (mirrors /hidden's signature_dish surface). Per Human Lead
+  // 2026-05-07: label trimmed to a tight "Try ·" form, same emoji
+  // glyph used at the start of the dish line.
+  'card.whatToOrder':          { en: 'Try', fr: 'Essayez' },
+  'card.healthierChoice':      { en: 'Healthier Choice', fr: 'Choix santé' },
+  'card.insideBuilding':       { en: 'Inside a building complex', fr: 'Dans un complexe immobilier' },
+
+  // ----- End-of-list / dedup exhaustion (v0.60.115/117) -----
+  'result.exhausted':          { en: '— You’ve now seen all {n} places I can find for these criteria, across several searches. Add or change a cuisine / filter, or use 💬 Tell me, to widen things — or ',
+                                 fr: '— Vous avez vu les {n} établissements que je peux trouver pour ces critères, sur plusieurs recherches. Ajoutez ou modifiez une cuisine / un filtre, ou utilisez 💬 Dites-moi, pour élargir — ou ' },
+  'result.exhaustedOne':       { en: '— That’s the only place I can find for these criteria. Add or change a cuisine / filter, or use 💬 Tell me, to find more — or ',
+                                 fr: '— C’est le seul établissement que je peux trouver pour ces critères. Ajoutez ou modifiez une cuisine / un filtre, ou utilisez 💬 Dites-moi — ou ' },
+  'result.exhaustedNoCount':   { en: '— You’ve now seen everything I can find for these criteria, across several searches. Add or change a cuisine / filter, or use 💬 Tell me, to widen things — or ',
+                                 fr: '— Vous avez tout vu pour ces critères, sur plusieurs recherches. Ajoutez ou modifiez une cuisine / un filtre, ou utilisez 💬 Dites-moi, pour élargir — ou ' },
+  'result.startOver':          { en: '↺ start over.', fr: '↺ recommencer.' },
+
+  // ----- Zero-results auto-retry CTA (v0.60.157) -----
+  'result.noMatchAfterRetry':  { en: 'No matches even after a fresh search. Try widening your criteria above, or tap below to reset filters and try again.',
+                                 fr: 'Aucun résultat même après une nouvelle recherche. Essayez d’élargir vos critères ci-dessus, ou touchez ci-dessous pour réinitialiser les filtres et réessayer.' },
+  'btn.resetFiltersRetry':     { en: '🔄 Reset filters & retry', fr: '🔄 Réinitialiser et réessayer' },
+
+  // ----- Tell me panel -----
+  'tellme.placeholder':        { en: 'What are you craving? e.g. spicy thai', fr: 'Quelle est votre envie ? ex. thaï épicé' },
+  'tellme.aria':               { en: 'Tell me what you’re craving', fr: 'Dites-moi ce dont vous avez envie' },
+  'tellme.submit':             { en: 'Submit', fr: 'Envoyer' },
+
+  // ----- Location field -----
+  // v0.62.186 — operator (IMG_2507 #3): the empty field must prompt the user
+  // to ENTER a location (paired with a ✏️ pencil in the resting state).
+  'loc.searchLocation':        { en: 'Enter a location', fr: 'Saisir un lieu' },
+  // v0.61.50 — loading-overlay messages (operator-specified copy).
+  // v0.61.409 — leading ⏳ removed; the overlay card now renders a SPINNING
+  // hourglass within the message (operator: "the spinning hourglass be within
+  // the message"). Keeping it in the string too would double the glyph.
+  // v0.62.x — operator: "Finding eateries…" with the trailing U+2026 ellipsis
+  // BLINKING. The ellipsis is rendered as a separate `animate-blink` span in
+  // App.jsx (like the inline ⏳), so it is intentionally absent from the string.
+  'loading.initial':           { en: 'Finding eateries',
+                                 fr: 'Recherche de restaurants' },
+  'loading.refresh':           { en: '📑 Refreshing results with the same filters…',
+                                 fr: '📑 Actualisation des résultats avec les mêmes filtres…' },
+  'loading.head':              { en: 'Loading…', fr: 'Chargement…' },
+  'loading.rotating.1':        { en: '⏳ Looking for places that match criteria',
+                                 fr: '⏳ Recherche de lieux correspondant aux critères' },
+  'loading.rotating.2':        { en: '🔍 Matching places to your filters…',
+                                 fr: '🔍 Mise en correspondance des lieux avec vos filtres…' },
+  'loading.rotating.3':        { en: '🔎 Checking Google Maps for matching eateries…',
+                                 fr: '🔎 Recherche de restaurants correspondants sur Google Maps…' },
+  'loading.rotating.4':        { en: '📋👀 Searching eateries…',
+                                 fr: '📋👀 Recherche de restaurants…' },
+  'loading.rotating.5':        { en: '🔦 Checking places…',
+                                 fr: '🔦 Vérification des lieux…' },
+  'loading.rotating.6':        { en: '🔍 Searching — this takes more than a few seconds.',
+                                 fr: '🔍 Recherche — cela prend plus de quelques secondes.' },
+  'loc.searchHere':            { en: 'Search at this location', fr: 'Rechercher à cet endroit' },
+  'loc.clear':                 { en: 'Clear location', fr: 'Effacer le lieu' },
+  'loc.recent':                { en: 'Recent locations', fr: 'Emplacements récents' },
+  'loc.close':                 { en: 'Close', fr: 'Fermer' },
+
+  // ----- MapPanel InfoWindow -----
+  'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },
+  'map.collapse':              { en: 'Collapse map', fr: 'Réduire la carte' },
+  'map.zoomIn':                { en: 'Zoom in', fr: 'Zoom avant' },
+  'map.zoomOut':               { en: 'Zoom out', fr: 'Zoom arrière' },
+  'map.youAreHere':            { en: 'You are here', fr: 'Vous êtes ici' },
+  'map.yourAnchor':            { en: 'your search anchor', fr: 'votre point d’ancrage' },
+  'map.tapPin':                { en: 'Tap pin → Google Maps', fr: 'Touchez l’épingle → Google Maps' },
+  'map.openInMaps':            { en: '📍 Open in Google Maps', fr: '📍 Ouvrir dans Google Maps' },
+
+  // ----- Errors / toasts -----
+  'err.copyFailed':            { en: 'Couldn’t send to chat — try again.', fr: 'Impossible d’envoyer au chat — réessayez.' },
+  'err.commandFailed':         { en: 'Couldn’t send the command. Try again in a moment.', fr: 'Impossible d’envoyer la commande. Réessayez dans un instant.' },
+
+  // ----- Locale toggle -----
+  'locale.switchToEn':         { en: 'Switch to English', fr: 'Passer en anglais', id: 'Beralih ke bahasa Inggris' },
+  'locale.switchToFr':         { en: 'Switch to French', fr: 'Passer en français', id: 'Beralih ke bahasa Prancis' },
+  // v0.62.303 — Indonesian (id) locale added (Phase 1).
+  'locale.switchToId':         { en: 'Switch to Indonesian', fr: 'Passer en indonésien', id: 'Beralih ke bahasa Indonesia' },
+  // v0.62.309 — Russian (ru) + German (de) locales added.
+  'locale.switchToRu':         { en: 'Switch to Russian', fr: 'Passer en russe', id: 'Beralih ke bahasa Rusia', ru: 'Переключить на русский', de: 'Zu Russisch wechseln' },
+  'locale.switchToDe':         { en: 'Switch to German', fr: 'Passer en allemand', id: 'Beralih ke bahasa Jerman', ru: 'Переключить на немецкий', de: 'Auf Deutsch umschalten' },
+
+  // ----- Location field (v0.59.12) -----
+  'loc.enterHint':             { en: '↵ Press Enter to use the top result', fr: '↵ Appuyez sur Entrée pour le premier résultat' },
+  'loc.noMatch':               { en: 'No match — try a more specific name', fr: 'Aucun résultat — essayez un nom plus précis' },
+
+  // ----- Cuisine drawer category labels (v0.59.6) -----
+  // Server returns canonical EN labels via /api/cuisine/catalogue. The
+  // TMA renders via this lookup keyed by category id so the drawer
+  // cards flip with the active locale. Keys mirror cuisines-vault.js
+  // CATEGORY_META ids.
+  'cat.commonHere':            { en: 'Common in Singapore', fr: 'Courant à Singapour' },
+  'cat.southeastAsian':        { en: 'Southeast Asian', fr: 'Asie du Sud-Est' },
+  // v0.62.265 — East Asian now also holds the regional Chinese cuisines.
+  'cat.eastAsian':             { en: 'East Asian', fr: 'Asie de l’Est' },
+  'cat.chinaRegional':         { en: 'China (Regional)', fr: 'Chine (régional)' },
+  'cat.southAsian':            { en: 'South Asian', fr: 'Asie du Sud' },
+  // v0.62.265 — absorbs African; relabel.
+  'cat.middleEastern':         { en: 'Middle East & Africa', fr: 'Moyen-Orient & Afrique' },
+  'cat.european':              { en: 'European', fr: 'Européenne' },
+  // v0.62.265 — absorbs Australasia; relabel.
+  'cat.americas':              { en: 'Americas & Oceania', fr: 'Amériques & Océanie' },
+  'cat.australasia':           { en: 'Australasia', fr: 'Australasie' },
+  'cat.african':               { en: 'African', fr: 'Africaine' },
+  // v0.62.265 — Dessert + Fusion merged into one card.
+  'cat.sweetsFusion':          { en: 'Sweets & Fusion', fr: 'Desserts & Fusion' },
+  'cat.michelinBib':           { en: 'Michelin · Bib Gourmand', fr: 'Michelin · Bib Gourmand' },
+  'cat.setMeal':               { en: 'Set Meal (Beta)', fr: 'Menu fixe (bêta)' },
+  'cat.dishes':                { en: 'Dishes', fr: 'Plats' },
+  'plate.tapHint':             { en: 'Tap a dish to learn more, then 🔍 Find eateries.', fr: 'Touchez un plat pour en savoir plus, puis 🔍 Trouver des adresses.' },
+
+  // v0.61.278 — O-25: surfaced when the server's JB-hybrid filter
+  // wipes the pool (JB pill picked at non-JB coords) and falls back
+  // to OTHER-country treatment. The user otherwise sees results
+  // without knowing the system overrode their JB pick.
+  'banner.jbFallbackToOther':  { en: 'Showing results near your location — Johor Bahru filter didn’t apply at this distance.',
+                                 fr: 'Affichage des résultats près de vous — le filtre Johor Bahru ne s’applique pas à cette distance.' },
+
+  // v0.61.280 — Register O-31: sparse notice rendered in the cuisine
+  // drawer when region !== 'SG'. The ✳️ Michelin chip is greyed (it
+  // ships with regionScope:'SG'); this caption explains why so the
+  // user doesn't read greyed-out as broken.
+  'drawer.michelinSgOnly':     { en: '✳️ No curated Michelin list for this location yet.',
+                                 fr: '✳️ Pas encore de liste Michelin pour ce lieu.' },
+
+  // v0.61.285 — FunFactModal strings. Replaces the static rotating
+  // "still loading" titles during the cuisine-search wait window
+  // with a floating NLB-sourced SG food-history fact (40 curated).
+  // v0.62.x — operator: fact-card header "💡 Food fact" (was "Did you know?").
+  'funfact.header':            { en: 'Food fact',
+                                 fr: 'Info gourmande' },
+  // v0.62.x — operator: footer label "••• Finding eateries…" (was "Still curating…"),
+  // matching the first-load overlay copy.
+  'funfact.curating':          { en: 'Finding eateries…',
+                                 fr: 'Recherche de restaurants…' },
+  'funfact.sourceLabel':       { en: 'Source',
+                                 fr: 'Source' },
+  // v0.62.x — operator: per-screen stop labels — the first-load overlay reads
+  // "🛑 Stop search"; the (compact, 3-column) fact-card footer reads "🛑 Stop".
+  'funfact.stop':              { en: '🛑 Stop', fr: '🛑 Arrêter' },
+  'loading.stop':              { en: '🛑 Stop search', fr: '🛑 Arrêter la recherche' },
+
+  // ----- Result-card strings (v0.62.308 — migrated from inline ResultCard ternaries) -----
+  'card.crowdHigh':            { en: '🔴 busy', fr: '🔴 chargé' },
+  'card.crowdMedium':          { en: '🟡 moderate', fr: '🟡 modéré' },
+  'card.crowdLow':             { en: '🟢 quiet', fr: '🟢 calme' },
+  'card.footfallLive':         { en: 'busy', fr: 'occupé' },
+  'card.footfallForecast':     { en: 'forecast', fr: 'prévu' },
+  // distAway: fr intentionally empty (the suffix is dropped in French) — relies on t()'s ?? fallback.
+  'card.distAway':             { en: ' away', fr: '' },
+  'card.durianPastryInquire':  { en: 'Inquire for seasonal durian pastry', fr: 'Renseignez-vous pour le pâtisserie durian saisonnier' },
+  'card.petAllowed':           { en: '🐾 Pet allowed', fr: '🐾 Animaux autorisés' },
+  'card.setDinner':            { en: 'Set dinner', fr: 'Dîner' },
+  'card.setLunch':             { en: 'Set lunch', fr: 'Déjeuner' },
+  'card.setFrom':              { en: 'from', fr: 'dès' },
+  'card.detailsLess':          { en: '⌃ less', fr: '⌃ moins' },
+  'card.detailsMore':          { en: '⌄ details, review & links', fr: '⌄ détails, avis & liens' },
+  'card.tierCityIcon':         { en: 'City icon', fr: 'Icône de la ville' },
+  'card.tierRegional':         { en: 'Regional classic', fr: 'Classique régional' },
+  'card.tierNational':         { en: 'National classic', fr: 'Classique national' },
+  'card.reviewTranslated':     { en: 'translated', fr: 'traduit' },
+  'card.sent':                 { en: '✓ Sent', fr: '✓ Envoyé' }
+};
+
+// ----- Indonesian (id) overlay — v0.62.303, Phase 1 -----
+// Machine-drafted Indonesian, operator-reviewed. Kept as a FLAT key→string
+// overlay (not inline `id:` on every entry) so (a) the existing en/fr table
+// is never touched, and (b) the whole id surface is reviewable in one block.
+// Merged into STRINGS below; t()'s `entry[l] || entry.en` means any key not
+// listed here degrades cleanly to English. Some entries already carry an
+// inline `id:` (the locale.switch* keys) — the merge only fills gaps, so those
+// are left as-is.
+const ID_STRINGS = {
+  'cat.sweetsFusion': 'Manis & Fusion',
+  'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'cat.setMeal': 'Set Meal (Beta)',
+  'cat.dishes': 'Hidangan',
+  'plate.tapHint': 'Ketuk hidangan untuk info, lalu 🔍 Cari tempat makan.',
+  'header.tagline': '💬 Beri tahu atau 🔍 Cari',
+  'region.singapore': 'Singapura',
+  'region.johor': 'Johor Bahru',
+  'region.current': 'Lokasi Saya',
+  'region.current.error': 'Tidak bisa mendapatkan lokasi Anda — periksa izin lokasi.',
+  'region.others': 'Kota',
+  'footer.howto': '📍 Masukkan lokasi atau 💬 ketik hidangan · Ketuk 🔍 untuk mencari',
+  'footer.experimental': 'Eksperimental',
+  'banner.locating': 'Mencari di sekitar',
+  'banner.locating.suffix': 'mencari tempat…',
+  'banner.anchor': 'Titik jangkar ditetapkan',
+  'banner.no.match': 'tidak ada tempat yang cocok — coba Beri tahu saya, atau bagikan pin baru via /location.',
+  'banner.showing': 'Menampilkan tempat',
+  'banner.places.one': '1 tempat di sekitar',
+  'banner.places.many': '{n} tempat di sekitar',
+  'panel.line1': 'Hasil: {known}',
+  'panel.line2.first': '· Menampilkan {first} pertama',
+  'panel.line2.range': '· Menampilkan {start}-{end}',
+  'panel.line2.all': '· Menampilkan semua',
+  'panel.line2.limit': '· Batas tercapai',
+  'panel.discovering': 'Menampilkan {n} hasil',
+  'panel.helperTooFew': 'Ubah pencarian atau ketuk 🔍',
+  'panel.helperLimit': 'Persempit pencarian',
+  'panel.bubble.moreEats': 'Mau lagi? Ketuk 🔍',
+  'loc.other.country': 'Negara',
+  'loc.other.city': 'Kota',
+  'loc.other.placeholder': 'Ketik nama tempat + 🔍',
+  'loc.other.searchBtn': '🔍 Cari',
+  'loc.other.searching': 'Mencari {country}…',
+  'loc.other.noMatch': 'Tidak ada tempat ditemukan di {country}. Coba nama lain.',
+  'loc.other.confirmHeader': 'Ditemukan di {flag} {country}:',
+  'loc.other.cancel': '✕ Batal · ketik lagi',
+  'filter.openNow': 'Buka sekarang',
+  'filter.halal': 'Halal',
+  'filter.vegetarian': 'Vegetarian',
+  'filter.recommend': 'Rekomendasi',
+  'filter.recommend.hint': '⭐ Rekomendasi: tampilkan tempat yang terkenal dengan hidangan khas masakan ini atau hidangan wajib coba di kota ini.',
+  'filter.homeBased': 'Rumahan',
+  'filter.newlyOpened': 'Baru buka',
+  'filter.petFriendly': 'Hewan',
+  'special.fruits.label': 'Buah',
+  'special.durian.label': 'Durian',
+  'special.activeNote': 'Mode {mode} aktif — filter masakan, Michelin, dan hidangan penutup lainnya terkunci. Ketuk tombol aktif untuk menghapus.',
+  'special.fruits.limited': '🍉 Sedikit hasil di sekitar. Menampilkan hasil terkait buah yang terdekat.',
+  'special.durian.limited': '🥥 Sedikit penjual durian di sekitar. Menampilkan hasil relevan terdekat.',
+  'special.durian.softRating': '🥥 Kios durian: kami tampilkan 3,7★+ lebih dulu, tetapi juga menampilkan kios dengan rating lebih rendah atau tanpa rating — kios durian tetaplah kios durian.',
+  'special.fruits.blocked': '🍉 Pencarian buah hanya tersedia di Singapura, Malaysia, Indonesia, Thailand, Filipina, Brunei, dan Vietnam.',
+  'special.durian.blocked': '🥥 Pencarian durian hanya tersedia di Singapura, Malaysia, Indonesia, Thailand, Filipina, Brunei, dan Vietnam.',
+  'special.durian-pastry.blocked': '🥐 Pencarian kue durian hanya tersedia di Singapura, Malaysia, Indonesia, Thailand, Filipina, Brunei, dan Vietnam.',
+  'special.beltOnly': 'Hanya tersedia di SG, MY, ID, TH, PH, BN, VN',
+  'special.widened': '· diperluas ke {km} km',
+  'anchor.searching': '📍 Mencari dekat {place}',
+  'anchor.showing': '📍 Menampilkan "{query}" dekat {place}',
+  'filter.price': 'Harga',
+  'filter.openPrice': 'Buka pemilih harga',
+  'filter.closePrice': 'Tutup pemilih harga',
+  'filter.openMore': 'Buka filter lainnya',
+  'filter.closeMore': 'Tutup filter lainnya',
+  'rating.title': 'Rating minimum',
+  'rating.refineHeader': 'Saring Rating Google',
+  'rating.openPanel': 'Buka opsi rating',
+  'rating.closePanel': 'Tutup opsi rating',
+  'rating.noRating': 'Tanpa rating',
+  'rating.noRatingHint': 'Baru atau belum ada ulasan',
+  'rating.anyRating': 'Semua rating',
+  'rating.anyRatingHint': 'Tanpa minimum',
+  'rating.goodPlus': 'Bagus+',
+  'rating.setRating': 'Tetapkan',
+  'rating.custom': 'Khusus',
+  'rating.customHint': '1,0 hingga 5,0',
+  'rating.resetTitle': 'Rating disetel ulang ke Bagus+ ≥ 3,7⭐',
+  'rating.resetBody': 'Menampilkan tempat makan dengan rating Google yang umumnya bagus.',
+  'rating.savedToast': 'Rating pencarian diperbarui',
+  'rating.introTitle': 'Rating disetel ke Bagus+ ≥ 3,7⭐',
+  'rating.introBody': 'Ubah kapan saja jika Anda ingin lebih banyak atau lebih sedikit tempat makan.',
+  'rating.save': 'Simpan',
+  'rating.saved': 'Tersimpan',
+  'rating.pillNoRating': 'Tanpa rating',
+  'zero.allSeen': 'Tidak ada tempat baru untuk ditampilkan di sini — ketuk 🔍 lagi untuk menyegarkan daftar.',
+  'zero.noMatchCriteria': 'Tidak ada yang cocok untuk kombinasi masakan + filter ini — coba hapus satu filter atau masakan.',
+  'zero.noVenuesNearby': 'Tidak ada tempat berrating ditemukan di sekitar — coba area lebih luas atau lokasi lain.',
+  'zero.dishNoSpot': 'Tidak ada tempat di sekitar dengan bukti terverifikasi untuk hidangan ini — coba hidangan lain, atau cari kota tempat masakan ini umum.',
+  'michelin.noList': 'Belum ada Panduan Michelin untuk negara ini — pilih negara lain atau batalkan ✳️ Michelin.',
+  'michelin.unresolved': 'Tidak bisa menentukan negara untuk memuat daftar Michelin — pilih kota atau negara, lalu cari lagi.',
+  'michelin.comboMiss': 'Tidak ada yang cocok untuk masakan pilihan Anda di daftar Michelin ini — menampilkan daftar Michelin lengkap.',
+  'michelin.cityJump.before': '{count}/{total} pilihan Michelin di ',
+  'rating.pillAny': 'Semua',
+  'layer.parks': 'Taman',
+  'layer.attractions': 'Atraksi',
+  'layer.taxis': 'Pangkalan Taksi',
+  'layer.clinics': 'Klinik / Apotek',
+  'layer.hospitals': 'Rumah Sakit',
+  'layer.police': 'Polisi',
+  'layer.carpark': 'Parkir',
+  'layer.exits': 'Pintu Keluar Stasiun',
+  'layer.train': 'Kereta',
+  'layer.busstop': 'Halte Bus',
+  'layer.hawker': 'Hawker',
+  'layer.colour': 'Warna',
+  'layer.colour.on': '☑️ Monokrom',
+  'layer.colour.off': '🎨 Warna',
+  'layer.open24': '24 jam',
+  'map.reset': 'Atur ulang tampilan',
+  'map.more': 'Lapisan lainnya',
+  'layer.all': 'Semua',
+  'cuisine.drawerTitle': 'Masakan',
+  'cuisine.back': 'Kembali',
+  'cuisine.done': 'Selesai',
+  'btn.search': '🔍 Cari',
+  'btn.searching': 'Mencari…',
+  'btn.searchPleaseWait': 'Mohon tunggu …',
+  'btn.searchFull': '🔍 Cari · Tunjukkan tempat makan',
+  'btn.clear': 'Hapus',
+  'btn.clearCuisines': 'Hapus masakan',
+  'btn.copyAll': '📋 Salin semua',
+  'btn.copied': '✓ Disalin ke chat',
+  'btn.copySyntax': '🔗 Salin perintah /cuisine',
+  'btn.copyOne': '📋 Salin',
+  'btn.collapse': 'Tutup ▴',
+  'btn.editSearch': 'Ubah ▾',
+  'btn.backToTop': 'Kembali ke atas',
+  'btn.fabBack': 'kembali',
+  'btn.fabEnd': 'tutup',
+  'btn.fabBackAria': 'Kembali',
+  'btn.fabEndAria': 'Tutup',
+  'btn.topShort': '⇡ atas',
+  'btn.downShort': '⇣ bawah',
+  'btn.showLocation': 'Tampilkan lokasi Anda',
+  'card.open': 'Buka',
+  'card.closed': 'Tutup',
+  'card.closedNow': 'Tutup Sekarang',
+  'card.openInMin': 'Buka dalam {n} menit',
+  'card.opensRange': 'Buka {start} ~ {end}',
+  'card.opensAt': 'Buka {start}',
+  'card.closingSoon': 'Tutup dalam {n} menit',
+  'card.whatToOrder': 'Coba',
+  'card.healthierChoice': 'Pilihan Lebih Sehat',
+  'card.insideBuilding': 'Di dalam kompleks bangunan',
+  'result.exhausted': '— Anda kini telah melihat semua {n} tempat yang bisa saya temukan untuk kriteria ini, dari beberapa pencarian. Tambahkan atau ubah masakan / filter, atau gunakan 💬 Beri tahu saya, untuk memperluas — atau ',
+  'result.exhaustedOne': '— Itu satu-satunya tempat yang bisa saya temukan untuk kriteria ini. Tambahkan atau ubah masakan / filter, atau gunakan 💬 Beri tahu saya, untuk menemukan lebih banyak — atau ',
+  'result.exhaustedNoCount': '— Anda kini telah melihat semua yang bisa saya temukan untuk kriteria ini, dari beberapa pencarian. Tambahkan atau ubah masakan / filter, atau gunakan 💬 Beri tahu saya, untuk memperluas — atau ',
+  'result.startOver': '↺ mulai ulang.',
+  'result.noMatchAfterRetry': 'Tetap tidak ada yang cocok meski setelah pencarian baru. Coba perluas kriteria Anda di atas, atau ketuk di bawah untuk menyetel ulang filter dan coba lagi.',
+  'btn.resetFiltersRetry': '🔄 Setel ulang filter & coba lagi',
+  'tellme.placeholder': 'Anda ingin makan apa? mis. thai pedas',
+  'tellme.aria': 'Beri tahu saya yang Anda inginkan',
+  'tellme.submit': 'Kirim',
+  'loc.searchLocation': 'Masukkan lokasi',
+  'loading.initial': 'Mencari tempat makan',
+  'loading.refresh': '📑 Menyegarkan hasil dengan filter yang sama…',
+  'loading.head': 'Memuat…',
+  'loading.rotating.1': '⏳ Mencari tempat yang sesuai kriteria',
+  'loading.rotating.2': '🔍 Mencocokkan tempat dengan filter Anda…',
+  'loading.rotating.3': '🔎 Memeriksa Google Maps untuk tempat makan yang cocok…',
+  'loading.rotating.4': '📋👀 Mencari tempat makan…',
+  'loading.rotating.5': '🔦 Memeriksa tempat…',
+  'loading.rotating.6': '🔍 Mencari — ini memakan waktu lebih dari beberapa detik.',
+  'loc.searchHere': 'Cari di lokasi ini',
+  'loc.clear': 'Hapus lokasi',
+  'loc.recent': 'Lokasi terkini',
+  'loc.close': 'Tutup',
+  'map.expand': 'Perbesar peta',
+  'map.collapse': 'Perkecil peta',
+  'map.zoomIn': 'Perbesar',
+  'map.zoomOut': 'Perkecil',
+  'map.youAreHere': 'Anda di sini',
+  'map.yourAnchor': 'titik jangkar pencarian Anda',
+  'map.tapPin': 'Ketuk pin → Google Maps',
+  'map.openInMaps': '📍 Buka di Google Maps',
+  'err.copyFailed': 'Tidak bisa mengirim ke chat — coba lagi.',
+  'err.commandFailed': 'Tidak bisa mengirim perintah. Coba lagi sebentar.',
+  'loc.enterHint': '↵ Tekan Enter untuk hasil teratas',
+  'loc.noMatch': 'Tidak ada yang cocok — coba nama yang lebih spesifik',
+  'cat.commonHere': 'Umum di Singapura',
+  'cat.southeastAsian': 'Asia Tenggara',
+  'cat.eastAsian': 'Asia Timur',
+  'cat.chinaRegional': 'Tiongkok (Regional)',
+  'cat.southAsian': 'Asia Selatan',
+  'cat.middleEastern': 'Timur Tengah & Afrika',
+  'cat.european': 'Eropa',
+  'cat.americas': 'Amerika & Oseania',
+  'cat.australasia': 'Australasia',
+  'cat.african': 'Afrika',
+  'cat.sweetsFusion': 'Manis & Fusion',
+  'banner.jbFallbackToOther': 'Menampilkan hasil dekat lokasi Anda — filter Johor Bahru tidak berlaku pada jarak ini.',
+  'drawer.michelinSgOnly': '✳️ Belum ada daftar Michelin untuk lokasi ini.',
+  'funfact.header': 'Fakta makanan',
+  'funfact.curating': 'Mencari tempat makan…',
+  'funfact.sourceLabel': 'Sumber',
+  'funfact.stop': '🛑 Berhenti',
+  'loading.stop': '🛑 Hentikan pencarian',
+  'card.crowdHigh': '🔴 ramai',
+  'card.crowdMedium': '🟡 sedang',
+  'card.crowdLow': '🟢 sepi',
+  'card.footfallLive': 'ramai',
+  'card.footfallForecast': 'perkiraan',
+  'card.distAway': ' dari sini',
+  'card.durianPastryInquire': 'Tanyakan kue durian musiman',
+  'card.petAllowed': '🐾 Hewan diizinkan',
+  'card.setDinner': 'Makan malam set',
+  'card.setLunch': 'Makan siang set',
+  'card.setFrom': 'mulai',
+  'card.detailsLess': '⌃ ringkas',
+  'card.detailsMore': '⌄ detail, ulasan & tautan',
+  'card.tierCityIcon': 'Ikon kota',
+  'card.tierRegional': 'Klasik daerah',
+  'card.tierNational': 'Klasik nasional',
+  'card.reviewTranslated': 'diterjemahkan',
+  'card.sent': '✓ Terkirim',
+};
+for (const [k, v] of Object.entries(ID_STRINGS)) {
+  if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = v;
+}
+
+// ----- Russian (ru) overlay — v0.62.313. Controls kept tight to fit EN; agent-verified. -----
+const RU_STRINGS = {
+  'cat.sweetsFusion': 'Десерты и фьюжн',
+  'cat.michelinBib': 'Мишлен · Биб Гурман',
+  'cat.setMeal': 'Комплексное меню (бета)',
+  'cat.dishes': 'Блюда',
+  'plate.tapHint': 'Нажмите блюдо, чтобы узнать больше, затем 🔍 Найти места.',
+"header.tagline": "💬 Расскажите или 🔍 Поиск",
+"region.singapore": "Сингапур",
+"region.johor": "Джохор-Бару",
+"region.current": "Моё место",
+"region.current.error": "Не удалось определить ваше местоположение — проверьте разрешение на геолокацию.",
+"region.others": "Города",
+"footer.howto": "📍 Введите место или 💬 блюдо · Нажмите 🔍 для поиска",
+"footer.experimental": "Эксперимент",
+"banner.locating": "Поиск рядом",
+"banner.locating.suffix": "ищем места…",
+"banner.anchor": "Точка задана",
+"banner.no.match": "нет совпадений — попробуйте «Расскажите» или отправьте новую точку через /location.",
+"banner.showing": "Показаны места",
+"banner.places.one": "1 место рядом",
+"banner.places.many": "{n} мест рядом",
+"panel.line1": "Результаты: {known}",
+"panel.line2.first": "· Показаны первые {first}",
+"panel.line2.range": "· Показаны {start}-{end}",
+"panel.line2.all": "· Показаны все",
+"panel.line2.limit": "· Лимит достигнут",
+"panel.discovering": "Показано результатов: {n}",
+"panel.helperTooFew": "Измените поиск или нажмите 🔍",
+"panel.helperLimit": "Уточните поиск",
+"panel.bubble.moreEats": "Ещё? Нажмите 🔍",
+"loc.other.country": "Страна",
+"loc.other.city": "Город",
+"loc.other.placeholder": "Введите название места + 🔍",
+"loc.other.searchBtn": "🔍 Поиск",
+"loc.other.searching": "Поиск в {country}…",
+"loc.other.noMatch": "В {country} ничего не найдено. Попробуйте другое название.",
+"loc.other.confirmHeader": "Найдено в {flag} {country}:",
+"loc.other.cancel": "✕ Отмена · ввести снова",
+"filter.openNow": "Открыто",
+"filter.halal": "Халяль",
+"filter.vegetarian": "Вегетар.",
+"filter.recommend": "Рекоменд.",
+"filter.recommend.hint": "⭐ Рекомендации: места, известные фирменными блюдами этой кухни или обязательными блюдами города.",
+"filter.homeBased": "На дому",
+"filter.newlyOpened": "Недавно",
+"filter.petFriendly": "Питомцы",
+"special.fruits.label": "Фрукты",
+"special.durian.label": "Дуриан",
+"special.activeNote": "Режим {mode} включён — другие фильтры кухни, Michelin и десертов заблокированы. Нажмите активную кнопку, чтобы сбросить.",
+"special.fruits.limited": "🍉 Мало совпадений рядом. Показаны ближайшие результаты с фруктами.",
+"special.durian.limited": "🥥 Мало продавцов дуриана рядом. Показаны ближайшие подходящие.",
+"special.durian.softRating": "🥥 Лотки с дурианом: сначала 3,7★+, но показываем и с низким рейтингом или без — лоток с дурианом — это лоток с дурианом.",
+"special.fruits.blocked": "🍉 Поиск фруктов доступен только в Сингапуре, Малайзии, Индонезии, Таиланде, на Филиппинах, в Брунее и Вьетнаме.",
+"special.durian.blocked": "🥥 Поиск дуриана доступен только в Сингапуре, Малайзии, Индонезии, Таиланде, на Филиппинах, в Брунее и Вьетнаме.",
+"special.durian-pastry.blocked": "🥐 Поиск выпечки с дурианом доступен только в Сингапуре, Малайзии, Индонезии, Таиланде, на Филиппинах, в Брунее и Вьетнаме.",
+"special.beltOnly": "Только в SG, MY, ID, TH, PH, BN, VN",
+"special.widened": "· расширено до {km} км",
+"anchor.searching": "📍 Поиск рядом с {place}",
+"anchor.showing": "📍 Показано «{query}» рядом с {place}",
+"filter.price": "Цена",
+"filter.openPrice": "Открыть выбор цены",
+"filter.closePrice": "Закрыть выбор цены",
+"filter.openMore": "Больше фильтров",
+"filter.closeMore": "Скрыть фильтры",
+"rating.title": "Мин. рейтинг",
+"rating.refineHeader": "Уточнить рейтинг Google",
+"rating.openPanel": "Открыть настройки рейтинга",
+"rating.closePanel": "Закрыть настройки рейтинга",
+"rating.noRating": "Без рейтинга",
+"rating.noRatingHint": "Новое или без отзывов",
+"rating.anyRating": "Любой рейтинг",
+"rating.anyRatingHint": "Без минимума",
+"rating.goodPlus": "Хорошо+",
+"rating.setRating": "Задать",
+"rating.custom": "Свой",
+"rating.customHint": "от 1,0 до 5,0",
+"rating.resetTitle": "Рейтинг сброшен: Хорошо+ ≥ 3,7⭐",
+"rating.resetBody": "Показаны заведения с в целом хорошими оценками Google.",
+"rating.savedToast": "Рейтинг поиска обновлён",
+"rating.introTitle": "Рейтинг задан: Хорошо+ ≥ 3,7⭐",
+"rating.introBody": "Меняйте в любой момент — больше или меньше заведений.",
+"rating.save": "Сохранить",
+"rating.saved": "Сохранено",
+"rating.pillNoRating": "Без рейтинга",
+"zero.allSeen": "Новых мест здесь нет — нажмите 🔍 ещё раз, чтобы обновить список.",
+"zero.noMatchCriteria": "Нет совпадений для этой кухни + фильтра — уберите фильтр или кухню.",
+"zero.noVenuesNearby": "Рядом нет мест с рейтингом — расширьте зону или выберите другое место.",
+"zero.dishNoSpot": "Рядом нет мест с подтверждением этого блюда — попробуйте другое блюдо или город, где эта кухня распространена.",
+"michelin.noList": "Для этой страны пока нет гида Michelin — выберите другую страну или снимите ✳️ Michelin.",
+"michelin.unresolved": "Не удалось определить страну для списка Michelin — выберите город или страну и повторите поиск.",
+"michelin.comboMiss": "Нет совпадений для выбранной кухни в этом списке Michelin — показан полный список Michelin.",
+"michelin.cityJump.before": "{count}/{total} выборов Michelin в ",
+"rating.pillAny": "Любой",
+"layer.parks": "Парк",
+"layer.attractions": "Достопримеч.",
+"layer.taxis": "Стоянка такси",
+"layer.clinics": "Клиника / Аптека",
+"layer.hospitals": "Больница",
+"layer.police": "Полиция",
+"layer.carpark": "Парковка",
+"layer.exits": "Выходы",
+"layer.train": "Поезд",
+"layer.busstop": "Остановка",
+"layer.hawker": "Хокер",
+"layer.colour": "Цвет",
+"layer.colour.on": "☑️ Моно",
+"layer.colour.off": "🎨 Цвет",
+"layer.open24": "24 часа",
+"map.reset": "Сбросить вид",
+"map.more": "Ещё слои",
+"layer.all": "Все",
+"cuisine.drawerTitle": "Кухни",
+"cuisine.back": "Назад",
+"cuisine.done": "Готово",
+"btn.search": "🔍 Поиск",
+"btn.searching": "Поиск…",
+"btn.searchPleaseWait": "Подождите …",
+"btn.searchFull": "🔍 Поиск · Где поесть",
+"btn.clear": "Очистить",
+"btn.clearCuisines": "Очистить кухни",
+"btn.copyAll": "📋 Копировать всё",
+"btn.copied": "✓ Скопировано в чат",
+"btn.copySyntax": "🔗 Копировать /cuisine",
+"btn.copyOne": "📋 Копировать",
+"btn.collapse": "Свернуть ▴",
+"btn.editSearch": "Изменить ▾",
+"btn.backToTop": "Наверх",
+"btn.fabBack": "назад",
+"btn.fabEnd": "закрыть",
+"btn.fabBackAria": "Назад",
+"btn.fabEndAria": "Закрыть",
+"btn.topShort": "⇡ вверх",
+"btn.downShort": "⇣ вниз",
+"btn.showLocation": "Показать местоположение",
+"card.open": "Открыто",
+"card.closed": "Закрыто",
+"card.closingSoon": "Закрывается через {n} мин",
+"card.whatToOrder": "Попробуйте",
+"card.healthierChoice": "Здоровый выбор",
+"card.insideBuilding": "Внутри здания",
+"result.exhausted": "— Вы просмотрели все {n} мест по этим критериям за несколько поисков. Добавьте или измените кухню / фильтр или используйте 💬 «Расскажите», чтобы расширить — или ",
+"result.exhaustedOne": "— Это единственное место по этим критериям. Добавьте или измените кухню / фильтр или используйте 💬 «Расскажите», чтобы найти больше — или ",
+"result.exhaustedNoCount": "— Вы просмотрели всё по этим критериям за несколько поисков. Добавьте или измените кухню / фильтр или используйте 💬 «Расскажите», чтобы расширить — или ",
+"result.startOver": "↺ начать заново.",
+"result.noMatchAfterRetry": "Нет совпадений даже после нового поиска. Расширьте критерии выше или нажмите ниже, чтобы сбросить фильтры и повторить.",
+"btn.resetFiltersRetry": "🔄 Сбросить фильтры и повторить",
+"tellme.placeholder": "Чего хотите? напр. острый тайский",
+"tellme.aria": "Расскажите, чего вам хочется",
+"tellme.submit": "Отправить",
+"loc.searchLocation": "Введите место",
+"loading.initial": "Ищем заведения",
+"loading.refresh": "📑 Обновляем результаты с теми же фильтрами…",
+"loading.head": "Загрузка…",
+"loading.rotating.1": "⏳ Ищем места по критериям",
+"loading.rotating.2": "🔍 Подбираем места под ваши фильтры…",
+"loading.rotating.3": "🔎 Проверяем Google Maps на совпадения…",
+"loading.rotating.4": "📋👀 Ищем заведения…",
+"loading.rotating.5": "🔦 Проверяем места…",
+"loading.rotating.6": "🔍 Поиск — это занимает больше нескольких секунд.",
+"loc.searchHere": "Искать здесь",
+"loc.clear": "Очистить место",
+"loc.recent": "Недавние места",
+"loc.close": "Закрыть",
+"map.expand": "Развернуть карту",
+"map.collapse": "Свернуть карту",
+"map.zoomIn": "Приблизить",
+"map.zoomOut": "Отдалить",
+"map.youAreHere": "Вы здесь",
+"map.yourAnchor": "ваша точка поиска",
+"map.tapPin": "Нажмите метку → Google Maps",
+"map.openInMaps": "📍 Открыть в Google Maps",
+"err.copyFailed": "Не удалось отправить в чат — попробуйте снова.",
+"err.commandFailed": "Не удалось отправить команду. Повторите через мгновение.",
+"locale.switchToEn": "Переключить на английский",
+"locale.switchToFr": "Переключить на французский",
+"locale.switchToId": "Переключить на индонезийский",
+"loc.enterHint": "↵ Enter — выбрать верхний результат",
+"loc.noMatch": "Нет совпадений — уточните название",
+"cat.commonHere": "Популярно в Сингапуре",
+"cat.southeastAsian": "Юго-Восточная Азия",
+"cat.eastAsian": "Восточная Азия",
+"cat.chinaRegional": "Китай (регионы)",
+"cat.southAsian": "Южная Азия",
+"cat.middleEastern": "Ближний Восток и Африка",
+"cat.european": "Европейская",
+"cat.americas": "Америка и Океания",
+"cat.australasia": "Австралазия",
+"cat.african": "Африканская",
+"cat.sweetsFusion": "Сладости и фьюжн",
+"banner.jbFallbackToOther": "Показаны результаты рядом с вами — фильтр Джохор-Бару не применяется на таком расстоянии.",
+"drawer.michelinSgOnly": "✳️ Для этого места пока нет списка Michelin.",
+"funfact.header": "Факт о еде",
+"funfact.curating": "Ищем заведения…",
+"funfact.sourceLabel": "Источник",
+"funfact.stop": "🛑 Стоп",
+"loading.stop": "🛑 Остановить поиск",
+"card.crowdHigh": "🔴 многолюдно",
+"card.crowdMedium": "🟡 умеренно",
+"card.crowdLow": "🟢 свободно",
+"card.footfallLive": "людно",
+"card.footfallForecast": "прогноз",
+"card.distAway": "",
+"card.durianPastryInquire": "Уточните о сезонной выпечке с дурианом",
+"card.petAllowed": "🐾 Можно с питомцем",
+"card.setDinner": "Сет-ужин",
+"card.setLunch": "Сет-ланч",
+"card.setFrom": "от",
+"card.detailsLess": "⌃ меньше",
+"card.detailsMore": "⌄ детали, отзывы и ссылки",
+"card.tierCityIcon": "Символ города",
+"card.tierRegional": "Региональная классика",
+"card.tierNational": "Национальная классика",
+"card.reviewTranslated": "переведено",
+"card.sent": "✓ Отправлено"
+};
+// ----- German (de) overlay — v0.62.313. Compounds abbreviated where tight; agent-verified. -----
+const DE_STRINGS = {
+  'cat.sweetsFusion': 'Süßes & Fusion',
+  'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'cat.setMeal': 'Set-Menü (Beta)',
+  'cat.dishes': 'Gerichte',
+  'plate.tapHint': 'Tippe ein Gericht für mehr Infos, dann 🔍 Lokale finden.',
+"header.tagline": "💬 Sag es mir oder 🔍 Suche",
+"region.singapore": "Singapur",
+"region.johor": "Johor Bahru",
+"region.current": "Standort",
+"region.current.error": "Ihr Standort konnte nicht ermittelt werden — Standortberechtigung prüfen.",
+"region.others": "Städte",
+"footer.howto": "📍 Ort eingeben oder 💬 Gericht tippen · 🔍 zum Suchen",
+"footer.experimental": "Experimentell",
+"banner.locating": "Suche in der Nähe",
+"banner.locating.suffix": "suche Orte…",
+"banner.anchor": "Punkt gesetzt",
+"banner.no.match": "keine Treffer — versuche „Sag es mir“ oder teile einen neuen Pin via /location.",
+"banner.showing": "Orte werden angezeigt",
+"banner.places.one": "1 Ort in der Nähe",
+"banner.places.many": "{n} Orte in der Nähe",
+"panel.line1": "Ergebnisse: {known}",
+"panel.line2.first": "· Erste {first}",
+"panel.line2.range": "· {start}-{end}",
+"panel.line2.all": "· Alle anzeigen",
+"panel.line2.limit": "· Limit erreicht",
+"panel.discovering": "{n} Ergebnisse",
+"panel.helperTooFew": "Suche ändern oder 🔍 tippen",
+"panel.helperLimit": "Suche verfeinern",
+"panel.bubble.moreEats": "Mehr? 🔍 tippen",
+"loc.other.country": "Land",
+"loc.other.city": "Stadt",
+"loc.other.placeholder": "Ortsnamen eingeben + 🔍",
+"loc.other.searchBtn": "🔍 Suche",
+"loc.other.searching": "Suche in {country}…",
+"loc.other.noMatch": "Keine Orte in {country} gefunden. Anderer Name?",
+"loc.other.confirmHeader": "Gefunden in {flag} {country}:",
+"loc.other.cancel": "✕ Abbrechen · erneut",
+"filter.openNow": "Geöffnet",
+"filter.halal": "Halal",
+"filter.vegetarian": "Vegetar.",
+"filter.recommend": "Empfehlung",
+"filter.recommend.hint": "⭐ Empfehlung: Orte, die für die Spezialitäten dieser Küche oder die Muss-Gerichte der Stadt bekannt sind.",
+"filter.homeBased": "Zuhause",
+"filter.newlyOpened": "Neu",
+"filter.petFriendly": "Haustier",
+"special.fruits.label": "Früchte",
+"special.durian.label": "Durian",
+"special.activeNote": "Modus {mode} aktiv — andere Küchen-, Michelin- und Dessert-Filter sind gesperrt. Aktive Taste tippen zum Zurücksetzen.",
+"special.fruits.limited": "🍉 Wenige Treffer in der Nähe. Zeige die nächsten Frucht-Ergebnisse.",
+"special.durian.limited": "🥥 Wenige Durian-Verkäufer in der Nähe. Zeige die nächsten passenden.",
+"special.durian.softRating": "🥥 Durian-Stände: zuerst 3,7★+, aber auch schlechter oder nicht bewertete — ein Durian-Stand ist ein Durian-Stand.",
+"special.fruits.blocked": "🍉 Fruchtsuche ist nur in Singapur, Malaysia, Indonesien, Thailand, den Philippinen, Brunei und Vietnam verfügbar.",
+"special.durian.blocked": "🥥 Duriansuche ist nur in Singapur, Malaysia, Indonesien, Thailand, den Philippinen, Brunei und Vietnam verfügbar.",
+"special.durian-pastry.blocked": "🥐 Die Suche nach Durian-Gebäck ist nur in Singapur, Malaysia, Indonesien, Thailand, den Philippinen, Brunei und Vietnam verfügbar.",
+"special.beltOnly": "Nur in SG, MY, ID, TH, PH, BN, VN",
+"special.widened": "· erweitert auf {km} km",
+"anchor.searching": "📍 Suche nahe {place}",
+"anchor.showing": "📍 Zeige „{query}“ nahe {place}",
+"filter.price": "Preis",
+"filter.openPrice": "Preisauswahl öffnen",
+"filter.closePrice": "Preisauswahl schließen",
+"filter.openMore": "Mehr Filter",
+"filter.closeMore": "Filter schließen",
+"rating.title": "Mindestbewertung",
+"rating.refineHeader": "Google-Bewertung verfeinern",
+"rating.openPanel": "Bewertungsoptionen öffnen",
+"rating.closePanel": "Bewertungsoptionen schließen",
+"rating.noRating": "Ohne Bewertung",
+"rating.noRatingHint": "Neu oder ohne Bewertungen",
+"rating.anyRating": "Jede Bewertung",
+"rating.anyRatingHint": "Kein Minimum",
+"rating.goodPlus": "Gut+",
+"rating.setRating": "Festlegen",
+"rating.custom": "Eigene",
+"rating.customHint": "1,0 bis 5,0",
+"rating.resetTitle": "Bewertung zurückgesetzt: Gut+ ≥ 3,7⭐",
+"rating.resetBody": "Zeigt Lokale mit allgemein guten Google-Bewertungen.",
+"rating.savedToast": "Suchbewertung aktualisiert",
+"rating.introTitle": "Bewertung gesetzt: Gut+ ≥ 3,7⭐",
+"rating.introBody": "Jederzeit änderbar — mehr oder weniger Lokale.",
+"rating.save": "Speichern",
+"rating.saved": "Gespeichert",
+"rating.pillNoRating": "Ohne Bew.",
+"zero.allSeen": "Keine neuen Orte hier — 🔍 erneut tippen, um die Liste zu aktualisieren.",
+"zero.noMatchCriteria": "Keine Treffer für diese Küche + Filter — entferne einen Filter oder eine Küche.",
+"zero.noVenuesNearby": "Keine bewerteten Orte in der Nähe — größerer Bereich oder anderer Ort.",
+"zero.dishNoSpot": "Kein Ort in der Nähe hat einen Nachweis für dieses Gericht — anderes Gericht oder eine Stadt, wo diese Küche verbreitet ist.",
+"michelin.noList": "Für dieses Land gibt es noch keinen Michelin-Guide — anderes Land wählen oder ✳️ Michelin abwählen.",
+"michelin.unresolved": "Land für die Michelin-Liste nicht erkannt — Stadt oder Land wählen und erneut suchen.",
+"michelin.comboMiss": "Kein Treffer für die gewählte Küche in dieser Michelin-Liste — zeige die ganze Michelin-Liste.",
+"michelin.cityJump.before": "{count}/{total} Michelin-Tipps in ",
+"rating.pillAny": "Alle",
+"layer.parks": "Park",
+"layer.attractions": "Sehensw.",
+"layer.taxis": "Taxistand",
+"layer.clinics": "Klinik / Apotheke",
+"layer.hospitals": "Krankenh.",
+"layer.police": "Polizei",
+"layer.carpark": "Parkplatz",
+"layer.exits": "Ausgänge",
+"layer.train": "Bahn",
+"layer.busstop": "Bushalt.",
+"layer.hawker": "Hawker",
+"layer.colour": "Farbe",
+"layer.colour.on": "☑️ S/W",
+"layer.colour.off": "🎨 Farbe",
+"layer.open24": "24 Std.",
+"map.reset": "Zurücksetzen",
+"map.more": "Mehr Ebenen",
+"layer.all": "Alle",
+"cuisine.drawerTitle": "Küchen",
+"cuisine.back": "Zurück",
+"cuisine.done": "Fertig",
+"btn.search": "🔍 Suche",
+"btn.searching": "Suche…",
+"btn.searchPleaseWait": "Bitte warten …",
+"btn.searchFull": "🔍 Suche · Zeig mir Lokale",
+"btn.clear": "Löschen",
+"btn.clearCuisines": "Küchen löschen",
+"btn.copyAll": "📋 Alle kopieren",
+"btn.copied": "✓ In Chat kopiert",
+"btn.copySyntax": "🔗 /cuisine kopieren",
+"btn.copyOne": "📋 Kopieren",
+"btn.collapse": "Einklappen ▴",
+"btn.editSearch": "Bearbeiten ▾",
+"btn.backToTop": "Nach oben",
+"btn.fabBack": "zurück",
+"btn.fabEnd": "schließen",
+"btn.fabBackAria": "Zurück",
+"btn.fabEndAria": "Schließen",
+"btn.topShort": "⇡ oben",
+"btn.downShort": "⇣ unten",
+"btn.showLocation": "Ihren Standort anzeigen",
+"card.open": "Geöffnet",
+"card.closed": "Geschlossen",
+"card.closingSoon": "Schließt in {n} Min",
+"card.whatToOrder": "Probieren",
+"card.healthierChoice": "Gesündere Wahl",
+"card.insideBuilding": "In einem Gebäudekomplex",
+"result.exhausted": "— Sie haben nun alle {n} Orte für diese Kriterien gesehen, über mehrere Suchen. Fügen Sie eine Küche / einen Filter hinzu oder ändern Sie sie, oder nutzen Sie 💬 „Sag es mir“, um zu erweitern — oder ",
+"result.exhaustedOne": "— Das ist der einzige Ort für diese Kriterien. Fügen Sie eine Küche / einen Filter hinzu oder ändern Sie sie, oder nutzen Sie 💬 „Sag es mir“, um mehr zu finden — oder ",
+"result.exhaustedNoCount": "— Sie haben nun alles für diese Kriterien gesehen, über mehrere Suchen. Fügen Sie eine Küche / einen Filter hinzu oder ändern Sie sie, oder nutzen Sie 💬 „Sag es mir“, um zu erweitern — oder ",
+"result.startOver": "↺ neu beginnen.",
+"result.noMatchAfterRetry": "Keine Treffer auch nach einer neuen Suche. Erweitern Sie die Kriterien oben, oder tippen Sie unten, um die Filter zurückzusetzen und erneut zu versuchen.",
+"btn.resetFiltersRetry": "🔄 Filter zurücksetzen & erneut",
+"tellme.placeholder": "Worauf haben Sie Lust? z. B. scharf thailändisch",
+"tellme.aria": "Sagen Sie mir, worauf Sie Lust haben",
+"tellme.submit": "Senden",
+"loc.searchLocation": "Ort eingeben",
+"loading.initial": "Suche Lokale",
+"loading.refresh": "📑 Aktualisiere Ergebnisse mit denselben Filtern…",
+"loading.head": "Lädt…",
+"loading.rotating.1": "⏳ Suche Orte nach Kriterien",
+"loading.rotating.2": "🔍 Gleiche Orte mit Ihren Filtern ab…",
+"loading.rotating.3": "🔎 Prüfe Google Maps auf passende Lokale…",
+"loading.rotating.4": "📋👀 Suche Lokale…",
+"loading.rotating.5": "🔦 Prüfe Orte…",
+"loading.rotating.6": "🔍 Suche — das dauert länger als ein paar Sekunden.",
+"loc.searchHere": "Hier suchen",
+"loc.clear": "Ort löschen",
+"loc.recent": "Letzte Orte",
+"loc.close": "Schließen",
+"map.expand": "Karte vergrößern",
+"map.collapse": "Karte verkleinern",
+"map.zoomIn": "Vergrößern",
+"map.zoomOut": "Verkleinern",
+"map.youAreHere": "Sie sind hier",
+"map.yourAnchor": "Ihr Suchpunkt",
+"map.tapPin": "Pin tippen → Google Maps",
+"map.openInMaps": "📍 In Google Maps öffnen",
+"err.copyFailed": "Senden an Chat fehlgeschlagen — erneut versuchen.",
+"err.commandFailed": "Befehl konnte nicht gesendet werden. Gleich erneut versuchen.",
+"locale.switchToEn": "Zu Englisch wechseln",
+"locale.switchToFr": "Zu Französisch wechseln",
+"locale.switchToId": "Zu Indonesisch wechseln",
+"loc.enterHint": "↵ Enter für das oberste Ergebnis",
+"loc.noMatch": "Kein Treffer — genaueren Namen versuchen",
+"cat.commonHere": "Beliebt in Singapur",
+"cat.southeastAsian": "Südostasien",
+"cat.eastAsian": "Ostasien",
+"cat.chinaRegional": "China (regional)",
+"cat.southAsian": "Südasien",
+"cat.middleEastern": "Naher Osten & Afrika",
+"cat.european": "Europäisch",
+"cat.americas": "Amerika & Ozeanien",
+"cat.australasia": "Australasien",
+"cat.african": "Afrikanisch",
+"cat.sweetsFusion": "Süßes & Fusion",
+"banner.jbFallbackToOther": "Zeige Ergebnisse in Ihrer Nähe — der Johor-Bahru-Filter gilt in dieser Entfernung nicht.",
+"drawer.michelinSgOnly": "✳️ Noch keine Michelin-Liste für diesen Ort.",
+"funfact.header": "Food-Fakt",
+"funfact.curating": "Suche Lokale…",
+"funfact.sourceLabel": "Quelle",
+"funfact.stop": "🛑 Stopp",
+"loading.stop": "🛑 Suche stoppen",
+"card.crowdHigh": "🔴 voll",
+"card.crowdMedium": "🟡 mäßig",
+"card.crowdLow": "🟢 ruhig",
+"card.footfallLive": "voll",
+"card.footfallForecast": "Prognose",
+"card.distAway": " entfernt",
+"card.durianPastryInquire": "Nach saisonalem Durian-Gebäck fragen",
+"card.petAllowed": "🐾 Haustiere erlaubt",
+"card.setDinner": "Set-Dinner",
+"card.setLunch": "Set-Lunch",
+"card.setFrom": "ab",
+"card.detailsLess": "⌃ weniger",
+"card.detailsMore": "⌄ Details, Bewertungen & Links",
+"card.tierCityIcon": "Stadt-Ikone",
+"card.tierRegional": "Regionaler Klassiker",
+"card.tierNational": "Nationaler Klassiker",
+"card.reviewTranslated": "übersetzt",
+"card.sent": "✓ Gesendet"
+};
+// ----- Chinese (zh, Simplified) overlay — v0.62.x, Phase 3. Curated; controls
+// kept compact (Chinese is dense) so pills don't overflow. -----
+const ZH_STRINGS = {
+  'cat.sweetsFusion': '甜点与融合菜',
+  'cat.michelinBib': '米其林 · 必比登',
+  'cat.setMeal': '套餐 (测试版)',
+  'cat.dishes': '菜品',
+  'plate.tapHint': '点按菜品了解更多，然后 🔍 查找餐厅。',
+  'header.tagline': '💬 告诉我 或 🔍 搜索',
+  'region.singapore': '新加坡',
+  'region.johor': '新山',
+  'region.others': '其他',
+  'footer.howto': '📍 输入地点 或 💬 输入菜品 · 点 🔍 搜索',
+  'footer.experimental': '试验版',
+  'banner.locating': '搜索附近',
+  'banner.locating.suffix': '正在查找地点…',
+  'banner.anchor': '已设定位置',
+  'banner.no.match': '没有匹配的地点 — 试试「告诉我」，或通过 /location 分享新的定位。',
+  'banner.showing': '显示地点',
+  'banner.places.one': '附近 1 个地点',
+  'banner.places.many': '附近 {n} 个地点',
+  'panel.line1': '结果：{known}',
+  'panel.line2.first': '· 显示前 {first} 个',
+  'panel.line2.range': '· 显示第 {start}-{end} 个',
+  'panel.line2.all': '· 显示全部',
+  'panel.line2.limit': '· 已达上限',
+  'panel.discovering': '显示 {n} 个结果',
+  'panel.helperTooFew': '更改搜索或点 🔍',
+  'panel.helperLimit': '细化搜索',
+  'panel.bubble.moreEats': '想吃更多？点 🔍',
+  'loc.other.country': '国家',
+  'loc.other.city': '城市',
+  'loc.other.placeholder': '输入地点名称 + 🔍',
+  'loc.other.searchBtn': '🔍 搜索',
+  'loc.other.searching': '正在搜索 {country}…',
+  'loc.other.noMatch': '在{country}找不到地点，请换个名称试试。',
+  'loc.other.confirmHeader': '在 {flag} {country} 找到：',
+  'loc.other.cancel': '✕ 取消 · 重新输入',
+  'filter.openNow': '正在营业',
+  'filter.halal': '清真',
+  'filter.vegetarian': '素食',
+  'filter.homeBased': '家庭厨房',
+  'filter.newlyOpened': '新开张',
+  'filter.petFriendly': '宠物',
+  'special.fruits.label': '水果',
+  'special.durian.label': '榴莲',
+  'special.activeNote': '已开启{mode}模式 — 其他菜系、米其林和甜点筛选已锁定。点已选按钮可清除。',
+  'special.fruits.limited': '🍉 附近匹配较少。显示最近的水果相关结果。',
+  'special.durian.limited': '🥥 附近榴莲商家较少。显示最近的相关结果。',
+  'special.widened': '· 已扩大至 {km} 公里',
+  'anchor.searching': '📍 搜索 {place} 附近',
+  'anchor.showing': '📍 显示 {place} 附近的「{query}」',
+  'filter.price': '价格',
+  'filter.openPrice': '打开价格选择器',
+  'filter.closePrice': '关闭价格选择器',
+  'filter.openMore': '打开更多筛选',
+  'filter.closeMore': '关闭更多筛选',
+  'layer.parks': '公园',
+  'layer.attractions': '景点',
+  'layer.taxis': '德士站',
+  'layer.clinics': '诊所 / 药房',
+  'layer.hospitals': '医院',
+  'layer.police': '警察',
+  'layer.carpark': '停车场',
+  'layer.exits': '车站出口',
+  'layer.train': '地铁线',
+  'layer.busstop': '巴士站',
+  'layer.colour': '颜色',
+  'layer.colour.on': '☑️ 单色',
+  'layer.colour.off': '🎨 彩色',
+  'layer.open24': '24 小时',
+  'map.reset': '重置视图',
+  'map.more': '更多图层',
+  'layer.all': '全部',
+  'cuisine.drawerTitle': '菜系',
+  'cuisine.back': '返回',
+  'cuisine.done': '完成',
+  'btn.search': '🔍 搜索',
+  'btn.searching': '搜索中…',
+  'btn.searchPleaseWait': '请稍候 …',
+  'btn.searchFull': '🔍 搜索 · 帮我找吃的',
+  'btn.clear': '清除',
+  'btn.clearCuisines': '清除菜系',
+  'btn.copyAll': '📋 全部复制',
+  'btn.copied': '✓ 已复制到聊天',
+  'btn.copySyntax': '🔗 复制 /cuisine 指令',
+  'btn.copyOne': '📋 复制',
+  'btn.collapse': '收起 ▴',
+  'btn.editSearch': '修改搜索 ▾',
+  'btn.backToTop': '回到顶部',
+  'btn.fabBack': '返回',
+  'btn.fabEnd': '关闭',
+  'btn.fabBackAria': '返回',
+  'btn.fabEndAria': '关闭',
+  'btn.topShort': '⇡ 顶部',
+  'btn.downShort': '⇣ 底部',
+  'btn.showLocation': '显示你的位置',
+  'card.open': '营业中',
+  'card.closed': '已打烊',
+  'card.closedNow': '现已打烊',
+  'card.openInMin': '{n} 分钟后营业',
+  'card.opensRange': '营业 {start} ~ {end}',
+  'card.opensAt': '{start} 营业',
+  'card.closingSoon': '{n} 分钟后打烊',
+  'card.whatToOrder': '推荐',
+  'card.healthierChoice': '健康选择',
+  'card.insideBuilding': '位于大楼内',
+  'result.exhausted': '— 经过多次搜索，你已看完符合这些条件的全部 {n} 个地点。添加或更改菜系 / 筛选，或用 💬 告诉我，来扩大范围 — 或 ',
+  'result.exhaustedOne': '— 这是符合这些条件的唯一地点。添加或更改菜系 / 筛选，或用 💬 告诉我，来找更多 — 或 ',
+  'result.exhaustedNoCount': '— 经过多次搜索，你已看完符合这些条件的全部地点。添加或更改菜系 / 筛选，或用 💬 告诉我，来扩大范围 — 或 ',
+  'result.startOver': '↺ 重新开始。',
+  'result.noMatchAfterRetry': '重新搜索后仍无匹配结果。请放宽上方的条件，或点击下方重置筛选再试一次。',
+  'btn.resetFiltersRetry': '🔄 重置筛选并重试',
+  'tellme.placeholder': '你想吃什么？例如 泰式辣味',
+  'tellme.aria': '告诉我你想吃什么',
+  'tellme.submit': '发送',
+  'loc.searchLocation': '搜索地点',
+  'loading.initial': '⏳ 正在加载随机餐馆，请稍候…',
+  'loading.refresh': '📑 正在以相同筛选刷新结果…',
+  'loading.head': '加载中…',
+  'loading.rotating.1': '⏳ 正在查找符合条件的地点',
+  'loading.rotating.2': '🔍 正在按你的筛选匹配地点…',
+  'loading.rotating.3': '🔎 正在 Google 地图上查找匹配餐馆…',
+  'loading.rotating.4': '📋👀 正在搜索餐馆…',
+  'loading.rotating.5': '🔦 正在查看地点…',
+  'loading.rotating.6': '🔍 搜索中 — 这需要几秒以上的时间。',
+  'loc.searchHere': '在此位置搜索',
+  'loc.clear': '清除地点',
+  'loc.recent': '最近的地点',
+  'loc.close': '关闭',
+  'map.expand': '放大地图',
+  'map.collapse': '收起地图',
+  'map.zoomIn': '放大',
+  'map.zoomOut': '缩小',
+  'map.youAreHere': '你在这里',
+  'map.yourAnchor': '你的搜索位置',
+  'map.tapPin': '点图钉 → Google 地图',
+  'map.openInMaps': '📍 在 Google 地图中打开',
+  'err.copyFailed': '无法发送到聊天 — 请重试。',
+  'err.commandFailed': '无法发送指令，请稍后再试。',
+  'locale.switchToEn': '切换到英文',
+  'locale.switchToFr': '切换到法文',
+  'loc.enterHint': '↵ 按回车使用第一个结果',
+  'loc.noMatch': '无匹配 — 请输入更具体的名称',
+  'cat.commonHere': '新加坡常见',
+  'cat.southeastAsian': '东南亚',
+  'cat.eastAsian': '东亚',
+  'cat.chinaRegional': '中国（地方菜）',
+  'cat.southAsian': '南亚',
+  'cat.middleEastern': '中东与中亚',
+  'cat.european': '欧洲',
+  'cat.americas': '美洲',
+  'cat.australasia': '澳洲与大洋洲',
+  'cat.african': '非洲',
+  'banner.jbFallbackToOther': '正在显示你附近的结果 — 此距离下新山筛选未生效。',
+  'drawer.michelinSgOnly': '✳️ 米其林仅限新加坡（新加坡以外为灰显）。',
+  'funfact.header': '你知道吗？',
+  'funfact.curating': '仍在整理中…',
+  'funfact.sourceLabel': '来源'
+};
+for (const [k, v] of Object.entries(RU_STRINGS)) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = v; }
+for (const [k, v] of Object.entries(DE_STRINGS)) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = v; }
+for (const [k, v] of Object.entries(ZH_STRINGS)) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = v; }
+// ----- Japanese (ja) overlay — v0.62.x, Phase 3. -----
+const JA_STRINGS = {
+  'cat.sweetsFusion': 'スイーツ & フュージョン',
+  'cat.michelinBib': 'ミシュラン · ビブグルマン',
+  'cat.setMeal': 'セットメニュー (ベータ)',
+  'cat.dishes': '料理',
+  'plate.tapHint': '料理をタップして詳細、次に 🔍 お店を探す。',
+  'header.tagline': '💬 教えて または 🔍 検索',
+  'region.singapore': 'シンガポール',
+  'region.johor': 'ジョホールバル',
+  'region.others': 'その他',
+  'footer.howto': '📍 場所を入力 または 💬 料理を入力 · 🔍 で検索',
+  'footer.experimental': '試験運用版',
+  'banner.locating': '近くを検索中',
+  'banner.locating.suffix': '場所を探しています…',
+  'banner.anchor': '基準地点を設定',
+  'banner.no.match': '一致する場所がありません — 「教えて」を試すか、/location で新しい位置を共有してください。',
+  'banner.showing': '表示中の場所',
+  'banner.places.one': '近くに1件',
+  'banner.places.many': '近くに{n}件',
+  'panel.line1': '結果: {known}',
+  'panel.line2.first': '· 最初の{first}件を表示',
+  'panel.line2.range': '· {start}〜{end}件を表示',
+  'panel.line2.all': '· すべて表示',
+  'panel.line2.limit': '· 上限に到達',
+  'panel.discovering': '{n}件の結果を表示',
+  'panel.helperTooFew': '検索を変更 または 🔍 をタップ',
+  'panel.helperLimit': '検索を絞り込む',
+  'panel.bubble.moreEats': 'もっと探す？ 🔍 をタップ',
+  'loc.other.country': '国',
+  'loc.other.city': '都市',
+  'loc.other.placeholder': '場所名を入力 + 🔍',
+  'loc.other.searchBtn': '🔍 検索',
+  'loc.other.searching': '{country}で検索中…',
+  'loc.other.noMatch': '{country}で場所が見つかりません。別の名前をお試しください。',
+  'loc.other.confirmHeader': '{flag} {country}で見つかりました:',
+  'loc.other.cancel': '✕ キャンセル · 再入力',
+  'filter.openNow': '営業中',
+  'filter.halal': 'ハラール',
+  'filter.vegetarian': 'ベジタリアン',
+  'filter.homeBased': '自宅営業',
+  'filter.newlyOpened': '新規開店',
+  'filter.petFriendly': 'ペット可',
+  'special.fruits.label': 'フルーツ',
+  'special.durian.label': 'ドリアン',
+  'special.activeNote': '{mode}モードがオン — 他の料理・ミシュラン・デザートのフィルターはロックされています。有効なボタンをタップで解除。',
+  'special.fruits.limited': '🍉 近くの一致が少ないです。最も近いフルーツ関連の結果を表示します。',
+  'special.durian.limited': '🥥 近くのドリアン販売店が少ないです。最も近い関連の結果を表示します。',
+  'special.widened': '· {km} kmに拡大',
+  'anchor.searching': '📍 {place}付近を検索中',
+  'anchor.showing': '📍 {place}付近で「{query}」を表示',
+  'filter.price': '価格',
+  'filter.openPrice': '価格セレクターを開く',
+  'filter.closePrice': '価格セレクターを閉じる',
+  'filter.openMore': 'フィルターを増やす',
+  'filter.closeMore': 'フィルターを閉じる',
+  'layer.parks': '公園',
+  'layer.attractions': '観光地',
+  'layer.taxis': 'タクシー乗り場',
+  'layer.clinics': '診療所 / 薬局',
+  'layer.hospitals': '病院',
+  'layer.police': '警察',
+  'layer.carpark': '駐車場',
+  'layer.exits': '駅の出口',
+  'layer.train': '鉄道路線',
+  'layer.busstop': 'バス停',
+  'layer.colour': '色',
+  'layer.colour.on': '☑️ モノクロ',
+  'layer.colour.off': '🎨 カラー',
+  'layer.open24': '24時間',
+  'map.reset': '表示をリセット',
+  'map.more': 'レイヤーを追加',
+  'layer.all': 'すべて',
+  'cuisine.drawerTitle': '料理',
+  'cuisine.back': '戻る',
+  'cuisine.done': '完了',
+  'btn.search': '🔍 検索',
+  'btn.searching': '検索中…',
+  'btn.searchPleaseWait': 'お待ちください …',
+  'btn.searchFull': '🔍 検索 · 食べる場所を表示',
+  'btn.clear': 'クリア',
+  'btn.clearCuisines': '料理をクリア',
+  'btn.copyAll': '📋 すべてコピー',
+  'btn.copied': '✓ チャットにコピー済み',
+  'btn.copySyntax': '🔗 /cuisine コマンドをコピー',
+  'btn.copyOne': '📋 コピー',
+  'btn.collapse': '折りたたむ ▴',
+  'btn.editSearch': '検索を編集 ▾',
+  'btn.backToTop': '先頭へ戻る',
+  'btn.fabBack': '戻る',
+  'btn.fabEnd': '閉じる',
+  'btn.fabBackAria': '戻る',
+  'btn.fabEndAria': '閉じる',
+  'btn.topShort': '⇡ 上へ',
+  'btn.downShort': '⇣ 下へ',
+  'btn.showLocation': '現在地を表示',
+  'card.open': '営業中',
+  'card.closed': '閉店',
+  'card.closedNow': '現在閉店',
+  'card.openInMin': '{n}分後に開店',
+  'card.opensRange': '営業 {start} ~ {end}',
+  'card.opensAt': '{start} 開店',
+  'card.closingSoon': '{n}分後に閉店',
+  'card.whatToOrder': 'おすすめ',
+  'card.healthierChoice': 'ヘルシー選択',
+  'card.insideBuilding': '建物内施設',
+  'result.exhausted': '— これらの条件で見つかる{n}件の場所を、複数回の検索ですべて表示しました。料理 / フィルターを追加・変更するか、💬 教えて で範囲を広げてください — または ',
+  'result.exhaustedOne': '— これらの条件で見つかる場所はこれだけです。料理 / フィルターを追加・変更するか、💬 教えて でさらに探してください — または ',
+  'result.exhaustedNoCount': '— これらの条件で見つかるものを、複数回の検索ですべて表示しました。料理 / フィルターを追加・変更するか、💬 教えて で範囲を広げてください — または ',
+  'result.startOver': '↺ 最初からやり直す。',
+  'result.noMatchAfterRetry': '再検索しても一致がありません。上で条件を広げるか、下をタップしてフィルターをリセットして再試行してください。',
+  'btn.resetFiltersRetry': '🔄 フィルターをリセットして再試行',
+  'tellme.placeholder': '何が食べたいですか？ 例: スパイシーなタイ料理',
+  'tellme.aria': '食べたいものを教えてください',
+  'tellme.submit': '送信',
+  'loc.searchLocation': '場所を検索',
+  'loading.initial': '⏳ ランダムな飲食店を読み込んでいます。お待ちください…',
+  'loading.refresh': '📑 同じフィルターで結果を更新中…',
+  'loading.head': '読み込み中…',
+  'loading.rotating.1': '⏳ 条件に合う場所を探しています',
+  'loading.rotating.2': '🔍 場所をフィルターに照合中…',
+  'loading.rotating.3': '🔎 Googleマップで一致する飲食店を確認中…',
+  'loading.rotating.4': '📋👀 飲食店を検索中…',
+  'loading.rotating.5': '🔦 場所を確認中…',
+  'loading.rotating.6': '🔍 検索中 — 数秒以上かかります。',
+  'loc.searchHere': 'この場所で検索',
+  'loc.clear': '場所をクリア',
+  'loc.recent': '最近の場所',
+  'loc.close': '閉じる',
+  'map.expand': '地図を拡大',
+  'map.collapse': '地図を縮小',
+  'map.zoomIn': '拡大',
+  'map.zoomOut': '縮小',
+  'map.youAreHere': '現在地',
+  'map.yourAnchor': '検索の基準地点',
+  'map.tapPin': 'ピンをタップ → Googleマップ',
+  'map.openInMaps': '📍 Googleマップで開く',
+  'err.copyFailed': 'チャットに送信できませんでした — 再試行してください。',
+  'err.commandFailed': 'コマンドを送信できませんでした。少し待って再試行してください。',
+  'locale.switchToEn': '英語に切り替え',
+  'locale.switchToFr': 'フランス語に切り替え',
+  'loc.enterHint': '↵ Enterで先頭の結果を使用',
+  'loc.noMatch': '一致なし — より具体的な名前をお試しください',
+  'cat.commonHere': 'シンガポールで定番',
+  'cat.southeastAsian': '東南アジア',
+  'cat.eastAsian': '東アジア',
+  'cat.chinaRegional': '中国(地方料理)',
+  'cat.southAsian': '南アジア',
+  'cat.middleEastern': '中東 & 中央アジア',
+  'cat.european': 'ヨーロッパ',
+  'cat.americas': 'アメリカ大陸',
+  'cat.australasia': 'オーストラレーシア',
+  'cat.african': 'アフリカ',
+  'banner.jbFallbackToOther': '現在地付近の結果を表示中 — この距離ではジョホールバルのフィルターは適用されませんでした。',
+  'drawer.michelinSgOnly': '✳️ ミシュランはシンガポール限定です(SG外ではグレー表示)。',
+  'funfact.header': '知っていましたか？',
+  'funfact.curating': '準備中…',
+  'funfact.sourceLabel': '出典'
+};
+// ----- Spanish (es) overlay — v0.62.x, Phase 3. -----
+const ES_STRINGS = {
+  'cat.sweetsFusion': 'Dulces y Fusión',
+  'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'cat.setMeal': 'Menú fijo (Beta)',
+  'cat.dishes': 'Platos',
+  'plate.tapHint': 'Toca un plato para saber más, luego 🔍 Buscar sitios.',
+  'header.tagline': '💬 Dime o 🔍 Buscar',
+  'region.singapore': 'Singapur',
+  'region.johor': 'Johor Bahru',
+  'region.others': 'Otros',
+  'footer.howto': '📍 Ingresa un lugar o 💬 escribe un plato · Toca 🔍 para buscar',
+  'footer.experimental': 'Experimental',
+  'banner.locating': 'Buscando cerca',
+  'banner.locating.suffix': 'buscando lugares…',
+  'banner.anchor': 'Ancla fijada',
+  'banner.no.match': 'ningún lugar coincide — prueba Dime, o comparte una nueva ubicación con /location.',
+  'banner.showing': 'Mostrando lugares',
+  'banner.places.one': '1 lugar cerca',
+  'banner.places.many': '{n} lugares cerca',
+  'panel.line1': 'Resultados: {known}',
+  'panel.line2.first': '· Mostrando los primeros {first}',
+  'panel.line2.range': '· Mostrando {start}-{end}',
+  'panel.line2.all': '· Mostrando todo',
+  'panel.line2.limit': '· Límite alcanzado',
+  'panel.discovering': 'Mostrando {n} resultados',
+  'panel.helperTooFew': 'Cambia la búsqueda o toca 🔍',
+  'panel.helperLimit': 'Afinar búsqueda',
+  'panel.bubble.moreEats': '¿Más comida? Toca 🔍',
+  'loc.other.country': 'País',
+  'loc.other.city': 'Ciudad',
+  'loc.other.placeholder': 'Escribe un lugar + 🔍',
+  'loc.other.searchBtn': '🔍 Buscar',
+  'loc.other.searching': 'Buscando en {country}…',
+  'loc.other.noMatch': 'No se encontraron lugares en {country}. Prueba otro nombre.',
+  'loc.other.confirmHeader': 'Encontrado en {flag} {country}:',
+  'loc.other.cancel': '✕ Cancelar · reintentar',
+  'filter.openNow': 'Abierto',
+  'filter.halal': 'Halal',
+  'filter.vegetarian': 'Vegetariano',
+  'filter.homeBased': 'Casero',
+  'filter.newlyOpened': 'Nuevo',
+  'filter.petFriendly': 'Mascotas',
+  'special.fruits.label': 'Frutas',
+  'special.durian.label': 'Durian',
+  'special.activeNote': 'Modo {mode} activado — los demás filtros de cocina, Michelin y postres están bloqueados. Toca el botón activo para borrar.',
+  'special.fruits.limited': '🍉 Pocas coincidencias cerca. Mostrando los resultados de frutas más cercanos.',
+  'special.durian.limited': '🥥 Pocos vendedores de durian cerca. Mostrando las coincidencias más cercanas.',
+  'special.widened': '· ampliado a {km} km',
+  'anchor.searching': '📍 Buscando cerca de {place}',
+  'anchor.showing': '📍 Mostrando "{query}" cerca de {place}',
+  'filter.price': 'Precio',
+  'filter.openPrice': 'Abrir selector de precio',
+  'filter.closePrice': 'Cerrar selector de precio',
+  'filter.openMore': 'Abrir más filtros',
+  'filter.closeMore': 'Cerrar más filtros',
+  'layer.parks': 'Parque',
+  'layer.attractions': 'Atracciones',
+  'layer.taxis': 'Parada de taxi',
+  'layer.clinics': 'Clínica / Farmacia',
+  'layer.hospitals': 'Hospital',
+  'layer.police': 'Policía',
+  'layer.carpark': 'Estacionamiento',
+  'layer.exits': 'Salidas de estación',
+  'layer.train': 'Línea de tren',
+  'layer.busstop': 'Parada de bus',
+  'layer.colour': 'Color',
+  'layer.colour.on': '☑️ Monocromo',
+  'layer.colour.off': '🎨 Color',
+  'layer.open24': '24 horas',
+  'map.reset': 'Restablecer vista',
+  'map.more': 'Más capas',
+  'layer.all': 'Todo',
+  'cuisine.drawerTitle': 'Cocinas',
+  'cuisine.back': 'Atrás',
+  'cuisine.done': 'Listo',
+  'btn.search': '🔍 Buscar',
+  'btn.searching': 'Buscando…',
+  'btn.searchPleaseWait': 'Espera …',
+  'btn.searchFull': '🔍 Buscar · Muéstrame dónde comer',
+  'btn.clear': 'Borrar',
+  'btn.clearCuisines': 'Borrar cocinas',
+  'btn.copyAll': '📋 Copiar todo',
+  'btn.copied': '✓ Copiado al chat',
+  'btn.copySyntax': '🔗 Copiar comando /cuisine',
+  'btn.copyOne': '📋 Copiar',
+  'btn.collapse': 'Contraer ▴',
+  'btn.editSearch': 'Editar búsqueda ▾',
+  'btn.backToTop': 'Volver arriba',
+  'btn.fabBack': 'atrás',
+  'btn.fabEnd': 'cerrar',
+  'btn.fabBackAria': 'Atrás',
+  'btn.fabEndAria': 'Cerrar',
+  'btn.topShort': '⇡ arriba',
+  'btn.downShort': '⇣ abajo',
+  'btn.showLocation': 'Mostrar tu ubicación',
+  'card.open': 'Abierto',
+  'card.closed': 'Cerrado',
+  'card.closedNow': 'Cerrado ahora',
+  'card.openInMin': 'Abre en {n} min',
+  'card.opensRange': 'Abre {start} ~ {end}',
+  'card.opensAt': 'Abre {start}',
+  'card.closingSoon': 'Cierra en {n} min',
+  'card.whatToOrder': 'Prueba',
+  'card.healthierChoice': 'Opción saludable',
+  'card.insideBuilding': 'Dentro de un edificio',
+  'result.exhausted': '— Ya viste los {n} lugares que puedo encontrar para estos criterios, en varias búsquedas. Agrega o cambia una cocina / filtro, o usa 💬 Dime, para ampliar — o ',
+  'result.exhaustedOne': '— Ese es el único lugar que puedo encontrar para estos criterios. Agrega o cambia una cocina / filtro, o usa 💬 Dime para encontrar más — o ',
+  'result.exhaustedNoCount': '— Ya viste todo lo que puedo encontrar para estos criterios, en varias búsquedas. Agrega o cambia una cocina / filtro, o usa 💬 Dime, para ampliar — o ',
+  'result.startOver': '↺ empezar de nuevo.',
+  'result.noMatchAfterRetry': 'Sin coincidencias incluso tras una nueva búsqueda. Intenta ampliar tus criterios arriba, o toca abajo para restablecer los filtros y reintentar.',
+  'btn.resetFiltersRetry': '🔄 Restablecer y reintentar',
+  'tellme.placeholder': '¿Qué se te antoja? ej. tailandés picante',
+  'tellme.aria': 'Dime qué se te antoja',
+  'tellme.submit': 'Enviar',
+  'loc.searchLocation': 'Buscar ubicación',
+  'loading.initial': '⏳ Espera mientras cargamos lugares al azar…',
+  'loading.refresh': '📑 Actualizando resultados con los mismos filtros…',
+  'loading.head': 'Cargando…',
+  'loading.rotating.1': '⏳ Buscando lugares que coincidan con los criterios',
+  'loading.rotating.2': '🔍 Emparejando lugares con tus filtros…',
+  'loading.rotating.3': '🔎 Revisando Google Maps en busca de restaurantes…',
+  'loading.rotating.4': '📋👀 Buscando restaurantes…',
+  'loading.rotating.5': '🔦 Revisando lugares…',
+  'loading.rotating.6': '🔍 Buscando — esto toma más de unos segundos.',
+  'loc.searchHere': 'Buscar en esta ubicación',
+  'loc.clear': 'Borrar ubicación',
+  'loc.recent': 'Ubicaciones recientes',
+  'loc.close': 'Cerrar',
+  'map.expand': 'Ampliar mapa',
+  'map.collapse': 'Reducir mapa',
+  'map.zoomIn': 'Acercar',
+  'map.zoomOut': 'Alejar',
+  'map.youAreHere': 'Estás aquí',
+  'map.yourAnchor': 'tu ancla de búsqueda',
+  'map.tapPin': 'Toca el pin → Google Maps',
+  'map.openInMaps': '📍 Abrir en Google Maps',
+  'err.copyFailed': 'No se pudo enviar al chat — reinténtalo.',
+  'err.commandFailed': 'No se pudo enviar el comando. Reinténtalo en un momento.',
+  'locale.switchToEn': 'Cambiar a inglés',
+  'locale.switchToFr': 'Cambiar a francés',
+  'loc.enterHint': '↵ Pulsa Enter para usar el primer resultado',
+  'loc.noMatch': 'Sin coincidencias — prueba un nombre más específico',
+  'cat.commonHere': 'Común en Singapur',
+  'cat.southeastAsian': 'Sudeste asiático',
+  'cat.eastAsian': 'Asia oriental',
+  'cat.chinaRegional': 'China (regional)',
+  'cat.southAsian': 'Asia del Sur',
+  'cat.middleEastern': 'Medio Oriente y Asia Central',
+  'cat.european': 'Europea',
+  'cat.americas': 'Américas',
+  'cat.australasia': 'Australasia',
+  'cat.african': 'Africana',
+  'banner.jbFallbackToOther': 'Mostrando resultados cerca de tu ubicación — el filtro de Johor Bahru no aplica a esta distancia.',
+  'drawer.michelinSgOnly': '✳️ Michelin es solo para Singapur (atenuado fuera de SG).',
+  'funfact.header': '¿Sabías que?',
+  'funfact.curating': 'Buscando…',
+  'funfact.sourceLabel': 'Fuente'
+};
+for (const [k, v] of Object.entries(JA_STRINGS)) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k].ja = v; }
+for (const [k, v] of Object.entries(ES_STRINGS)) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k].es = v; }
+
+export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+
+export function t(key, lang) {
+  const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';
+  const entry = STRINGS[key];
+  if (!entry) return key;
+  return entry[l] ?? entry.en ?? key;
+}
+
+// Substitute {placeholder} tokens in a translated string.
+// Only used where pluralisation / dynamic-N is needed.
+export function tn(key, lang, vars = {}) {
+  const raw = t(key, lang);
+  return raw.replace(/\{(\w+)\}/g, (_, name) => (vars[name] != null ? String(vars[name]) : `{${name}}`));
+}
+
+function detectFromTelegram() {
+  if (typeof window === 'undefined') return null;
+  const tg = window.Telegram?.WebApp;
+  const code = tg?.initDataUnsafe?.user?.language_code;
+  if (typeof code !== 'string') return null;
+  const two = code.slice(0, 2).toLowerCase();
+  return SUPPORTED_LOCALES.includes(two) ? two : null;
+}
+
+function detectFromNavigator() {
+  if (typeof navigator === 'undefined') return null;
+  const code = navigator.language || (navigator.languages && navigator.languages[0]);
+  if (typeof code !== 'string') return null;
+  const two = code.slice(0, 2).toLowerCase();
+  return SUPPORTED_LOCALES.includes(two) ? two : null;
+}
+
+export function getActiveLocale() {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = window.localStorage.getItem(LOCALE_KEY);
+      if (SUPPORTED_LOCALES.includes(stored)) return stored;
+    } catch { /* private mode / quota — fall through */ }
+  }
+  // v0.62.501 — prefer the DEVICE locale (navigator.language) over the
+  // Telegram APP locale (language_code). language_code reflects the Telegram
+  // client UI language, a weak signal for the user's real language; a French
+  // phone running an English Telegram was resolving to 'en'. detectFromNavigator
+  // returns null when the device locale is unsupported, so we still fall back to
+  // the Telegram hint, then 'en'.
+  return detectFromNavigator() || detectFromTelegram() || 'en';
+}
+
+export function setActiveLocale(lang) {
+  if (!SUPPORTED_LOCALES.includes(lang)) return;
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
+  // v0.59.0: best-effort POST to /api/cuisine/user-language so chat
+  // replies (deliverPicks, free-text, /hidden) follow the same
+  // preference. Lazy-import to avoid a circular dep at module init.
+  import('./api.js').then((m) => m.setUserLanguageRemote?.(lang)).catch(() => {});
+}
+
+// v0.59.0: track whether we've hydrated from the server's per-user
+// preference. Module-level latch so multiple useLocale() calls in
+// different components don't each fire a redundant fetch.
+let serverHydrated = false;
+async function hydrateFromServerOnce() {
+  if (serverHydrated) return;
+  serverHydrated = true;
+  try {
+    const m = await import('./api.js');
+    const remote = await m.fetchUserLanguage?.();
+    if (SUPPORTED_LOCALES.includes(remote)) {
+      // Quietly write to localStorage + fire the locale event so
+      // every subscribed component re-renders. Skip the POST that
+      // setActiveLocale would otherwise make (the value just came
+      // from the server — round-tripping is wasteful).
+      try { window.localStorage.setItem(LOCALE_KEY, remote); } catch { /* noop */ }
+      window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang: remote } }));
+    }
+  } catch { /* offline / 401 / 404 — keep local fallback */ }
+}
+
+// React hook: returns [lang, setLang]. Re-renders on locale change
+// (own setActiveLocale call OR another tab — storage + custom event).
+// On first mount, hydrates from the server's stored preference so the
+// TMA matches whatever the user last set via /language in chat.
+export function useLocale() {
+  const [lang, setLangState] = useState(() => getActiveLocale());
+  useEffect(() => {
+    function onLocale(e) {
+      const next = e?.detail?.lang || getActiveLocale();
+      setLangState(next);
+    }
+    function onStorage(e) {
+      if (e.key === LOCALE_KEY) setLangState(getActiveLocale());
+    }
+    window.addEventListener(LOCALE_EVENT, onLocale);
+    window.addEventListener('storage', onStorage);
+    hydrateFromServerOnce();
+    return () => {
+      window.removeEventListener(LOCALE_EVENT, onLocale);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+  return [lang, (next) => { setActiveLocale(next); setLangState(next); }];
+}
