@@ -103,3 +103,21 @@ is green and the operator agrees. Merging deploys `main` through Railway.
 - Historical application builds are not certified. The redaction covers marker-associated
   coordinates and two digest-pinned identifiers; it is not a universal personal-data audit.
 - The original values remain in public git history; this is a reduction, not an erasure.
+
+### [AMD-4] Merged to main - the restoration the spec asked for is done
+
+Amendment version 2.5. Date: 22 October 2026 (Asia/Singapore).
+
+[INTENT] Operator, 22-10 '26, verbatim: *"merge it as it is"*, with the deploy-size impact measured
+(182 MB to 1,240 MB compressed snapshot) and reported before they chose.
+
+[MERGE RECORD] #1876 squash-merged at 04:13:22 SGT as `21285788`, `expectedHeadSha` pinned to
+`b4115d3e`. #1874 closed as superseded. Spec I1 read back from main: `vault/` holds 28 version
+folders plus `RESTORATION_MANIFEST.json` and `README.md`; `--verify` run on main passes with 9
+unchanged and 18 sanitised historical trees, 0 missing, 0 unapproved differences.
+
+[EVIDENCE] CI on `b4115d3e`: 5/5 green including `verify-vault` through its final publication gate.
+The pinned-source fetch had to be authenticated first because the repository is now private.
+
+[KNOWN GAPS] Railway's post-merge build of the enlarged tree is unverified from this session.
+Historical application builds are not certified. Original values remain in git history.
