@@ -26,6 +26,30 @@ function locKey(chatId, deviceId) {
   return dev ? `${base}:dev:${dev}` : base;
 }
 
+// v0.62.939 — ISO-2 country for a coordinate, from the curated city table
+// (city-centroids.js, 139 cities / 18 countries) and nothing else: the nearest
+// city's country, accepted only when the point lies inside that city's own
+// density-tuned `radiusM`. Returns null when the point is outside every city's
+// radius, when the nearest city is Singapore (SG is never INFERRED — the SG
+// gate and the explicit pickers own that answer), or on invalid input. Pure
+// and offline; no Places call. Exported so the test calls the rule itself.
+function inferCountryFromCoords(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  try {
+    const { nearestCityForAnchor } = require('./place-search-variance');
+    const { CITY_CENTROIDS } = require('./city-centroids');
+    const best = nearestCityForAnchor(lat, lng);
+    if (!best) return null;
+    const city = CITY_CENTROIDS[best.city];
+    const radiusM = city && Number(city.radiusM);
+    const cc = city && typeof city.country === 'string' ? city.country.toUpperCase() : null;
+    if (!cc || cc === 'SG' || !Number.isFinite(radiusM) || radiusM <= 0) return null;
+    return best.distanceKm * 1000 <= radiusM ? cc : null;
+  } catch {
+    return null;
+  }
+}
+
 async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   if (!redis.isOpen) await redis.connect();
   const deviceId = opts && sanitizeDeviceId(opts.deviceId);
@@ -104,6 +128,20 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
       if (!coarseGate({ lat, lng })) {
         payload.region = 'OTHER';
         payload.regionInferredFromCoords = true;
+        // v0.62.939 — the third path Codex named on #1870 ([AMD-232]): a
+        // share-pin abroad was stamped OTHER with NO country, so
+        // resolveRegionCode read it as 'SG' and the chat free-text anchor
+        // fell back to Singapore. Operator's choice: the free offline lookup
+        // (nearest curated city, accepted only inside its own radius), not
+        // a paid reverse-geocode. Only THIS coord-inferred branch infers;
+        // a caller that passes its own country or region is never touched.
+        if (!payload.country) {
+          const cc = inferCountryFromCoords(lat, lng);
+          if (cc) {
+            payload.country = cc;
+            payload.countryInferredFromCoords = true;
+          }
+        }
       }
     } catch (err) {
       // location-mode unavailable (shouldn't happen in prod) —
@@ -192,6 +230,7 @@ module.exports = {
   hashChatId,
   sanitizeDeviceId,
   locKey,
+  inferCountryFromCoords,
   setUserLocation,
   getUserLocation,
   getLocationAgeMinutes,

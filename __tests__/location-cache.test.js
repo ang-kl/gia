@@ -94,21 +94,37 @@ describe('setUserLocation — country opt persistence (v0.61.270)', () => {
     expect(cached.country).toBeUndefined();
   });
 
-  it('preserves country across separate writes that omit it', async () => {
+  it('does not carry a stale country forward across separate writes', async () => {
     // First write: with country
     await setUserLocation(redis, 12349, 13.7563, 100.5018, {
       country: 'TH', label: 'Bangkok'
     });
-    // Second write: same chat, NO country opt → setUserLocation
-    // OVERWRITES the entire key. The new payload won't carry the
-    // stale country forward (this is the existing replace-payload
-    // semantics; documenting here so a future migration knows).
-    await setUserLocation(redis, 12349, 14.0, 100.5);
+    // Second write: same chat → setUserLocation OVERWRITES the entire
+    // key. The new payload won't carry the stale country forward (this
+    // is the existing replace-payload semantics; documenting here so a
+    // future migration knows). Callers that want to keep the country
+    // MUST re-pass it on every write — matches /api/menu/set-location's
+    // existing behaviour.
+    //
+    // v0.62.939 — this used to assert `toBeUndefined()` after a bare
+    // second write at 14.0,100.5. That point is 27 km from Bangkok's
+    // centroid, inside its 45 km radius, so a bare write there now
+    // INFERS 'TH' from the coordinates (location-cache.js
+    // inferCountryFromCoords) — the same answer by a different route,
+    // which the old assertion could not tell from carry-forward. The
+    // property is proved with a DIFFERENT explicit country instead:
+    // nothing stale survives the overwrite. Amended under F7 on the
+    // operator's choice (a), 22-10 '26.
+    await setUserLocation(redis, 12349, 14.0, 100.5, { country: 'VN' });
     const cached = await getUserLocation(redis, 12349);
-    expect(cached.country).toBeUndefined();
-    // Callers that want to keep the country MUST re-pass it on
-    // every write — matches /api/menu/set-location's existing
-    // behaviour.
+    expect(cached.country).toBe('VN');
+    expect(cached.countryInferredFromCoords).toBeUndefined();
+    // …and a bare rewrite abroad gets the INFERRED country, flagged as
+    // inferred, so a reader can tell the two provenances apart.
+    await setUserLocation(redis, 12349, 14.0, 100.5);
+    const bare = await getUserLocation(redis, 12349);
+    expect(bare.country).toBe('TH');
+    expect(bare.countryInferredFromCoords).toBe(true);
   });
 
   it('coexists with all other opts (region, label, street, building, postal, radiusCapM)', async () => {
