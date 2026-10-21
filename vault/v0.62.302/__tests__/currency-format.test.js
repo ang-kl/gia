@@ -1,0 +1,372 @@
+// __tests__/currency-format.test.js — v0.61.360
+// Coverage for the currency-format module that drives the venue-card
+// price-range line ("S$25–40" / "M$50–80 (≈S$14.91–23.85)" / …).
+// v0.61.360: FX rewritten to a USD-pivot table (Alpha Vantage primary,
+// Frankfurter fallback, 15-day cache) + 2.8% markup, round-up, "≈".
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  prefixForCountry,
+  prefixForCurrency,
+  currencyForCountry,
+  usdRate,
+  fetchFxRate,
+  formatPriceRangeForVenue
+} from '../currency-format.js';
+
+// URL-aware fetch mock for the Frankfurter fallback leg. `usdRates` maps
+// an ISO-4217 code → USD per 1 unit; the mock reads the `from=` query
+// param and answers in Frankfurter's { rates: { USD: <n> } } shape.
+function mockFrankfurter(usdRates) {
+  return vi.fn((url) => {
+    const m = /[?&]from=([A-Za-z]{3})/.exec(url);
+    const cur = m && m[1].toUpperCase();
+    if (cur && usdRates[cur] != null) {
+      return Promise.resolve({ ok: true, json: async () => ({ rates: { USD: usdRates[cur] } }) });
+    }
+    return Promise.resolve({ ok: true, json: async () => ({ rates: {} }) });
+  });
+}
+
+describe('currency-format — prefix lookups', () => {
+  it('maps operator-specified country prefixes (SG → S$, MY → M$)', () => {
+    expect(prefixForCountry('SG')).toBe('S$');
+    expect(prefixForCountry('MY')).toBe('M$');
+    expect(prefixForCountry('US')).toBe('US$');
+    expect(prefixForCountry('JP')).toBe('¥');
+    expect(prefixForCountry('FR')).toBe('€');
+  });
+
+  it('returns null for unknown country codes', () => {
+    expect(prefixForCountry('XX')).toBeNull();
+    expect(prefixForCountry('')).toBeNull();
+    expect(prefixForCountry(null)).toBeNull();
+  });
+
+  it('lowercases country codes safely', () => {
+    expect(prefixForCountry('sg')).toBe('S$');
+    expect(prefixForCountry('My')).toBe('M$');
+  });
+
+  it('maps ISO-4217 currency codes', () => {
+    expect(prefixForCurrency('SGD')).toBe('S$');
+    expect(prefixForCurrency('MYR')).toBe('M$');
+    expect(prefixForCurrency('USD')).toBe('US$');
+    expect(prefixForCurrency('EUR')).toBe('€');
+  });
+
+  it('falls back to "CODE " for unknown currencies', () => {
+    expect(prefixForCurrency('XYZ')).toBe('XYZ ');
+  });
+
+  it('maps country → currency for FX lookup', () => {
+    expect(currencyForCountry('SG')).toBe('SGD');
+    expect(currencyForCountry('MY')).toBe('MYR');
+    expect(currencyForCountry('FR')).toBe('EUR');
+    expect(currencyForCountry('XX')).toBeNull();
+  });
+
+  it('covers the Option-B device long tail (~170 nations)', () => {
+    // Picker neighbours the old ECB map omitted.
+    expect(currencyForCountry('MO')).toBe('MOP');
+    expect(currencyForCountry('BN')).toBe('BND');
+    // Common traveller home currencies across continents.
+    expect(currencyForCountry('GB')).toBe('GBP');
+    expect(currencyForCountry('AE')).toBe('AED');
+    expect(currencyForCountry('BR')).toBe('BRL');
+    expect(currencyForCountry('SE')).toBe('SEK');
+    expect(currencyForCountry('ZA')).toBe('ZAR');
+    expect(currencyForCountry('SA')).toBe('SAR');
+    // Eurozone member added in the expansion.
+    expect(currencyForCountry('HR')).toBe('EUR');
+  });
+});
+
+describe('currency-format — usdRate (Alpha Vantage primary)', () => {
+  let mockRedis;
+  beforeEach(() => {
+    mockRedis = {
+      get: vi.fn().mockResolvedValue(null),
+      setEx: vi.fn().mockResolvedValue('OK')
+    };
+    globalThis.fetch = vi.fn();
+  });
+  afterEach(() => { vi.restoreAllMocks(); delete process.env.ALPHAVANTAGE_API_KEY; });
+
+  it('short-circuits USD to 1.0 without a network call', async () => {
+    const r = await usdRate('USD', mockRedis);
+    expect(r).toBe(1.0);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it('reads Alpha Vantage CURRENCY_EXCHANGE_RATE and caches 15 days', async () => {
+    process.env.ALPHAVANTAGE_API_KEY = 'TESTKEY';
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ 'Realtime Currency Exchange Rate': { '5. Exchange Rate': '0.74000000' } })
+    });
+    const r = await usdRate('SGD', mockRedis);
+    expect(r).toBe(0.74);
+    expect(globalThis.fetch).toHaveBeenCalledOnce();
+    expect(globalThis.fetch.mock.calls[0][0]).toContain('alphavantage.co');
+    expect(mockRedis.setEx).toHaveBeenCalledWith('fx:usd:SGD', 15 * 24 * 3600, '0.74');
+  });
+
+  it('falls back to Frankfurter when Alpha Vantage is rate-limited (Information envelope)', async () => {
+    process.env.ALPHAVANTAGE_API_KEY = 'TESTKEY';
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ Information: 'rate limit' }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ rates: { USD: 0.21 } }) });
+    const r = await usdRate('MYR', mockRedis);
+    expect(r).toBe(0.21);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect(globalThis.fetch.mock.calls[1][0]).toContain('frankfurter.app');
+  });
+
+  it('uses Frankfurter directly when no Alpha Vantage key is set', async () => {
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74 });
+    const r = await usdRate('SGD', mockRedis);
+    expect(r).toBe(0.74);
+    expect(globalThis.fetch.mock.calls[0][0]).toContain('frankfurter.app');
+  });
+
+  it('returns a cached value without hitting the network', async () => {
+    mockRedis.get.mockResolvedValue('0.74');
+    const r = await usdRate('SGD', mockRedis);
+    expect(r).toBe(0.74);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  // v0.62.6 — baseline fallback: a baseline currency (SGD) now degrades to its
+  // fixed approximate rate instead of null when both live sources fail, so the
+  // parenthetical conversion survives an FX outage.
+  it('falls back to the baseline rate when both sources fail (baseline currency)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('econnrefused'));
+    const r = await usdRate('SGD', mockRedis);
+    expect(r).toBe(0.778);
+  });
+
+  it('returns null when both sources fail and no baseline exists (SEK)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('econnrefused'));
+    const r = await usdRate('SEK', mockRedis);
+    expect(r).toBeNull();
+  });
+
+  // v0.62.6 — the VN bug class: a corrupt cached rate (e.g. an inverted leg)
+  // must be REJECTED by the plausibility guard and healed from the baseline,
+  // never used (deployed: ₫300000 rendered as ≈S$129162).
+  it('rejects a corrupt cached VND rate and self-heals the cache from the baseline', async () => {
+    mockRedis.get.mockResolvedValue('0.43');   // wildly wrong: real VND ≈ 0.0000390
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('offline'));
+    const r = await usdRate('VND', mockRedis);
+    expect(r).toBe(0.0000390);
+    expect(mockRedis.setEx).toHaveBeenCalledWith('fx:usd:VND', 15 * 24 * 3600, '0.000039');
+  });
+
+  it('keeps a plausible cached value (guard does not over-reject)', async () => {
+    mockRedis.get.mockResolvedValue('0.74');   // within 5× of SGD baseline 0.778
+    const r = await usdRate('SGD', mockRedis);
+    expect(r).toBe(0.74);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe('currency-format — fetchFxRate (USD cross-rate)', () => {
+  let mockRedis;
+  beforeEach(() => {
+    mockRedis = {
+      get: vi.fn().mockResolvedValue(null),
+      setEx: vi.fn().mockResolvedValue('OK')
+    };
+    globalThis.fetch = vi.fn();
+  });
+  afterEach(() => { vi.restoreAllMocks(); delete process.env.ALPHAVANTAGE_API_KEY; });
+
+  it('short-circuits identical currencies to 1.0', async () => {
+    const r = await fetchFxRate('SGD', 'SGD', mockRedis);
+    expect(r).toBe(1.0);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it('SGD→USD uses only the SGD leg (USD pivot is 1.0)', async () => {
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74 });
+    const r = await fetchFxRate('SGD', 'USD', mockRedis);
+    expect(r).toBe(0.74);
+    expect(globalThis.fetch).toHaveBeenCalledOnce(); // USD leg short-circuits
+  });
+
+  it('computes a cross-rate via the USD pivot: SGD→MYR = usd(SGD)/usd(MYR)', async () => {
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74, MYR: 0.2146 });
+    const r = await fetchFxRate('SGD', 'MYR', mockRedis);
+    // 0.74 / 0.2146 ≈ 3.448 MYR per 1 SGD
+    expect(r).toBeCloseTo(0.74 / 0.2146, 6);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('covers a "rigid" currency Frankfurter omits, via Alpha Vantage (TWD)', async () => {
+    process.env.ALPHAVANTAGE_API_KEY = 'TESTKEY';
+    globalThis.fetch = vi.fn((url) => {
+      if (url.includes('from_currency=TWD')) {
+        return Promise.resolve({ ok: true, json: async () => ({ 'Realtime Currency Exchange Rate': { '5. Exchange Rate': '0.031' } }) });
+      }
+      // USD pivot short-circuits, so this branch is for SGD only.
+      return Promise.resolve({ ok: true, json: async () => ({ 'Realtime Currency Exchange Rate': { '5. Exchange Rate': '0.74' } }) });
+    });
+    const r = await fetchFxRate('TWD', 'SGD', mockRedis);
+    expect(r).toBeCloseTo(0.031 / 0.74, 6);
+  });
+
+  // v0.62.6 — baseline currencies cross via their fixed rates on FX outage.
+  it('crosses via baselines when live FX fails (SGD→MYR)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
+    const r = await fetchFxRate('SGD', 'MYR', mockRedis);
+    expect(r).toBeCloseTo(0.778 / 0.246, 6);
+  });
+
+  it('returns null when a leg has no baseline and live FX fails (SEK→MYR)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
+    const r = await fetchFxRate('SEK', 'MYR', mockRedis);
+    expect(r).toBeNull();
+  });
+
+  // v0.62.6 — the deployed VN bug end-to-end at the rate level: even with a
+  // corrupt cached leg, VND→SGD must come out ~0.00005 (NOT ~0.43).
+  it('VND→SGD stays sane even with a corrupt cached VND leg', async () => {
+    mockRedis.get.mockImplementation((k) => Promise.resolve(k === 'fx:usd:VND' ? '0.43' : null));
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('offline'));
+    const r = await fetchFxRate('VND', 'SGD', mockRedis);
+    expect(r).toBeCloseTo(0.0000390 / 0.778, 9);
+    expect(r).toBeLessThan(0.001);
+  });
+});
+
+describe('currency-format — formatPriceRangeForVenue', () => {
+  let mockRedis;
+  beforeEach(() => {
+    mockRedis = { get: vi.fn().mockResolvedValue(null), setEx: vi.fn() };
+    globalThis.fetch = vi.fn();
+  });
+  afterEach(() => { vi.restoreAllMocks(); delete process.env.ALPHAVANTAGE_API_KEY; });
+
+  it('returns null when priceRange is missing', async () => {
+    const r = await formatPriceRangeForVenue(null, 'SG', 'SG', mockRedis);
+    expect(r).toBeNull();
+  });
+
+  it('same-country SG user + SG venue → "S$25–40" (no parens)', async () => {
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'SG', mockRedis
+    );
+    expect(r).toBe('S$25–40');
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it('SG user + MY venue → marked-up "≈" parens via USD pivot', async () => {
+    // usd(MYR)=0.232, usd(SGD)=0.8 → SGD per MYR = 0.29.
+    // 50*0.29=14.50 *1.028 → 14.91 ; 80*0.29=23.20 *1.028 → 23.85
+    globalThis.fetch = mockFrankfurter({ MYR: 0.232, SGD: 0.8 });
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'MYR', start: 50, end: 80 }, 'MY', 'SG', mockRedis
+    );
+    expect(r).toBe('M$50–80 (≈S$14.91–23.85)');
+  });
+
+  it('rounds the marked-up conversion UP to 2 dp (cents currency)', async () => {
+    // usd(SGD)=0.74, USD pivot 1.0 → SGD per USD... here SG venue, US user.
+    // 25*0.74=18.50 *1.028=19.018 → 19.02 ; 40*0.74=29.60 *1.028=30.4288 → 30.43
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74 });
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'US', mockRedis
+    );
+    expect(r).toBe('S$25–40 (≈US$19.02–30.43)');
+  });
+
+  it('rounds no-cents user currency (JPY) to whole numbers, marked up', async () => {
+    // usd(SGD)=0.74, usd(JPY)=0.0067 → JPY per SGD ≈ 110.4478
+    // 25*110.4478=2761.19 *1.028 → 2839 ; 40*…=4417.91 *1.028 → 4542
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74, JPY: 0.0067 });
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'JP', mockRedis
+    );
+    // v0.62.x — thousands separators on the integer part (operator request).
+    expect(r).toBe('S$25–40 (≈¥2,839–4,542)');
+  });
+
+  // v0.62.6 — baseline currencies now keep an approximate conversion through an
+  // FX outage (0.246/0.778 cross, +2.8% markup, ceil 2dp).
+  it('keeps a baseline-approximate conversion when live FX fails (MYR→SGD)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'MYR', start: 50, end: 80 }, 'MY', 'SG', mockRedis
+    );
+    expect(r).toBe('M$50–80 (≈S$16.26–26.01)');
+  });
+
+  it('falls back to no-parens when FX fails and the venue currency has no baseline', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SEK', start: 50, end: 80 }, 'SE', 'SG', mockRedis
+    );
+    expect(r).toBe('SEK 50–80');
+  });
+
+  // v0.62.6 — the operator's deployed VN bug, end-to-end: ₫300000–400000 must
+  // render ≈S$15–21, NEVER ≈S$129162 (corrupt leg + missing guard).
+  it('VND venue renders a sane S$ conversion even with a corrupt cached rate', async () => {
+    mockRedis.get.mockImplementation((k) => Promise.resolve(k === 'fx:usd:VND' ? '0.43' : null));
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('offline'));
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'VND', start: 300000, end: 400000 }, 'VN', 'SG', mockRedis
+    );
+    // v0.62.x — thousands separators on the native VND amount (operator request).
+    expect(r).toBe('₫300,000–400,000 (≈S$15.46–20.62)');
+  });
+
+  it('omits parens when user country is unknown (null)', async () => {
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', null, mockRedis
+    );
+    expect(r).toBe('S$25–40');
+  });
+
+  it('omits parens when venue country is unknown (null)', async () => {
+    // Falls back to currency-code prefix (S$ via SGD).
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, null, 'US', mockRedis
+    );
+    expect(r).toBe('S$25–40');
+  });
+
+  it('handles single-point ranges (start only)', async () => {
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 30, end: null }, 'SG', 'SG', mockRedis
+    );
+    expect(r).toBe('S$30');
+  });
+
+  it('handles single-point ranges (end only)', async () => {
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: null, end: 30 }, 'SG', 'SG', mockRedis
+    );
+    expect(r).toBe('S$30');
+  });
+
+  it('Option B: converts into a device currency in the long tail (GB → £)', async () => {
+    // usd(SGD)=0.74, usd(GBP)=1.27 → GBP per SGD = 0.582677
+    // 25*…=14.5669 *1.028 → 14.98 ; 40*…=23.3071 *1.028 → 23.96
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74, GBP: 1.27 });
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'GB', mockRedis
+    );
+    expect(r).toBe('S$25–40 (≈£14.98–23.96)');
+  });
+
+  it('Option B: unknown-symbol device currency uses the "CODE " prefix (AE → AED)', async () => {
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74, AED: 0.272 });
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'AE', mockRedis
+    );
+    // AED resolves via CURRENCY_PREFIX ("AED "); marked up + "≈".
+    expect(r).toMatch(/^S\$25–40 \(≈AED \d/);
+  });
+});

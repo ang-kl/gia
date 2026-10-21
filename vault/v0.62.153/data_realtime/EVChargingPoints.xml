@@ -1,0 +1,49 @@
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:georss="http://www.georss.org/georss" xmlns:gml="http://www.opengis.net/gml" xml:base="https://datamall2.mytransport.sg/ltaodataservice">
+    <id>http://schemas.datacontract.org/2004/07/</id>
+    <title />
+    <updated>2025-10-31T3:44:8Z</updated>
+    <link rel="self" href="https://datamall2.mytransport.sg/ltaodataservice/EVChargingPoints" />
+    <entry>
+        <content type="application/xml">
+            <m:properties>
+                <d:evLocationsData>
+                    <d:address>129A BUKIT MERAH VIEW SINGAPORE 151129</d:address>
+                    <d:name>BLK 129A BUKIT MERAH VIEW MULTI STOREY CAR PARK</d:name>
+                    <d:longitude>103.823376</d:longitude>
+                    <d:latitude>1.283493</d:latitude>
+                    <d:postalCode>151129</d:postalCode>
+                    <d:chargingPoints>
+                        <d:status>100</d:status>
+                        <d:operatingHours></d:operatingHours>
+                        <d:operator>TOTALENERGIES CHARGING SERVICES SINGAPORE PTE. LTD.</d:operator>
+                        <d:position>L2 -</d:position>
+                        <d:name>BLK 129A BUKIT MERAH VIEW MULTI STOREY CAR PARK</d:name>
+                        <d:plugTypes>
+                            <d:plugType>Type 2</d:plugType>
+                            <d:current>AC</d:current>
+                            <d:powerRating>3.7</d:powerRating>
+                            <d:price></d:price>
+                            <d:priceType></d:priceType>
+                            <d:evIds>
+                                <d:evCpId>R102014C-002</d:evCpId>
+                                <d:status></d:status>
+                            </d:evIds>
+                            <d:evIds>
+                                <d:evCpId>R102014C-001</d:evCpId>
+                                <d:status></d:status>
+                            </d:evIds>
+                            <d:evIds>
+                                <d:evCpId>R102015G-002</d:evCpId>
+                                <d:status></d:status>
+                            </d:evIds>
+                            <d:evIds>
+                                <d:evCpId>R102015G-001</d:evCpId>
+                                <d:status></d:status>
+                            </d:evIds>
+                        </d:plugTypes>
+                    </d:chargingPoints>
+                </d:evLocationsData>
+            </m:properties>
+        </content>
+    </entry>
+</feed>

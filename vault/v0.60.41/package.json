@@ -1,0 +1,36 @@
+{
+  "name": "soleat",
+  "version": "0.60.41",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "npm run build:cuisine && npm run build:menu && npm run build:hawker && npm run build:transport",
+    "build:cuisine": "cd web/cuisine && npm install --no-audit --no-fund && npm run build",
+    "build:menu": "cd web/menu && npm install --no-audit --no-fund && npm run build",
+    "build:hawker": "cd web/hawker && npm install --no-audit --no-fund && npm run build",
+    "build:transport": "cd web/transport && npm install --no-audit --no-fund && npm run build",
+    "postinstall": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.40.0",
+    "@google/generative-ai": "^0.24.1",
+    "@sentry/node": "^8.0.0",
+    "adm-zip": "^0.5.17",
+    "axios": "^1.6.0",
+    "cheerio": "^1.2.0",
+    "dotenv": "^16.3.1",
+    "express": "^5.2.1",
+    "node-telegram-bot-api": "^0.64.0",
+    "pino": "^9.0.0",
+    "redis": "^4.6.10"
+  },
+  "devDependencies": {
+    "pino-pretty": "^11.0.0",
+    "vitest": "^2.0.0"
+  }
+}

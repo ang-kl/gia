@@ -1,0 +1,552 @@
+{
+	"type" : "FeatureCollection",
+	"name" : "G_MP14_AGU_MRT_STN_PT",
+	"features" : [
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84987309542323, 1.3072755234157463 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 321,
+				"NAME" : "LITTLE INDIA",
+				"INC_CRC" : "099FD03799634219",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84816050513058, 1.2823802149796135 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 322,
+				"NAME" : "TELOK AYER",
+				"INC_CRC" : "1AC1D9BEBAC866AB",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85282555087667, 1.279459475611611 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 323,
+				"NAME" : "DOWNTOWN",
+				"INC_CRC" : "A59EE69E12186FBE",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84320436598884, 1.2841610782448465 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 324,
+				"NAME" : "CHINATOWN",
+				"INC_CRC" : "F5E922C4AC147176",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8514164957847, 1.2839966783075836 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 325,
+				"NAME" : "RAFFLES PLACE",
+				"INC_CRC" : "65CF27C760BEA09B",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84583362923395, 1.2991159999974808 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 326,
+				"NAME" : "DHOBY GHAUT",
+				"INC_CRC" : "88FDEDD96481F91C",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83910340357278, 1.3002407296282397 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 327,
+				"NAME" : "SOMERSET",
+				"INC_CRC" : "AECC1CE2095DB2A4",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85579279081385, 1.3005277724358508 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 328,
+				"NAME" : "BUGIS",
+				"INC_CRC" : "467F986629C6E0AB",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85917145046928, 1.281899646969133 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 329,
+				"NAME" : "BAYFRONT",
+				"INC_CRC" : "390B08445024C214",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85482524533494, 1.276058442504298 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 330,
+				"NAME" : "MARINA BAY",
+				"INC_CRC" : "C12CE702619E936B",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84655695174993, 1.2882473696832235 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 331,
+				"NAME" : "CLARKE QUAY",
+				"INC_CRC" : "677EB09580F32BC9",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85408115589664, 1.312372162078346 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 332,
+				"NAME" : "FARRER PARK",
+				"INC_CRC" : "48F6F0089FDC0EBC",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85251191512044, 1.2930263615521769 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 333,
+				"NAME" : "CITY HALL",
+				"INC_CRC" : "F08F72697339F1B2",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85554310040756, 1.2933134725057795 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 334,
+				"NAME" : "ESPLANADE",
+				"INC_CRC" : "AC6B8F51071408B4",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8458357381402, 1.2766237348932972 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 335,
+				"NAME" : "TANJONG PAGAR",
+				"INC_CRC" : "D3128B58D912544A",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85062780356532, 1.2968711925771235 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 336,
+				"NAME" : "BRAS BASAH",
+				"INC_CRC" : "20245C0404CFB622",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84000177907579, 1.2803163277063514 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 337,
+				"NAME" : "OUTRAM PARK",
+				"INC_CRC" : "73149B6EE200B9C6",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83223270026005, 1.303901724963553 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 338,
+				"NAME" : "ORCHARD",
+				"INC_CRC" : "EB7F1D7219BD1D91",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86099347559136, 1.292995793061687 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 339,
+				"NAME" : "PROMENADE",
+				"INC_CRC" : "CF5A9CCBAF58BB2C",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84515914097713, 1.2843038573567056 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 340,
+				"NAME" : "CHINATOWN",
+				"INC_CRC" : "E0AE106764624380",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85042411378909, 1.2777431683051996 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 341,
+				"NAME" : "SHENTON WAY",
+				"INC_CRC" : "1545BB9FCF40447B",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84381306853646, 1.2805246208711565 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 342,
+				"NAME" : "CHINATOWN",
+				"INC_CRC" : "BC5EBC8D29AA4863",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8380365184388, 1.3135986296873776 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 343,
+				"NAME" : "NEWTON",
+				"INC_CRC" : "6A9CBF67FAD92361",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85701780502815, 1.2994442526424694 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 344,
+				"NAME" : "BUGIS",
+				"INC_CRC" : "17488F747CACD46F",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83146561288319, 1.3028406957155583 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 345,
+				"NAME" : "ORCHARD",
+				"INC_CRC" : "D1DB755F4941E969",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82395605196172, 1.30244910247112 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 346,
+				"NAME" : "ORCHARD",
+				"INC_CRC" : "AB8AC6621D5AEAA3",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85540680495183, 1.274663574954293 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 347,
+				"NAME" : "MARINA BAY",
+				"INC_CRC" : "207963A3A4ACF3C6",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83804889005846, 1.3123656721814168 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 348,
+				"NAME" : "NEWTON",
+				"INC_CRC" : "E81EF1CD007C469F",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83909852570896, 1.281640473915735 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 349,
+				"NAME" : "OUTRAM PARK",
+				"INC_CRC" : "FABB88B004D9935C",
+				"FMEL_UPD_D" : "20160120203721"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89375943654372, 1.3181723710393296 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 350,
+				"NAME" : "PAYA LEBAR",
+				"INC_CRC" : "16C08694B1B9DF8C",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89202825150439, 1.3172189089757511 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 351,
+				"NAME" : null,
+				"INC_CRC" : "3F83E45E",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74232437462993, 1.3324772906326223 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 352,
+				"NAME" : null,
+				"INC_CRC" : "596B66A3",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85038791256355, 1.2989493548377578 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 353,
+				"NAME" : "BENCOOLEN",
+				"INC_CRC" : "A54DB69AB5F922A4",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83345337242152, 1.2949978629949712 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 354,
+				"NAME" : "GREAT WORLD",
+				"INC_CRC" : "2BA4905027517B9F",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84450525932, 1.2927372182587382 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 355,
+				"NAME" : "FORT CANNING",
+				"INC_CRC" : "C5AD0AC6AD3480E1",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85240406418342, 1.3039667541154885 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 356,
+				"NAME" : "JALAN BESAR",
+				"INC_CRC" : "27463D23B05D29A4",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85530919825192, 1.305186880146833 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 357,
+				"NAME" : "JALAN BESAR",
+				"INC_CRC" : "113089EA2DBFF0B7",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8629597978218, 1.273986750673839 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 358,
+				"NAME" : "MARINA SOUTH",
+				"INC_CRC" : "C6DC5E3989135138",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86283768444103, 1.2714063485823366 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 359,
+				"NAME" : "MARINA PIER",
+				"INC_CRC" : "40A5D3F50B95091A",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86784323741101, 1.2789836595708581 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 360,
+				"NAME" : "GARDENS BY THE BAY",
+				"INC_CRC" : "D0CA6E762466684B",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86288094685749, 1.3074668428098057 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 361,
+				"NAME" : null,
+				"INC_CRC" : "C37E115E",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87128084450447, 1.3113928170996068 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 362,
+				"NAME" : null,
+				"INC_CRC" : "FE534A74",
+				"FMEL_UPD_D" : "20140703111020"
+			}
+		}
+	]
+}

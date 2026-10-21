@@ -41,3 +41,65 @@ Prior wording retained verbatim above: "Fourteen historical versions require rem
 [TEST] Require green ordinary CI, successful --prepare/--verify, exact 18/9 partition, all 28 version folders, zero missing/unexpected/unapproved differences, and isolated current-vault build/render evidence. After an authorised merge, read the folder set back from main.
 
 [KNOWN GAPS] Actual main publication, candidate verification, isolated restoration and deployment-trigger review are still pending. Global serial-state counters remain unchanged rather than guessed. Historical application build compatibility is not certified. Feature-map work remains deferred.
+
+### [AMD-2] Historical restoration follow-up after PR #1873 merged
+
+Amendment version 2.3. Date: 28 September 2026 (Asia/Singapore).
+
+[INTENT] Latest user directive: "move the older historical archives" and "Auto-merge". The approved preservation partition remains 18 sanitised historical versions, nine unchanged historical versions and unchanged v0.62.937. The requested destination is still main/vault, not merely a runner-local archive.
+
+[MERGE RECORD] GitHub reports PR #1873 merged on 2026-09-28T01:39:55Z (09:39:55 SGT), commit 8356a26dd7deb5d90fe411204f074871e5a5da85. Live main read-back contains only vault/v0.62.937 at tree f9941f040e4af3f39ea0e135ddf72a509aa41810. The 27 historical versions were not published by that merge. This record accompanies substantive guardrail fixes rather than opening a record-only PR.
+
+[DELTA] Work continues from the merged main on archive/restore-historical-vaults-20260928. The three security enumerations now share a 64 MiB, NUL-delimited git ls-files reader; no archive security paths are exempted, and unreadable tracked files now fail instead of being skipped. The NUL-byte guard permits only the 20 known historical paths at two exact original Git blob identities; live/new/mutated files still fail. No historical bytes are changed to satisfy that guard. Its additional path is __tests__/no-nul-bytes.test.js; the necessity is evidenced by the previous candidate run, not a weakening of privacy policy.
+
+[VERIFICATION (sandbox)] Node syntax check passed for the amended NUL guard. A synthetic 30,001-path Git index reproduced ENOBUFS with the former child-process limit and passed complete Unicode-safe enumeration with the repaired limit. Local assertions rejected live, new and altered NUL samples and confirmed exactly 20 pinned paths. These are fixture tests, not a full application test or completed restoration.
+
+[EVIDENCE] Prior full candidate run 36366160748/job/108752890995 passed the archive verifier with 25,247 historical source entries and 2,897,160,727 source/restored bytes; 343 changed paths, 721 coordinate replacements and 9,348 identifier replacements. It failed three security tests on ENOBUFS and the NUL-byte test on 20 historical paths. The new run must establish actual repair results.
+
+[INVARIANTS] Runtime files, package/lockfiles, privacy transformation, original historical Git objects, the current snapshot, Railway settings and feature-map work remain unchanged. Workflow permissions remain contents: read. No blocked repository-write workflow is recreated. A final publication gate requires the actual PR-head vault tree to equal the verified candidate tree, preventing preparation-only work being reported as restoration.
+
+[STATUS / AUTO-MERGE] Auto-merge is requested, but must not be enabled for a preparation-only branch. First require the actual complete archive files on the PR head and successful complete-candidate checks, then invoke the supported GitHub auto-merge action and report its response. No merge or publication is claimed at this amendment.
+
+[KNOWN GAPS] Full candidate CI, isolated restore/build/render, supported transfer of the verified historical objects to the PR head, final merge and main read-back remain pending. Branch-protection settings returned 403 to this integration, so enforcement must not be assumed. Global serial counters are not guessed; reconciliation remains due. No merge-only follow-up PR is to be opened.
+
+### [AMD-3] The historical archives are committed - superseding PR from `claude/handover-july-11-49uzvf`
+
+Amendment version 2.4. Date: 17 October 2026 (Asia/Singapore).
+
+[INTENT] Operator, 17-10 '26: *"Vault restoration (#1874): attempt it"*, then *"new PR"*, then
+`APPROVE doc/Feature/2026-09-28-vault-main-restoration.spec.md` (spec 0.5, sha `9876e193`), after
+confirming assumptions A1 to A6 and choosing to keep the spec in `doc/Feature` as a one-time
+exception to the `doc/Spec` rule.
+
+[DELTA]
+- `1eb1ff5f` (#1874's fix: 64 MiB NUL-delimited enumeration, 20 pinned historical NUL-byte paths)
+  carried onto this branch unchanged.
+- `.github/workflows/vault-verify.yml`: the head-branch pin moves to `claude/handover-july-11-49uzvf`.
+  It applies only while no manifest is committed; nothing else in the workflow changed.
+- `vault/`: 27 historical folders, `vault/RESTORATION_MANIFEST.json` and `vault/README.md`, written by
+  `node scripts/verify-vault-archives.mjs --prepare` and re-authored to this session with the tree
+  unchanged (`git rev-parse HEAD^{tree}` identical before and after).
+
+[VERIFICATION (sandbox)]
+
+| Check | Result |
+| :--- | :--- |
+| `--self-test` | 18 local assertions passed |
+| `vault/v0.62.937/VAULT_VERIFY.mjs` | passed |
+| `--prepare` scope audit | 25,247 files; 18 affected versions, 0 additional; 161 coordinate paths, 287 identifier paths |
+| `--verify` on the committed tree | passed: 28 folders, 9 unchanged, 18 sanitised, 343 changed paths, 721 coordinate and 9,348 identifier replacements, 0 remaining credentials, locations or pinned ids, 0 missing, 0 unexpected, 0 unapproved differences |
+| Same figures as CI run 36366160748 | yes, every count matches |
+| Full suite on the restored tree | 271 files, 5,649 passed, 1 skipped |
+| Push pack | 1,862 objects, 11.4 MB (originals already on GitHub) |
+
+[STATUS] DRAFT PR from this branch; #1874 to be commented as superseded and closed only when this PR
+is green and the operator agrees. Merging deploys `main` through Railway.
+
+[KNOWN GAPS]
+- The isolated v0.62.937 restore, build and render step was not run here; it runs in the PR's
+  `verify-vault` job. v0.62.937 is byte-identical to the snapshot #1873 already built.
+- Deploy-size risk (A6): with no `.railwayignore`, every deploy of `main` carries about 2.9 GB more
+  checkout. Not measured yet; to be reported before merge.
+- Historical application builds are not certified. The redaction covers marker-associated
+  coordinates and two digest-pinned identifiers; it is not a universal personal-data audit.
+- The original values remain in public git history; this is a reduction, not an erasure.

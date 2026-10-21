@@ -1,0 +1,795 @@
+counters:
+  commit: 323
+  build: 119
+  documents:
+    journal: 316
+    builder: 3
+    persona: 4
+    feature: 48
+    technical: 48
+    legal: 9
+    register: 116
+sessions:
+  current_chat_id: 2026-05-16
+  current_chat_counter: 38
+last_anchor_time: 23-05 '26 08:56 SGT
+last_anchor_source: system_clock_utc_2026-05-23T00:56:49Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T08:56:49+08:00
+last_anchor_utc: 2026-05-23T00:56:49Z
+# v0.61.116 (commit 323 / journal 316 / build 119) — Attractions /
+# Carpark cluster engine + source-order drop + Carpark popup Maps link.
+# Slice 2 of the operator's UI/UX spec, on branch claude/v0.61.116-
+# cluster-engine off main at v0.61.115. The four spec contradictions
+# from slice 1 were resolved via AskUserQuestion:
+#   • Answer 1 (cluster threshold): per-layer — Attractions ≥ 8,
+#     Carpark ≥ 5.
+#   • Answer 2 (lower-priority drop): source-order, first-in wins.
+#     Colliding markers cascade label → icon → drop.
+#   • Answer 3 (cards): Carpark popup gains "Google Maps ↗"; the
+#     Attractions popup train-info redesign (per-line pills + station
+#     name + line status + crowding + exits + bus stops) needs new
+#     server-side data and ships as v0.61.117 (slice 3).
+#   • Answer 4 (Carpark visibility): both at z ≥ 15 — fully clustered
+#     below z15, labels at/above.
+# Plus a sub-decision: cluster tile = 40 px screen grid.
+# New helpers in mapOverlays.js: clusterLabelNode, footprintOverlap,
+# applyClusterAndDrop. Carpark + Attractions split out of the marker
+# branch in applyVisibility into an early-return that calls
+# applyClusterAndDrop. Cluster pool lives on e._clusters, reused
+# across renders. Cluster pill click zooms in 2 levels capped at z18.
+# public/app.js mirrors with runClusterPass — buckets visible items
+# into a 40 px tile, applies the same per-tile cluster/individual
+# decision, runs the label → icon → drop cascade. Carpark popup
+# gains the Google Maps ↗ link.
+# Slice 1 (v0.61.115) attractions 'dot' → 'glyph' floor + carpark
+# label branch removed from applyVisibility — superseded by the
+# cluster engine. v0.61.105 carpark icon-size ladder is also gone
+# below z15 (operator answer 4 force-clusters everything there).
+# journal-0_61_116-23_05_26-0856.md.
+# v0.61.115 (commit 322 / journal 315 / build 118) — Attractions / Carpark
+# zoom tiers, slice 1 of the operator's UI/UX spec. Branch claude/v0.61.
+# 115-attractions-carpark-zoom-tiers, off main at v0.61.114. Operator
+# posted a 2-layer spec (Attractions / Carpark) with zoom-tier marker
+# rendering, collision degradation, clustering rules and card layouts;
+# this PR lands only the unambiguous parts and defers the rest.
+# Implemented:
+#   • Attractions z<14 → ⚝ glyph at every zoom (was: tiny coloured dot
+#     at z<12, ⚝ glyph at z12–13). Floors amenityTier 'dot' → 'glyph'
+#     for the attractions layer only.
+#   • Carpark z>=15 → labeled `🅿 Carpark Name` pill; collision with
+#     another label degrades the colliding marker back to the icon
+#     (size ladder + shrink unchanged below z15).
+#   • Carpark + Attractions labels share the placedLabels collision
+#     pool so the two layers don't visually overlap each other at z>=15.
+#   • Public /app/map mirrors both: overlayLabel() pill helper +
+#     pxBetween() distance helper; carpark label gate in
+#     renderClippedLayer; attraction label gate in renderMenuLayer.
+# Deferred (logged in [KNOWN GAPS]):
+#   • Clustering ("N ⚝" / "5 🅿 here") — spec self-contradicts
+#     (threshold >7 markers vs "exactly 5" example) and "cluster tile"
+#     is undefined.
+#   • z<15 carpark "lower-priority drop" — "priority" undefined; the
+#     v0.61.105 size-shrink-on-collision behaviour remains.
+#   • Card layouts (Header / Metadata / Transit / Actions) — the
+#     existing attraction popup is richer than the spec table; the
+#     carpark popup is bare; both pending operator confirmation that
+#     the spec table is additive, not a replacement.
+# web/cuisine/src/v2/lib/mapOverlays.js (+ byte-identical copies in
+# web/hawker/src/lib + web/transport/src/lib) and public/app.js.
+# journal-0_61_115-23_05_26-0822.md.
+# v0.61.114 (commit 321 / journal 314 / build 117) — Cuisine map zoom-11
+# lock + centroid-of-pins centre. Branch claude/v0.61.114-cuisine-zoom-
+# 11-centroid, off main at v0.61.113 (#601). Operator: "zoom level for
+# initial loading should be 11, so is everytime search result should be
+# 11. And don't centralised map, show the results in view without the
+# frame of the google map embedded." Via AskUserQuestion the operator
+# chose centre = "geometric mean of result pins (centroid)" over
+# searchCenter / fitBounds-zero-padding / no-auto-centre.
+# web/cuisine/src/v2/components/MapPanel.jsx — initMap zoom 14 -> 11;
+# syncMarkers fit block rewritten: drops setOptions({maxZoom:11}) +
+# fitBounds(60) + the post-idle maxZoom release in favour of
+# setCenter(centroid) + setZoom(11). Centroid is the mean of finite
+# venue lat/lng (anchor pin not included by operator choice). No-
+# results fallback: searchCenter || userLoc, still at z11. Supersedes
+# v0.61.110's maxZoom-11 ceiling + 60px fitBounds frame (the "frame"
+# the operator wanted removed). journal-0_61_114-23_05_26-0755.md.
+# v0.61.113 (commit 320 / journal 313 / build 116) — Cuisine free-text
+# keep PR #601 (branch claude/v0.61.108-cuisine-freetext-keep, re-
+# stamped from v0.61.108 after main advanced to v0.61.112 ahead of
+# merge): web/cuisine/src/v2/App.jsx — handleNLSubmit now calls
+# setNlText(text) after setState, so a typed free-text dish (e.g.
+# "fishball noodle") stays visible in the Search-criteria builder and
+# is sent as the freeText qualifier alongside the inferred cuisine chip
+# (was: the typed phrase vanished, only the inferred cuisine showed).
+# Operator chose "keep both" via AskUserQuestion.
+# journal-0_61_113-23_05_26-0729.md. Originally numbered v0.61.108 /
+# commit 315 / journal 308 / build 111 off main at v0.61.106, concurrent
+# with PR #600 (v0.61.107); renumbered on merge after PRs #600 #602
+# #603 #604 all landed first per the concurrent-PR precedent. Resolves
+# the "STILL DUE" item flagged in the v0.61.107 entry below.
+# v0.61.112 (commit 319 / journal 312 / build 115) — map-polish round 2
+# PR #604 (branch claude/v0.61.111-attraction-autoframe, re-scoped, off
+# main at v0.61.110): three operator-reported defects. (1) Popup body
+# text was thin grey — infoCard() wrapper now sets font-weight:500 and
+# infoPalette().sub darkened #5a5a5a -> #3c3c40 (covers every TMA-map
+# popup). (2) Transport zoom-hang — MrtMapPanel zoom_changed re-render
+# debounced ~180ms (zoomRenderTimerRef) so rapid multi-level zooms no
+# longer stack full ~200-marker rebuilds. (3) Attractions overlay now
+# works in the TMA maps — exempt from the 550m radius clip in
+# applyVisibility (zoom tier handles declutter, like the train layer)
+# and frameAttractions() frames the whole set. Supersedes v0.61.111's
+# in-radius frame (see journal #312 Amendments). mapOverlays.js x3.
+# v0.61.111 (commit 318 / journal 311 / build 114) — attraction-
+# overlay auto-frame PR (branch claude/v0.61.111-attraction-autoframe,
+# off main at v0.61.110): operator point-2 follow-up. createOverlay-
+# Controller gains frameAttractions() — toggling the Attractions (⚝)
+# overlay ON fits the map to the in-radius attractions (single ->
+# setCenter + z17, multiple -> fitBounds 80px), mirroring the bot's
+# "View N Train Stations" fit. setLayer calls it on attractions+visible.
+# mapOverlays.js x3. journal-0_61_111-22_05_26-2355.md.
+# v0.61.110 (commit 317 / journal 310 / build 113) — map-polish PR
+# #603 (branch claude/v0.61.110-map-polish, off main at v0.61.109):
+# Cuisine MapPanel result auto-fit maxZoom 16 -> 11 (operator: "ceiling
+# is 11"); InfoWindow text one size larger + unified — shared infoCard
+# base 12px -> 13px + sub-lines 11px -> 12px (mapOverlays.js x3), the
+# Cuisine venue popup body 11px -> 12px + anchor caption 10.5px ->
+# 12px; the 🗺 glyph dropped from the "View all N picks on map"
+# results footer. Operator's point 2 (a "View N Attractions" map-frame
+# action mirroring the bot's "View {n} Train Stations") deferred —
+# needs one more decision on where it lives. journal-0_61_110-22_05_26
+# -2325.md.
+# v0.61.109 (commit 316 / journal 309 / build 112) — attraction-
+# enrichment PR #602 (branch claude/v0.61.109-attraction-enrichment,
+# off main at v0.61.107): new scripts/fetch-attraction-details.js —
+# Google Places searchText (rating / phone / weekday hours / website /
+# wheelchair-entrance flag) + a website Instagram-link scrape, writing
+# name-keyed data/attraction-details.json (committed empty scaffold).
+# build-geo-overlays.js gains nearestStations() — attractions carry
+# the nearest TWO stations + an optional attraction-details.json join.
+# attractionInfo popup (mapOverlays.js x3 + public/app.js) rewritten
+# to show rating / address / hours / contact / wheelchair / two
+# stations / website / Instagram. Plus UI/Map_Zoom_Effects.MD — a
+# reference doc for the Google-Maps zoom/overlay/pin behaviour across
+# the 4 interactive map surfaces. Operator answered the planning
+# questions via AskUserQuestion (Instagram = website-scrape;
+# accessibility = minimal). journal-0_61_109-22_05_26-2115.md.
+# Concurrent with PR #601 (v0.61.108); if #601 merges second the
+# counters renumber — deferred to the operator.
+# v0.61.107 (commit 314 / journal 307 / build 110) — cuisine-zoom PR
+# #600 (branch claude/v0.61.107-cuisine-zoom-on-search, off main at
+# v0.61.106): Cuisine MapPanel syncMarkers re-frames (fitBounds) on the
+# first load AND every new search — firstFitRef replaced by
+# lastFitVenuesRef (tracks the venues array last fitted); a same-venues
+# re-render still only recenters. Transport/Hawker/app-map untouched.
+# journal-0_61_107-22_05_26-1940.md. STILL DUE — the free-text
+# "fishball noodle" -> Singaporean-cuisine misclassification.
+# v0.61.106 (commit 313 / journal 306 / build 109 unchanged) — /app/map
+# station-tiers PR #599 (branch claude/v0.61.106-appmap-station-tiers,
+# off main at v0.61.105): public/app.js — the Train Line layer's
+# station markers now use the Hawker TMA train-tier algorithm
+# (trainTier hawker bands + code-chip/pill node builders +
+# demoteByOverlap, re-implemented in the plain IIFE) instead of a 🚉
+# emoji pin. Planned + built under plan mode (operator chose the
+# Hawker algorithm). journal-0_61_106-22_05_26-1849.md.
+# v0.61.105 (commit 312 / journal 305 / build 109) — carpark-tiers PR
+# #598 (branch claude/v0.61.105-carpark-tiers, stacked on #597): the
+# carpark overlay marker shrinks by zoom (carparkSize: 22/18/14/10 px
+# z17/16/15/<=14) + 4 px more on overlap; dotNode gains an optional
+# numeric size. mapOverlays.js (x3) + public/app.js.
+# journal-0_61_105-22_05_26-1732.md. Completes the four-item map spec
+# (monochrome-lines fix #596, bus/parity/readout #597, carpark #598).
+# v0.61.104 (commit 311 / journal 304 / build 108) — bus-tier/parity/
+# readout PR #597 (branch claude/v0.61.104-bus-tier-readout-parity,
+# off main at v0.61.103): bus tiers revised (z15 glyph, z16 short
+# label, z14 new glyph-lg tier); /app/map toggle row + dropdown
+# matched to the Hawker TMA (adds Station Exits + Taxis); zoom readout
+# 0.3 -> 0.9 opacity + one size larger. journal-0_61_104-*.md.
+# STILL DUE — the carpark zoom-size ladder + overlap demotion.
+# v0.61.103 (commit 310 / journal 303 / build 107) — monochrome-lines
+# fix PR #596 (branch claude/v0.61.103-monochrome-lines-fix, off main
+# at v0.61.102): in monochrome the base train polylines render at
+# strokeOpacity 0 so the greyed canvas is transparent and the coloured
+# SVG overlay shows through — fixing grey lines in monochrome mode
+# (v0.61.95's overlay was hidden behind the greyed base canvas).
+# journal-0_61_103-22_05_26-1704.md. First of several PRs for the
+# operator's latest spec (bus/carpark sizing, /app/map<->Hawker
+# parity, zoom-readout tweak still due).
+# v0.61.102 (commit 309 / journal 302 / build 106) — zoom-readout +
+# bus-tiers PR #595 (branch claude/v0.61.102-zoom-bus-tiers, off main
+# at v0.61.101): the embedded-map zoom display becomes a faint
+# "🔭 <zoom>" (30% opacity, 2 px smaller, no circle); bus-stop overlay
+# markers render by 5 zoom bands (full label / short label / glyph /
+# small glyph / light-yellow square) via busTier + busTierNode in
+# mapOverlays.js and busTier + busTierPin in public/app.js.
+# journal-0_61_102-22_05_26-1535.md.
+# v0.61.101 (commit 308 / journal 301 / build 105 unchanged) — /app/map
+# dropdown PR #594 (branch claude/v0.61.101-appmap-dropdown, off main
+# at v0.61.100): public/app.js — the inert "⋯" button now opens a
+# working dropdown of extra overlay layers (Parks / Attractions /
+# Clinics / Police / Hospitals) from /api/geo/overlays, viewport-
+# clipped like the bus/carpark layers. Completes the /app/map parity
+# overhaul (operator spec items #3-#7). journal-0_61_101-*.md.
+# v0.61.100 (commit 307 / journal 300 / build 105 unchanged) — /app/map
+# first-pass PR #593 (branch claude/v0.61.100-appmap-overhaul, off main
+# at v0.61.99): public/app.js — toggle row moved to the top edge; new
+# bottom-right zoom-readout / recenter button; the Train Line layer now
+# draws tappable 🚉 station markers (was polylines only); carpark popup
+# names Proper-Cased. journal-0_61_100-22_05_26-1443.md. STILL DUE —
+# the inert "⋯" dropdown on /app/map (port the React overlay layers).
+# v0.61.99 (commit 306 / journal 299 / build 105) — station-amenity PR
+# #592 (branch claude/v0.61.99-station-amenity-fix, off main at
+# v0.61.98): /api/transport/station-context bus + taxi search radius
+# widened 400 m -> 600 m; attachAmenityPins no longer drops taxi
+# features tagged kind:'stop' — best-effort fix for "no bus/taxi in
+# the station-detail view". journal-0_61_99-22_05_26-1425.md. If bus
+# is still empty the Redis bus-stop GEO index is the cause (runtime
+# check needed). STILL DUE — the /app/map (public/app.js) overhaul.
+# v0.61.98 (commit 305 / journal 298 / build 104) — station-tap-fix PR
+# #591 (branch claude/v0.61.98-station-tap-fix, off main at v0.61.97):
+# the Transport-map station InfoWindow is anchored to the station
+# lat/lng position instead of the tapped marker, so it survives the
+# renderPins marker rebuilds (focusedStation change + detailCtxTick) —
+# fixing the "3 taps to open station info" bug. journal-0_61_98-*.md.
+# STILL DUE — the 2nd reported bug (no taxi/bus pins in the station-
+# detail view; likely empty /api/transport/station-context arrays,
+# needs a runtime check) and the /app/map (public/app.js) overhaul.
+# v0.61.97 (commit 304 / journal 297 / build 103) — amenity-zoom-tiers
+# PR #590 (branch claude/v0.61.97-amenity-zoom-tiers, off main at
+# v0.61.95): amenityTier(zoom) + amenityNode — the Attractions /
+# Clinic / Police / Hospital overlays render dot (z<12) / glyph
+# (z12-13) / icon+name (z14+) with label-overlap demotion; parks gain
+# a z14+ name label. journal-0_61_97-22_05_26-1256.md. Concurrent with
+# PR #589 (v0.61.96, journal 296) — both off main at v0.61.95; #589
+# assumed to merge first, else the counters renumber (concurrent-PR
+# precedent). STILL DUE — the /app/map (public/app.js) parity overhaul.
+# v0.61.96 (commit 303 / journal 296 / build 102) — zoom-indicator PR
+# #589 (branch claude/v0.61.96-zoom-indicator-size, off main at
+# v0.61.95): the embedded-map zoom readout shrinks w-10 h-10 -> w-8 h-8
+# on all 3 TMA maps. journal-0_61_96-22_05_26-1245.md.
+# v0.61.95 (commit 302 / journal 295 / build 101) — monochrome-lines
+# PR #588 (branch claude/v0.61.95-mono-lines, stacked on #587):
+# new makeTrainColourOverlay — an OverlayView that draws the train
+# lines as SVG <path>s in the overlay pane (DOM, outside the greyscaled
+# canvas), so the lines stay coloured in monochrome mode. Additive;
+# the base google.maps Polylines are untouched. createOverlayController
+# gains setMonochrome; MrtMapPanel drives its own copy. Operator R1/R2
+# ambiguity resolved by AskUserQuestion ("keep them coloured").
+# journal-0_61_95-22_05_26-1124.md. No in-sandbox visual verification.
+# v0.61.94 (commit 301 / journal 294 / build 100) — overlap PR #587
+# (branch claude/v0.61.94-overlap-resolve, off main at v0.61.93):
+# demoteByOverlap rewritten symmetric + iterative — every overlapping
+# train-marker label is demoted (pill -> code chip -> smaller chip)
+# until no collisions remain, fixing the City Hall / CC3 overlap that
+# v0.61.92's keep-nearest pass left uncleared. journal-0_61_94-*.md.
+# STILL DUE — part 5 (coloured train lines in monochrome), own PR.
+# v0.61.93 (commit 300 / journal 293 / build 99) — map-zoom PR #586
+# (branch claude/v0.61.93-map-zoom-location, off main at v0.61.92):
+# embedded maps stop auto-zooming-out (fitBounds only on first data
+# load via firstFitRef; later loads keep the user's zoom); the zoom
+# readout becomes a white circular button — on Cuisine it recenters on
+# the saved location and the separate pin button is removed; /l now
+# resolves an MRT station code / 5-digit bus-stop number / "<station>
+# exit <id>" before geocoding; /l result copy "/s" -> "/search".
+# journal-0_61_93-22_05_26-0958.md. DEFERRED — coloured train lines in
+# monochrome mode (lines render into the greyscaled map canvas; needs a
+# separate SVG line overlay; logged in Register). No browser/bot
+# verification (no Maps webview, no Telegram runtime in the sandbox).
+# v0.61.92 (commit 299 / journal 292 / build 98) — train-overlap PR
+# #585 (branch claude/v0.61.92-train-overlap-rendering, off main at
+# v0.61.91): screen-space overlap-aware train-station rendering —
+# demoteByOverlap()/metresPerPixelAt() collision pass (keep nearest the
+# result, demote the rest: pill -> code chip, chip -> ~20% smaller);
+# trainTier gains an inFocus branch (Cuisine z12-14 plain code chips
+# when the result is off-screen); the Transport MRT map's station dots
+# become zoom-tier code chips / named pills; integer transparent
+# "(pin) <z>" zoom readout on all 3 maps (added to Transport); Google
+# "Keyboard shortcuts / Map data / Terms" hidden, logo kept + shrunk.
+# +10 unit tests (__tests__/train-overlap.test.js, 1942 total).
+# journal-0_61_92-22_05_26-0918.md. Train-tier zoom bands scoped to
+# Cuisine + Transport; Hawker tiers stay v0.61.91. No browser
+# verification (no Maps webview in the sandbox).
+# v0.61.91 (commit 298 / journal 291 / build 97) — cuisine-map-refine
+# PR #584 (branch claude/v0.61.91-cuisine-map-refinements, off main at
+# v0.61.90): v0.61.90 train-overlay refinement (Cuisine-scoped) —
+# station info-card close reverts the marker; trainTier capRadius tier
+# (chip stations within 200 m / 300 m of the result at z12/z13); line
+# opacity 80% z≤14 / 90% z12-13 / 95%-80% z15+; cuisine venue droplet
+# 24→30 px; hawker centre pins → numbered droplets; both droplet sets
+# zIndex 1000. journal-0_61_91-22_05_26-0757.md. Numbered after the
+# vault pass (#583, commit 297 / journal 290); if #583 does not land
+# first the numbering collides — renumber deferred to the operator.
+# v0.61.90 vault pass (commit 297 / journal 290 / no build) — operator
+# instruction "vault": fresh vault/v0.61.90/ reproducible snapshot
+# (~155 MB, 901 files) + VAULT_README.md, per CLAUDE-FULL §16.1. Prior
+# vault v0.61.76 kept (Rule V-1); v0.61.77 → v0.61.90 is the delta arc.
+# No code change, no version bump. journal-0_61_90-22_05_26-0710.md;
+# branch claude/vault-v0.61.90. Rule V-3 — the snapshot omits this
+# self-referential addendum.
+# v0.61.90 (commit 296 / journal 289 / build 96) — train-overlay PR #582
+# (branch claude/train-overlay-zoom-tiers, off main at v0.61.89): per-
+# TMA, per-zoom-band train-overlay rendering — squares / sized code
+# chips / named pills, station-count caps, line opacity, tap-to-pill +
+# the zoom-readout restyle and a 30% camera-widget shrink. journal-
+# 0_61_90-22_05_26-0655.md. Journal #289 is the next slot off #288;
+# it overlaps the deferred PR #579 branch renumber (#282-285 → #288-
+# 291) — the renumber stays deferred to the operator. PR #582 CI
+# failed at the GitHub Actions runner-startup stage (~4 s, same infra
+# signature as PR #580); the code passes node --check + the 5-TMA
+# build + 1932/1932 tests locally.
+# v0.61.89 (commit 295 / journal 288 / build 95) — map-control PR #581
+# (squash 8bbec47, branch claude/v0.61.89-map-controls): bottom-right
+# zoom readout on the
+# Cuisine + Hawker maps + camera-control / keyboard-shortcut parity
+# across the 3 TMA maps. Journal #288 is the next slot off main (287);
+# it overlaps the deferred PR #579 branch renumber (note below) —
+# whichever lands second renumbers, deferred to the operator.
+# PR #579 branch (v0.61.84-87) — journal entries still due: v0.61.84
+# bus-stop parity + wake prompt, v0.61.85 quieter eatery tap, v0.61.86
+# cuisine eatery-pin tap-twice fix, v0.61.87 train overlay whole-network
+# + always-on station code chip. The branch first drafted v0.61.84/85
+# as journal #282/#283; main has since reused #282-287 for the
+# v0.61.78-83 catch-up, so the branch entries renumber from #288 —
+# deferred to the operator per the concurrent-PR renumbering precedent.
+# The detailed v0.61.84/85 audit is preserved in the branch's
+# journal-0_61_84-*.md / journal-0_61_85-*.md files.
+# doc master refresh (Feature #48 / Technical #48 / Register #116,
+# 21-05 '26 16:45 SGT) — the v0.61.83 "update all documentation"
+# pass: fresh non-incremental Feature / Technical / Register masters
+# covering the v0.61.77-v0.61.83 arc (AU Recipe overridden per
+# D-1028 / D-1076 / D-1083). Builder / Persona / Legal left at
+# v0.61.76 — the arc is a UI/map refactor with no new build
+# framework, capability-profile shift, or legal change (Register
+# O-19). No vault/v0.61.83/ snapshot and no VibeCodingRecord regen —
+# the operator scoped this pass to the doc master set only. No code
+# change, no version bump; not a separate journal entry (recorded in
+# Register C-AU + D-1083).
+# journal #282-287 (commit 289-294 / build 89-94) — six-version
+# session catch-up (journal-0_61_83-21_05_26-1645.md), all committed
+# direct to main, no PRs. #282 v0.61.78 — MapControls.jsx (×3) quick-
+# row reorder: ⋯/⋮ overflow menu now first, Colour ("Monochrome") pill
+# after it (operator request); landed via the "done HH:MM" auto-commit
+# (09a246b "done 2_33 PM"), which also swept a stale stray file
+# scripts/build-station-info 2.js — removed in chore 39456da (a 7th
+# main commit, no version/build, folded into #282, not separately
+# counted). #283 v0.61.79 — Cuisine: new ResultPanel totalCount prop →
+# "Results (12/130)" on a Michelin search; 🔍 FAB flash 2 s→3 s + a
+# flashing 👉 arrow beside it; the "ℹ️ Google search limit" toast
+# removed in full (searchTipShow state + tipFirstShownRef guard +
+# trigger + EN/FR render). #284-#287 = Phases A-D of the
+# UI/CR_Google_Map_Design_1022.MD refactor (CR-1…CR-7; CR-4 adaptive
+# bus pins was already implemented, verified only): #284 v0.61.80
+# CR-3 — polyline opacity retune 0.5→0.2 / 0.85→0.95 / muted 0.25→0.1
+# (mapOverlays ×3); #285 v0.61.81 CR-1+CR-2 — cuisinePinNode circle→
+# droplet venue pin (MapPanel.jsx), centre-station zoom-bypass deleted
+# (mapOverlays ×3); #286 v0.61.82 CR-5+CR-6 — dual-state exit pins
+# (exitTextNode compact ↔ "Exit <code>" card) + showStationExits()
+# force-renders a tapped station's exits even with the Exit layer off;
+# #287 v0.61.83 CR-7 — stationInfoCardHtml restructured (header →
+# Exits with click-to-expand detail → per-line blocks → footer;
+# combined code-pill header for interchanges). doc/Feature, Technical,
+# Register + a vault/<v>/ snapshot still due for the whole v0.61.78-
+# v0.61.83 arc (logged in journal #282 [KNOWN GAPS]).
+# journal #278-281 (commit 285-288 / build 85-88) — four-PR code-fix
+# catch-up (journal-0_61_77-21_05_26-1355.md): #572 v0.61.74 — Bus
+# sub-menu title → "Bus Information" (i18n) + runTransportTrain MRT
+# search radius 1500→5000 m so the "Nearest 3" header is satisfied
+# from MRT-sparse spots; #573 v0.61.75 — menu-hub BackFab always
+# 🔚 End (the window.history.length>1 heuristic only grows, never
+# reverts); #574 v0.61.76 — stationMoreInfoUrl normalised-name
+# fallback (Places "Harbourfront" vs stations.json key "HarbourFront");
+# #577 v0.61.77 — SBS Transit station-info deep links: build-station-
+# info.js moreInfoUrl builds ?TrainLine=&Station= from an 80-station
+# SBS_STATION_CODE map scraped off the SBS site (TrainInformation page
+# + /Ajax/StationDropdown), data/stations.json regenerated. Sequenced
+# after journal #276/#277 although #572-574 merged earlier (08:49-
+# 09:29 SGT) — concurrent-PR ordering, cf. v0.60.165/166 precedent.
+# Version collisions: v0.61.76 shared by #574 & #575, v0.61.77 by
+# #576 & #577 — all four code bodies merged to main, no file overlap;
+# renumbering deferred to the operator.
+# journal #277 (commit 284 / build 84) — v0.61.77 map controls: the
+# ⋯/⋮ overflow-menu button moves from last in the quick-toggle row to
+# directly after the Colour ("Monochrome") pill and becomes a square
+# button (rounded-md, was a rounded-full circle) with a brighter +
+# larger glyph (text-black / text-base); dropdown re-anchored left-0.
+# The 4 map nav buttons (Reset/+/−/expand) glyphs → text-black
+# font-bold; Reset (⛶⟲) + expand (⇲) enlarged text-sm→text-base.
+# Disabled "24hrs" (open24) placeholder removed from the overlay
+# dropdown. MapControls.jsx byte-identical ×3. PR #576.
+# journal #276 (commit 283 / build 83) — v0.61.76 docs+vault pass: a
+# fresh non-incremental master set (Builder #3 / Persona #4 / Feature
+# #47 / Technical #47 / Legal #9 / Register #115) + vault/v0.61.76/
+# (~154 MB, 873 files). Operator instruction ("Vault."); no code
+# change, no version bump. AU Recipe overridden for the master set per
+# the v0.61.28 precedent (decision D-1028). Prior vault v0.61.28 kept
+# (Rule V-1/V-2); v0.61.29→v0.61.76 is the delta arc. Branch also
+# folds a routine origin/main sync (→ v0.61.76). v0.61.74-.76
+# (#572-#574) not individually journaled — covered collectively here.
+# journal #275 (commit 282 / build 82) — v0.61.73 /transport nearest-
+# bus-stops layout rework: weatherChatFooter now leads the message;
+# header carries the live stop count (transport.bus.nearestHeader
+# {count}); each stop block leads with the road name + a distance
+# sentence (stopMetaFirst "is 📍 … away from current location." /
+# stopMetaRest "· 📍 …"); arrival rows read "🚌 Bus № …"; ETA bands
+# spell out "minutes". + "📍 Refresh location" on the Bus menu and the
+# /carpark result (carpark:refresh-loc drops the cached pin and re-runs
+# the lookup). Carpark/bus map buttons drop 🗺/🚏 icons for count-aware
+# labels ("Compare all {n} carparks" / "Show all {n} bus stops");
+# gmaps.openBtn → "Google Map ↗". PR #570 squash-merged ccfa6ad; folds
+# v0.61.71/.72/.73 (.66-.70 already on main via #565-#569 → net diff
+# i18n.js + index.js).
+# journal #274 (commit 281 / build 81) — v0.61.70 map redesign:
+# toggle ON = Singapore blue / OFF = white (giaToggleStyle); MapControls
+# one no-wrap row + smaller font, ⋯ menu a white circle like the nav
+# buttons; bus-stop pin = white 🚏 rect (zoom-in → 🚏 Bus Stop № code),
+# zoom-aware; station-card Exit # links flash + close the card;
+# Cuisine venue pins = numbered circles (result rank); 🔍 FAB flashes
+# 2 s on result load. mapOverlays + MapControls byte-identical ×3.
+# journal #273 (commit 280 / build 80) — v0.61.69 24-hour places
+# fetch pipeline: scripts/fetch-24hr-places.js — Google Places API
+# (New) searchText per type (Retail/Supermarket/Clinic/Petrol/
+# Restaurant/Fitness/Drink/EV Charging), filters to API-confirmed
+# 24-hour places, writes data/sg_24hr_places.json (scaffold committed
+# empty; operator runs with GOOGLE_PLACES_API_KEY). + README. Non-
+# invention: all fields verbatim from the API, missing → null.
+# journal #272 (commit 279 / build 79) — v0.61.68 station-card bus
+# stops: tapping a station draws its per-exit nearest bus stops as 🚏
+# pins even when the Bus Stop overlay is off (cleared on map tap);
+# flashPin → hollow halo ring. Colour pill relabel ☑️ Grey → ☑️
+# Monochrome (shows the action), and the pill swaps row position with
+# the ⋯/⋮ menu (Colour first, menu last). mapOverlays + MapControls ×3.
+# journal #271 (commit 278 / build 78) — v0.61.67 CR6 Phase 2b first/
+# last train: build-station-info joins data/sg_train_timings.json by
+# station code → first_last_train[] (238 entries, 152/180 stations);
+# stationInfoCardHtml renders a "🚆 First / Last Train" block per line
+# (per-direction, day-typed verbatim strings, ⚠️ service adjustments).
+# Validated JSON vs Sg_train_timings.md: conforms bar SK_LRT/PG_LRT
+# (no per-station data — town-centre departures only).
+# journal #270 (commit 277 / build 77) — v0.61.66 map UI: Colour pill
+# text 🎨 Color / ☑️ Grey (i18n ×3); bus-stop pin flash — flashPin()
+# drops a transient pulsing 🚏 marker for 2 s when a station-card
+# "Bus Stop №" link is tapped; all pin label text +2 px (one size
+# larger). #2 base-map station labels NOT removable in code (mapId →
+# styles ignored; needs a Cloud Console map style) — logged.
+# journal #269 (commit 276 / build 76) — v0.61.65 two-colour station
+# pin + exit_centroid field: stationPillNode renders one line-coloured
+# chip per station code (CC4 orange · DT15 blue) then "<Name> station".
+# Investigation — mrt-coords.json station lat/lng is coarse (median
+# 37 m, worst 1.5 km off the real station); LTA exit GeoJSON is right.
+# build-station-info adds exit_centroid (mean of exit coords) to 175 of
+# 180 stations.json records; lat/lng kept. /api/transport/stations
+# serves it; map pin + derived polylines now use the exit centroid.
+# journal #268 (commit 275 / build 75) — v0.61.64 bus-stop popup
+# legibility: busArrivalRows/busInfoHtml in mapOverlays.js — arrival
+# text forced dark (#1c1c1f) + bold; each row leads with its timing
+# label ("- ≤5 min ‧ Bus № …"); stop code prefixed "Bus Stop №";
+# footer link text → "Google Map ➚". mapOverlays.js byte-identical ×3.
+# journal #267 (commit 274 / build 74) — v0.61.63 CR6 nearest-bus-stop
+# enrichment: scripts/enrich-nearest-bus-stops.js — Stage A offline
+# Haversine triangulation (stations.json + LTABusStop.geojson, radius
+# 400→800→1000) → data/stations_with_nearest_bus_stops.json (180
+# stations, 880 entries); Stage B OneMap getNearestBusStops name pass
+# (operator-run, ONEMAP_API_KEY). + errors + coverage reports + README.
+# journal #266 (commit 273 / build 73) — v0.61.62 HOTFIX: /healthz
+# threw ReferenceError (pkg → should be pkgJson) → 500 → webhook-domain
+# probe classified soleat.net unreachable → TMA URLs switched to the
+# fallback host → all 3 Mini Apps blank. One-token fix on index.js:8495.
+# journal #265 (commit 272 / build 72) — v0.61.61 /transport Train
+# reply layout: leads with "🚇 Nearest 3 Train stations · <weather>"
+# (weatherChatFooter); status block moved below the station rows;
+# station name hyperlinks to its SMRT/SBS more_info_url (new
+# stationMoreInfoUrl helper reading data/stations.json); row glyph
+# 🗺️→↗; est-wait header + headway footer dropped.
+# journal #264 (commit 271 / build 71) — v0.61.60 CR6 station info
+# card template redesign: stationInfoCardHtml rebuilt — per-line
+# stacked blocks (big code pill · bold line-coloured "<Name> Station",
+# line, More Info), label-sorted Exits ("Exit # · <street?> · Bus Stop
+# № <code>", tappable), Operator + Google Map footer; first/last-train
+# dropped. exit.street is an optional field — exit GeoJSON has no
+# street name (only STATION_NA/EXIT_CODE), flagged to operator.
+# journal #263 (commit 270 / build 70) — v0.61.59 map-controls: Colour
+# pill moved from the nav cluster into the quick-toggle row (after Bus
+# Stop) via a new MapControls colourToggle prop; the stale divergent
+# MapControls.toggleStyle deleted — quick-row pills now use the shared
+# theme-aware giaToggleStyle (OFF = white in light mode), fixing the
+# dark-slate OFF background CR7 missed. MapControls.jsx byte-identical ×3.
+# journal #262 (commit 269 / build 69) — v0.61.58 CR5 v2 selective
+# polyline emphasis: trackBetween() slices the prev→current→next
+# stretch of a selected station's line; base lines mute to 0.25 while
+# a station is selected; supersedes the Cuisine search-emphasis
+# windows. buildTrain now stores line code per polyline.
+# journal #261 (commit 268 / build 68) — v0.61.57 CR6 Phase 3 station
+# info card: /api/geo/stations route; mapOverlays stationInfoCardHtml +
+# openStationCard; tap-a-station opens the card (replaces the v0.61.17/
+# .26 neighbour-detail view); Exit/Bus№ links pan+zoom via
+# window.__giaStationFocus. byte-identical mapOverlays ×3.
+# journal #260 (commit 267 / build 67) — v0.61.56 CR6 Phase 2a bus
+# services per exit: fetch-bus-services-by-stop.js fetches LTA DataMall
+# /BusStops + /BusRoutes, joins to data/bus-services-by-stop.json;
+# build-station-info.js gains an optional join populating
+# exits[].nearest_bus_stop (BUS_NEAR_M=80m, nearest-with-services
+# selection, graceful fallback when file absent). Operator must run
+# the fetcher locally with LTA_ACCOUNT_KEY to populate the data file.
+# journal #259 (commit 266 / build 66) — v0.61.55 CR6 Phase 1 station
+# info data layer: scripts/build-station-info.js joins mrt-coords.json
+# + station-exits.json + rule-based URL templates into data/stations.json
+# (180 operational stations; 175 with exits; 118 SMRT / 76 SBS links).
+# first_last_train + nearest_bus_stop per exit stubbed for Phase 2;
+# UI card render deferred to Phase 3.
+# journal #258 (commit 265 / build 65) — v0.61.54 CR4 v2 multi-focus
+# (anchor ∪ trainEmphasis ∪ detailStation) bus-stop de-emphasis +
+# CR10 Police pin lightened (#1A237E → #5C6BC0 Indigo 400). Audit of
+# other amenity pin backgrounds: all currently light enough on the
+# stronger greyscale; only Police needed lifting.
+# journal #257 (commit 264 / build 64) — v0.61.53 CR5 v1 zoom-aware
+# train layer: at map.getZoom()>=ZOOM_DETAIL_THRESHOLD=15 every visible
+# station becomes a "<code> <name> station" amenityLabelNode pill in
+# its line colour; base polyline opacity 0.85→0.5 below threshold.
+# Unified per-station _mode swap subsumes the centre-only rebuild.
+# Selective prev/current/next polyline emphasis still deferred.
+# journal #256 (commit 263 / build 63) — v0.61.52 CR4 bus-stop
+# de-emphasis: liteBusNode (half-size translucent 🚏 with no № code);
+# stops within BUS_DEEMPH_NEAR_M=150 m of the map anchor render
+# primary, the rest of the OVERLAY_RADIUS_M=550 m visible set render
+# lite. swapped per applyVisibility on every setAnchor (idle event).
+# journal #255 (commit 262 / build 62) — v0.61.51 map-control tidy
+# (CR1/2/3/7/8/9): exit popup "Somerset Station" suffix; Train Line
+# promoted to quick row, Attractions demoted to dropdown above Park;
+# Taxi default off; bus pin label "🚏 № <code>"; floating FABs no
+# longer green (theme-aware giaToggleStyle); Colour-mode FAB now a
+# pill with state-in-text "🎨 Colour mode"/"🎨 Greyscale mode" (no
+# on/off colour flip); stronger greyscale (grayscale+contrast 0.8+
+# brightness 0.96). CR4/CR5 deferred; CR6 deferred entirely.
+# journal #254 (commit 261 / build 61) — v0.61.50 Cuisine location-
+# field search-trigger + loading overlay rework: LocationField gets a
+# 🔍 onSearch button (icon switches ✏️ ↔ 🔍, edit mode auto-closes
+# after 2.5 s of keystroke inactivity); App.jsx triggerSearch() picks
+# 'rotating' (6 cycling titles, 1.5 s/title) vs 'refresh' loading
+# message based on dirty; initial overlay renamed to "loading random
+# eateries…" and now shows for every in-flight search.
+# journal #253 (commit 260 / build 60) — v0.61.49 map-pin tweaks:
+# attractions pin 🎡/orange → 📌/off-white; nearest-station exits line
+# drops the 🚪 door glyph (mapOverlays ×3 + Mrt/Hawker panels);
+# Cuisine Michelin pin glyph ✳️ → ✴️ rendered in native gold colour.
+# journal #252 (commit 259 / build 59) — v0.61.48 clinic-hours
+# coverage tuning: fetch-clinic-hours.js match radius 140→280 m +
+# progressively looser queries; re-run added 42 of the 176 unmatched
+# clinics → 1059/1193 (88.8%). 95% not reachable via Places (134
+# clinics have no published Places hours — source ceiling ~89%).
+# journal #251 (commit 258 / build 59) — v0.61.47 fixed high-contrast
+# map-popup palette: infoPalette no longer follows the Telegram theme,
+# returns one white-card high-contrast scheme; Google Map ↗ + bus-stop
+# road-name links underlined + bold. mapOverlays ×3.
+# journal #250 (commit 257 / build 58) — v0.61.46 🎨 Colour-button
+# icon: the palette emoji is now a monochrome silhouette (CSS filter
+# brightness(0) / brightness(0) invert(1)) so it contrasts with the
+# amber/dark toggle background instead of washing out. Rides PR #534.
+# journal #249 (commit 256 / build 57) — v0.61.45 greyscale toggle
+# raster-base-map fix: ensureGreyscaleStyle rule now targets both
+# `.gia-greyscale-map canvas` and `.gia-greyscale-map img` so the
+# Cuisine TMA (raster tile base map) desaturates, not just the
+# vector-canvas Transport/Hawker maps. mapOverlays ×3.
+# journal #248 (commit 255 / build 56) — v0.61.44 bus-stop popup
+# redesign: busInfoHtml → 🚏 road name / 🚏 № code / bucketed arrival
+# rows / road-name Google-Maps hyperlink footer (was description +
+# 📍 road·distance·code line + generic Google Map ↗). mapOverlays ×3.
+# journal #247 (commit 254 / build 55) — v0.61.43 sg-address.js
+# expandSgAbbrev: Singapore street/building short-forms (Rd/Ave/Sth/
+# Opp/Blk/St…) expanded at the API boundary (loadGeoOverlays +
+# transport.nearestStops/allStops); source geojson + Redis cache keep
+# short forms. Dictionary from a scan of ~6,500 geojson strings.
+# journal #246 (commit 253 / build 55) — v0.61.42 Bus Stop overlay
+# layer enabled: transport.allStops + GET /api/geo/bus-stops (Redis-
+# cached 24 h) feed a new busstop ensureLayer branch (fetchBusStops /
+# buildBusMarkers, 🚏 amenity label + openBusInfo live-arrivals popup);
+# the busstop row toggle is no longer disabled across all 3 TMAs.
+# journal #245 (commit 252 / build 54) — v0.61.41 clinic pin → red "+"
+# rectangle (rectPinNode); map colour toggle now default-ON with
+# corrected semantics (ON = colour, OFF = greyscale) across all 3 TMAs;
+# in-map quick-toggle buttons restyled to the operator palette
+# (giaToggleStyle / MapControls toggleStyle). Rides PR #526 with v0.61.40.
+# journal #244 (commit 251 / build 53) — v0.61.40 🏥 Hospital overlay
+# layer below 💊 Clinic on all 3 TMA maps; new scripts/fetch-hospitals.js
+# builds data/geo-hospitals.json (67 facilities) from the curated
+# Hospital_Sample.MD name list + detail lines merged with Google Places
+# (coords / address / phone / website / opening hours). hospitalInfo
+# popup: type / name / purpose-labelled phones / WhatsApp / website /
+# address / hours / Google Map ↗.
+# journal #243 (commit 250 / build 52) — v0.61.39 clinic/pharmacy 💊
+# map pin + structured clinic popup template (name / unit / building /
+# street / tel / Google Map ↗); CHAS converter emits structured fields.
+# Follow-up (same arc): scripts/fetch-clinic-hours.js — Google Places
+# opening-hours enricher; clinicInfo renders today's 🕒 line. PR #523
+# merged to main (squash c1388e9). Paid hours data run = operator step.
+# journal #242 (commit 249 / build 50) — v0.61.38 🎨 Colour moved to a
+# nav button (above Reset); /transport nearest-station link unwrapped
+# (plain name + trailing 🗺️ link) for dark-mode legibility; Clinics
+# dropdown item → 💊 Clinic / Pharmacy.
+# journal #241 (commit 248 / build 49) — v0.61.37 vertical semi-
+# transparent map nav-button column (Reset/+/-/expand) across the 3
+# TMAs; /ver keyboard button relabelled /admin → /oversight.
+# journal #240 (commit 247 / build 48) — v0.61.36 unified in-map
+# controls across the 3 TMAs (presentational MapControls: ⋯/⋮ menu +
+# row pills + checkbox dropdown) and a working 🎨 Colour greyscale
+# toggle; MapLayerChips fully retired.
+# journal #239 (commit 246 / build 47) — v0.61.35 /privacy + /legal
+# copy rewrite (EN + FR): operator-supplied shorter bodies; 90-day
+# retention disclosure + IMDA line dropped (operator-confirmed).
+# journal #238 (commit 245 / build 47) — v0.61.34 /ver admin-command
+# choices: the /ver handler appends a "🛠 Admin commands" inline
+# keyboard (/ftlog, /admin→Oversight, /log on, /log off) reusing the
+# /v builder-menu callbacks.
+# journal #237 (commit 244 / build 47) — v0.61.33 Phase G in-map map
+# controls: floating MapControls toggle row + "⋯/⋮" overflow dropdown +
+# Reset nav button on the Transport + Hawker maps; MapLayerChips strip
+# removed from those two TMAs (Cuisine keeps it pending Phase C).
+# journal #236 (commit 243 / build 46) — v0.61.32 Clinics + Police POI
+# overlay layers (map-controls redesign Phases A+B): CHASClinics +
+# SingaporePoliceForceEstablishments geojson converted to slim
+# data/geo-clinics.json + data/geo-police.json, served by
+# /api/geo/overlays, rendered as toggleable marker layers on all 3 TMAs.
+# journal #235 (commit 242 / build 45) — v0.61.31 "Google Map ↗" pin-popup
+# standard across all 3 TMAs: every map pin info popup ends with the
+# Google Map ↗ text hyperlink; the Cuisine venue popup's blue #1a73e8
+# button is removed. Phase F of the 7-phase map-controls redesign.
+# Counters sequenced after the concurrent PR #516 (commit 241 / journal
+# 234 / build 44) so the two in-flight branches don't collide.
+# journal #233 (commit 240 / build 43) — v0.61.29 Cuisine TMA: editable
+# LocationField moved above the map, out of the collapsed Search-criteria
+# section; new `suffix` prop carries the place-count / search status.
+# Counters sequenced after the concurrent docs PR #514 (journal 231-232).
+# journal #232 (commit 239 / build 42) - v0.61.28 VibeCodingRecord
+# ledger catch-up: PRs #498-#513 appended + regenerated (records.tsv
+# 506 rows, vibe-coding-record.md, hosted vibe-journal.html/json).
+# journal #231 (commit 238 / build 42) — v0.61.28 docs+vault pass: a
+# fresh non-incremental master set (Builder #2 / Persona #3 / Feature
+# #46 / Technical #46 / Legal #8 / Register #114) + vault/v0.61.28/
+# (~141 MB, 786 files). Operator instruction; no code change, no
+# version bump. AU Recipe overridden for this pass (decision D-1028);
+# prior vault v0.60.172 kept (Rule V-1/V-2).
+# journal #230 (commit 237 / build 42) — v0.61.28 Exit Template Part B
+# (attractions half): exit popups show a 🎡 line of nearby named STB
+# attractions (geo-exits.json `nearby`, ≤400 m). ♿ lift half shelved
+# (no dataset; SMRT site 403s bots / unreachable from the build box).
+# journal #229 (commit 236 / build 41) — v0.61.27 /transport train
+# nearest-stations rows show the station code (NS21, DT11) via the new
+# mrt-lines codedLinesForStation, not just the line code.
+# journal #227 (commit 234 / build 40) — v0.61.25 /v owner builder-
+# command menu: inline keyboard firing /ver, /oversight, /ftlog 20,
+# /log on, /log off; shared owner-action helpers.
+# journal #226 (commit 233 / build 40) — v0.61.24 exit feature Part A:
+# train-station exit overlay pins show the line-coloured exit letter/
+# number; tap opens the Exit Template (code, station, station codes).
+# journal #225 (commit 232 / build 39) — v0.61.23 standardised taxi
+# pins as "Taxi"/"Pick-up" word labels; Nearby↔Details overlay-radius
+# slider (550 m ↔ 7 km) replacing the Nearby/All chip dropdown.
+# journal #224 (commit 231 / build 38) — v0.61.22 theme-aware Google-
+# map popup cards (light/dark via WebApp.colorScheme), in-card ✕ close
+# button, tap-map-to-close; exported infoCard + infoPalette.
+# journal #223 (commit 230 / build 37) — v0.61.21 unify amenity
+# rendering on attachAmenityPins: station-tap amenity pins now appear
+# and are clickable on the Train + Cuisine TMA maps.
+# journal #222 (commit 229 / build 36) — v0.61.20 amenity-pin
+# refinements: deeper zoom (maxZoom released on idle), declutter to
+# 3 bus / 2 carpark / 2 taxi, clickable amenity popups, shared
+# attachAmenityPins helper, Cuisine eatery-map parity.
+# journal #221 (commit 228 / build 35) — v0.61.19 clickable bus-stop
+# arrivals (≤5/≤10/≤20/20+ min buckets) + hawker-centre surrounding
+# amenity pins (exits/bus/taxi/carpark/nearest-MRT).
+# journal #220 (commit 227 / build 34) — v0.61.18 Google-map polish:
+# clickableIcons (native-POI suppression), off-white InfoWindow cards,
+# ⇱/⇲ expand icons, no-popup station tap, /train command alias.
+# journal #219 (commit 226 / build 33) — v0.61.17 Cuisine + Hawker
+# train-overlay station-detail port (clickable station markers +
+# exit/bus/taxi/carpark amenity pins); follow-up to PR #502.
+# journal #218 (commit 225 / build 32) — v0.61.16 map control buttons +
+# Transport station-detail view (PR #502): dark-mode button contrast fix
+# across all 3 maps; Overview viewport toggle; station-detail view with
+# exit/bus/taxi/carpark amenity pins, replacing the v0.61.14 6 km mode.
+# journal #216-217 (commit 224 / build 31) — v0.61.13-v0.61.14 Cuisine
+# + Transport map follow-ups (PRs #499/#500): cuisine editable location
+# field + clickable train stations + emphasis fix; transport focused-
+# line station picker + 6 km station-focus map.
+# journal #213-215 (commit 220-223 / build 27-30) — v0.61.9-v0.61.12
+# map-refinement arc, 3-PR stack (PRs #495/#496/#497): map polish +
+# per-layer overlay radius; rich pins + realtime crowd/accidents;
+# cuisine result emphasis on the train overlay. Stacked on PR #494.
+# v0.61.12 (commit 223 / build 30) — amendment: train emphasis refined
+# to a ±200 m fully-opaque track window around each of the 3 nearest
+# stations; the rest of the line stays semi-transparent. Ships in #497.
+# journal #212 (commit 219 / build 26) — version-numbering correction:
+# the v0.61.2–v0.61.8 arc was mis-bumped as MINOR (0.62.0…0.66.1) and
+# is renumbered to a single 0.61.x PATCH sequence per operator. No code
+# change; package.json corrected 0.66.1 → 0.61.8.
+# v0.61.8 counters (commit 218 / journal 211 / build 26) — OSM/Overpass
+# MRT-line-geometry fetcher; follow-up PR after the 4-PR map-UX arc,
+# stacked on PR 4 (v0.61.7).
+# v0.61.7 counters (commit 217 / journal 210 / build 25) — train-line
+# redraw (Chaikin-smoothed derived geometry); PR 4 (final) of the 4-PR
+# map-UX arc, stacked on PR 3 (v0.61.6).
+# v0.61.6 counters (commit 216 / journal 209 / build 24) — hawker
+# nearby-transit (nearest MRT station + 2 bus stops per centre); PR 3
+# of the 4-PR map-UX arc, stacked on PR 2 (v0.61.5).
+# v0.61.5 counters (commit 215 / journal 208 / build 23) — overlay UX
+# (chips above map, 1 km radius, exits + train layers, attractions
+# nearby/all, enriched attraction popups); PR 2 of the 4-PR map-UX arc,
+# stacked on PR 1 (v0.61.4).
+# v0.61.4 counters (commit 214 / journal 207 / build 22) — map controls
+# (custom top-right zoom stack + Transport Overview reposition); PR 1
+# of a 4-PR map-UX arc.
+# v0.61.3 counters (commit 213 / journal 206 / build 21) — expandable
+# maps + Transport overlay chips + live carpark layer; PR C of the
+# 3-PR map-review arc, sequenced after PR A (v0.61.1) and PR B
+# (v0.61.2, commit 212 / journal 205 / build 20).
+# v0.61.2 counters (commit 212 / journal 205 / build 20) — Healthier
+# Choice + building-awareness eatery rows; PR B of the same arc.
+# v0.61.1 counters (commit 211 / journal 204 / build 19) — LRT station
+# data fix + Circle Line closed loop; PR A of the same arc.
+# v0.61.0 counters (commit 210 / journal 203 / build 18) — geoloc
+# overlay layers; ride the same branch/PR #485 as v0.60.233–234.
+# v0.60.234 counters (commit 209 / journal 202 / build 17) ride the
+# same branch/PR #485 as v0.60.233 — both from one operator map review.
+# v0.60.233 counters (commit 208 / journal 201 / build 16) follow the
+# v0.60.232 merge (PR #484 — MRT line-geometry fetcher).
+# v0.60.232 counters (commit 207 / journal 200 / build 15) follow the
+# v0.60.231 merge (PR #483 — station-exit fetcher).
+# v0.60.231 counters (commit 206 / journal 199 / build 14) follow the
+# v0.60.230 merge (PR #482); #481 and #482 are both merged to main.
+# v0.60.230 counters (commit 205 / journal 198 / build 13) were
+# sequenced AFTER the concurrent v0.60.229 PR #481 (commit 204 /
+# journal 197 / build 12) so the two in-flight PRs didn't collide —
+# same concurrent-PR handling as the v0.60.165/166 precedent below.
+# v0.60.228 counters (commit 203 / journal 196 / build 11) are
+# sequenced AFTER the concurrent v0.60.227 PR #479 (which uses
+# commit 202 / journal 195 / build 11) so the two in-flight PRs
+# don't collide — same concurrent-PR handling as the v0.60.165/166
+# precedent noted below.
+# The v0.60.165 vault snapshot PR #408 was closed without merging
+# because v0.60.166 (PR #409) merged into main while #408 was still
+# draft, leaving the captured state one version behind. Operator:
+# "Continue vault" — refreshed to v0.60.166 in this new branch /
+# new PR. v0.60.166 is a strict superset of v0.60.165 (just +4 small
+# UX fixes from PR #409), so no content is lost.
+# bumped 136→137 / 131→131 on its own branch — when it merges its
+# counter values will be 137/131, and this v0.60.166 PR's 138/132 are
+# the next free slots. No drift; just two parallel branches converging.
+# v0.60.142→144 docs catch-up: anchored from the GitHub PR merge timestamps
+# for #379–#381 (#379 2026-05-12T23:34Z, #380 ~same, #381 2026-05-13T00:33Z) +
+# this session's continuation; normal re-anchor, not a TF-7 drift correction.
+tf_7_self_correction_5:
+  prior_anchor: 07-05 '26 13:00 SGT (last journal #103, register #104 catch-up at v0.59.53)
+  evidence: github_pr_merge_timestamps_for_v0_60_15_through_v0_60_41_arc_on_2026-05-08_SGT
+  drift_minutes: ~1860
+  cause: docs_lag_during_v0_59_54_through_v0_60_41_rapid_iteration_arc_42_versions_19_PRs_one_session
+  corrected_at: 08-05 '26 20:00 SGT
+  rule: TF_7
+  prior_correction: 07-05 '26 13:00 SGT (drift 3120 min during v0_58_55_through_v0_59_53_arc)
+tf_7_self_correction_4:
+  prior_anchor: 05-05 '26 13:30 SGT (last register #103)
+  evidence: github_pr_merge_timestamps_for_v0_58_55_through_v0_59_53_arc
+  drift_minutes: ~3120
+  cause: docs_lag_during_v0_58_55_through_v0_59_53_rapid_iteration_arc
+  corrected_at: 07-05 '26 13:00 SGT
+  rule: TF_7
+  prior_correction: 05-05 '26 12:00 SGT (drift 1665 min during v0_58_x arc)
+tf_7_self_correction_3:
+  prior_anchor: 04-05 '26 08:15 SGT (last journal at v0.53.0)
+  evidence: railway_deploys_v0_54_through_v0_58_45_squash_merged_to_main_between_04-05_and_05-05
+  drift_minutes: ~1665
+  cause: docs_lag_during_rapid_v0_58_x_iteration_arc
+  corrected_at: 05-05 '26 12:00 SGT
+  rule: TF_7
+  prior_correction: 04-05 '26 08:15 SGT (drift 440 min during v0_53_0 arc)
+tf_7_self_correction_2:
+  prior_anchor: 30-04 '26 00:10 SGT (claude estimate)
+  evidence: railway_deploy_log_2026-04-29T23:10:49Z_proved_07_10_SGT_30_04_actual_plus_user_screenshot_at_07_16
+  drift_minutes: 440
+  cause: claude_estimated_20_min_round_trips_when_real_session_spanned_overnight_pause
+  corrected_at: 30-04 '26 07:30 SGT
+  rule: TF_7
+  prior_correction: 29-04 '26 23:10 SGT (was correcting a 25-min drift; that one held)
+tf_7_self_correction:
+  prior_anchor: 29-04 '26 22:30 SGT (claude estimate)
+  evidence: railway_deploy_log_2026-04-29T14:55:20Z_proved_22_55_SGT_actual
+  drift_minutes: 25
+  corrected_at: 29-04 '26 23:10 SGT
+  rule: TF_7

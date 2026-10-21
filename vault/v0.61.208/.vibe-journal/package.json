@@ -1,0 +1,20 @@
+{
+  "name": "vibe-journal",
+  "version": "0.1.0",
+  "description": "Project-agnostic knowledge-surface generator. Parses a doc/ folder following the CLAUDE-FULL.md convention (Builder / Persona / Feature / Technical / Legal / Journal / Chat / Register + Vault snapshots + 3rd-party manifests) and emits a static multi-tab HTML site for team-wide visibility.",
+  "type": "module",
+  "main": "lib/render.mjs",
+  "bin": {
+    "vibe-journal": "bin/vibe-journal.mjs"
+  },
+  "scripts": {
+    "demo": "node bin/vibe-journal.mjs regen --config examples/soleat-gia/config.yaml",
+    "demo:serve": "node bin/vibe-journal.mjs serve --config examples/soleat-gia/config.yaml"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

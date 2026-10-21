@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Gia Map</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    #map { height: 100%; width: 100%; }
+    #status {
+      position: fixed; left: 12px; right: 12px; top: 12px;
+      background: rgba(255,255,255,0.92); border-radius: 12px; padding: 10px 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15); font-size: 14px; line-height: 1.4;
+      pointer-events: none; transition: opacity 0.25s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #status.hidden { opacity: 0; }
+    #status .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.15);
+      border-top-color: #1e88e5;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex: 0 0 auto;
+    }
+    #status.done .spinner { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .gia-pin {
+      display: flex; align-items: center; gap: 6px;
+      background: #fff; color: #222;
+      border-radius: 18px; padding: 4px 10px 4px 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+      transform: translateY(-50%);
+      cursor: pointer;
+      max-width: 220px;
+    }
+    .gia-pin .num {
+      flex: 0 0 auto;
+      width: 24px; height: 24px;
+      background: #d32f2f; color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+    }
+    .gia-pin .name {
+      font-weight: 500; font-size: 13px; line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gia-pin.user { background: #1e88e5; color: #fff; padding: 6px 10px; }
+    .gia-pin.user .num { background: #fff; color: #1e88e5; width: 18px; height: 18px; font-size: 11px; }
+    /* v0.60.55 — bottom-left FAB. Smart-detects whether to act as
+       Back (pop history) or Close (close the WebApp). One affordance,
+       two meanings — icon switches at mount based on history depth. */
+    /* v0.60.94 — aqua background per operator 2026-05-11. Same
+       hex (#7FDBDB) used in cuisine/hawker/menu/transport FABs so
+       the visual signature is identical across TMAs. Dark text
+       (#1c1c1f) keeps the icon legible against the pale aqua in
+       both light and dark Telegram themes. z-50 keeps the FAB
+       above Google Map overlay controls.
+       v0.60.95 — text label ('back' / 'end') standardised across
+       TMAs. Width grows from 32 px square to ~60 px pill via
+       padding + gap. */
+    #gia-back-fab {
+      position: fixed; bottom: 16px; left: 16px;
+      min-width: 32px; height: 32px;
+      background: #7FDBDB;
+      color: #1c1c1f;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px 8px 16px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      display: flex; align-items: center; justify-content: center;
+      gap: 4px;
+      font-size: 11px; font-weight: 600;
+      line-height: 1;
+      padding: 0 8px;
+      cursor: pointer; z-index: 50;
+    }
+    #gia-back-fab:active { transform: scale(0.95); }
+  </style>
+</head>
+<body>
+  <div id="status"><span class="spinner"></span><span class="msg">Soleat is thinking…</span></div>
+  <div id="map"></div>
+  <button id="gia-back-fab" type="button" aria-label="Close"></button>
+  <script>
+    (function () {
+      var hasHist = window.history && window.history.length > 1;
+      var fab = document.getElementById('gia-back-fab');
+      if (!fab) return;
+      // v0.60.95 — text label 'back' / 'end' standardised across TMAs.
+      fab.textContent = hasHist ? '⇠ back' : '🔚 end';
+      fab.setAttribute('aria-label', hasHist ? 'Back' : 'End');
+      fab.addEventListener('click', function () {
+        var w = window.Telegram && window.Telegram.WebApp;
+        if (window.history && window.history.length > 1) window.history.back();
+        else if (w && typeof w.close === 'function') w.close();
+      });
+    }());
+  </script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

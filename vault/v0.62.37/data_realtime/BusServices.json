@@ -1,0 +1,96 @@
+{
+    "odata.metadata": "http://datamall2.mytransport.sg/ltaodataservice/$metadata#BusServices",
+    "value": [
+        {
+            "ServiceNo": "118",
+            "Operator": "GAS",
+            "Direction": 1,
+            "Category": "TRUNK",
+            "OriginCode": "65009",
+            "DestinationCode": "97009",
+            "AM_Peak_Freq": "5-08",
+            "AM_Offpeak_Freq": "8-12",
+            "PM_Peak_Freq": "8-10",
+            "PM_Offpeak_Freq": "09-14",
+            "LoopDesc": ""
+        },
+        {
+            "ServiceNo": "118",
+            "Operator": "GAS",
+            "Direction": 2,
+            "Category": "TRUNK",
+            "OriginCode": "97009",
+            "DestinationCode": "65009",
+            "AM_Peak_Freq": "10-10",
+            "AM_Offpeak_Freq": "8-11",
+            "PM_Peak_Freq": "4-08",
+            "PM_Offpeak_Freq": "9-12",
+            "LoopDesc": ""
+        },
+        {
+            "ServiceNo": "118A",
+            "Operator": "GAS",
+            "Direction": 1,
+            "Category": "TRUNK",
+            "OriginCode": "65199",
+            "DestinationCode": "96119",
+            "AM_Peak_Freq": "14-16",
+            "AM_Offpeak_Freq": "-",
+            "PM_Peak_Freq": "-",
+            "PM_Offpeak_Freq": "-",
+            "LoopDesc": ""
+        },
+        {
+            "ServiceNo": "118B",
+            "Operator": "GAS",
+            "Direction": 1,
+            "Category": "TRUNK",
+            "OriginCode": "96111",
+            "DestinationCode": "65191",
+            "AM_Peak_Freq": "-",
+            "AM_Offpeak_Freq": "-",
+            "PM_Peak_Freq": "24-57",
+            "PM_Offpeak_Freq": "-",
+            "LoopDesc": ""
+        },
+        {
+            "ServiceNo": "119",
+            "Operator": "GAS",
+            "Direction": 1,
+            "Category": "TRUNK",
+            "OriginCode": "65009",
+            "DestinationCode": "65009",
+            "AM_Peak_Freq": "16-08",
+            "AM_Offpeak_Freq": "18-12",
+            "PM_Peak_Freq": "17-12",
+            "PM_Offpeak_Freq": "15-17",
+            "LoopDesc": "Hougang St 21"
+        },
+        {
+            "ServiceNo": "12",
+            "Operator": "GAS",
+            "Direction": 1,
+            "Category": "TRUNK",
+            "OriginCode": "77009",
+            "DestinationCode": "10499",
+            "AM_Peak_Freq": "9",
+            "AM_Offpeak_Freq": "09-14",
+            "PM_Peak_Freq": "9-10",
+            "PM_Offpeak_Freq": "11-13",
+            "LoopDesc": ""
+        },
+        {
+            "ServiceNo": "12",
+            "Operator": "GAS",
+            "Direction": 2,
+            "Category": "TRUNK",
+            "OriginCode": "10499",
+            "DestinationCode": "77009",
+            "AM_Peak_Freq": "10",
+            "AM_Offpeak_Freq": "08-15",
+            "PM_Peak_Freq": "08-14",
+            "PM_Offpeak_Freq": "10-14",
+            "LoopDesc": ""
+        }
+    ]
+}
