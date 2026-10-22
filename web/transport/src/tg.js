@@ -141,15 +141,23 @@ export function applyTelegramTheme() {
     }
   });
 
-  const tp = w.themeParams || {};
-  const root = document.documentElement;
-  const set = (k, v) => v && root.style.setProperty(k, v);
-  set('--tg-bg',          tp.bg_color);
-  set('--tg-text',        tp.text_color);
-  // v0.57.14: hint contrast handled in styles.css.
-  set('--tg-accent',      tp.button_color);
-  set('--tg-accent-text', tp.button_text_color);
-  set('--tg-card',        tp.secondary_bg_color);
+  // v0.62.940 — palette as a function so `themeChanged` can re-run it. Reads
+  // w.themeParams fresh each time; the listener re-runs ONLY this block.
+  const applyPalette = () => {
+    const tp = w.themeParams || {};
+    const root = document.documentElement;
+    const set = (k, v) => v && root.style.setProperty(k, v);
+    set('--tg-bg',          tp.bg_color);
+    set('--tg-text',        tp.text_color);
+    // v0.57.14: hint contrast handled in styles.css.
+    set('--tg-accent',      tp.button_color);
+    set('--tg-accent-text', tp.button_text_color);
+    set('--tg-card',        tp.secondary_bg_color);
+  };
+  applyPalette();
+  safe('theme-changed', () => {
+    if (typeof w.onEvent === 'function') w.onEvent('themeChanged', applyPalette);
+  });
 }
 
 export function initData() {

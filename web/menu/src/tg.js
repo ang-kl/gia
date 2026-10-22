@@ -139,24 +139,34 @@ export function applyTelegramTheme() {
     writeViewportVar();
     w.onEvent('viewportChanged', writeViewportVar);
   });
-  const tp = w.themeParams || {};
-  const root = document.documentElement;
-  const set = (k, v) => v && root.style.setProperty(k, v);
-  set('--tg-bg',          tp.bg_color);
-  set('--tg-text',        tp.text_color);
-  set('--tg-hint',        tp.hint_color);
-  set('--tg-accent',      tp.button_color);
-  set('--tg-accent-text', tp.button_text_color);
-  set('--tg-card',        tp.secondary_bg_color);
+  // v0.62.940 — the palette block is a function so it can run again on
+  // `themeChanged`. It reads w.themeParams FRESH each time (Telegram mutates
+  // that object in place before emitting the event), and it is the ONLY thing
+  // the listener re-runs: ready/expand/fullscreen above must not fire twice.
+  const applyPalette = () => {
+    const tp = w.themeParams || {};
+    const root = document.documentElement;
+    const set = (k, v) => v && root.style.setProperty(k, v);
+    set('--tg-bg',          tp.bg_color);
+    set('--tg-text',        tp.text_color);
+    set('--tg-hint',        tp.hint_color);
+    set('--tg-accent',      tp.button_color);
+    set('--tg-accent-text', tp.button_text_color);
+    set('--tg-card',        tp.secondary_bg_color);
 
-  // v0.62.276 — dark-mode flag for theme-dependent assets: the line-art tile
-  // icons must flip to WHITE line in dark (CSS `[data-tg-dark] .icon-navy`).
-  // Prefer Telegram's colorScheme; fall back to the bg_color luminance. The
-  // rest of the UI stays luminance-driven + theme-agnostic (v0.62.16).
-  safe('dark-flag', () => {
-    const dark = (w.colorScheme === 'dark') || _bgIsDark(tp.bg_color);
-    if (dark) root.setAttribute('data-tg-dark', '1');
-    else root.removeAttribute('data-tg-dark');
+    // v0.62.276 — dark-mode flag for theme-dependent assets: the line-art tile
+    // icons must flip to WHITE line in dark (CSS `[data-tg-dark] .icon-navy`).
+    // Prefer Telegram's colorScheme; fall back to the bg_color luminance. The
+    // rest of the UI stays luminance-driven + theme-agnostic (v0.62.16).
+    safe('dark-flag', () => {
+      const dark = (w.colorScheme === 'dark') || _bgIsDark(tp.bg_color);
+      if (dark) root.setAttribute('data-tg-dark', '1');
+      else root.removeAttribute('data-tg-dark');
+    });
+  };
+  applyPalette();
+  safe('theme-changed', () => {
+    if (typeof w.onEvent === 'function') w.onEvent('themeChanged', applyPalette);
   });
 }
 
