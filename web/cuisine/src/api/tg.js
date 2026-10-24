@@ -195,28 +195,38 @@ export function applyTelegramTheme() {
     writeViewportVar();
     w.onEvent('viewportChanged', writeViewportVar);
   });
-  const tp = w.themeParams || {};
-  const root = document.documentElement;
-  const set = (k, v) => v && root.style.setProperty(k, v);
-  set('--tg-bg',          tp.bg_color);
-  set('--tg-text',        tp.text_color);
-  // v0.57.14: don't sync hint from Telegram — its hint_color is a
-  // low-contrast gray that fails partial-color-blindness readability.
-  // styles.css derives --tg-hint from text/bg with stronger contrast.
-  set('--tg-accent',      tp.button_color);
-  set('--tg-accent-text', tp.button_text_color);
-  set('--tg-card',        tp.secondary_bg_color);
-  // v0.62.126 — expose Telegram's light/dark scheme as a data attribute so CSS
-  // can branch (e.g. the skeuomorphic selected region pill is dark-mode only).
-  // Falls back to a bg-luminance guess when colorScheme is absent (non-Telegram
-  // dev / old clients); defaults to light when neither is available.
-  let scheme = w.colorScheme === 'dark' || w.colorScheme === 'light' ? w.colorScheme : null;
-  if (!scheme && tp.bg_color && /^#?[0-9a-f]{6}$/i.test(tp.bg_color)) {
-    const h = tp.bg_color.replace('#', '');
-    const lum = 0.299 * parseInt(h.slice(0, 2), 16) + 0.587 * parseInt(h.slice(2, 4), 16) + 0.114 * parseInt(h.slice(4, 6), 16);
-    scheme = lum < 128 ? 'dark' : 'light';
-  }
-  if (scheme) root.setAttribute('data-theme', scheme);
+  // v0.62.940 — the palette block is a function so it can run again on
+  // `themeChanged`. It reads w.themeParams FRESH each time (Telegram mutates
+  // that object in place before emitting the event), and it is the ONLY thing
+  // the listener re-runs: ready/expand/fullscreen above must not fire twice.
+  const applyPalette = () => {
+    const tp = w.themeParams || {};
+    const root = document.documentElement;
+    const set = (k, v) => v && root.style.setProperty(k, v);
+    set('--tg-bg',          tp.bg_color);
+    set('--tg-text',        tp.text_color);
+    // v0.57.14: don't sync hint from Telegram — its hint_color is a
+    // low-contrast gray that fails partial-color-blindness readability.
+    // styles.css derives --tg-hint from text/bg with stronger contrast.
+    set('--tg-accent',      tp.button_color);
+    set('--tg-accent-text', tp.button_text_color);
+    set('--tg-card',        tp.secondary_bg_color);
+    // v0.62.126 — expose Telegram's light/dark scheme as a data attribute so CSS
+    // can branch (e.g. the skeuomorphic selected region pill is dark-mode only).
+    // Falls back to a bg-luminance guess when colorScheme is absent (non-Telegram
+    // dev / old clients); defaults to light when neither is available.
+    let scheme = w.colorScheme === 'dark' || w.colorScheme === 'light' ? w.colorScheme : null;
+    if (!scheme && tp.bg_color && /^#?[0-9a-f]{6}$/i.test(tp.bg_color)) {
+      const h = tp.bg_color.replace('#', '');
+      const lum = 0.299 * parseInt(h.slice(0, 2), 16) + 0.587 * parseInt(h.slice(2, 4), 16) + 0.114 * parseInt(h.slice(4, 6), 16);
+      scheme = lum < 128 ? 'dark' : 'light';
+    }
+    if (scheme) root.setAttribute('data-theme', scheme);
+  };
+  applyPalette();
+  safe('theme-changed', () => {
+    if (typeof w.onEvent === 'function') w.onEvent('themeChanged', applyPalette);
+  });
 }
 
 export function sendData(payload) {
