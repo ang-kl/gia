@@ -390,24 +390,40 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--tm-ai-a) 16%, transparent);
 }
 
+/* v0.62.942 — 8×12 → 12×18 px (operator, after v0.62.941 went live: the lever was too small to
+   find; "Just bigger"). The 8×12 viewBox scales 1.5×; the bump and the bat's outline use a
+   non-scaling stroke so the bump stays exactly the border's width at the larger size. */
 .tellme-lever {
-  position: absolute; left: 12px; top: -12.5px; width: 8px; height: 12px;
+  position: absolute; left: 11px; top: -18.5px; width: 12px; height: 18px;
   padding: 0; border: 0; background: transparent; line-height: 0; cursor: pointer;
   color: var(--tm-lever); -webkit-tap-highlight-color: transparent;
 }
-.tellme-lever::before { content: ""; position: absolute; left: -16px; top: -14px; width: 40px; height: 40px; }
-.tellme-lever svg { display: block; width: 8px; height: 12px; overflow: visible; }
+.tellme-lever::before { content: ""; position: absolute; left: -14px; top: -11px; width: 40px; height: 40px; }
+.tellme-lever svg { display: block; width: 12px; height: 18px; overflow: visible; }
 .tellme-lever-bat {
   fill: currentColor; stroke: var(--tm-halo); stroke-width: 1.4; stroke-linejoin: round; paint-order: stroke;
+  vector-effect: non-scaling-stroke;
   transform-box: view-box; transform-origin: 4px 10.6px; transform: rotate(-22deg);
   transition: transform .22s ease;
 }
-.tellme-lever-bump { fill: var(--tm-bg); stroke: var(--tm-border); stroke-width: 1; }
+.tellme-lever-bump { fill: var(--tm-bg); stroke: var(--tm-border); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .tellme-lever.is-ai { color: var(--tm-ai-a); }
 .tellme-lever.is-ai .tellme-lever-bat { transform: rotate(22deg); }
 .tellme-lever.is-ai .tellme-lever-bump { stroke: var(--tm-ai-a); stroke-width: 1.5; }
 .tellme-lever:focus-visible { outline: 2px solid var(--tm-ai-a); outline-offset: 3px; border-radius: 3px; }
 @media (prefers-reduced-motion: reduce) { .tellme-lever-bat { transition: none; } }
+
+/* v0.62.942 — when opening 💬 folds the cards away, the footer's "show results" button blinks
+   for 2 s so the user sees where they went: 4 pulses × 0.5 s. With reduce-motion on, no flashing,
+   just a still highlight for the same 2 s (App.jsx removes the class after RESULTS_BLINK_MS). */
+@keyframes results-blink {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: color-mix(in srgb, var(--tg-link, #2481cc) 28%, transparent); }
+}
+.results-toggle-blink { animation: results-blink 0.5s ease-in-out 4; }
+@media (prefers-reduced-motion: reduce) {
+  .results-toggle-blink { animation: none; background-color: color-mix(in srgb, var(--tg-link, #2481cc) 22%, transparent); }
+}
 
 /* v0.62.x — operator: in the "nearby places" list the venue name reads black in
    light mode and yellow in dark mode (the street/address stays the theme text). */

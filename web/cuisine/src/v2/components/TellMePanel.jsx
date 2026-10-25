@@ -120,7 +120,8 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           again. Radius already matched (both rounded-md); `py-1` is kept
           rather than the field's `py-1.5` so the dock height is unchanged. */}
       <div className={`relative flex items-center gap-2 px-3 py-1 rounded-md border loc-field-surface${ai ? ' tellme-ai' : ''}`}>
-        {/* v0.62.941 — the Quick / AI lever. 8×12 px, flat like the bar's line icons:
+        {/* v0.62.941 — the Quick / AI lever. 8×12 px (12×18 since v0.62.942, set in
+            styles.css; the operator could not find it at 8×12), flat like the bar's line icons:
             a tapered toggle bat plus a low bump that IS the border (same colour and
             width), drawn after the bat so it covers the bat's foot. Colours live in
             styles.css (.tellme-lever): slate with a white outline (light) or the
