@@ -1195,7 +1195,7 @@ async function handleBuddyCallback(data, chatId, q) {
 // venue-filters.applyRatingFloor (never empties), logs only when it drops.
 // Redis errors fall back to the default — delivery must never block on the
 // pref read.
-async function applyChatRatingFloor(chatId, venues, label = 'rating-floor') {
+async function applyChatRatingFloor(chatId, venues, label = 'rating-floor', opts = {}) {
   if (!Array.isArray(venues) || venues.length === 0) return Array.isArray(venues) ? venues : [];
   let pref = null;
   if (chatId) {
@@ -1203,7 +1203,11 @@ async function applyChatRatingFloor(chatId, venues, label = 'rating-floor') {
     catch { pref = null; }
   }
   const before = venues.length;
-  const out = require('./venue-filters').applyRatingFloor(venues, ratingPrefLib.ratingPrefToFloorOpts(pref));
+  // v0.62.941 — opts.newlyOpened caps the floor at the New filter's 3.0 (the same cap
+  // /api/cuisine/search applies), so a new venue the newness rule kept is not dropped
+  // again by the stricter global floor.
+  const floorOpts = require('./newness-filter').newnessFloorOpts(ratingPrefLib.ratingPrefToFloorOpts(pref), !!opts.newlyOpened);
+  const out = require('./venue-filters').applyRatingFloor(venues, floorOpts);
   if (out.length !== before) {
     console.log(`[${label}] rating-floor ${ratingPrefLib.describeRatingPref(pref)}: ${before} → ${out.length}`);
   }
@@ -11575,11 +11579,24 @@ bot.on('message', async (msg) => {
         const { resolveLang: rlQ } = require('./user-prefs');
         const qLang = await rlQ(redis, msg.chat.id, msg).catch(() => 'en');
         const { t: tQ } = require('./i18n');
+        // v0.62.941 — operator, 25-10 '26: "a sentence its question guard declines is
+        // passed to the same AI reading instead of the 🍛 reply". The guard itself is
+        // unchanged; what it now does with a question is try the Mini App's AI reader
+        // first, within the shared 60/hour budget. 🍛 is the fallback: over the cap,
+        // a non-food question, or any failure.
+        let handled = false;
+        try {
+          handled = await answerChatQuestionWithAi(msg.chat.id, text, qLang);
+        } catch (err) {
+          console.warn('[free-text] D776 AI question path failed, falling back to the decline:', err.message);
+        }
         try {
           const { logFreeTextQuery } = require('./freetext-log');
-          logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'question-declined', resultCount: 0 });
+          logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: handled ? 'question-ai' : 'question-declined', resultCount: 0 });
         } catch { /* best-effort */ }
-        await safeSend(msg.chat.id, tQ('freetext.questionDeclined', qLang), { parse_mode: 'HTML', disable_web_page_preview: true });
+        if (!handled) {
+          await safeSend(msg.chat.id, tQ('freetext.questionDeclined', qLang), { parse_mode: 'HTML', disable_web_page_preview: true });
+        }
         return;
       }
     }
@@ -12422,6 +12439,53 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
 // intent and a location is present. Dispatches into the same
 // searchCuisine pipeline the TMA Search button uses; delivers picks
 // to chat via deliverPicks.
+// v0.62.941 — the chat's question path (spec doc/Feature/2026-10-25-ai-switch-and-ai-
+// route.spec.md). The decision lives in nl-anchor.answerQuestionWithTellGia, where
+// chat-question-to-ai.test.js runs it on the operator's own sentence; this function
+// only wires the real dependencies in. Returns true when it replied (results or a
+// location request), false when the caller should send the 🍛 decline.
+async function answerChatQuestionWithAi(chatId, text, lang) {
+  const nlAnchor = require('./nl-anchor');
+  const { consumeTellGiaQuota } = require('./tell-gia-rate-limit');
+  const cv = require('./cuisines-vault');
+  const pipeline = require('./pipeline');
+  const outcome = await nlAnchor.answerQuestionWithTellGia({
+    text,
+    deps: {
+      // One budget with the Mini App's AI route (operator: "Share the 60/hour cap").
+      consumeQuota: async () => (await consumeTellGiaQuota(redis, chatId)).allowed,
+      infer: (t) => require('./tell-gia').inferTellGia({ text: t, chatId, redis, vault: cv }),
+      cuisineNames: (slugs) => slugs.map((s) => cv.findBySlug(s)).filter(Boolean).map((c) => c.name),
+      getUserLocation: () => getUserLocation(redis, chatId),
+      geocode: (q) => geocodeQuery(q),
+      discover: (args) => pipeline.discover({ redis, maxResults: 60, lang, maxPages: 3, ...args }),
+      passesVenueFilter: require('./venue-filters').passesVenueFilter,
+      applyNewness: (venues) => require('./newness-filter').applyNewnessRule(venues, { redis, logLabel: 'Chat-Question-New' }),
+      applyRatingFloor: (venues, opts) => applyChatRatingFloor(chatId, venues, 'Chat-Question', opts),
+      regionCodeFor: (loc) => (loc ? resolveRegionCode(loc) : 'SG'),
+      askLocation: async (inferred) => {
+        await setPendingMeal(redis, chatId, `nl:${JSON.stringify({
+          cuisines: inferred.cuisines || [], specialRequest: inferred.filters?.newlyOpened ? 'newly opened' : '', intent: 'food', lang
+        })}`);
+        const { t: tLoc } = require('./i18n');
+        await bot.sendMessage(chatId, tLoc('location.shareTap', lang), LOCATION_REQUEST_KEYBOARD);
+      },
+      deliver: async ({ venues, placeAnchor }) => {
+        const shown = venues.slice(0, 10);
+        const { tn: trnQ } = require('./i18n');
+        // A place: the same "📍 <place> — found N eateries here" header the chat's
+        // place search uses, in the reader's language. No place: the reader's own words.
+        const header = placeAnchor
+          ? trnQ('place.foundN', lang, { place: escapeHtmlForTelegram(placeAnchor.name), n: String(shown.length) })
+          : `🔎 <i>${escapeHtmlForTelegram(text)}</i>`;
+        await deliverPicks(chatId, header, shown, { lang });
+      },
+    },
+  });
+  console.log(`[free-text] D776 question → AI: ${outcome.kind}${outcome.reason ? ` (${outcome.reason})` : ''}${Number.isFinite(outcome.count) ? ` ${outcome.count} venues` : ''}`);
+  return outcome.kind === 'delivered' || outcome.kind === 'askedLocation';
+}
+
 async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '', intent = 'food' }) {
   const verbose = require('./verbose-log');
   try {
@@ -17388,62 +17452,16 @@ async function cacheBotUsername() {
         // fell back to the established/biased pool (operator: "say no new nearby").
         let noProvenNew = false;
         if (filters.newlyOpened) {
-          const { oldestReviewDays } = require('./hidden-verify');
-          const newness = require('./newness-criteria');
-          const newApiKey = process.env.GOOGLE_MAPS_API_KEY;
-          if (newApiKey) {
-            const axiosNew = require('axios');
-            await Promise.all(venues.map(async (v) => {
-              if (!v.placeId) { v._oldestReviewDays = null; return; }
-              try {
-                const { data } = await axiosNew.get(
-                  `https://places.googleapis.com/v1/places/${v.placeId}`,
-                  { headers: { 'X-Goog-Api-Key': newApiKey, 'X-Goog-FieldMask': 'reviews' }, timeout: 4000 }
-                );
-                try { require('./api-cost').recordMapsCall(redis, 'placeDetails'); } catch {}
-                v._oldestReviewDays = oldestReviewDays(data?.reviews);
-              } catch { v._oldestReviewDays = null; }
-            }));
-          }
-          const beforeNew = venues.length;
-          const preRefute = venues;
-          // Recency ≤183 d ceiling + rated>3.0 (count ignored); stamp the band
-          // ('strict' ≤109 d | 'fill' 110..183 d) so the card list can render
-          // strict and fill as separate, visually-divided groups.
-          const refuted = venues.filter((v) => {
-            v._recencyBand = newness.recencyBand(v._oldestReviewDays);
-            // v0.62.160 — pass userRatingCount so a high review count refutes
-            // newness even when the ≤5-review date heuristic mis-reads an
-            // established venue as recent (BOMUL Samgyetang 3,759 reviews leak).
-            return newness.passesNewness({ oldestReviewDays: v._oldestReviewDays, rating: v.rating, reviewCount: v.userRatingCount });
-          });
-          // v0.61.399 — operator (URGENT): review-time can only REFUTE, never
-          // CONFIRM newness, so it must DEMOTE, not EMPTY the list. In an
-          // established market (Osaka fruit shops — and EVERY cuisine: the
-          // operator's log shows `american` going 2→0 too) all candidates have
-          // reviews older than the window, so the v0.61.349 hard cut zeroed the
-          // page. Pre-v0.61.349 the ≤150-review proxy didn't ("last time I didn't
-          // have this issue"). Floor: when refuting would drop everything, keep
-          // the "newly opened"-biased recall pool so New still returns its
-          // best-effort newest set.
-          const flooredToBias = refuted.length === 0 && preRefute.length > 0;
-          // v0.62.205 — operator: when NOTHING is provably new nearby, say so
-          // ("no new <cuisine> nearby") rather than silently passing established
-          // spots off as new. This flag rides the response → the TMA banner.
-          noProvenNew = flooredToBias;
-          // v0.61.441 — routed through the shared never-empty floor (pool-
-          // floor.js) so this and the other anti-collapse guards speak one
-          // rule. Behaviour identical: refuted unless it would empty, then
-          // the biased recall pool.
-          venues = require('./pool-floor').demoteNeverEmpty(refuted, preRefute);
-          // Keep _recencyBand for the card list's strict/fill grouping; drop
-          // the raw age. Floor survivors (none proven-new) get a 'strict' band
-          // so the best-effort biased pool still renders.
-          for (const v of venues) {
-            delete v._oldestReviewDays;
-            if (!v._recencyBand) v._recencyBand = 'strict';
-          }
-          console.log(`[Cuisine-New] newness refute: ${beforeNew} → ${venues.length} kept (≤${newness.NEW_FILL_DAYS}d, rated>${newness.NEW_RATING_FLOOR}, reviews≤${newness.NEW_REVIEW_COUNT_CEIL}${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
+          // v0.62.941 — this block moved VERBATIM to newness-filter.applyNewnessRule so
+          // the AI route applies the identical rule when it reads "new" (operator,
+          // 25-10 '26). The history it carried — v0.61.399 "review time can only
+          // REFUTE, so it must DEMOTE, not EMPTY", v0.62.160 the review-count refute
+          // (BOMUL Samgyetang), v0.62.205 the noProvenNew banner flag, v0.61.441 the
+          // shared never-empty floor — is kept in that file's header.
+          // newness-filter.test.js runs a copy of the old block against the new
+          // function on fixtures covering every branch.
+          const { applyNewnessRule } = require('./newness-filter');
+          ({ venues, noProvenNew } = await applyNewnessRule(venues, { redis }));
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
@@ -17601,10 +17619,9 @@ async function cacheBotUsername() {
           // applied in-block, so cap the global floor at 3.0 here too — never
           // let the stricter 3.7 default re-drop the 3.0..3.7 "new" venues the
           // pill deliberately kept. Non-New searches keep the operator's floor.
-          let floorOpts = ratingPrefLib.ratingPrefToFloorOpts(effRatingPref);
-          if (filters.newlyOpened && floorOpts.mode === 'floor' && floorOpts.floor > require('./newness-criteria').NEW_RATING_FLOOR) {
-            floorOpts = { ...floorOpts, floor: require('./newness-criteria').NEW_RATING_FLOOR };
-          }
+          // v0.62.941 — the cap moved to newness-filter.newnessFloorOpts (same rule) so
+          // the AI route applies it too.
+          const floorOpts = require('./newness-filter').newnessFloorOpts(ratingPrefLib.ratingPrefToFloorOpts(effRatingPref), !!filters.newlyOpened);
           venues = require('./venue-filters').applyRatingFloor(venues, floorOpts);
           if (venues.length !== beforeFloor) {
             console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(effRatingPref)}: ${beforeFloor} → ${venues.length}`);
@@ -18518,23 +18535,19 @@ async function cacheBotUsername() {
 
         // Rate limit — 60 calls per epoch hour. Counter expires after
         // the hour rolls over so users get a fresh budget.
-        try {
-          if (redis.isOpen) {
-            const hour = Math.floor(Date.now() / 3_600_000);
-            const rlKey = `tell-gia:rl:${chatId}:${hour}`;
-            const count = await redis.incr(rlKey);
-            if (count === 1) await redis.expire(rlKey, 3600);
-            if (count > 60) {
-              return res.status(429).json({
-                error: 'rate limited',
-                detail: 'Too many Tell Soleat calls this hour. Try again next hour.'
-              });
-            }
+        // v0.62.941 — the counter moved to tell-gia-rate-limit.js so the bot chat's
+        // question path spends from the SAME hourly budget (operator, 25-10 '26: "Share
+        // the 60/hour cap"). Key, cap, expiry, the allow-on-Redis-trouble behaviour and
+        // this 429 are all unchanged.
+        {
+          const { consumeTellGiaQuota } = require('./tell-gia-rate-limit');
+          const quota = await consumeTellGiaQuota(redis, chatId);
+          if (!quota.allowed) {
+            return res.status(429).json({
+              error: 'rate limited',
+              detail: 'Too many Tell Soleat calls this hour. Try again next hour.'
+            });
           }
-        } catch (err) {
-          console.warn('[NL-Query] rate-limit check failed:', err.message);
-          // On Redis trouble, let the call through rather than 500 — the
-          // 60s in-memory cache + 800-token output cap still bound spend.
         }
 
         const cv = require('./cuisines-vault');
@@ -18597,9 +18610,11 @@ async function cacheBotUsername() {
         // geocode it via Google Places and use those coords for the
         // search instead of the user's GPS. Mirrors the voice-handler
         // pattern at line ~2220 (geocodeQuery + searchLat/searchLng).
+        const nlAnchor = require('./nl-anchor');
         let searchLat = lat;
         let searchLng = lng;
         let locationLabel = '';
+        let acceptedPlace = null;
         if (inferredLocation) {
           try {
             const place = await geocodeQuery(inferredLocation);
@@ -18609,20 +18624,13 @@ async function cacheBotUsername() {
               // GPS. SG bbox: lat 1.16–1.48, lng 103.6–104.05. JB bbox:
               // lat 1.42–1.55, lng 103.6–103.85. Combined: lat
               // 1.16–1.55, lng 103.6–104.05.
-              const inSGJB = place.lat >= 1.16 && place.lat <= 1.55
-                && place.lng >= 103.6 && place.lng <= 104.05;
-              const userR = 6371;
-              const toRad = (d) => d * Math.PI / 180;
-              let distKm = Infinity;
-              if (Number.isFinite(lat) && Number.isFinite(lng)) {
-                const dLat = toRad(place.lat - lat);
-                const dLng = toRad(place.lng - lng);
-                const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat)) * Math.cos(toRad(place.lat)) * Math.sin(dLng / 2) ** 2;
-                distKm = 2 * userR * Math.asin(Math.sqrt(x));
-              }
-              if (!inSGJB || distKm > 120) {
-                console.log(`[NL-Query] D772 location_override="${inferredLocation}" rejected (inSGJB=${inSGJB}, distKm=${distKm.toFixed(1)}); falling back to user GPS`);
+              // v0.62.941 — the same rule, moved to nl-anchor.acceptPlace so the chat's
+              // question path applies it too.
+              const verdict = nlAnchor.acceptPlace(place, lat, lng);
+              if (!verdict.ok) {
+                console.log(`[NL-Query] D772 location_override="${inferredLocation}" rejected (${verdict.reason}, distKm=${Number.isFinite(verdict.distKm) ? verdict.distKm.toFixed(1) : 'n/a'}); falling back to user GPS`);
               } else {
+                acceptedPlace = { ...place, name: place.name || inferredLocation };
                 searchLat = place.lat;
                 searchLng = place.lng;
                 locationLabel = place.name || inferredLocation;
@@ -18650,60 +18658,16 @@ async function cacheBotUsername() {
         if (Array.isArray(inferredFilters.prices) && inferredFilters.prices.length) {
           merged.prices = inferredFilters.prices;
         }
-        // v0.57.2: same modifier-prefix pattern as /api/cuisine/search.
-        const modifiers = [];
-        if (merged.newlyOpened) modifiers.push('newly opened');
-        if (merged.halal) modifiers.push('halal');
-        if (merged.vegetarian) modifiers.push('vegetarian');
-        let cuisineQueries;
-        if (modifiers.length && cuisineNames.length) {
-          cuisineQueries = cuisineNames.map((n) => `${modifiers.join(' ')} ${n}`);
-        } else if (modifiers.length) {
-          cuisineQueries = [modifiers.join(' ')];
-        } else {
-          cuisineQueries = cuisineNames;
-        }
-        // v0.58.32: brand-name passthrough. Per Human Lead — typing
-        // "sushi tei" returned generic Japanese restaurants because
-        // tellGia mapped "sushi" → "japanese" and dropped the literal
-        // brand. We now PREPEND the verbatim text as the first query
-        // when it looks like a specific brand (3–40 chars, ≤4 words,
-        // contains letters), then let inferred cuisines follow as
-        // backup. Google's searchText returns the brand's locations
-        // first so chain searches work; Japanese-cuisine fallback
-        // still surfaces neighbours when needed.
-        if (typeof text === 'string') {
-          const trimmed = text.trim();
-          const looksBrand = trimmed.length >= 3 && trimmed.length <= 40
-            && /[a-z]/i.test(trimmed)
-            && trimmed.split(/\s+/).length <= 4;
-          if (looksBrand && !cuisineQueries.some((q) => q && q.toLowerCase().includes(trimmed.toLowerCase()))) {
-            cuisineQueries = [trimmed, ...cuisineQueries];
-            console.log(`[NL-Query] D772 brand-name prepended — "${trimmed}" + ${JSON.stringify(cuisineNames)}`);
-          }
-        }
-        // v0.62.94 — colloquial dish-alias expansion (operator: "how about:
-        // Dai Lok"). "dai lok" alone is ambiguous to Places (matches lok-lok
-        // 淥淥 / Tai Ka Lok 大家乐, not the 大碌麵 Hokkien-Mee dish — only the
-        // "mee" token disambiguated). Prepend the canonical dish term(s) so the
-        // nickname resolves to the right places. See dish-aliases.js.
-        try {
-          const { expandDishAliases } = require('./dish-aliases');
-          const alias = expandDishAliases(text);
-          if (alias) {
-            // Drop the ambiguous verbatim query the brand-passthrough prepended
-            // (bare "dai lok" pulls lok-lok 淥淥 noise) — we now know the dish.
-            const trimmedLC = typeof text === 'string' ? text.trim().toLowerCase() : '';
-            cuisineQueries = cuisineQueries.filter((q) => q && q.toLowerCase() !== trimmedLC);
-            const fresh = alias.terms.filter(
-              (t) => !cuisineQueries.some((q) => q && q.toLowerCase() === t.toLowerCase())
-            );
-            cuisineQueries = [...fresh, ...cuisineQueries];
-            console.log(`[NL-Query] D774 dish-alias ${alias.label} → queries ${JSON.stringify(cuisineQueries.slice(0, 4))}…`);
-          }
-        } catch (err) {
-          console.warn(`[NL-Query] dish-alias skipped: ${err.message}`);
-        }
+        // v0.57.2 modifiers, v0.58.32 brand passthrough ("sushi tei" must not collapse
+        // to generic Japanese) and v0.62.94 dish aliases ("dai lok" → Hokkien mee).
+        // v0.62.941 — moved verbatim to nl-anchor.buildNlQueries so the chat's question
+        // path builds the same queries; nl-anchor.test.js compares it with a copy of
+        // the code that stood here.
+        const cuisineQueries = nlAnchor.buildNlQueries({ text, cuisineNames, merged });
+        // v0.62.941 — operator, 25-10 '26: "When the AI names a place, search within
+        // 1.5 km of it (same as the normal search) and show the place pill". Before
+        // this, a resolved place only moved the centre of a 50 km search.
+        const nlPlan = nlAnchor.planNlSearch({ place: acceptedPlace, userLat: searchLat, userLng: searchLng });
         // v0.59.0: resolve active lang for NL discovery.
         const { resolveLang: resolveLangNL } = require('./user-prefs');
         // v0.62.305 — accept 'id' so the Tell-me path's open-hours label renders
@@ -18725,10 +18689,10 @@ async function cacheBotUsername() {
         else if (nlRegion === 'OTHER') nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
         else if (nlRegion === 'SG') nlRegionCode = 'SG';
         else nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
-        console.log(`[NL-Query] D773 discover region=${nlRegion || '?'} → regionCode=${nlRegionCode || 'none'} (deep: maxPages=3)`);
+        console.log(`[NL-Query] D773 discover region=${nlRegion || '?'} → regionCode=${nlRegionCode || 'none'} (deep: maxPages=3) radius=${nlPlan.radius}m${nlPlan.anchored ? ` anchored="${nlPlan.placeAnchor.name}"` : ''}`);
         const candidates = await pipeline.discover({
           redis,
-          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries,
+          lat: nlPlan.lat, lng: nlPlan.lng, radius: nlPlan.radius, cuisines: cuisineQueries,
           maxResults: 60, regionCode: nlRegionCode, lang: nlLang, maxPages: 3
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
@@ -18736,6 +18700,13 @@ async function cacheBotUsername() {
         // building-name regex (Lau Pa Sat, Maxwell, SAFRA, etc.).
         const venueFiltersNL = require('./venue-filters');
         venues = venues.filter(venueFiltersNL.passesVenueFilter);
+        // v0.62.941 — Places Text Search treats the circle as a BIAS, so the 1.5 km is
+        // enforced here; nearest-first and never empty when nothing is inside.
+        if (nlPlan.anchored) {
+          const beforeAnchor = venues.length;
+          venues = nlAnchor.filterToAnchor(venues, nlPlan);
+          console.log(`[NL-Query] D775 anchor "${nlPlan.placeAnchor.name}" ${nlPlan.radius}m: ${beforeAnchor} → ${venues.length}`);
+        }
         // v0.57.12: cuisine-name validation gate (mirrors /api/cuisine/search).
         // v0.57.13: only fire when every selected cuisine is in
         // African/European/Americas categories.
@@ -18776,7 +18747,10 @@ async function cacheBotUsername() {
           });
         }
         // v0.57.8: hard 60 km gate (SG is ~50 × 25 km).
-        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        // v0.62.941 — not when anchored: the 1.5 km circle above is already tighter,
+        // and an accepted place may sit up to 120 km from the user (acceptPlace), where
+        // a gate centred on the user would empty the list.
+        if (!nlPlan.anchored && Number.isFinite(lat) && Number.isFinite(lng)) {
           venues = venues.filter((v) => {
             if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return true;
             const R = 6371000, toRad = (d) => d * Math.PI / 180;
@@ -18816,10 +18790,21 @@ async function cacheBotUsername() {
         // v0.61.246: open-now label too (mirrors /api/cuisine/search).
         const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL, minutesUntilClose: minutesUntilCloseNL, reopenTodayInfo: reopenTodayInfoNL,
           closedTodayByLang: closedTodayByLangNL, currentOpenByLang: currentOpenByLangNL } = require('./open-hours');
+        // v0.62.941 — operator, 25-10 '26: "when it infers 'new', apply the same newness
+        // rule as the New filter". Before this, "new" only added the words "newly
+        // opened" to the Places query, so long-established Michelin restaurants came
+        // back as new. newness-filter.js is the New filter's own block, now shared.
+        let nlNoProvenNew = false;
+        if (merged.newlyOpened) {
+          const { applyNewnessRule } = require('./newness-filter');
+          ({ venues, noProvenNew: nlNoProvenNew } = await applyNewnessRule(venues, { redis, logLabel: 'NL-Query-New' }));
+        }
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
         // v0.61.436 — per-chat guarded rating floor (code review: the
         // Tell-me NL path ignored the rating pill).
-        venues = await applyChatRatingFloor(chatId, venues, 'NL-Query');
+        // v0.62.941 — with New inferred, the New filter's 3.0 floor applies, as it does
+        // on /api/cuisine/search.
+        venues = await applyChatRatingFloor(chatId, venues, 'NL-Query', { newlyOpened: !!merged.newlyOpened });
         // v0.62.94 — show more (operator: "so narrowed vs Google Maps"). The NL
         // path is one-shot (no across-tap pagination), so the single slice is all
         // the user ever sees — 12 read as a fraction of Google's list. With the
@@ -18881,6 +18866,11 @@ async function cacheBotUsername() {
           inferredCuisines, inferredFilters,
           locationOverride: inferredLocation || '',
           locationLabel,
+          // v0.62.941 — the same fields /api/cuisine/search returns, so the Mini App
+          // shows the place pill and the "no new places nearby" banner for AI answers.
+          placeAnchor: nlPlan.placeAnchor,
+          placeAnchorQueryRemainder: '',
+          noProvenNew: nlNoProvenNew,
           source: inferred.source || 'unknown',
           // v0.60.18 — disambig disclosure for the NL surface (R.E.D
           // pre-step). When a phrase like "laksa" or "carrot cake"

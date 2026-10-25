@@ -482,7 +482,7 @@ describe('the empty state it lands in', () => {
 
     // `await` excludes the declaration; 15 occurrences, 14 of them calls.
     const calls = [...masked.matchAll(/await deliverPicks\(/g)].length;
-    expect(calls, 'call sites moved — re-read the resolution above before changing this number').toBe(14);
+    expect(calls, 'call sites moved — re-read the resolution above before changing this number').toBe(15);   // v0.62.941 14 → 15: answerChatQuestionWithAi delivers the chat's AI answer (passes { lang })
     expect([...masked.matchAll(/\bdeliverPicks\(/g)].length).toBe(calls + 1);
   });
 

@@ -19,6 +19,9 @@ scope:
   - "__tests__/chat-question-to-ai.test.js"
   - "__tests__/tellme-ai-lever.test.js"
   - "__tests__/freetext-classify.test.js"
+  - "__tests__/taste-suggest.test.js"
+  - "__tests__/tma-i18n-coverage.test.js"
+  - "__tests__/tma-i18n-korean.test.js"
   - "package.json"
   - "doc/Feature/2026-10-25-ai-switch-and-ai-route.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -128,3 +131,23 @@ flow files still name `doc/Feature`.
 ## Evidence
 Filled at the end: INVARIANTS REPORT (Passed / Failed / Not Verifiable, each with evidence), verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 0.2 — 25-10 '26 08:15 SGT · three pinned counts (F3 + F7)
+
+Prior scope, quoted verbatim (AU-7): the `scope:` list ended
+`"__tests__/freetext-classify.test.js"`, `"package.json"`, then the doc paths.
+
+Appended: `__tests__/taste-suggest.test.js`, `__tests__/tma-i18n-coverage.test.js`,
+`__tests__/tma-i18n-korean.test.js`.
+
+Why. After implementation the full suite showed 4 failures in those three files, all of them
+pinned totals this work moves on purpose, with the property each pin guards still holding:
+
+| File | Pin | Was | Now | Why it moved | Property still true |
+|------|-----|-----|-----|--------------|---------------------|
+| `taste-suggest.test.js` | `await deliverPicks(` call sites | 14 | 15 | the chat question path delivers its results | the new call passes `{ lang }`; the locale is still resolved inside `deliverPicks` before the empty branch |
+| `tma-i18n-coverage.test.js` | cuisine base keys | 401 | 404 | `tellme.placeholderAi`, `tell.askAiCta`, `tell.leverAria` | every key has all nine locales (`tellme-ai-lever.test.js`) |
+| `tma-i18n-korean.test.js` | cuisine base keys / keys with Korean | 401 | 404 | the same three keys | all three carry Korean |
+
+Only the numbers change; no assertion is loosened. Operator chose this, 25-10 '26: "(a) Amend
+scope, re-approve". This amendment voids the 07:17 approval; a fresh `APPROVE` is required.
