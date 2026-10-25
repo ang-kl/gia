@@ -11,6 +11,8 @@ const ICONS = {
   search: (<><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></>),
   message: (<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />),
   'arrow-right': (<><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></>),
+  // v0.62.941 — the 🔍 button's glyph when the Tell-me lever is on AI (Lucide "bot", MIT).
+  robot: (<><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></>),
 };
 
 export function hasIcon(name) { return Object.prototype.hasOwnProperty.call(ICONS, name); }

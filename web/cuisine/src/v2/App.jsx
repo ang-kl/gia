@@ -514,6 +514,10 @@ export default function App() {
   // v0.60.131 — server declined a "Tell me" text that read like a
   // question/instruction rather than a dish/cuisine name.
   const [questionDeclined, setQuestionDeclined] = useState(false);
+  // v0.62.941 — the Tell-me lever. false = Quick (no AI), the default; operator,
+  // 25-10 '26: "Quick by default", "Reset each visit" — so plain component state,
+  // never written to storage.
+  const [tellMeAi, setTellMeAi] = useState(false);
   // v0.60.28 — current page slice surfaced by ResultPanel. The map
   // shows only this slice so paging left/right also rotates the pins,
   // keeping the visual context aligned with what the user is reading.
@@ -3429,6 +3433,14 @@ export default function App() {
       setVenues(r.venues || []);
       setNoProvenNew(!!r.noProvenNew);   // v0.62.205 — "no new nearby" banner flag
       setCuisinePlate(r.cuisinePlate || null);   // v0.62.x — clear/refresh the cuisine plate on NL queries too
+      // v0.62.941 — the AI route now returns the place it searched around (1.5 km),
+      // in the same shape as /api/cuisine/search: show the place pill and move the map
+      // there, exactly as runSearch does for a typed place.
+      const nlAnchor = (r.placeAnchor && r.placeAnchor.name && Number.isFinite(r.placeAnchor.lat) && Number.isFinite(r.placeAnchor.lng))
+        ? { ...r.placeAnchor, queryRemainder: typeof r.placeAnchorQueryRemainder === 'string' ? r.placeAnchorQueryRemainder : '' }
+        : null;
+      setPlaceAnchor(nlAnchor);
+      if (nlAnchor) setSearchCenter({ lat: nlAnchor.lat, lng: nlAnchor.lng });
       setComboInfo(null);  // v0.60.82 — NL query bypasses the AND/OR combo logic
       setFirstLoadPending(false);
       // v0.62.34 — D791 post-search location consistency check (the
@@ -5709,6 +5721,9 @@ export default function App() {
                 loading={loading}
                 searchIcon
                 onEmptySearch={triggerSearch}
+                aiMode={tellMeAi}
+                onToggleAi={() => setTellMeAi((v) => !v)}
+                onQuickSearch={triggerSearch}
                 searchDisabled={searchDisabled}
                 searchPulse={searchHintActive || searchFabFlash}
                 autoFocus

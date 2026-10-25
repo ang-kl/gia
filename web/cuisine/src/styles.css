@@ -372,6 +372,43 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   border-color: #facc15; /* yellow-400 */
 }
 
+/* v0.62.941 — the Tell-me bar's Quick / AI lever (spec doc/Feature/2026-10-25-ai-
+   switch-and-ai-route.spec.md; mockup approved by the operator 24-10 '26).
+   Every colour below is the bar's own: --tm-bg / --tm-border repeat
+   .loc-field-surface above so the bump is indistinguishable from the border.
+   The OFF lever is slate (light) or the bar's yellow (dark) with a thin outline that
+   contrasts with the MAP, not the bar — the bar floats over map tiles, and a grey
+   lever over a grey road or label disappears (measured on a simulated map). */
+.loc-field-surface { --tm-bg: #ffffff; --tm-border: #cbd5e1; --tm-lever: #475569; --tm-halo: #ffffff; --tm-ai-a: #7c3aed; --tm-ai-b: #db2777; }
+[data-theme="dark"] .loc-field-surface { --tm-bg: var(--tg-card, #1c1c1f); --tm-border: #facc15; --tm-lever: #facc15; --tm-halo: #0b0f14; --tm-ai-a: #a78bfa; --tm-ai-b: #f472b6; }
+
+.tellme-ai.loc-field-surface {
+  border-color: transparent;
+  border-width: 1.5px;
+  background: linear-gradient(var(--tm-bg), var(--tm-bg)) padding-box,
+              linear-gradient(90deg, var(--tm-ai-a), var(--tm-ai-b)) border-box;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tm-ai-a) 16%, transparent);
+}
+
+.tellme-lever {
+  position: absolute; left: 12px; top: -12.5px; width: 8px; height: 12px;
+  padding: 0; border: 0; background: transparent; line-height: 0; cursor: pointer;
+  color: var(--tm-lever); -webkit-tap-highlight-color: transparent;
+}
+.tellme-lever::before { content: ""; position: absolute; left: -16px; top: -14px; width: 40px; height: 40px; }
+.tellme-lever svg { display: block; width: 8px; height: 12px; overflow: visible; }
+.tellme-lever-bat {
+  fill: currentColor; stroke: var(--tm-halo); stroke-width: 1.4; stroke-linejoin: round; paint-order: stroke;
+  transform-box: view-box; transform-origin: 4px 10.6px; transform: rotate(-22deg);
+  transition: transform .22s ease;
+}
+.tellme-lever-bump { fill: var(--tm-bg); stroke: var(--tm-border); stroke-width: 1; }
+.tellme-lever.is-ai { color: var(--tm-ai-a); }
+.tellme-lever.is-ai .tellme-lever-bat { transform: rotate(22deg); }
+.tellme-lever.is-ai .tellme-lever-bump { stroke: var(--tm-ai-a); stroke-width: 1.5; }
+.tellme-lever:focus-visible { outline: 2px solid var(--tm-ai-a); outline-offset: 3px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { .tellme-lever-bat { transition: none; } }
+
 /* v0.62.x — operator: in the "nearby places" list the venue name reads black in
    light mode and yellow in dark mode (the street/address stays the theme text). */
 .nearby-venue { color: #111827; } /* near-black for light mode */
