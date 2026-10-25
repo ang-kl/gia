@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from '../../../_shared/lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
+import { shouldFoldOnComposerOpen, RESULTS_BLINK_MS } from './lib/composer-fold.js';
 import { cuisineName } from './lib/cuisine-i18n.js';
 import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
@@ -709,6 +710,34 @@ export default function App() {
   // v0.62.138 — a fresh (or grown) result set re-shows the floating strip even
   // if the user had dismissed the previous one.
   useEffect(() => { if (venues.length) setDrawerDismissed(false); }, [venues]);
+  // v0.62.942 — fold the cards on 💬 open (spec doc/Feature/2026-10-25-lever-size-and-fold-on-
+  // compose.spec.md). Operator: first open, or 10 minutes after the last results arrived ("Since
+  // the last search"), with cards showing → hide them as "hide results" does and blink that button
+  // for 2 s. Refs, not state: neither value is rendered, and both reset with the Mini App.
+  const composerOpenedRef = useRef(false);
+  const lastResultsAtRef = useRef(null);
+  const blinkTimerRef = useRef(null);
+  const [resultsBlink, setResultsBlink] = useState(false);
+  useEffect(() => {
+    if (Array.isArray(venues) && venues.length) lastResultsAtRef.current = Date.now();
+  }, [venues]);
+  useEffect(() => () => clearTimeout(blinkTimerRef.current), []);
+  function openComposer() {
+    if (shouldFoldOnComposerOpen({
+      openedBefore: composerOpenedRef.current,
+      lastResultsAt: lastResultsAtRef.current,
+      now: Date.now(),
+      hasCards: Array.isArray(venues) && venues.length > 0,
+      dismissed: drawerDismissed,
+    })) {
+      setDrawerDismissed(true);
+      setResultsBlink(true);
+      clearTimeout(blinkTimerRef.current);
+      blinkTimerRef.current = setTimeout(() => setResultsBlink(false), RESULTS_BLINK_MS);
+    }
+    composerOpenedRef.current = true;
+    setComposerOpen(true);
+  }
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, hawker: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
@@ -5737,7 +5766,7 @@ export default function App() {
             <div className="flex items-center justify-between gap-0 px-0.5 relative z-40">
               <button
                 type="button"
-                onClick={() => setComposerOpen(true)}
+                onClick={openComposer}
                 aria-label={t('app.typeWhatYou', lang)}
                 className="pointer-events-auto w-10 h-10 rounded-full bg-tg-card/75 liquid-glass border-2 border-tg-hint/60 shadow-lg flex items-center justify-center text-lg active:scale-95"
               >💬</button>
@@ -5791,7 +5820,7 @@ export default function App() {
                 aria-label={drawerDismissed
                   ? (t('app.showResults', lang))
                   : (t('app.hideResults', lang))}
-                className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+                className={`px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap${resultsBlink ? ' results-toggle-blink' : ''}`}
               >{drawerDismissed
                 ? `📖 ${t('app.showResults2', lang)}`
                 : `📘 ${t('app.hideResults2', lang)}`}</button>
