@@ -87,8 +87,12 @@ describe('styles.css', () => {
     expect(before).toMatch(/width: 40px; height: 40px/);
     expect(rule('.tellme-lever svg')).toMatch(/width: 12px; height: 18px/);
   });
-  it('the bump keeps the border\'s width at the larger size (non-scaling stroke)', () => {
-    expect(rule('.tellme-lever-bump')).toMatch(/vector-effect: non-scaling-stroke/);
+  // v0.62.943 — the lever moved inside the bar, so the border bump is gone and a base line
+  // replaces it (spec doc/Feature/2026-10-26-lever-inside-bar-and-results-origin-flag.spec.md,
+  // amendment 0.2). The base keeps the same non-scaling stroke at 12×18.
+  it('the base line keeps its width at the larger size (non-scaling stroke); the bump is gone', () => {
+    expect(rule('.tellme-lever-base')).toMatch(/vector-effect: non-scaling-stroke/);
+    expect(css).not.toMatch(/\.tellme-lever-bump/);
   });
   it('the blink lasts 2 s in total and reduce-motion gets a still highlight', () => {
     expect(css).toMatch(/\.results-toggle-blink \{[^}]*animation: results-blink 0\.5s [a-z-]* 4/);

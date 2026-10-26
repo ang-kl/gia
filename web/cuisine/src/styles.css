@@ -393,8 +393,11 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 /* v0.62.942 — 8×12 → 12×18 px (operator, after v0.62.941 went live: the lever was too small to
    find; "Just bigger"). The 8×12 viewBox scales 1.5×; the bump and the bat's outline use a
    non-scaling stroke so the bump stays exactly the border's width at the larger size. */
+/* v0.62.943 — inside the bar, between 💬 and the text box: an ordinary flex item, no longer lifted
+   above the border (on a phone it sat over the map's bottom-left control button and was lost).
+   The 40×40 tap area stays centred on it; the bar's gap-2 keeps it clear of 💬 and the input. */
 .tellme-lever {
-  position: absolute; left: 11px; top: -18.5px; width: 12px; height: 18px;
+  position: relative; flex-shrink: 0; width: 12px; height: 18px;
   padding: 0; border: 0; background: transparent; line-height: 0; cursor: pointer;
   color: var(--tm-lever); -webkit-tap-highlight-color: transparent;
 }
@@ -406,10 +409,9 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   transform-box: view-box; transform-origin: 4px 10.6px; transform: rotate(-22deg);
   transition: transform .22s ease;
 }
-.tellme-lever-bump { fill: var(--tm-bg); stroke: var(--tm-border); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.tellme-lever-base { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .tellme-lever.is-ai { color: var(--tm-ai-a); }
 .tellme-lever.is-ai .tellme-lever-bat { transform: rotate(22deg); }
-.tellme-lever.is-ai .tellme-lever-bump { stroke: var(--tm-ai-a); stroke-width: 1.5; }
 .tellme-lever:focus-visible { outline: 2px solid var(--tm-ai-a); outline-offset: 3px; border-radius: 3px; }
 @media (prefers-reduced-motion: reduce) { .tellme-lever-bat { transition: none; } }
 
