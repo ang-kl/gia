@@ -23,6 +23,9 @@
 
 const { isDishName, filterDishNames } = require('./dish-name');
 
+// v0.62.946 — the most the review-translation step may add to a search (see enrichSlow).
+const REVIEW_LOCALISE_BUDGET_MS = 6000;
+
 const FOUR_MONTHS_MS = 120 * 24 * 60 * 60 * 1000;
 
 // v0.60.156 — Places v1 wraps each review's text in a nested object
@@ -380,7 +383,14 @@ async function enrichSlow(top, ctx) {
     try {
       const { reviewLanguagePrimary } = require('./cuisine-review-language');
       const { translateReview } = require('./translate-review');
-      await Promise.all(top.map(async (v) => {
+      // v0.62.946 — the whole step is capped at REVIEW_LOCALISE_BUDGET_MS. Each call is already
+      // capped at 5 s, but Promise.all waits on the slowest venue, and a hung Gemini call held
+      // the cards for 62 s on 26-10 '26. Past the budget the cards go out with the original
+      // reviews; a translation that lands later is cached for the next search, never written
+      // onto a card already sent.
+      let localiseDone = false;
+      let localiseTimer = null;
+      const localiseAll = Promise.all(top.map(async (v) => {
         if (!v || !v.recentReview || v.recentReviewTranslatedFlag) return;   // already done above
         const rr = String(v.recentReview);
         const src = Array.isArray(v.reviews)
@@ -400,12 +410,20 @@ async function enrichSlow(top, ctx) {
             reviewIdx: 0,
             redis: redis && redis.isOpen ? redis : null,
           });
+          if (localiseDone) return;
           if (typeof out === 'string' && out.trim() && out.trim() !== rr) {
             v.recentReview = out.trim().slice(0, 200);
             v.recentReviewSourceLang = srcLang;
           }
         } catch { /* per-venue best effort — the original text still shows */ }
       }));
+      const inTime = await Promise.race([
+        localiseAll.then(() => true),
+        new Promise((res) => { localiseTimer = setTimeout(() => res(false), ctx.reviewLocaliseBudgetMs || REVIEW_LOCALISE_BUDGET_MS); }),
+      ]);
+      clearTimeout(localiseTimer);
+      localiseDone = true;
+      if (!inTime) console.warn(`[Cuisine-Search] review localisation over ${ctx.reviewLocaliseBudgetMs || REVIEW_LOCALISE_BUDGET_MS} ms; original reviews kept`);
     } catch (err) {
       console.warn('[Cuisine-Search] review localisation failed:', err.message);
     }
@@ -456,4 +474,4 @@ async function enrichSlow(top, ctx) {
     + ` total=${Date.now() - _t0all}ms`);
 }
 
-module.exports = { reviewText, extractDishes, enrichFast, enrichSlow, FOUR_MONTHS_MS };
+module.exports = { reviewText, extractDishes, enrichFast, enrichSlow, FOUR_MONTHS_MS, REVIEW_LOCALISE_BUDGET_MS };

@@ -41,6 +41,12 @@ const SEARCH_INTENT_MODEL_CHAIN = require('./gemini-models').MODEL_CHAIN.slice()
 
 const CACHE_TTL_S = 30 * 24 * 60 * 60;    // 30 days
 const MAX_INPUT_CHARS = 1000;
+// v0.62.946 — one translation may take at most this long, across every model in the chain.
+// A Gemini call that hung held the search's review step for 62 s on 26-10 '26 (Railway log,
+// reviewLocalise=62028 ms); the reader then got the ORIGINAL text anyway. Past the deadline the
+// original is returned, and the abandoned call still writes the cache when it does answer, so
+// the next search for the same venue is instant.
+const TRANSLATE_TIMEOUT_MS = 5000;
 
 // BCP-47 primary tag. Normalises 'zh-Hans' / 'zh-CN' → 'zh',
 // 'en-US' → 'en', etc. Returns '' for non-strings.
@@ -79,6 +85,7 @@ async function translateReview({
   placeId,
   reviewIdx = 0,
   redis = null,
+  timeoutMs = TRANSLATE_TIMEOUT_MS,
   _genAIFactory
 } = {}) {
   const original = typeof text === 'string' ? text.trim() : '';
@@ -124,28 +131,49 @@ async function translateReview({
     capped
   ].join('\n');
 
+  // Each attempt caches its own answer, so an attempt abandoned at the deadline is not wasted.
+  const attempt = async (candidate) => {
+    const m = genAI.getGenerativeModel({ model: candidate });
+    const r = await m.generateContent(prompt);
+    require('./api-cost').recordGeminiUsage(redis, candidate, r?.response?.usageMetadata);
+    let raw = '';
+    try { raw = r?.response?.text?.() || ''; } catch { return ''; }
+    const cleaned = String(raw).trim()
+      .replace(/^```(?:[a-z]+)?\s*|```$/g, '')
+      .trim()
+      .replace(/^["']+|["']+$/g, '')
+      .trim();
+    if (!cleaned) return '';
+    if (cacheKey && redis && redis.isOpen) {
+      try { await redis.set(cacheKey, cleaned, { EX: CACHE_TTL_S }); }
+      catch { /* non-fatal */ }
+    }
+    return cleaned;
+  };
+
+  const capMs = Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : null;
+  const deadline = capMs ? Date.now() + capMs : Infinity;
+  const TIMED_OUT = Symbol('timeout');
   const candidates = SEARCH_INTENT_MODEL_CHAIN.slice();
   for (const candidate of candidates) {
+    const left = deadline - Date.now();
+    if (left <= 0) break;
+    let timer = null;
     try {
-      const m = genAI.getGenerativeModel({ model: candidate });
-      const r = await m.generateContent(prompt);
-      require('./api-cost').recordGeminiUsage(redis, candidate, r?.response?.usageMetadata);
-      let raw = '';
-      try { raw = r?.response?.text?.() || ''; } catch { continue; }
-      const cleaned = String(raw).trim()
-        .replace(/^```(?:[a-z]+)?\s*|```$/g, '')
-        .trim()
-        .replace(/^["']+|["']+$/g, '')
-        .trim();
-      if (!cleaned) continue;
-      if (cacheKey && redis && redis.isOpen) {
-        try { await redis.set(cacheKey, cleaned, { EX: CACHE_TTL_S }); }
-        catch { /* non-fatal */ }
+      const run = attempt(candidate);
+      run.catch(() => {});   // an abandoned attempt that later fails must not go unhandled
+      const out = Number.isFinite(left)
+        ? await Promise.race([run, new Promise((res) => { timer = setTimeout(() => res(TIMED_OUT), left); })])
+        : await run;
+      if (out === TIMED_OUT) {
+        console.warn(`[Translate-Review] ${candidate} timed out after ${capMs} ms; original kept`);
+        break;
       }
-      return cleaned;
+      if (out) return out;
     } catch (err) {
       console.warn(`[Translate-Review] ${candidate} failed: ${err.message}`);
-      continue;
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   }
   return original;
@@ -156,5 +184,6 @@ module.exports = {
   primaryTag,
   langName,
   LANG_NAME,
-  CACHE_TTL_S
+  CACHE_TTL_S,
+  TRANSLATE_TIMEOUT_MS
 };
