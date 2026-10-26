@@ -94,6 +94,9 @@ const IDENTICAL_BY_DESIGN = [
   // `language.btn.ko` is an endonym, identical for the same reason its eight siblings are.
   ['bot.lang.set.ko', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
   ['language.btn.ko', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  // v0.62.944 — the halal label on a curated external eatery: "Halal" is the word in French,
+  // Indonesian, German and Spanish as well.
+  ['card.halal', ['fr', 'id', 'de', 'es'], 'cognate'],
 ];
 
 const REASONS = new Set(['endonym', 'confirms-in-target', 'format-only', 'proper-noun', 'cognate']);
@@ -213,7 +216,8 @@ describe('i18n coverage', () => {
     // v0.62.901 — 279 → 292: the 13 §2,911·C keys (5 taste.why.*, 6 taste.period.*,
     // taste.noResults, taste.header). All three numbers below move together or the
     // arithmetic stops balancing, which is what makes them worth pinning at all.
-    expect(KEYS.length).toBe(292);
+    // v0.62.944 — 292 → 295: card.curated, card.halalCertified, card.halal (external eateries).
+    expect(KEYS.length).toBe(295);
   });
 
   it('no key is identical to English except the pinned ones', () => {
@@ -257,11 +261,13 @@ describe('i18n coverage', () => {
     // so the possible-cells total and the present-cells total move together and
     // `absentPinned` does not move at all. That the third line still balances is
     // the check that the new key really is complete rather than merely counted.
-    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2628);
+    // v0.62.944 — +3 keys complete in all nine: 2628 → 2655 possible, 2511 → 2538 present,
+    // `absentPinned` still 117.
+    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2655);
     // 2394 + 13×9 = 2511. `absentPinned` is unchanged at 117 because every new key is
     // complete in all nine — if one were not, this line and the one above would disagree.
-    expect(have).toBe(2511);
-    expect(absentPinned.size).toBe(2511 - 2394);
+    expect(have).toBe(2538);
+    expect(absentPinned.size).toBe(2538 - 2421);
   });
 
   it('no locale entry is MISSING except the pinned ones', () => {

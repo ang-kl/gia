@@ -1,8 +1,8 @@
 counters:
-  commit: 1550
-  build: 844
+  commit: 1551
+  build: 845
   documents:
-    journal: 1267
+    journal: 1269
     builder: 3
     persona: 4
     feature: 68
@@ -14,7 +14,8 @@ sessions:
   current_chat_counter: 126  # per §3.2 the CHAT counter resets per session and starts at 1;
                             # replies 1-4 of this session mistakenly carried commit-counter
                             # values (1,236-1,239) in their headers. See chat-0_62_723 turn 5.
-last_anchor_time: 26-10 '26 14:39 SGT
+last_anchor_time: 26-10 '26 15:09 SGT
+last_anchor_time_prior86: 26-10 '26 14:39 SGT
 last_anchor_time_prior87: 26-10 '26 06:34 SGT
 last_anchor_time_prior88: 26-10 '26 05:59 SGT
 last_anchor_time_prior89: 25-10 '26 08:51 SGT
@@ -113,7 +114,8 @@ last_anchor_time_prior181: 01-09 '26 10:30 SGT
 last_anchor_time_prior182: 01-09 '26 09:44 SGT
 last_anchor_time_prior183: 01-09 '26 09:29 SGT
 last_anchor_time_prior184: 01-09 '26 08:24 SGT
-last_anchor_source: system_clock_d203_max_sensor_1439_33_wins_over_operator_spec_reapproval_1423_by_993_seconds_amd244
+last_anchor_source: system_clock_d203_max_sensor_1509_45_wins_over_operator_spec_reapproval_1459_by_645_seconds_amd246
+last_anchor_source_prior86: system_clock_d203_max_sensor_1439_33_wins_over_operator_spec_reapproval_1423_by_993_seconds_amd244
 last_anchor_source_prior87: system_clock_d203_max_sensor_0634_34_wins_over_pr_1880_squash_merge_0616_07_by_1107_seconds_amd243
 last_anchor_source_prior88: system_clock_d203_max_sensor_0559_32_wins_over_operator_spec_approval_0553_18_by_374_seconds_amd242
 last_anchor_source_prior89: system_clock_d203_max_sensor_0851_42_wins_over_pr_1879_squash_merge_0851_28_by_14_seconds_amd241
@@ -243,7 +245,8 @@ last_anchor_source_prior212: system_clock_d203_max_sensor_2039_wins_over_pr_1797
 last_anchor_source_prior213: system_clock_d203_max_sensor_2033_wins_over_pr_1796_merge_2017
 last_anchor_source_prior214: system_clock_d203_max_sensor_2018_wins_over_pr_1796_merge_2017_and_corrects_amd87s_future_dated_2030
 last_anchor_source_prior215: system_clock_d203_max_sensor_wins_over_pr_1795_merge   # future-dated by 45 min; kept per AU-1, superseded 30-08 '26 20:18 SGT
-last_anchor_note: d203_amd244_v0_62_943_lever_inside_bar_between_chat_icon_and_input_flat_bat_on_base_line_footer_flags_traditional_non_ai_results_nine_locales_origin_survives_locale_reload_6_mutations_caught_5777_green_built_app_rendered_lever_unobstructed
+last_anchor_note: d203_amd245_1885_merged_a42b1ab7_held_amd246_v0_62_944_external_curated_eateries_redis_ext_keyspace_all_columns_verbatim_external_update_owner_only_merge_by_id_new_paths_merge_before_review_check_jb_btm_halal_default_12_mutations_caught_5820_green
+last_anchor_note_prior86: d203_amd244_v0_62_943_lever_inside_bar_between_chat_icon_and_input_flat_bat_on_base_line_footer_flags_traditional_non_ai_results_nine_locales_origin_survives_locale_reload_6_mutations_caught_5777_green_built_app_rendered_lever_unobstructed
 last_anchor_note_prior87: d203_amd243_1880_merged_176c75aa_on_operator_merge_when_ready_ci_4_of_4_no_review_threads_merged_tree_identical_to_5c285d36_live_0_62_942_confirmed_healthz_held_per_d210
 last_anchor_note_prior88: d203_amd242_v0_62_942_lever_12x18_cards_fold_on_compose_first_open_or_10_min_since_results_blink_2s_reduced_motion_still_8_mutations_caught_5763_green_real_build_rendered_ledger_row_3686
 last_anchor_note_prior89: d203_amd241_1879_merged_2d8a9f95_on_operator_go_ahead_to_merge_ci_4_of_4_no_review_threads_merged_tree_identical_to_67979876_railway_deploy_pending_held_per_d210
@@ -657,7 +660,8 @@ last_anchor_source_prior: strips_no_overlap_optionB_2026-07-03_1217
 # on which representation a reader trusted. Flagged by review on #1735. The durable fix is not
 # this edit but the gate in __tests__/serial-state-anchor.test.js, which fails when the three
 # representations disagree — a comment asking to keep them in sync has now failed twice.
-last_anchor_iso8601_current: 2026-10-26T14:39:33+08:00
+last_anchor_iso8601_current: 2026-10-26T15:09:45+08:00
+last_anchor_iso8601_current_prior86: 2026-10-26T14:39:33+08:00
 last_anchor_iso8601_current_prior87: 2026-10-26T06:34:34+08:00
 last_anchor_iso8601_current_prior88: 2026-10-26T05:59:32+08:00
 last_anchor_iso8601_current_prior89: 2026-10-25T08:51:42+08:00
@@ -809,7 +813,8 @@ last_anchor_iso8601: 2026-08-26T15:03:00+08:00   # superseded 26-08 '26 15:12 SG
 last_anchor_iso8601: 2026-08-26T14:01:00+08:00   # superseded 26-08 '26 15:03 SGT; was _current
 last_anchor_iso8601: 2026-08-26T13:42:00+08:00   # superseded 26-08 '26 14:01 SGT; was _current
 last_anchor_iso8601: 2026-08-26T13:19:00+08:00   # superseded 26-08 '26 13:42 SGT; was _current
-last_anchor_utc_current: 2026-10-26T06:39:33Z
+last_anchor_utc_current: 2026-10-26T07:09:45Z
+last_anchor_utc_current_prior86: 2026-10-26T06:39:33Z
 last_anchor_utc_current_prior87: 2026-10-25T22:34:34Z
 last_anchor_utc_current_prior88: 2026-10-25T21:59:32Z
 last_anchor_utc_current_prior89: 2026-10-25T00:51:42Z

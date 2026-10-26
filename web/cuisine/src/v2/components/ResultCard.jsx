@@ -693,6 +693,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
 
+          {/* v0.62.944 — a curated external eatery (operator's Gemini automation; spec doc/Feature/
+              2026-10-26-external-eateries.spec.md, A5 + A12): "🆕 Curated", then "Halal ✓ certified"
+              when the file says certified, or "Halal" when the JB / Batam default rule makes it so. */}
+          {venue._curated && (
+            <div className={`text-[12px] text-tg-text font-semibold ${horizontal ? 'mt-0.5' : 'mt-1'}`}>
+              {tr('card.curated', lang)}
+              {venue._curated.halal === 'certified' ? ` · ${tr('card.halalCertified', lang)}`
+                : venue._curated.halal === 'default' ? ` · ${tr('card.halal', lang)}` : ''}
+            </div>
+          )}
+
           {/* v0.62.588 — operator (Brisbane): the street address is now VISIBLE on
               the collapsed card (was revealed only on expand since v0.62.124). Sits
               just above the collapse boundary with the 🍲 Try / Michelin rows.

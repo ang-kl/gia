@@ -24,6 +24,9 @@ process.on('unhandledRejection', (reason) => {
 });
 const { refreshVibeListings } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
+// v0.62.944 — curated eateries from the operator's Gemini automation (spec doc/Feature/
+// 2026-10-26-external-eateries.spec.md): stored by /external_update, offered to "new" searches.
+const externalEateries = require('./external-eateries');
 const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest');
 const { t, tn } = require('./i18n');   // v0.62.859 — item 6: module-scope, because the
                                        // 106 keyed sites span scopes whose own requires are local.
@@ -3047,6 +3050,42 @@ bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, guarded('rating', async (m
 // buttons (`v:logon` / `v:logoff`) were already covered by the `v:` callback
 // family's own gate — this closes the one remaining way in. Same
 // silent-no-op-plus-log shape as every other owner command.
+// v0.62.944 — /external_update (spec doc/Feature/2026-10-26-external-eateries.spec.md). Owner
+// only: it opens a 15-minute window in which the owner sends the Gemini automation's Alerts and
+// DailyBrief CSV files; each is validated and merged by id into Redis's `ext:` keyspace. Anyone
+// else gets the same silent no-op as the other owner commands. The underscore is deliberate:
+// Telegram commands cannot contain "-", so "/external-update" would arrive as "/external".
+bot.onText(externalEateries.COMMAND_RE, async (msg) => {
+  try {
+    const reply = await externalEateries.handleCommand({ chatId: msg.chat.id, isOwner: isOwnerChat(msg.chat.id), redis });
+    // handleCommand answers the owner always, so no reply means the caller is not the owner.
+    if (!reply) { console.log(`[/external_update] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`); return; }
+    await bot.sendMessage(msg.chat.id, reply);
+  } catch (err) {
+    console.error('[/external_update] failed:', err.message);
+  }
+});
+bot.on('document', async (msg) => {
+  try {
+    const doc = msg.document;
+    if (!doc) return;
+    const reply = await externalEateries.handleDocument({
+      chatId: msg.chat.id, isOwner: isOwnerChat(msg.chat.id), redis, fileName: doc.file_name || '',
+      fetchText: async () => {
+        const link = await bot.getFileLink(doc.file_id);
+        const { data } = await require('axios').get(link, { responseType: 'text', timeout: 20000, transformResponse: (x) => x });
+        return String(data);
+      },
+    });
+    if (reply) await bot.sendMessage(msg.chat.id, reply);
+  } catch (err) {
+    // Reached only after handleDocument confirmed the owner and an open window (it returns null
+    // first otherwise), so the reason can go back to that chat.
+    console.error('[/external_update] file load failed:', err.message);
+    try { await bot.sendMessage(msg.chat.id, `⚠️ External file not loaded: ${err.message}`); } catch { /* best-effort */ }
+  }
+});
+
 bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
   if (!isOwnerChat(msg.chat.id)) {
     console.log(`[/log] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
@@ -12449,18 +12488,30 @@ async function answerChatQuestionWithAi(chatId, text, lang) {
   const { consumeTellGiaQuota } = require('./tell-gia-rate-limit');
   const cv = require('./cuisines-vault');
   const pipeline = require('./pipeline');
+  // v0.62.944 — the curated external eateries need the search's centre, radius, filters and
+  // cuisines, which answerQuestionWithTellGia passes to `discover` and `infer` but not to
+  // `applyNewness`; the two closures below remember them for it.
+  let chatSearch = null;
+  let chatInferred = null;
   const outcome = await nlAnchor.answerQuestionWithTellGia({
     text,
     deps: {
       // One budget with the Mini App's AI route (operator: "Share the 60/hour cap").
       consumeQuota: async () => (await consumeTellGiaQuota(redis, chatId)).allowed,
-      infer: (t) => require('./tell-gia').inferTellGia({ text: t, chatId, redis, vault: cv }),
+      infer: async (t) => (chatInferred = await require('./tell-gia').inferTellGia({ text: t, chatId, redis, vault: cv })),
       cuisineNames: (slugs) => slugs.map((s) => cv.findBySlug(s)).filter(Boolean).map((c) => c.name),
       getUserLocation: () => getUserLocation(redis, chatId),
       geocode: (q) => geocodeQuery(q),
-      discover: (args) => pipeline.discover({ redis, maxResults: 60, lang, maxPages: 3, ...args }),
+      discover: (args) => { chatSearch = args; return pipeline.discover({ redis, maxResults: 60, lang, maxPages: 3, ...args }); },
       passesVenueFilter: require('./venue-filters').passesVenueFilter,
-      applyNewness: (venues) => require('./newness-filter').applyNewnessRule(venues, { redis, logLabel: 'Chat-Question-New' }),
+      // Called only when the reading has newlyOpened. Curated venues join before the review check (A11).
+      applyNewness: async (venues) => {
+        const pool = chatSearch
+          ? await externalEateries.forNewSearch(venues, { redis, center: { lat: chatSearch.lat, lng: chatSearch.lng }, radiusM: chatSearch.radius, filters: chatInferred?.filters || {}, cuisines: chatInferred?.cuisines || [], logLabel: 'Chat-Question-New' })
+          : venues;
+        const out = await require('./newness-filter').applyNewnessRule(pool, { redis, logLabel: 'Chat-Question-New' });
+        return { ...out, venues: externalEateries.curatedFirst(out.venues) };
+      },
       applyRatingFloor: (venues, opts) => applyChatRatingFloor(chatId, venues, 'Chat-Question', opts),
       regionCodeFor: (loc) => (loc ? resolveRegionCode(loc) : 'SG'),
       askLocation: async (inferred) => {
@@ -17460,8 +17511,13 @@ async function cacheBotUsername() {
           // shared never-empty floor — is kept in that file's header.
           // newness-filter.test.js runs a copy of the old block against the new
           // function on fixtures covering every branch.
+          // v0.62.944 — the curated external eateries join the pool HERE, before the review-age
+          // check, because the operator chose that they face it too (spec A11). newlyOpened is the
+          // only path that reaches this line.
+          venues = await externalEateries.forNewSearch(venues, { redis, center: searchCenter, radiusM: searchRadius, filters, cuisines, logLabel: 'Cuisine-New' });
           const { applyNewnessRule } = require('./newness-filter');
           ({ venues, noProvenNew } = await applyNewnessRule(venues, { redis }));
+          venues = externalEateries.curatedFirst(venues);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
@@ -18058,6 +18114,10 @@ async function cacheBotUsername() {
           for (const v of dedupedTop) (v.openNow === false ? closedVenues : openOrUnknown).push(v);
           if (closedVenues.length && openOrUnknown.length) dedupedTop = [...openOrUnknown, ...closedVenues];
         }
+        // v0.62.944 — curated external eateries lead the page (spec A12). They reach this list only
+        // through the New filter, and their open status is unknown, so the partition above kept
+        // them in front of closed venues; this keeps them in front of everything else too.
+        if (filters.newlyOpened) dedupedTop = externalEateries.curatedFirst(dedupedTop);
         // v0.62.293 — exact-vs-alternate tagging (restored + extended to combos).
         // SINGLE cuisine: a venue that doesn't match → 'alternate' (renders the
         // "{cuisine} & Nearby Flavours" strip). COMBO (2+): a venue serving ALL
@@ -18795,9 +18855,13 @@ async function cacheBotUsername() {
         // opened" to the Places query, so long-established Michelin restaurants came
         // back as new. newness-filter.js is the New filter's own block, now shared.
         let nlNoProvenNew = false;
+        // v0.62.944 — with newlyOpened inferred, curated external eateries near the plan's centre
+        // join before the review check (spec A11), as on the New filter.
+        if (merged.newlyOpened) venues = await externalEateries.forNewSearch(venues, { redis, center: { lat: nlPlan.lat, lng: nlPlan.lng }, radiusM: nlPlan.radius, filters: merged, cuisines: inferredCuisines, logLabel: 'NL-Query-New' });
         if (merged.newlyOpened) {
           const { applyNewnessRule } = require('./newness-filter');
           ({ venues, noProvenNew: nlNoProvenNew } = await applyNewnessRule(venues, { redis, logLabel: 'NL-Query-New' }));
+          venues = externalEateries.curatedFirst(venues);
         }
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
         // v0.61.436 — per-chat guarded rating floor (code review: the

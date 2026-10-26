@@ -53,7 +53,8 @@ describe('no command handler can go silent', () => {
     // Pinned deliberately: a NEW handler added without a guard should show up as a
     // change here, not slip in under a >= .
     expect((SRC.match(/guarded\('/g) || []).length).toBe(16);
-    expect(registrations().length).toBe(33);
+    // v0.62.944 — 33 → 34: /external_update (owner-only; its handler carries its own try/catch).
+    expect(registrations().length).toBe(34);
   });
 
   it('the commands the operator actually uses are among them', () => {

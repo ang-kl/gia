@@ -479,6 +479,10 @@ const STRINGS = {
   // building / address typed in chat free-text). Header above the
   // venue list, the button that fans out to better-rated nearby
   // eateries, and the header above that nearby list.
+  // v0.62.944 — curated external eateries (spec doc/Feature/2026-10-26-external-eateries.spec.md).
+  'card.curated':              { en: '🆕 Curated', fr: '🆕 Sélection', id: '🆕 Pilihan kurasi', ru: '🆕 Подборка', de: '🆕 Kuratiert', zh: '🆕 精选', ja: '🆕 厳選', es: '🆕 Seleccionado', ko: '🆕 큐레이션' },
+  'card.halalCertified':       { en: 'Halal ✓ certified', fr: 'Halal ✓ certifié', id: 'Halal ✓ bersertifikat', ru: 'Халяль ✓ сертифицировано', de: 'Halal ✓ zertifiziert', zh: '清真 ✓ 已认证', ja: 'ハラール ✓ 認証済み', es: 'Halal ✓ certificado', ko: '할랄 ✓ 인증' },
+  'card.halal':                { en: 'Halal', fr: 'Halal', id: 'Halal', ru: 'Халяль', de: 'Halal', zh: '清真', ja: 'ハラール', es: 'Halal', ko: '할랄' },
   'place.foundN':              { en: '📍 <b>{place}</b> — found {n} eateries here',
                                  fr: '📍 <b>{place}</b> — {n} établissements trouvés ici' ,
                    id: '📍 <b>{place}</b> — menemukan {n} tempat makan di sini',

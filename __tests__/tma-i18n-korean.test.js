@@ -39,8 +39,10 @@ const BLOCK_APPS = ['cuisine', 'hawker', 'menu', 'transport'];
 // tell.leverAria), all with Korean; the measured total moves 946 → 949 with it.
 // v0.62.943 — cuisine 404 → 405 for footer.nonAi ("Traditional / Non-AI results"), with Korean;
 // the measured total moves 949 → 950.
-const BASE_KEYS = { cuisine: 405, clipboard: 251, transport: 123, hawker: 91, menu: 80 };
-const KO_COUNT = { cuisine: 405, clipboard: 251, transport: 123, hawker: 91, menu: 78 };
+// v0.62.944 — cuisine 405 → 408 for the curated-eatery card labels (card.curated,
+// card.halalCertified, card.halal), all with Korean; the measured total moves 950 → 953.
+const BASE_KEYS = { cuisine: 408, clipboard: 251, transport: 123, hawker: 91, menu: 80 };
+const KO_COUNT = { cuisine: 408, clipboard: 251, transport: 123, hawker: 91, menu: 78 };
 
 // `menu|tile.sketchbook.label` and `menu|footer.brand` are pinned in tma-i18n-coverage.test.js as
 // absent from id/ru/de/zh/ja/es with reason 'proper-noun'. Korean matches its siblings by ALSO
@@ -86,7 +88,7 @@ const HANGUL = /[가-힣ᄀ-ᇿ㄰-ㆎ]/;
 describe('the Korean column is complete for all five Mini Apps', () => {
   it('the parser found the surface it claims — a broken one would pass everything below', () => {
     for (const [app, n] of Object.entries(BASE_KEYS)) expect(Object.keys(parsed[app]).length, `${app} base keys`).toBe(n);
-    expect(Object.values(BASE_KEYS).reduce((a, b) => a + b, 0), 'the measured Mini App surface is 950').toBe(950);
+    expect(Object.values(BASE_KEYS).reduce((a, b) => a + b, 0), 'the measured Mini App surface is 953').toBe(953);
     // The block apps must actually HAVE a block; finding Korean inline in one of them would mean
     // the insert took the wrong branch and the merge loop below folds nothing.
     for (const app of BLOCK_APPS) expect(sliceBlock(src(app), 'KO_STRINGS'), `${app} has no KO_STRINGS block`).toBeTruthy();
