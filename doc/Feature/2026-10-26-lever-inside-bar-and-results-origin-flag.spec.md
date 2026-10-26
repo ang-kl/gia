@@ -13,6 +13,7 @@ scope:
   - "__tests__/results-origin-flag.test.js"
   - "__tests__/tma-i18n-coverage.test.js"
   - "__tests__/tma-i18n-korean.test.js"
+  - "__tests__/composer-fold.test.js"   # amendment 0.2
   - "package.json"
   - "doc/Feature/2026-10-26-lever-inside-bar-and-results-origin-flag.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -80,3 +81,16 @@ Version: 0.1. Date: 26 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 0.2 · 26-10 '26 14:2x SGT
+
+- **Why.** Running the suite after the build found one existing test failing:
+  `__tests__/composer-fold.test.js:90` "the bump keeps the border's width at the larger size
+  (non-scaling stroke)", which checks the CSS of `.tellme-lever-bump`. The bump was the part of the
+  lever drawn ON the border; this spec removes it on purpose, because the lever moves inside the bar
+  (I1). The file was not in the approved scope (FLOW ALERT F3 + F7, № 3,721).
+- **Operator, 26-10 '26, choosing option (a):** *"add amendment 0.2 to the spec"*.
+- **Change.** `scope:` gains `__tests__/composer-fold.test.js`. Lines 90-92 are edited to check the
+  replacement: `.tellme-lever-base` uses a non-scaling stroke, and `.tellme-lever-bump` no longer
+  exists. Nothing else in that file changes.
+- **Check.** `composer-fold.test.js` green with the edited assertion; the full suite green.

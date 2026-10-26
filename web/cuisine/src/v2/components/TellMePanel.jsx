@@ -120,28 +120,6 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           again. Radius already matched (both rounded-md); `py-1` is kept
           rather than the field's `py-1.5` so the dock height is unchanged. */}
       <div className={`relative flex items-center gap-2 px-3 py-1 rounded-md border loc-field-surface${ai ? ' tellme-ai' : ''}`}>
-        {/* v0.62.941 — the Quick / AI lever. 8×12 px (12×18 since v0.62.942, set in
-            styles.css; the operator could not find it at 8×12), flat like the bar's line icons:
-            a tapered toggle bat plus a low bump that IS the border (same colour and
-            width), drawn after the bat so it covers the bat's foot. Colours live in
-            styles.css (.tellme-lever): slate with a white outline (light) or the
-            bar's own yellow with a near-black outline (dark) when off, so map tiles
-            behind it cannot swallow it; violet when on. The ::before gives a 40×40
-            invisible tap area. onMouseDown keeps the input from blur-closing. */}
-        <button
-          type="button"
-          role="switch"
-          aria-checked={ai}
-          aria-label={tr('tell.leverAria', lang)}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={(e) => { e?.preventDefault?.(); onToggleAi?.(); }}
-          className={`tellme-lever${ai ? ' is-ai' : ''}`}
-        >
-          <svg viewBox="0 0 8 12" aria-hidden="true">
-            <path className="tellme-lever-bat" d="M3.35 10.6 L2.7 2.2 A1.3 1.3 0 0 1 5.3 2.2 L4.65 10.6 Z" />
-            <path className="tellme-lever-bump" d="M0 12 A4 2.6 0 0 1 8 12" />
-          </svg>
-        </button>
         {/* v0.62.287 — operator: tapping the 💬 icon on the EXPANDED composer
             collapses it back to the 💬 button FAB. onMouseDown preventDefault
             keeps the input from blur-racing the click. */}
@@ -153,6 +131,32 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           className="flex-shrink-0 active:scale-90 leading-none"
         >
           <Icon name="message" className="w-4 h-4 text-tg-hint" />
+        </button>
+        {/* v0.62.941 — the Quick / AI lever. 8×12 px (12×18 since v0.62.942, set in
+            styles.css; the operator could not find it at 8×12), flat like the bar's line icons:
+            a tapered toggle bat plus a low bump that IS the border (same colour and
+            width), drawn after the bat so it covers the bat's foot. Colours live in
+            styles.css (.tellme-lever): slate with a white outline (light) or the
+            bar's own yellow with a near-black outline (dark) when off, so map tiles
+            behind it cannot swallow it; violet when on. The ::before gives a 40×40
+            invisible tap area. onMouseDown keeps the input from blur-closing.
+            v0.62.943 — moved INSIDE the bar, between 💬 and the text box (operator, 26-10 '26, after
+            a phone screenshot showed it on the border, sitting over the map's bottom-left control
+            button and lost against it). With no border to grow from, the bump is now a short base
+            line. Spec doc/Feature/2026-10-26-lever-inside-bar-and-results-origin-flag.spec.md. */}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={ai}
+          aria-label={tr('tell.leverAria', lang)}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => { e?.preventDefault?.(); onToggleAi?.(); }}
+          className={`tellme-lever${ai ? ' is-ai' : ''}`}
+        >
+          <svg viewBox="0 0 8 12" aria-hidden="true">
+            <path className="tellme-lever-bat" d="M3.35 10.6 L2.7 2.2 A1.3 1.3 0 0 1 5.3 2.2 L4.65 10.6 Z" />
+            <path className="tellme-lever-base" d="M1.2 11.2 H6.8" />
+          </svg>
         </button>
         <input
           type="text"

@@ -138,13 +138,33 @@ describe('the rendered bar, AI', () => {
     expect(goGlyph.some((n) => n.type === 'path' && n.props.d === 'M12 8V4H8')).toBe(true);
     expect(goGlyph.some((n) => n.type === 'circle')).toBe(false);
   });
-  it('the lever is drawn flat: a bat and a border bump, no gradients, no filters', () => {
+  // v0.62.943 — the lever moved inside the bar (spec doc/Feature/2026-10-26-lever-inside-bar-
+  // and-results-origin-flag.spec.md, I1): on the border it sat over the map's bottom-left control
+  // button on a real phone and could not be seen. Inside, it has no border to grow from, so the
+  // bump became a short base line.
+  it('the lever is drawn flat: a bat and a base line, no gradients, no filters', () => {
     const sw = findSwitch(panel({ value: '', aiMode: true }));
     const parts = svgPathsUnder(sw);
     expect(parts.some((n) => hasClass(n, 'tellme-lever-bat'))).toBe(true);
-    expect(parts.some((n) => hasClass(n, 'tellme-lever-bump'))).toBe(true);
+    expect(parts.some((n) => hasClass(n, 'tellme-lever-base'))).toBe(true);
+    expect(parts.some((n) => hasClass(n, 'tellme-lever-bump'))).toBe(false);
     const all = render(sw.props.children);
     expect(all.some((n) => ['linearGradient', 'radialGradient', 'filter'].includes(n.type))).toBe(false);
+  });
+  it('the lever sits inside the bar, between 💬 and the text box (v0.62.943)', () => {
+    const nodes = panel({ value: '' });
+    const collapseAt = nodes.findIndex((n) => n.type === 'button' && n.props['aria-label'] === mod.t('tell.collapse', 'en'));
+    const leverAt = nodes.findIndex((n) => n.props?.role === 'switch');
+    const inputAt = nodes.findIndex((n) => n.type === 'input');
+    expect(collapseAt).toBeGreaterThanOrEqual(0);
+    expect(leverAt).toBeGreaterThan(collapseAt);
+    expect(inputAt).toBeGreaterThan(leverAt);
+  });
+  it('the CSS no longer lifts the lever out of the bar', () => {
+    const css = read('web/cuisine/src/styles.css');
+    const rule = css.slice(css.indexOf('.tellme-lever {'), css.indexOf('}', css.indexOf('.tellme-lever {')));
+    expect(rule).not.toMatch(/position:\s*absolute/);
+    expect(rule).not.toMatch(/top:\s*-/);
   });
   it('tapping the lever asks the parent to flip it', () => {
     let flips = 0;
@@ -165,8 +185,13 @@ describe('Icon.jsx — the robot', () => {
 });
 
 describe('strings — present in all nine locales, never falling back to English', () => {
-  const KEYS = ['tellme.placeholderAi', 'tell.askAiCta', 'tell.leverAria'];
+  // v0.62.943 — footer.nonAi, the "Traditional / Non-AI results" footer line (spec doc/Feature/
+  // 2026-10-26-lever-inside-bar-and-results-origin-flag.spec.md, I4).
+  const KEYS = ['tellme.placeholderAi', 'tell.askAiCta', 'tell.leverAria', 'footer.nonAi'];
   it('nine locales', () => { expect(mod.SUPPORTED_LOCALES).toHaveLength(9); });
+  it('footer.nonAi in English is the operator\'s wording', () => {
+    expect(mod.t('footer.nonAi', 'en')).toBe('Traditional / Non-AI results');
+  });
   for (const key of KEYS) {
     it(`${key}`, () => {
       const en = mod.t(key, 'en');
