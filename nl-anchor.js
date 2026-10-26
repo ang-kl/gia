@@ -60,10 +60,35 @@ function planNlSearch({ place = null, userLat, userLng } = {}) {
       lat: place.lat,
       lng: place.lng,
       radius: NEARBY_RADIUS_M,
-      placeAnchor: { name: place.name || '', lat: place.lat, lng: place.lng, kind: 'ai', source: 'tell-gia' },
+      placeAnchor: { name: place.name || '', lat: place.lat, lng: place.lng, kind: 'ai', source: place.source || 'tell-gia' },
+      // v0.62.945 — 'building' | 'road' | null (building-scope.js). A building or road narrows the
+      // results to what is inside it, then a 150 m ring (scopeToPlace).
+      scope: place.scope === 'building' || place.scope === 'road' ? place.scope : null,
     };
   }
   return { anchored: false, lat: userLat, lng: userLng, radius: NL_DEFAULT_RADIUS_M, placeAnchor: null };
+}
+
+// v0.62.945 — operator, 26-10 '26: "if the query is building specify the AI should query within
+// building". For a building or road, inside first, then 150 m, nothing farther, and an honest empty
+// (scopeToPlace's `empty`). Anything else falls back to filterToAnchor's 1.5 km circle.
+function scopeToPlace(venues, plan) {
+  if (plan && plan.anchored && plan.scope) {
+    const r = require('./building-scope').scopeVenues(venues, { name: plan.placeAnchor.name, lat: plan.lat, lng: plan.lng, scope: plan.scope });
+    return { venues: r.venues, empty: r.empty, insideCount: r.insideCount, ringCount: r.ringCount };
+  }
+  return { venues: filterToAnchor(venues, plan), empty: false, insideCount: null, ringCount: null };
+}
+
+// v0.62.945 — one log line per AI reading, so a case like 25-10's ("New eateries in Raffles City"
+// searched 50 km) is answerable from the log: where the reading came from (the model, the keyword
+// fallback or the 60 s cache), the place and how it was found, "new", the cuisines and the radius.
+// No chat id: the same identity-free rule as freetext-log.js.
+function readingLine({ route, source, place, placeVia, scope, newlyOpened, cuisines, radius, count } = {}) {
+  const q = (s) => JSON.stringify(String(s == null ? '' : s).slice(0, 60));
+  return `[${route || 'AI'}] D769 reading source=${source || '?'} place=${q(place)} via=${placeVia || 'none'}`
+    + ` scope=${scope || 'none'} new=${newlyOpened === true} cuisines=${JSON.stringify(Array.isArray(cuisines) ? cuisines.slice(0, 5) : [])}`
+    + ` radius=${Number.isFinite(radius) ? radius : '?'}m${Number.isFinite(count) ? ` results=${count}` : ''}`;
 }
 
 function filterToAnchor(venues, plan) {
@@ -150,10 +175,18 @@ async function answerQuestionWithTellGia({ text, deps }) {
   const userLng = loc && Number.isFinite(loc.lng) ? loc.lng : undefined;
 
   let place = null;
+  let placeVia = 'none';
   const override = typeof inferred.location_override === 'string' ? inferred.location_override.trim() : '';
   if (override) {
     const g = await d.geocode(override);
-    if (g && acceptPlace(g, userLat, userLng, { requireUserFix: false }).ok) place = g;
+    if (g && acceptPlace(g, userLat, userLng, { requireUserFix: false }).ok) { place = g; placeVia = 'model'; }
+  }
+  // v0.62.945 — the model named no place (or one that failed acceptPlace): ask the normal search's
+  // place detector, which reads "Raffles City" out of the text whether the model dropped it or never
+  // ran. Optional dependency, so a caller without one behaves exactly as before.
+  if (!place && typeof d.detectPlace === 'function') {
+    const g = await d.detectPlace(text);
+    if (g && acceptPlace(g, userLat, userLng, { requireUserFix: false }).ok) { place = g; placeVia = 'detector'; }
   }
   if (!place && userLat === undefined) {
     await d.askLocation(inferred);
@@ -168,12 +201,23 @@ async function answerQuestionWithTellGia({ text, deps }) {
     regionCode: d.regionCodeFor(loc, place),
   });
   venues = (Array.isArray(venues) ? venues : []).filter(d.passesVenueFilter);
-  venues = filterToAnchor(venues, plan);
+  // Narrowed before the newness check so it pays for no Places call on a venue it would drop, and
+  // again after, because applyNewness can add curated venues from anywhere in the 1.5 km plan
+  // (v0.62.944). Scoping is idempotent.
+  venues = scopeToPlace(venues, plan).venues;
   const newlyOpened = filters.newlyOpened === true;
   let noProvenNew = false;
   if (newlyOpened) ({ venues, noProvenNew } = await d.applyNewness(venues));
   venues = await d.applyRatingFloor(venues, { newlyOpened });
-  await d.deliver({ venues, placeAnchor: plan.placeAnchor, plan, noProvenNew, inferred });
+  const scoped = scopeToPlace(venues, plan);
+  venues = scoped.venues;
+  if (typeof d.log === 'function') {
+    d.log(readingLine({
+      route: 'Chat-Question', source: inferred.source, place: plan.placeAnchor?.name, placeVia, scope: plan.scope,
+      newlyOpened, cuisines: inferred.cuisines, radius: plan.radius, count: venues.length,
+    }));
+  }
+  await d.deliver({ venues, placeAnchor: plan.placeAnchor, plan, noProvenNew, inferred, placeEmpty: scoped.empty ? plan.placeAnchor?.name : null });
   return { kind: 'delivered', count: venues.length };
 }
 
@@ -183,6 +227,8 @@ module.exports = {
   acceptPlace,
   planNlSearch,
   filterToAnchor,
+  scopeToPlace,
+  readingLine,
   buildNlQueries,
   isEmptyReading,
   answerQuestionWithTellGia,

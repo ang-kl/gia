@@ -116,7 +116,8 @@ describe('owner gate — index.js actually uses it', () => {
     // shipping the wrong number in a security note. 19 occurrences total = 17
     // guards + the function definition + the delegating call inside it.
     const uses = [...src.matchAll(/isOwnerChat\(/g)].length;
-    expect(uses).toBe(19);
+    // v0.62.944 — 19 → 21: /external_update and its CSV file handler each check the owner once.
+    expect(uses).toBe(21);
     // the HTTP 403 is the one a non-Telegram caller can reach, so it is named
     expect(src).toMatch(/if \(!isOwnerChat\(req\.tg\?\.user\?\.id\)\) return res\.status\(403\)/);
   });

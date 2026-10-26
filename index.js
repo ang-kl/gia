@@ -24,6 +24,9 @@ process.on('unhandledRejection', (reason) => {
 });
 const { refreshVibeListings } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
+// v0.62.944 — curated eateries from the operator's Gemini automation (spec doc/Feature/
+// 2026-10-26-external-eateries.spec.md): stored by /external_update, offered to "new" searches.
+const externalEateries = require('./external-eateries');
 const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest');
 const { t, tn } = require('./i18n');   // v0.62.859 — item 6: module-scope, because the
                                        // 106 keyed sites span scopes whose own requires are local.
@@ -3047,6 +3050,42 @@ bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, guarded('rating', async (m
 // buttons (`v:logon` / `v:logoff`) were already covered by the `v:` callback
 // family's own gate — this closes the one remaining way in. Same
 // silent-no-op-plus-log shape as every other owner command.
+// v0.62.944 — /external_update (spec doc/Feature/2026-10-26-external-eateries.spec.md). Owner
+// only: it opens a 15-minute window in which the owner sends the Gemini automation's Alerts and
+// DailyBrief CSV files; each is validated and merged by id into Redis's `ext:` keyspace. Anyone
+// else gets the same silent no-op as the other owner commands. The underscore is deliberate:
+// Telegram commands cannot contain "-", so "/external-update" would arrive as "/external".
+bot.onText(externalEateries.COMMAND_RE, async (msg) => {
+  try {
+    const reply = await externalEateries.handleCommand({ chatId: msg.chat.id, isOwner: isOwnerChat(msg.chat.id), redis });
+    // handleCommand answers the owner always, so no reply means the caller is not the owner.
+    if (!reply) { console.log(`[/external_update] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`); return; }
+    await bot.sendMessage(msg.chat.id, reply);
+  } catch (err) {
+    console.error('[/external_update] failed:', err.message);
+  }
+});
+bot.on('document', async (msg) => {
+  try {
+    const doc = msg.document;
+    if (!doc) return;
+    const reply = await externalEateries.handleDocument({
+      chatId: msg.chat.id, isOwner: isOwnerChat(msg.chat.id), redis, fileName: doc.file_name || '',
+      fetchText: async () => {
+        const link = await bot.getFileLink(doc.file_id);
+        const { data } = await require('axios').get(link, { responseType: 'text', timeout: 20000, transformResponse: (x) => x });
+        return String(data);
+      },
+    });
+    if (reply) await bot.sendMessage(msg.chat.id, reply);
+  } catch (err) {
+    // Reached only after handleDocument confirmed the owner and an open window (it returns null
+    // first otherwise), so the reason can go back to that chat.
+    console.error('[/external_update] file load failed:', err.message);
+    try { await bot.sendMessage(msg.chat.id, `⚠️ External file not loaded: ${err.message}`); } catch { /* best-effort */ }
+  }
+});
+
 bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
   if (!isOwnerChat(msg.chat.id)) {
     console.log(`[/log] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
@@ -12444,23 +12483,70 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
 // chat-question-to-ai.test.js runs it on the operator's own sentence; this function
 // only wires the real dependencies in. Returns true when it replied (results or a
 // location request), false when the caller should send the 🍛 decline.
+// v0.62.945 — the normal search's place detector for the AI paths (spec doc/Feature/2026-10-26-
+// ai-place-building-scope.spec.md, I1). On 25 and 26-10 '26 "New eateries in Raffles City" reached
+// the AI with no place in its reading and searched 50 km around the user; the detector reads the
+// place out of the text whether the model dropped it or never ran. Same dish-name guard and the same
+// "<query> in/near/at <place>" splitter as the Mini App's normal search. Returns
+// { name, lat, lng, scope, source } or null.
+async function detectPlaceFromText(text, { lat, lng, countryCode } = {}) {
+  try {
+    const { detectPlaceName, NEARBY_RADIUS_M } = require('./place-detector');
+    const { detectAnchorFromFreeText } = require('./cuisine-tellme-anchor');
+    const { isKnownDishName } = require('./discovery-dish');
+    let hit = null;
+    const ctx = { lat, lng, countryCode: countryCode || 'SG', biasRadiusM: 30000, maxDistanceM: 300000 };
+    const r = await detectAnchorFromFreeText({
+      text, isJB: false, nearbyRadiusM: NEARBY_RADIUS_M,
+      detectPlaceName: async (candidate) => {
+        if (isKnownDishName(candidate)) return null;
+        hit = await detectPlaceName(candidate, ctx);
+        return hit;
+      },
+    });
+    if (!r || !hit) return null;
+    return { name: r.anchor.name, lat: r.anchor.lat, lng: r.anchor.lng, scope: hit.scope || null, source: `detector:${r.anchor.kind}` };
+  } catch (err) {
+    console.warn('[AI] place detector failed (non-fatal):', err.message);
+    return null;
+  }
+}
+
 async function answerChatQuestionWithAi(chatId, text, lang) {
   const nlAnchor = require('./nl-anchor');
   const { consumeTellGiaQuota } = require('./tell-gia-rate-limit');
   const cv = require('./cuisines-vault');
   const pipeline = require('./pipeline');
+  // v0.62.944 — the curated external eateries need the search's centre, radius, filters and
+  // cuisines, which answerQuestionWithTellGia passes to `discover` and `infer` but not to
+  // `applyNewness`; the two closures below remember them for it.
+  let chatSearch = null;
+  let chatInferred = null;
   const outcome = await nlAnchor.answerQuestionWithTellGia({
     text,
     deps: {
       // One budget with the Mini App's AI route (operator: "Share the 60/hour cap").
       consumeQuota: async () => (await consumeTellGiaQuota(redis, chatId)).allowed,
-      infer: (t) => require('./tell-gia').inferTellGia({ text: t, chatId, redis, vault: cv }),
+      infer: async (t) => (chatInferred = await require('./tell-gia').inferTellGia({ text: t, chatId, redis, vault: cv })),
       cuisineNames: (slugs) => slugs.map((s) => cv.findBySlug(s)).filter(Boolean).map((c) => c.name),
       getUserLocation: () => getUserLocation(redis, chatId),
       geocode: (q) => geocodeQuery(q),
-      discover: (args) => pipeline.discover({ redis, maxResults: 60, lang, maxPages: 3, ...args }),
+      // v0.62.945 — when the reading names no place; and one D769 line per reading.
+      detectPlace: async (t) => {
+        const loc = await getUserLocation(redis, chatId);
+        return detectPlaceFromText(t, { lat: loc?.lat, lng: loc?.lng, countryCode: loc?.country || undefined });
+      },
+      log: (line) => console.log(line),
+      discover: (args) => { chatSearch = args; return pipeline.discover({ redis, maxResults: 60, lang, maxPages: 3, ...args }); },
       passesVenueFilter: require('./venue-filters').passesVenueFilter,
-      applyNewness: (venues) => require('./newness-filter').applyNewnessRule(venues, { redis, logLabel: 'Chat-Question-New' }),
+      // Called only when the reading has newlyOpened. Curated venues join before the review check (A11).
+      applyNewness: async (venues) => {
+        const pool = chatSearch
+          ? await externalEateries.forNewSearch(venues, { redis, center: { lat: chatSearch.lat, lng: chatSearch.lng }, radiusM: chatSearch.radius, filters: chatInferred?.filters || {}, cuisines: chatInferred?.cuisines || [], logLabel: 'Chat-Question-New' })
+          : venues;
+        const out = await require('./newness-filter').applyNewnessRule(pool, { redis, logLabel: 'Chat-Question-New' });
+        return { ...out, venues: externalEateries.curatedFirst(out.venues) };
+      },
       applyRatingFloor: (venues, opts) => applyChatRatingFloor(chatId, venues, 'Chat-Question', opts),
       regionCodeFor: (loc) => (loc ? resolveRegionCode(loc) : 'SG'),
       askLocation: async (inferred) => {
@@ -12470,9 +12556,14 @@ async function answerChatQuestionWithAi(chatId, text, lang) {
         const { t: tLoc } = require('./i18n');
         await bot.sendMessage(chatId, tLoc('location.shareTap', lang), LOCATION_REQUEST_KEYBOARD);
       },
-      deliver: async ({ venues, placeAnchor }) => {
+      deliver: async ({ venues, placeAnchor, placeEmpty }) => {
         const shown = venues.slice(0, 10);
         const { tn: trnQ } = require('./i18n');
+        // v0.62.945 — nothing inside the named building/road or within 150 m: say so, show nothing.
+        if (placeEmpty) {
+          await safeSend(chatId, trnQ('place.nothingIn', lang, { place: escapeHtmlForTelegram(placeEmpty) }), { parse_mode: 'HTML' });
+          return;
+        }
         // A place: the same "📍 <place> — found N eateries here" header the chat's
         // place search uses, in the reader's language. No place: the reader's own words.
         const header = placeAnchor
@@ -16223,12 +16314,17 @@ async function cacheBotUsername() {
             // what "too far from the set location" means instead of two.
             maxDistanceM: 300000
           };
+          // v0.62.945 — the detector's hit is kept so its building/road scope (from Google's
+          // place types) reaches detectedPlaceAnchor; detectAnchorFromFreeText passes only the
+          // name, kind, centre and source through.
+          let rawPlaceHit = null;
           const guardedDetect = async (candidate) => {
             if (isKnownDishName(candidate)) {
               console.log(`[Cuisine-TMA] D788 dish-name guard: "${String(candidate).slice(0, 50)}" is a curated dish — no place anchor`);
               return null;
             }
-            return detectPlaceName(candidate, anchorCtx);
+            rawPlaceHit = await detectPlaceName(candidate, anchorCtx);
+            return rawPlaceHit;
           };
           const anchorResult = await detectAnchorFromFreeText({
             text: ftRawIn, isJB, detectPlaceName: guardedDetect,
@@ -16247,6 +16343,8 @@ async function cacheBotUsername() {
               console.warn(`[Cuisine-TMA] D789 anchor-pivot rejected: "${anchorResult.anchor.name}" is ${(anchorFar / 1000).toFixed(0)}km from the set location — keeping the set location`);
             } else {
               detectedPlaceAnchor = anchorResult.anchor;
+              // v0.62.945 — 'building' | 'road' | null; see the building-scope pass before slicing.
+              if (rawPlaceHit && rawPlaceHit.scope) detectedPlaceAnchor = { ...detectedPlaceAnchor, scope: rawPlaceHit.scope };
               searchCenter = anchorResult.searchCenter;
               searchRadius = anchorResult.searchRadius;
               ftRawIn = anchorResult.queryRemainder;
@@ -16697,6 +16795,22 @@ async function cacheBotUsername() {
               ? cuisineQueries.map((q) => `${q} ${ftQualifier}`.replace(/\s+/g, ' ').trim())
               : [ftQualifier];
           }
+        }
+        // v0.62.945 — a typed dish with no cuisine chosen uses the dish's HOME cuisine(s) for the
+        // query and for the off-cuisine gate further down (spec doc/Feature/2026-10-26-ai-place-
+        // building-scope.spec.md, I5): "Varenyky dumplings" → "Varenyky dumplings Ukrainian", and the
+        // gate drops Chinese dumpling shops with no varenyky in their name or reviews.
+        let dishHomeSlugs = [];
+        if (dishQueryTerm && !specialMode && !dessertTmaHit && !(Array.isArray(cuisines) && cuisines.length)) {
+          try {
+            const cvHome = require('./cuisines-vault');
+            dishHomeSlugs = require('./discovery-dish').homeCuisinesForDish(dishQueryTerm).filter((s) => cvHome.findBySlug(s));
+            if (dishHomeSlugs.length) {
+              const homeNames = dishHomeSlugs.map((s) => cvHome.findBySlug(s).name);
+              cuisineQueries = homeNames.map((n) => `${ftQualifier} ${n}`.replace(/\s+/g, ' ').trim());
+              console.log(`[Cuisine-Search] D797 dish home cuisine "${dishQueryTerm.slice(0, 40)}" → ${dishHomeSlugs.join(', ')}`);
+            }
+          } catch (err) { console.warn('[Cuisine-Search] dish home cuisine failed (non-fatal):', err.message); }
         }
         // v0.57.6: response cache keyed by selection state (rounded
         // location to ~110m so neighbours share the cache). 30-min TTL.
@@ -17460,8 +17574,13 @@ async function cacheBotUsername() {
           // shared never-empty floor — is kept in that file's header.
           // newness-filter.test.js runs a copy of the old block against the new
           // function on fixtures covering every branch.
+          // v0.62.944 — the curated external eateries join the pool HERE, before the review-age
+          // check, because the operator chose that they face it too (spec A11). newlyOpened is the
+          // only path that reaches this line.
+          venues = await externalEateries.forNewSearch(venues, { redis, center: searchCenter, radiusM: searchRadius, filters, cuisines, logLabel: 'Cuisine-New' });
           const { applyNewnessRule } = require('./newness-filter');
           ({ venues, noProvenNew } = await applyNewnessRule(venues, { redis }));
+          venues = externalEateries.curatedFirst(venues);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
@@ -17796,6 +17915,19 @@ async function cacheBotUsername() {
         // "↺ Start over" / "you've seen the 80 maximum" copy. Computed AFTER
         // the re-fetch so a thin-pool top-up clears the exhausted flag.
         const dedupExhausted = (venues.length > 0 && trulyUnseen.length === 0 && atLastVariant) || sessionFull;
+        // v0.62.945 — a typed BUILDING or ROAD (Google's place types; spec doc/Feature/2026-10-26-
+        // ai-place-building-scope.spec.md, operator: "Both"): what is inside it first, then a 150 m
+        // ring tagged "beyond {name}", nothing farther. Applied to the pool every later step draws
+        // from (the ring preference, the never-≤1 backfill, the zero classification), so none of
+        // them can put a far venue back. Nothing inside and nothing within 150 m → zeroReason
+        // 'nothing-in-place' and an empty page.
+        let placeScopeEmpty = null;
+        if (detectedPlaceAnchor && detectedPlaceAnchor.scope) {
+          const scoped = require('./building-scope').scopeVenues(trulyUnseen, detectedPlaceAnchor);
+          console.log(`[Cuisine-Search] D796 place-scope ${detectedPlaceAnchor.scope} "${String(detectedPlaceAnchor.name).slice(0, 40)}": ${trulyUnseen.length} → inside=${scoped.insideCount} beyond=${scoped.ringCount}`);
+          trulyUnseen = scoped.venues;
+          if (scoped.empty) placeScopeEmpty = detectedPlaceAnchor.name;
+        }
         // v0.61.441 — concentric ring preference. When a tight ladder tier
         // already holds a full page of good venues, serve from it (don't show
         // a 45 km venue when 5 km has five 4★ options); otherwise keep the
@@ -17970,7 +18102,8 @@ async function cacheBotUsername() {
                   v._distKm = transport.haversineM(searchCenter.lat, searchCenter.lng, v.lat, v.lng) / 1000;
                 }
               }
-              const _gateSlugs = (cuisines || []).map((s) => String(s || '').toLowerCase()).filter((s) => s && s !== 'michelin');
+              // v0.62.945 — no cuisine chosen: the typed dish's home cuisine(s) (D797) instead.
+              const _gateSlugs = ((cuisines && cuisines.length) ? cuisines : dishHomeSlugs).map((s) => String(s || '').toLowerCase()).filter((s) => s && s !== 'michelin');
               const gated = gateDishVenues(top, { cuisineSlugs: _gateSlugs, maxKm });
               console.log(`[Cuisine-Search] D793 dish-gate "${dishQueryTerm.slice(0, 40)}": kept=${gated.kept.length} far=${gated.droppedFar} offCuisine=${gated.droppedCuisine} maxKm=${maxKm.toFixed(0)}`);
               top.length = 0;
@@ -18057,6 +18190,15 @@ async function cacheBotUsername() {
           const openOrUnknown = [], closedVenues = [];
           for (const v of dedupedTop) (v.openNow === false ? closedVenues : openOrUnknown).push(v);
           if (closedVenues.length && openOrUnknown.length) dedupedTop = [...openOrUnknown, ...closedVenues];
+        }
+        // v0.62.944 — curated external eateries lead the page (spec A12). They reach this list only
+        // through the New filter, and their open status is unknown, so the partition above kept
+        // them in front of closed venues; this keeps them in front of everything else too.
+        if (filters.newlyOpened) dedupedTop = externalEateries.curatedFirst(dedupedTop);
+        // v0.62.945 — and a building's own units stay ahead of its 150 m ring, whatever the
+        // open/closed partition above did.
+        if (detectedPlaceAnchor && detectedPlaceAnchor.scope) {
+          dedupedTop = [...dedupedTop.filter((v) => !v._beyond), ...dedupedTop.filter((v) => v._beyond)];
         }
         // v0.62.293 — exact-vs-alternate tagging (restored + extended to combos).
         // SINGLE cuisine: a venue that doesn't match → 'alternate' (renders the
@@ -18186,6 +18328,7 @@ async function cacheBotUsername() {
           } else {
             zeroReason = 'filtered';
           }
+          if (placeScopeEmpty) zeroReason = 'nothing-in-place';   // v0.62.945
           console.log(`[Cuisine-Search] ZERO reason=${zeroReason} pool=${venues.length} unseenCrit=${unseenInCriteria.length} trulyUnseen=${trulyUnseen.length} seen=${seen.size} sessionSeen=${sessionSeen.size} hasCriteria=${hasCriteria} cuisines=${(cuisines||[]).length} filters=${JSON.stringify(filters||{})}`);
         }
         // v0.62.x — cuisine "What to order" plate (operator: "select Georgian
@@ -18281,6 +18424,7 @@ async function cacheBotUsername() {
           // TMA to render the Confirmed/Ask-first (E) split using each
           // venue's dishEvidence tag.
           ...(dishQueryTerm ? { dishQuery: dishQueryTerm } : {}),
+          ...(placeScopeEmpty ? { placeEmpty: placeScopeEmpty } : {}),   // v0.62.945
           pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig,
           misrepresentation: misrepNote, cookingMethod: cookMethodMatches,
           dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch,
@@ -18643,6 +18787,23 @@ async function cacheBotUsername() {
             console.warn(`[NL-Query] D771 geocode threw: ${err.message}`);
           }
         }
+        // v0.62.945 — no place from the model (or one rejected): the normal search's place
+        // detector reads it from the question (spec I1). Same acceptPlace rule as the model's.
+        let placeVia = acceptedPlace ? 'model' : 'none';
+        if (!acceptedPlace) {
+          const det = await detectPlaceFromText(text, { lat, lng, countryCode: nlCountry || (nlRegion === 'JB' ? 'MY' : 'SG') });
+          if (det && nlAnchor.acceptPlace(det, lat, lng).ok) {
+            acceptedPlace = det;
+            placeVia = 'detector';
+            searchLat = det.lat;
+            searchLng = det.lng;
+            locationLabel = det.name;
+            console.log(`[NL-Query] D770b place from the detector "${det.name}" scope=${det.scope || 'none'} (${det.lat.toFixed(4)}, ${det.lng.toFixed(4)})`);
+          }
+        } else if (acceptedPlace.scope === undefined) {
+          // The model's place came through geocodeQuery, which now returns Google's types too.
+          acceptedPlace.scope = require('./building-scope').scopeFromTypes(acceptedPlace.types);
+        }
         const cuisineMetas = inferredCuisines
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean);
@@ -18702,10 +18863,12 @@ async function cacheBotUsername() {
         venues = venues.filter(venueFiltersNL.passesVenueFilter);
         // v0.62.941 — Places Text Search treats the circle as a BIAS, so the 1.5 km is
         // enforced here; nearest-first and never empty when nothing is inside.
+        // v0.62.945 — a building or road narrows to inside + 150 m (scopeToPlace); otherwise
+        // the 1.5 km circle as before.
         if (nlPlan.anchored) {
           const beforeAnchor = venues.length;
-          venues = nlAnchor.filterToAnchor(venues, nlPlan);
-          console.log(`[NL-Query] D775 anchor "${nlPlan.placeAnchor.name}" ${nlPlan.radius}m: ${beforeAnchor} → ${venues.length}`);
+          venues = nlAnchor.scopeToPlace(venues, nlPlan).venues;
+          console.log(`[NL-Query] D775 anchor "${nlPlan.placeAnchor.name}" ${nlPlan.scope || nlPlan.radius + 'm'}: ${beforeAnchor} → ${venues.length}`);
         }
         // v0.57.12: cuisine-name validation gate (mirrors /api/cuisine/search).
         // v0.57.13: only fire when every selected cuisine is in
@@ -18795,9 +18958,13 @@ async function cacheBotUsername() {
         // opened" to the Places query, so long-established Michelin restaurants came
         // back as new. newness-filter.js is the New filter's own block, now shared.
         let nlNoProvenNew = false;
+        // v0.62.944 — with newlyOpened inferred, curated external eateries near the plan's centre
+        // join before the review check (spec A11), as on the New filter.
+        if (merged.newlyOpened) venues = await externalEateries.forNewSearch(venues, { redis, center: { lat: nlPlan.lat, lng: nlPlan.lng }, radiusM: nlPlan.radius, filters: merged, cuisines: inferredCuisines, logLabel: 'NL-Query-New' });
         if (merged.newlyOpened) {
           const { applyNewnessRule } = require('./newness-filter');
           ({ venues, noProvenNew: nlNoProvenNew } = await applyNewnessRule(venues, { redis, logLabel: 'NL-Query-New' }));
+          venues = externalEateries.curatedFirst(venues);
         }
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
         // v0.61.436 — per-chat guarded rating floor (code review: the
@@ -18805,6 +18972,18 @@ async function cacheBotUsername() {
         // v0.62.941 — with New inferred, the New filter's 3.0 floor applies, as it does
         // on /api/cuisine/search.
         venues = await applyChatRatingFloor(chatId, venues, 'NL-Query', { newlyOpened: !!merged.newlyOpened });
+        // v0.62.945 — scoped again: the curated merge above can add venues from anywhere in the
+        // 1.5 km plan. Idempotent.
+        const nlScoped = nlAnchor.scopeToPlace(venues, nlPlan);
+        if (nlPlan.anchored) venues = nlScoped.venues;
+        const nlPlaceEmpty = (nlPlan.anchored && nlPlan.scope && nlScoped.empty) ? nlPlan.placeAnchor.name : null;
+        console.log(nlAnchor.readingLine({
+          route: 'NL-Query', source: inferred.source, place: nlPlan.placeAnchor?.name, placeVia, scope: nlPlan.scope,
+          newlyOpened: !!merged.newlyOpened, cuisines: inferredCuisines, radius: nlPlan.radius, count: venues.length,
+        }));
+        try {
+          require('./freetext-log').logFreeTextQuery(redis, text, { src: 'cuisine-tma-ai', matchedKnownTerm: nlPlan.scope ? `place-${nlPlan.scope}` : (nlPlan.anchored ? 'place' : null), resultCount: venues.length });
+        } catch { /* best-effort */ }
         // v0.62.94 — show more (operator: "so narrowed vs Google Maps"). The NL
         // path is one-shot (no across-tap pagination), so the single slice is all
         // the user ever sees — 12 read as a fraction of Google's list. With the
@@ -18861,6 +19040,8 @@ async function cacheBotUsername() {
           for (const v of topNL) (v.openNow === false ? closedNL : openOrUnknownNL).push(v);
           if (closedNL.length && openOrUnknownNL.length) topNL = [...openOrUnknownNL, ...closedNL];
         }
+        // v0.62.945 — a building's own units stay ahead of its 150 m ring.
+        if (nlPlan.scope) topNL = [...topNL.filter((v) => !v._beyond), ...topNL.filter((v) => v._beyond)];
         res.json({
           venues: topNL,
           inferredCuisines, inferredFilters,
@@ -18871,6 +19052,8 @@ async function cacheBotUsername() {
           placeAnchor: nlPlan.placeAnchor,
           placeAnchorQueryRemainder: '',
           noProvenNew: nlNoProvenNew,
+          // v0.62.945 — nothing inside the named building/road or within 150 m.
+          ...(nlPlaceEmpty ? { zeroReason: 'nothing-in-place', placeEmpty: nlPlaceEmpty } : {}),
           source: inferred.source || 'unknown',
           // v0.60.18 — disambig disclosure for the NL surface (R.E.D
           // pre-step). When a phrase like "laksa" or "carrot cake"

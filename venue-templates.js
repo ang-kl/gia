@@ -232,6 +232,15 @@ function formatVenueBlock(p, opts = {}) {
   // or Places primaryTypeDisplayName, with the trailing "restaurant"
   // word stripped upstream by humaniseRestaurantType in index.js.
   if (p.restaurantType) lines.push(`🍽️ ${escapeHtml(p.restaurantType)}`);
+  // v0.62.944 — a curated external eatery: "🆕 Curated", plus "Halal ✓ certified" or "Halal"
+  // (spec doc/Feature/2026-10-26-external-eateries.spec.md, A5 + A12), as on the Mini App card.
+  if (p._curated) {
+    const halal = p._curated.halal === 'certified' ? ` · ${tr('card.halalCertified', lang)}`
+      : p._curated.halal === 'default' ? ` · ${tr('card.halal', lang)}` : '';
+    lines.push(escapeHtml(`${tr('card.curated', lang)}${halal}`));
+  }
+  // v0.62.945 — outside the named building or road, within 150 m of it.
+  if (p._beyond) lines.push(escapeHtml(tr('card.beyond', lang).replace('{place}', p._beyond)));
   if (p.area) lines.push(`📇 ${escapeHtml(p.area)}`);
   // v0.62.895 — the address in the local script, when it differs from the line
   // above. Sitting unrendered on 1,186 curated Michelin rows since v0.62.824, and

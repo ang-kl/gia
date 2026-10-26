@@ -479,6 +479,13 @@ const STRINGS = {
   // building / address typed in chat free-text). Header above the
   // venue list, the button that fans out to better-rated nearby
   // eateries, and the header above that nearby list.
+  // v0.62.945 — building / road scope (spec doc/Feature/2026-10-26-ai-place-building-scope.spec.md).
+  'card.beyond':               { en: '↗ beyond {place}', fr: '↗ à côté de {place}', id: '↗ di luar {place}', ru: '↗ рядом с {place}', de: '↗ außerhalb von {place}', zh: '↗ {place} 附近', ja: '↗ {place} の外', es: '↗ fuera de {place}', ko: '↗ {place} 밖' },
+  'place.nothingIn':           { en: '📍 Nothing found inside <b>{place}</b> or within 150 m of it.', fr: '📍 Rien trouvé dans <b>{place}</b> ni à moins de 150 m.', id: '📍 Tidak ada yang ditemukan di dalam <b>{place}</b> atau dalam radius 150 m.', ru: '📍 Ничего не найдено внутри <b>{place}</b> или в пределах 150 м.', de: '📍 Nichts gefunden in <b>{place}</b> oder im Umkreis von 150 m.', zh: '📍 在<b>{place}</b>内及其 150 米范围内没有找到。', ja: '📍 <b>{place}</b> の中にも周辺 150 m にも見つかりませんでした。', es: '📍 No se encontró nada dentro de <b>{place}</b> ni a menos de 150 m.', ko: '📍 <b>{place}</b> 안과 150m 이내에서 찾지 못했습니다.' },
+  // v0.62.944 — curated external eateries (spec doc/Feature/2026-10-26-external-eateries.spec.md).
+  'card.curated':              { en: '🆕 Curated', fr: '🆕 Sélection', id: '🆕 Pilihan kurasi', ru: '🆕 Подборка', de: '🆕 Kuratiert', zh: '🆕 精选', ja: '🆕 厳選', es: '🆕 Seleccionado', ko: '🆕 큐레이션' },
+  'card.halalCertified':       { en: 'Halal ✓ certified', fr: 'Halal ✓ certifié', id: 'Halal ✓ bersertifikat', ru: 'Халяль ✓ сертифицировано', de: 'Halal ✓ zertifiziert', zh: '清真 ✓ 已认证', ja: 'ハラール ✓ 認証済み', es: 'Halal ✓ certificado', ko: '할랄 ✓ 인증' },
+  'card.halal':                { en: 'Halal', fr: 'Halal', id: 'Halal', ru: 'Халяль', de: 'Halal', zh: '清真', ja: 'ハラール', es: 'Halal', ko: '할랄' },
   'place.foundN':              { en: '📍 <b>{place}</b> — found {n} eateries here',
                                  fr: '📍 <b>{place}</b> — {n} établissements trouvés ici' ,
                    id: '📍 <b>{place}</b> — menemukan {n} tempat makan di sini',

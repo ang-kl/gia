@@ -15,6 +15,10 @@ scope:
   - "__tests__/fixtures/external/Alerts_fixture.CSV"
   - "__tests__/fixtures/external/DailyBrief_fixture.CSV"
   - "__tests__/i18n-*.test.js"
+  - "__tests__/bot-handler-guard.test.js"   # amendment 0.2
+  - "__tests__/owner-gate.test.js"          # amendment 0.2
+  - "__tests__/tma-i18n-coverage.test.js"   # amendment 0.2
+  - "__tests__/tma-i18n-korean.test.js"     # amendment 0.2
   - "package.json"
   - "doc/Feature/2026-10-26-external-eateries.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -127,3 +131,22 @@ Status is `pending`, `confirmed` or `corrected`. Only the user confirms; the app
 ## Evidence
 Filled at the end: INVARIANTS REPORT (Passed / Failed / Not Verifiable, each with evidence), verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 0.2 · 26-10 '26 14:5x SGT
+
+- **Why.** With the feature built, the full suite ran 5,812 passed and 4 failed, each a pinned count
+  moving for a reason this spec requires, in files outside the approved scope (FLOW ALERT F3 + F7,
+  № 3,739):
+  1. `__tests__/bot-handler-guard.test.js:56` - `bot.onText` registrations 33 → 34 (`/external_update`;
+     its handler carries its own try/catch, which the same file accepts).
+  2. `__tests__/owner-gate.test.js:119` - `isOwnerChat(` uses 19 → 21 (the command and the file
+     handler each check the owner once).
+  3. `__tests__/tma-i18n-coverage.test.js:190` - cuisine keys 405 → 408.
+  4. `__tests__/tma-i18n-korean.test.js:40,41,87` - cuisine 405 → 408, measured total 950 → 953.
+  (3 and 4: `card.curated`, `card.halalCertified`, `card.halal`, all nine locales.)
+- **Version.** The acceptance criterion's `package.json` 0.62.943 was taken by #1885 before this build
+  began; this release is **0.62.944**, as stated to the operator in № 3,718 before approval.
+- **Operator, 26-10 '26, choosing option (a):** *"add amendment 0.2 to the spec"*.
+- **Change.** `scope:` gains the four files above; each edit only moves the pinned count, with a
+  comment naming this release. No assertion is weakened or removed.
+- **Check.** Full suite green.
