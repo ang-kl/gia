@@ -224,7 +224,11 @@ async function findGeocoded(text, ctx = null) {
         radius: GEOCODE_RADIUS_M,
         source: 'geocode',
         placeId: r.placeId || null,
-        address: r.address || null
+        address: r.address || null,
+        // v0.62.945 — Google's types and what they make the place: 'building', 'road' or null (an
+        // area keeps the 1.5 km search). Spec doc/Feature/2026-10-26-ai-place-building-scope.spec.md.
+        types: Array.isArray(r.types) ? r.types : [],
+        scope: require('./building-scope').scopeFromTypes(r.types)
       };
     }
 
@@ -243,7 +247,11 @@ async function findGeocoded(text, ctx = null) {
       radius: GEOCODE_RADIUS_M,
       source: 'geocode',
       placeId: r.placeId || null,
-      address: r.address || null
+      address: r.address || null,
+      // v0.62.945 — Google's types and what they make the place: 'building', 'road' or null (an
+      // area keeps the 1.5 km search). Spec doc/Feature/2026-10-26-ai-place-building-scope.spec.md.
+      types: Array.isArray(r.types) ? r.types : [],
+      scope: require('./building-scope').scopeFromTypes(r.types)
     };
   } catch (err) {
     console.warn('[place-detector] geocode lookup failed:', err.message);

@@ -704,6 +704,14 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
 
+          {/* v0.62.945 — outside the named building or road, within 150 m of it (spec doc/Feature/
+              2026-10-26-ai-place-building-scope.spec.md): "↗ beyond Raffles City Shopping Centre". */}
+          {venue._beyond && (
+            <div className={`text-[12px] text-tg-hint ${horizontal ? 'mt-0.5' : 'mt-1'}`}>
+              {tn('card.beyond', lang, { place: venue._beyond })}
+            </div>
+          )}
+
           {/* v0.62.588 — operator (Brisbane): the street address is now VISIBLE on
               the collapsed card (was revealed only on expand since v0.62.124). Sits
               just above the collapse boundary with the 🍲 Try / Michelin rows.

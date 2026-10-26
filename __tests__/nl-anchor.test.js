@@ -169,7 +169,12 @@ describe('/api/cuisine/nl-query uses the plan', () => {
     expect(body).not.toMatch(/radius: 50000/);
   });
   it('holds results to the circle when anchored, and returns the pill', () => {
-    expect(body).toMatch(/if \(nlPlan\.anchored\) \{[\s\S]{0,200}nlAnchor\.filterToAnchor\(venues, nlPlan\)/);
+    // v0.62.945 — scopeToPlace: a building/road narrows to inside + 150 m, anything else is
+    // filterToAnchor's 1.5 km circle exactly as before (pinned below).
+    expect(body).toMatch(/if \(nlPlan\.anchored\) \{[\s\S]{0,200}nlAnchor\.scopeToPlace\(venues, nlPlan\)/);
+    const plan = nl.planNlSearch({ place: RAFFLES_CITY, userLat: USER.lat, userLng: USER.lng });
+    const pool = [{ placeId: 'a', lat: 1.2945, lng: 103.854 }, { placeId: 'far', lat: 1.2494, lng: 103.8303 }];
+    expect(nl.scopeToPlace(pool, plan).venues).toEqual(nl.filterToAnchor(pool, plan));
     expect(body).toMatch(/placeAnchor: nlPlan\.placeAnchor/);
   });
   it('builds its queries with the shared function', () => {
@@ -187,5 +192,84 @@ describe('isEmptyReading — the AI found nothing to search for', () => {
     expect(nl.isEmptyReading({ cuisines: ['thai'], filters: {}, location_override: '' })).toBe(false);
     expect(nl.isEmptyReading({ cuisines: [], filters: { prices: ['$'] }, location_override: '' })).toBe(false);
     expect(nl.isEmptyReading({ cuisines: [], filters: {}, location_override: 'Raffles City' })).toBe(false);
+  });
+});
+
+// v0.62.945 — spec doc/Feature/2026-10-26-ai-place-building-scope.spec.md, I1 + I2. On 26-10 '26 the
+// operator asked "New eateries in Raffles City" with the AI lever and the log read
+// `radius=50000m` with no anchor: the AI reading carried no place. The chat path now asks the
+// normal search's place detector when the model names none, and a building narrows to inside +
+// 150 m.
+describe('v0.62.945 — place fallback and building scope (chat question path)', () => {
+  const RC_BUILDING = { name: 'Raffles City Shopping Centre', lat: 1.29372, lng: 103.85308, scope: 'building' };
+  const OJEJE = { placeId: 'oj', name: 'OJEJE', area: '252 North Bridge Road, #B1-12 Raffles City Shopping Centre, Singapore 179103', lat: 1.293894, lng: 103.853120 };
+  const CLOVE = { placeId: 'cl', name: 'CLOVE', area: '2 Stamford Road, Level 2 Swissôtel The Stamford, Singapore 178882', lat: 1.2933, lng: 103.85341 };
+  const LPS = { placeId: 'lps', name: 'Lau Pa Sat stall', area: '18 Raffles Quay, Singapore 048582', lat: 1.280617, lng: 103.850486 };
+  const NO_PLACE = { cuisines: [], filters: { newlyOpened: true }, location_override: '', source: 'claude-haiku' };
+  function deps(over = {}) {
+    const calls = { discover: [], deliver: [], detect: [], log: [] };
+    const d = {
+      consumeQuota: async () => true,
+      infer: async () => NO_PLACE,
+      cuisineNames: () => [],
+      getUserLocation: async () => ({ lat: 1.2820, lng: 103.8530 }),
+      geocode: async () => null,
+      detectPlace: async (t) => { calls.detect.push(t); return /raffles city/i.test(t) ? RC_BUILDING : null; },
+      discover: async (args) => { calls.discover.push(args); return [LPS, CLOVE, OJEJE]; },
+      passesVenueFilter: () => true,
+      applyNewness: async (venues) => ({ venues, noProvenNew: false }),
+      applyRatingFloor: async (venues) => venues,
+      regionCodeFor: () => 'SG',
+      askLocation: async () => {},
+      deliver: async (out) => { calls.deliver.push(out); },
+      log: (line) => { calls.log.push(line); },
+      ...over,
+    };
+    return { d, calls };
+  }
+
+  it('I1 — a reading with no place still anchors at Raffles City through the detector', async () => {
+    const { d, calls } = deps();
+    await nl.answerQuestionWithTellGia({ text: 'New eateries in Raffles City', deps: d });
+    expect(calls.detect).toEqual(['New eateries in Raffles City']);
+    expect(calls.discover[0]).toMatchObject({ lat: RC_BUILDING.lat, lng: RC_BUILDING.lng, radius: 1500 });
+    expect(calls.deliver[0].placeAnchor).toMatchObject({ name: 'Raffles City Shopping Centre' });
+  });
+  it('I2 — inside first, CLOVE beyond, Lau Pa Sat gone', async () => {
+    const { d, calls } = deps();
+    await nl.answerQuestionWithTellGia({ text: 'New eateries in Raffles City', deps: d });
+    const out = calls.deliver[0];
+    expect(out.venues.map((v) => v.placeId)).toEqual(['oj', 'cl']);
+    expect(out.venues[1]._beyond).toBe('Raffles City Shopping Centre');
+    expect(out.placeEmpty).toBeNull();
+  });
+  it('a venue the newness step adds (a curated row) is scoped too', async () => {
+    const { d, calls } = deps({ applyNewness: async (venues) => ({ venues: [...venues, LPS], noProvenNew: false }) });
+    await nl.answerQuestionWithTellGia({ text: 'New eateries in Raffles City', deps: d });
+    expect(calls.deliver[0].venues.map((v) => v.placeId)).toEqual(['oj', 'cl']);
+  });
+  it('I3 — nothing inside or within 150 m → placeEmpty names the building, no venues', async () => {
+    const { d, calls } = deps({ discover: async () => [LPS] });
+    await nl.answerQuestionWithTellGia({ text: 'New eateries in Raffles City', deps: d });
+    expect(calls.deliver[0].venues).toEqual([]);
+    expect(calls.deliver[0].placeEmpty).toBe('Raffles City Shopping Centre');
+  });
+  it('the model\'s own place still wins over the detector', async () => {
+    const { d, calls } = deps({ infer: async () => ({ ...NO_PLACE, location_override: 'Bugis' }), geocode: async () => ({ name: 'Bugis', lat: 1.3008, lng: 103.8559 }) });
+    await nl.answerQuestionWithTellGia({ text: 'New eateries in Raffles City', deps: d });
+    expect(calls.detect).toEqual([]);
+    expect(calls.discover[0]).toMatchObject({ lat: 1.3008, lng: 103.8559 });
+  });
+  it('an area (no scope) keeps the 1.5 km circle', async () => {
+    const { d, calls } = deps({ detectPlace: async () => ({ name: 'Tanjong Pagar', lat: 1.2766, lng: 103.8457, scope: null }), discover: async () => [LPS] });
+    await nl.answerQuestionWithTellGia({ text: 'new food in Tanjong Pagar', deps: d });
+    expect(calls.deliver[0].venues.map((v) => v.placeId)).toEqual(['lps']);
+    expect(calls.deliver[0].placeEmpty).toBeNull();
+  });
+  it('I4 — one reading line, naming source and place and how it was found, no chat id', async () => {
+    const { d, calls } = deps();
+    await nl.answerQuestionWithTellGia({ text: 'New eateries in Raffles City', deps: d });
+    expect(calls.log).toHaveLength(1);
+    expect(calls.log[0]).toMatch(/D769 reading source=claude-haiku place="Raffles City Shopping Centre" via=detector scope=building new=true/);
   });
 });

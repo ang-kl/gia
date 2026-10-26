@@ -239,6 +239,8 @@ function formatVenueBlock(p, opts = {}) {
       : p._curated.halal === 'default' ? ` · ${tr('card.halal', lang)}` : '';
     lines.push(escapeHtml(`${tr('card.curated', lang)}${halal}`));
   }
+  // v0.62.945 — outside the named building or road, within 150 m of it.
+  if (p._beyond) lines.push(escapeHtml(tr('card.beyond', lang).replace('{place}', p._beyond)));
   if (p.area) lines.push(`📇 ${escapeHtml(p.area)}`);
   // v0.62.895 — the address in the local script, when it differs from the line
   // above. Sitting unrendered on 1,186 curated Michelin rows since v0.62.824, and

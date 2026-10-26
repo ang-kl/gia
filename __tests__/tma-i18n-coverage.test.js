@@ -187,6 +187,6 @@ describe('TMA i18n coverage (O-327)', () => {
       // v0.62.900 — cuisine 380 → 383: card.reviewRefresh / reviewAlready / reviewUnavailable,
       // the ↻ under the 💬 line. Bumped with the keys, in the same commit, which is what this
       // pin exists to force.
-      .toEqual({ clipboard: 251, cuisine: 408, hawker: 91, menu: 80, transport: 123 });   // v0.62.944 cuisine 405 → 408 (card.curated, card.halalCertified, card.halal)   // v0.62.943 cuisine 404 → 405 (footer.nonAi)   // v0.62.941 cuisine 401 → 404 (tellme.placeholderAi, tell.askAiCta, tell.leverAria)   // v0.62.912 hawker 82 → 87; v0.62.923 90 → 91 (hawker.streetView)
+      .toEqual({ clipboard: 251, cuisine: 410, hawker: 91, menu: 80, transport: 123 });   // v0.62.945 cuisine 408 → 410 (card.beyond, zero.nothingInPlace)   // v0.62.944 cuisine 405 → 408 (card.curated, card.halalCertified, card.halal)   // v0.62.943 cuisine 404 → 405 (footer.nonAi)   // v0.62.941 cuisine 401 → 404 (tellme.placeholderAi, tell.askAiCta, tell.leverAria)   // v0.62.912 hawker 82 → 87; v0.62.923 90 → 91 (hawker.streetView)
   });
 });

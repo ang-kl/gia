@@ -276,6 +276,28 @@ function isKnownDishName(text) {
 
 module.exports.isKnownDishName = isKnownDishName;
 
+// v0.62.945 — a typed dish's HOME cuisine(s), for a search with no cuisine chosen (spec doc/Feature/
+// 2026-10-26-ai-place-building-scope.spec.md, I5). Operator, 26-10 '26: "Varenyky dumplings" came
+// back as four Chinese dumpling shops and one Slavic restaurant, because the search sent Google the
+// bare words and its off-cuisine gate had no cuisine to compare against. The answer was already in
+// cuisine-dish-keywords.js (ukrainian: varenyky). A keyword counts when it appears in the text as
+// whole words; a dish several cuisines share (pierogi) returns all of them.
+function homeCuisinesForDish(text) {
+  try {
+    const t = ` ${norm(text)} `;
+    if (t.trim().length < 3) return [];
+    const { CUISINE_DISH_KEYWORDS } = require('./cuisine-dish-keywords');
+    const out = [];
+    for (const [slug, words] of Object.entries(CUISINE_DISH_KEYWORDS)) {
+      if ((words || []).some((w) => { const n = norm(w); return n.length >= 4 && t.includes(` ${n} `); })) out.push(slug);
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+module.exports.homeCuisinesForDish = homeCuisinesForDish;
+
 // ── city-plate tie-in (v0.62.37, D792) ───────────────────────────────────────
 //
 // findCityPlateDish(venue, plateDishes) → { dish, tier, evidence } | null

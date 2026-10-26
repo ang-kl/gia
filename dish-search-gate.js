@@ -81,6 +81,10 @@ function _isGeneric(v) {
 // the wanted ones. An unknown specific type (not in our map) is NOT judged.
 function _isOffCuisine(v, wanted) {
   const pt = _primaryType(v);
+  // v0.62.945 — Google's dumpling_restaurant is, in this market, a Chinese dumpling shop (the
+  // operator's "Varenyky dumplings" returned three Yuen Kee branches typed exactly this way). For a
+  // search whose cuisine is not Chinese it is off-cuisine unless the venue shows the dish itself.
+  if (pt === 'dumpling_restaurant' && !wanted.has('chinese_restaurant')) return true;
   if (!pt || GENERIC_TYPES.has(pt) || !ALL_CUISINE_TYPES.has(pt)) return false;
   return !wanted.has(pt);
 }

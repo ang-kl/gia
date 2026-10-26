@@ -388,7 +388,10 @@ async function geocodeQuery(text) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': mapsApiKey,
-          'X-Goog-FieldMask': ['places.id', 'places.displayName', 'places.location', 'places.formattedAddress'].join(',')
+          // v0.62.945 — places.types: tells a building or road from an area (building-scope.js). It is
+          // in the same Text Search Pro tier as displayName / formattedAddress / location, checked
+          // against Google's field-mask table on 26-10 '26, so the call's price does not change.
+          'X-Goog-FieldMask': ['places.id', 'places.displayName', 'places.location', 'places.formattedAddress', 'places.types'].join(',')
         },
         timeout: 8000
       }
@@ -400,7 +403,8 @@ async function geocodeQuery(text) {
       lng: place.location.longitude,
       name: place.displayName?.text ?? text.trim(),
       address: place.formattedAddress ?? '',
-      placeId: place.id ?? null
+      placeId: place.id ?? null,
+      types: Array.isArray(place.types) ? place.types : []
     };
   } catch (err) {
     logger.error({ text, err: { message: err.message } }, 'vibe-suggest geocodeQuery failed');
@@ -594,7 +598,9 @@ async function geocodeQueryRegion(text, opts = {}) {
           // Wang") without any geographic context. Parser below.
           'X-Goog-FieldMask': [
             'places.id', 'places.displayName', 'places.location',
-            'places.formattedAddress', 'places.addressComponents'
+            'places.formattedAddress', 'places.addressComponents',
+            // v0.62.945 — see geocodeQuery: same Pro tier, no price change.
+            'places.types'
           ].join(',')
         },
         timeout: 8000
@@ -619,6 +625,7 @@ async function geocodeQueryRegion(text, opts = {}) {
       name: place.displayName?.text ?? text.trim(),
       address: place.formattedAddress ?? '',
       placeId: place.id ?? null,
+      types: Array.isArray(place.types) ? place.types : [],
       region: region || 'SG',  // echo the region hint so the caller knows what context was used
       // v0.61.139 — structured address components for the Menu TMA's
       // "Anchored at <street>, <building> (<postal>)" rendering. Any

@@ -486,6 +486,8 @@ export default function App() {
   // search returned nothing (zeroReason); this holds the i18n key for the
   // notice the result panel shows on a persistent empty list.
   const [zeroReasonKey, setZeroReasonKey] = useState(null);
+  // v0.62.945 — the building or road named in a search that found nothing inside it or within 150 m.
+  const [zeroPlace, setZeroPlace] = useState(null);
   // v0.62.14 — durian soft-rating: server surfaced a sub-3.7 / unrated stall.
   const [durianRatingNote, setDurianRatingNote] = useState(false);
   // v0.61.397 — operator: durian / fruits / durian-pastry are blocked
@@ -3213,9 +3215,12 @@ export default function App() {
           setCuisinePickOpen(true);   // v0.62.249 — open the folio picker (was the old criteria sheet)
         }
         const zr = r.zeroReason;
+        setZeroPlace(r.placeEmpty || null);
         setZeroReasonKey(
+          // v0.62.945 — a named building/road with nothing inside or within 150 m.
+          zr === 'nothing-in-place' && r.placeEmpty ? 'zero.nothingInPlace'
           // v0.62.x item 10 — a tapped dish gated to empty wins the message.
-          r.dishSearchEmpty ? 'zero.dishNoSpot'
+          : r.dishSearchEmpty ? 'zero.dishNoSpot'
           : (zr === 'all-seen-criteria' || zr === 'all-seen-session') ? 'zero.allSeen'
           : (zr === 'no-venues-nearby') ? 'zero.noVenuesNearby'
           : (zr === 'no-match-criteria' || zr === 'filtered') ? 'zero.noMatchCriteria'
@@ -3474,6 +3479,9 @@ export default function App() {
       });
       setVenues(r.venues || []);
       setResultsOrigin(RESULTS_ORIGIN.AI);   // v0.62.943 — AI results carry no footer flag
+      // v0.62.945 — the AI route's honest empty for a named building/road.
+      if (r.zeroReason === 'nothing-in-place' && r.placeEmpty) { setZeroPlace(r.placeEmpty); setZeroReasonKey('zero.nothingInPlace'); }
+      else { setZeroPlace(null); setZeroReasonKey(null); }
       setNoProvenNew(!!r.noProvenNew);   // v0.62.205 — "no new nearby" banner flag
       setCuisinePlate(r.cuisinePlate || null);   // v0.62.x — clear/refresh the cuisine plate on NL queries too
       // v0.62.941 — the AI route now returns the place it searched around (1.5 km),
@@ -5266,7 +5274,7 @@ export default function App() {
       )}
       {zeroReasonKey && !loading && venues.length === 0 && !dirty && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-hint">
-          {t(zeroReasonKey, lang)}
+          {zeroReasonKey === 'zero.nothingInPlace' ? tn(zeroReasonKey, lang, { place: zeroPlace || '' }) : t(zeroReasonKey, lang)}
         </div>
       )}
       {/* v0.62.14 — durian soft-rating: explain we prefer 3.7★+ but also show
@@ -5788,7 +5796,9 @@ export default function App() {
                   the 💬 and 🔍 FABs, styled as a neo-glassmorphism pill (75% opaque).
                   pointer-events-none wrapper, only the hero pick is tappable, so it
                   never blocks the result cards floating above. */}
-              {!regionExpanded && !cuisinePickOpen && !classicOpen && (
+              {/* v0.62.945 — and not while the Criteria card is open: the strip sat in front of
+                  it (operator screenshot, 26-10 '26), so only the card's top edge showed. */}
+              {!regionExpanded && !cuisinePickOpen && !classicOpen && !criteriaOpen && (
                 <ErrorBoundary label="InsightStrip">
                   <InsightStrip
                     inline
