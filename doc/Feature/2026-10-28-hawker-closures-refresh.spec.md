@@ -17,7 +17,7 @@ verify: ""
 
 # Refresh the hawker closure dates from NEA's 28-10 '26 dataset
 
-Version: 0.1. Date: 28 October 2026 (Asia/Singapore). Location: `doc/Feature/` (standing exception).
+Version: 0.2. Date: 28 October 2026 (Asia/Singapore). Location: `doc/Feature/` (standing exception).
 
 ## Intent
 - Outcome: the Hawker closure card and pins use NEA's current "Dates of Hawker Centres Closure"
@@ -50,7 +50,7 @@ Version: 0.1. Date: 28 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 | A1 | The hawker-centres GEOJSON is left as it is; the check is recorded instead | confirmed | Operator: "Leave it" |
 | A2 | A `TBC` date gives no window, so nothing is shown until NEA publishes a date (the builder's existing behaviour) | confirmed | Operator: "Drop it" |
 | A3 | The CSV keeps its name `data/hawker-cleaning-closures-2026.csv`; only its contents change | confirmed | Operator: "Keep the name" |
-| A4 | Ships on the open #1889 with the holidays fix, as v0.62.948 | confirmed | Operator: "Same PR #1889" |
+| A4 | Ships as v0.62.948 on a new PR from `claude/handover-july-11-49uzvf` (carrying the held `[AMD-253]`) | corrected | Operator first chose "Same PR #1889"; #1889 merged at 11:31 on 28-10 before this was approved, and the operator then answered "A4: new PR" (see Amendment 0.2) |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
@@ -74,6 +74,11 @@ Version: 0.1. Date: 28 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 - A "date TBC" line on the card (A2).
 - The builder runs `main()` on `require`, so any test that requires it rewrites `data/hawker-closures.json`. That side
   effect is pre-existing; noted for a later fix, not changed here.
+
+## Amendment 0.2 · 28-10 '26, before approval
+A4 as first written: *"Ships on the open #1889 with the holidays fix, as v0.62.948 | confirmed | Operator: "Same PR #1889""*.
+#1889 was merged on the operator's *"merge when green"* (as `f6ca3dfc`, 11:31:07 SGT) before this spec was approved, so it
+could no longer carry the work. Operator, 28-10 '26: *"A4: new PR"*. Nothing else in the spec changes.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.

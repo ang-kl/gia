@@ -6,7 +6,9 @@
 //
 //   node scripts/build-hawker-closures.js
 //
-// Source: data/hawker-cleaning-closures-2026.csv (snapshot 18 Jul 2026).
+// Source: data/hawker-cleaning-closures-2026.csv (snapshot 28 Oct 2026; was 18 Jul 2026 until v0.62.948).
+// To refresh: download NEA's "Dates of Hawker Centres Closure" (d_bda4baa634dd1cc7a6c7cad5f19e2d68) over
+// this file unedited, re-run this script, and update the sha256 in __tests__/hawker-closures-refresh.test.js.
 // Output: data/hawker-closures.json, keyed by the CSV's centre `name` (the vault
 // re-keys via _normaliseHawkerName, so formal NEA names reconcile with the vault):
 //   { "<name>": { cleaning:[{start,end}], renovation:[{start,end}],
