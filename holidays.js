@@ -1,12 +1,15 @@
 // holidays.js — Singapore public-holiday dataset.
 //
-// Source: data.gov.sg dataset (annual JSON). On boot, fetched and cached
+// Source: data.gov.sg dataset (MOM's consolidated CSV, 2020 onwards). On boot, fetched and cached
 // in Redis for 90 days. Falls back to a hardcoded 2026 array if the API
 // is unreachable so the bot never blocks on this dependency.
 
 const axios = require('axios');
 
-const REDIS_KEY = 'sg:public-holidays:2026';
+// v0.62.947 — new key. The old one ('sg:public-holidays:2026') holds FALLBACK_2026 for 90 days on
+// every server that booted while the retired dataset id below was failing, and warmCache reads the
+// cache first, so the new source would not have been asked until that expired.
+const REDIS_KEY = 'sg:public-holidays:v2';
 const CACHE_TTL_S = 90 * 24 * 60 * 60;
 const FETCH_TIMEOUT_MS = 5000;
 
@@ -26,7 +29,10 @@ const FALLBACK_2026 = [
   { date: '2026-12-25', name: 'Christmas Day' }
 ];
 
-const DATA_GOV_URL = 'https://api-open.data.gov.sg/v1/public/api/datasets/d_4e19214c1a6202f87b8a0bfd0ad1b2db/poll-download';
+// v0.62.947 — MOM's "Singapore Public Holidays (consolidated)", 2020-2027 as of 27-10 '26. The id used
+// until then (d_4e19214c1a6202f87b8a0bfd0ad1b2db) answered "No table found for dataset ID" and had left
+// the data.gov.sg catalogue, so every boot was running on FALLBACK_2026.
+const DATA_GOV_URL = 'https://api-open.data.gov.sg/v1/public/api/datasets/d_8ef23381f9417e4d4254ee8b4dcdb176/poll-download';
 
 let memoryCache = null;
 
@@ -101,4 +107,4 @@ function nextPublicHoliday(date = new Date()) {
   return list.filter((h) => h.date >= iso).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
 }
 
-module.exports = { warmCache, isPublicHoliday, nextPublicHoliday, FALLBACK_2026 };
+module.exports = { warmCache, isPublicHoliday, nextPublicHoliday, FALLBACK_2026, DATA_GOV_URL, REDIS_KEY, parseCsv };
