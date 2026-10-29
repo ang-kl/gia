@@ -183,29 +183,38 @@ describe('I3 — the distance gate', () => {
 describe('I4 — halal rule and label', () => {
   const rows = ext.parseCsv(ALERTS).rows;
   const by = (id) => rows.find((x) => x.alert_id === id);
-  it('JB default: pork or alcohol → not halal; pork-free → halal; certified → certified', () => {
+  // v0.62.949 — spec doc/Feature/2026-10-29-halal-certified-only.spec.md. Operator, 29-10 '26: "Don't default
+  // halal for JB and eateries. Some still needs certificates", and "Also don't default halal for Batam". This
+  // reverses the v0.62.944 default; a row is halal only when it says it is certified.
+  it('I1 — an uncertified row is never halal, in JB, Batam or SG', () => {
     expect(ext.halalStatus(by('ALERT-JB-0055'))).toBeNull();          // Long Jing, pork belly
     expect(ext.halalStatus(by('ALERT-JB-0034B'))).toBeNull();         // OTTO, alcohol
-    expect(ext.halalStatus(by('ALERT-JB-0044'))).toBe('default');     // M&L Paris, no pork no lard
-    expect(ext.halalStatus(by('ALERT-JB-0061'))).toBe('certified');   // Gula Cakery
-  });
-  it('"turkey ham" is allowed (Shüü Cafe)', () => {
+    expect(ext.halalStatus(by('ALERT-JB-0044'))).toBeNull();          // M&L Paris, no pork no lard, NOT certified
     const shuu = by('ALERT-JB-0023B');
     expect(shuu.must_try_dishes_detailed).toMatch(/turkey ham/i);
-    expect(ext.halalStatus({ ...shuu, is_halal_certified: 'FALSE' })).toBe('default');
-  });
-  it('Batam follows the JB rule; SG is certified only', () => {
-    const btm = rows.find((x) => x.market_region === 'BTM' && x.is_halal_certified !== 'TRUE' && !/pork|non-?halal|alcohol|beer|wine/i.test(x.dietary_notes + x.must_try_dishes_detailed));
-    if (btm) expect(ext.halalStatus(btm)).toBe('default');
+    expect(ext.halalStatus({ ...shuu, is_halal_certified: 'FALSE' })).toBeNull();
+    const btm = { market_region: 'BTM', is_halal_certified: 'FALSE', dietary_notes: 'No pork, no lard', must_try_dishes_detailed: 'Nasi padang' };
+    expect(ext.halalStatus(btm)).toBeNull();
     const sgPorkFree = { market_region: 'SG', is_halal_certified: 'FALSE', dietary_notes: 'Pork-free & lard-free', must_try_dishes_detailed: '' };
     expect(ext.halalStatus(sgPorkFree)).toBeNull();
-    expect(ext.halalStatus({ ...sgPorkFree, is_halal_certified: 'TRUE' })).toBe('certified');
   });
-  it('the halal filter includes both kinds and excludes the rest', () => {
+  it('I1 — no row in the Alerts fixture is labelled halal without a certificate', () => {
+    for (const r of rows) {
+      const s = ext.halalStatus(r);
+      expect(s === null || s === 'certified', `${r.alert_id} → ${s}`).toBe(true);
+      if (s === 'certified') expect(String(r.is_halal_certified).toUpperCase()).toBe('TRUE');
+    }
+  });
+  it('I2 — a certified row is still "certified", in any region', () => {
+    expect(ext.halalStatus(by('ALERT-JB-0061'))).toBe('certified');   // Gula Cakery
+    expect(ext.halalStatus({ market_region: 'BTM', is_halal_certified: 'TRUE' })).toBe('certified');
+    expect(ext.halalStatus({ market_region: 'SG', is_halal_certified: 'TRUE', dietary_notes: 'Pork-free' })).toBe('certified');
+  });
+  it('I3 — the halal filter offers certified rows only', () => {
     const around = (id) => { const r = by(id); return { lat: Number(r.latitude), lng: Number(r.longitude) }; };
     const offer = (id) => ext.curatedCandidates({ rows: [by(id)], today: TODAY, center: around(id), radiusM: 500, filters: { halal: true }, cuisines: [] });
     expect(offer('ALERT-JB-0055')).toHaveLength(0);
-    expect(offer('ALERT-JB-0044')[0]._curated.halal).toBe('default');
+    expect(offer('ALERT-JB-0044')).toHaveLength(0);   // M&L Paris: JB, pork-free, not certified
     expect(offer('ALERT-JB-0061')[0]._curated.halal).toBe('certified');
     expect(offer('ALERT-SG-0035')).toHaveLength(0);   // OJEJE: SG, not certified
   });

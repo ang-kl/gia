@@ -12,7 +12,7 @@
 //   • source: CSV files sent to the bot after /external_update, owner chat only (A3, A7, A8);
 //   • merge by id: rows in a file are added or replaced whole, rows not in it stay (A9);
 //   • new = NOW OPEN / SOFT LAUNCH, plus POP-UP / LIMITED RUN inside its event dates (A2);
-//   • halal: JB and Batam halal unless pork, lard, alcohol or "non-halal" shows; SG certified
+//   • halal: only when the row says it is certified (the v0.62.944 JB/Batam default was removed in v0.62.949)
 //     only; cards say "Halal ✓ certified" or "Halal" (A4, A5);
 //   • curated venues still face the New filter's review-age check (A11), so they are merged into
 //     the pool BEFORE applyNewnessRule, never after it.
@@ -209,18 +209,12 @@ function isNewEligible(row, todayYmd) {
   return false;
 }
 
-// Halal (A4): certified anywhere when the file says so; in JB and Batam, halal by default unless
-// the notes or the dishes show pork, lard, alcohol or say non-halal. "Pork-free", "no pork" and
-// "alcohol-free" are not evidence against, and turkey / chicken / beef "ham" or "bacon" is allowed.
-const FORBIDDEN = /\b(non-?halal|not halal|pork|lard|babi|bak kut teh|char siu|ham|bacon|alcohol|alcoholic|beer|beers|wine|wines|sake|soju|highballs?|cocktails?|liquor|whisky|whiskey|rum|mirin|spirits)\b/i;
-const NEGATED = /\b(pork|lard|alcohol|babi)[- ]free\b|\bno (pork|lard|alcohol)\b|\b(turkey|chicken|beef|duck)\s+(ham|bacon)\b|\bnot halal-certified\b|\bnon-?alcoholic\b/gi;
-
+// Halal: only when the row says it is certified, in any region. v0.62.949 removed the v0.62.944 JB and
+// Batam default (halal unless pork, lard or alcohol showed). Operator, 29-10 '26: "Don't default halal for
+// JB and eateries. Some still needs certificates", and "Also don't default halal for Batam". A pork-free
+// kitchen is not a certified one. Spec doc/Feature/2026-10-29-halal-certified-only.spec.md.
 function halalStatus(row) {
-  if (String(row?.is_halal_certified || '').toUpperCase() === 'TRUE') return 'certified';
-  const region = String(row?.market_region || '').toUpperCase();
-  if (region !== 'JB' && region !== 'BTM') return null;
-  const text = `${row.dietary_notes || ''} ${row.must_try_dishes_detailed || ''}`.replace(NEGATED, ' ');
-  return FORBIDDEN.test(text) ? null : 'default';
+  return String(row?.is_halal_certified || '').toUpperCase() === 'TRUE' ? 'certified' : null;
 }
 
 function quickFilters(row) {
