@@ -11,6 +11,16 @@ export const HISTORICAL_REF = '10ac96a7e412b42cde4a04d98e153befe0c3cdc4';
 export const HISTORICAL_VAULT_TREE = '5468ceaa9b5262fed99b827d8131971db6688dbb';
 export const CURRENT_SOURCE = '439cf204312b5ad892ec8bd57f37a3d105212f7e';
 export const CURRENT_VAULT_TREE = 'f9941f040e4af3f39ea0e135ddf72a509aa41810';
+// v0.62.948 (29-10 '26, spec doc/Feature/2026-10-29-docs-and-vault-v0-62-948.spec.md): current snapshots are
+// unsanitised copies of one commit each, verified by their own VAULT_VERIFY.mjs; here each folder's tree is pinned
+// so an edit inside one, or an extra folder beside them, fails --verify. v0.62.937's pins above are unchanged.
+export const CURRENT_SNAPSHOTS = new Map([
+  ['v0.62.937', { source: CURRENT_SOURCE, tree: CURRENT_VAULT_TREE }],
+  ['v0.62.948', { source: 'bd9a310c835bfe2d91441d13eb33c37e1228e5c9', tree: 'b274ade89071cfe72085fdea6a97792191ce153a' }],
+]);
+export function versionFolders() {
+  return [...EXPECTED_FOLDERS, ...CURRENT_SNAPSHOTS.keys()].sort((x,y)=>x.localeCompare(y,undefined,{numeric:true}));
+}
 export const EXPECTED_FOLDERS = new Set([
   'v0.58.49','v0.58.55','v0.59.17','v0.59.53','v0.60.41','v0.60.106','v0.60.117',
   'v0.60.130','v0.60.141','v0.60.153','v0.60.157','v0.60.166','v0.60.172',
@@ -184,7 +194,8 @@ async function verify() {
   const source=entries(`${HISTORICAL_REF}:vault`), all=entries('HEAD:vault');
   const actual=new Map(all.filter(e=>EXPECTED_FOLDERS.has(e.path.split('/')[0])).map(e=>[e.path,e]));
   assert.equal(actual.size,source.length);assert.equal(m.files.length,source.length);
-  assert.deepEqual(sortVersions(trees('HEAD:vault').filter(x=>x.type==='tree').map(x=>x.name)),sortVersions([...EXPECTED_FOLDERS,'v0.62.937']));
+  for(const [name,s] of CURRENT_SNAPSHOTS)assert.equal(gitText(['rev-parse',`HEAD:vault/${name}`]),s.tree,`vault/${name} tree changed`);
+  assert.deepEqual(sortVersions(trees('HEAD:vault').filter(x=>x.type==='tree').map(x=>x.name)),versionFolders());
   const records=new Map(m.files.map(e=>[e.path,e]));assert.equal(records.size,source.length);
   const r=await reader(), cache=new Map();let locs=0,ids=0,changed=0,sourceBytes=0,resultBytes=0;
   try{
@@ -211,7 +222,7 @@ async function verify() {
     assert.equal(gitText(['rev-parse',`${HISTORICAL_REF}:vault/${v.name}`]),v.source_tree);
     if(!ALLOWED_SANITISED.has(v.name))assert.equal(v.result_tree,v.source_tree);
   }
-  const result={passed:true,version_folders:28,historical_source_entries:source.length,historical_source_bytes:sourceBytes,historical_restored_bytes:resultBytes,unchanged_historical_trees:EXPECTED_FOLDERS.size-affected.length,sanitised_historical_trees:affected.length,changed_paths:changed,coordinate_replacements:locs,identifier_replacements:ids,remaining_scanned_credentials:0,remaining_scanned_locations:0,remaining_pinned_identifiers:0,missing:0,unexpected:0,unapproved_differences:0,historical_builds:'not executed'};
+  const result={passed:true,version_folders:versionFolders().length,current_snapshots:[...CURRENT_SNAPSHOTS.keys()],historical_source_entries:source.length,historical_source_bytes:sourceBytes,historical_restored_bytes:resultBytes,unchanged_historical_trees:EXPECTED_FOLDERS.size-affected.length,sanitised_historical_trees:affected.length,changed_paths:changed,coordinate_replacements:locs,identifier_replacements:ids,remaining_scanned_credentials:0,remaining_scanned_locations:0,remaining_pinned_identifiers:0,missing:0,unexpected:0,unapproved_differences:0,historical_builds:'not executed'};
   console.log(JSON.stringify(result,null,2));
   if(process.env.VAULT_REPORT)writeFileSync(process.env.VAULT_REPORT,JSON.stringify(result,null,2)+'\n');
   return result;
