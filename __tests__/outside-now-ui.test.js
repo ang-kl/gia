@@ -9,7 +9,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 import {
   OUTSIDE_STRINGS, OUTSIDE_LOCALES, ROW_SOURCE, ot, topWarning, stripText, dismissKey, sheetRows, levelKey, rowTone, hhmm,
-  stripDecision,
+  stripDecision, rowText, tempText, TEMP_UNIT_KEY,
 } from '../web/_shared/lib/outside-now-i18n.js';
 
 const require = createRequire(import.meta.url);
@@ -187,4 +187,68 @@ describe('Wiring — each app uses the route, the dot, the strip and the sheet (
   it('the sheet renders nothing outside Singapore', () => {
     expect(code('web/_shared/components/OutsideNowSheet.jsx')).toMatch(/!data\.inSg/);
   });
+});
+
+describe('Amendment 1 — each row leads with the finding; line 2 names the row and its source (items 1-3)', () => {
+  const T = (name, row, lang = 'en') => rowText(name, row, lang);
+  it('flood, none — the operator\'s exact wording', () => {
+    expect(T('flood', { status: 'ok', level: 'none', alerts: [], at: at('19:11') })).toEqual({ title: 'No flood near you', line2: 'Flood alert · PUB 19:11' });
+  });
+  it('flood, alert — with and without a distance', () => {
+    expect(T('flood', { status: 'ok', level: 'warn', alerts: [{ text: 'Orchard Rd', km: 1.4 }], at: at('19:11') }).title).toBe('Flood: Orchard Rd (1.4 km)');
+    expect(T('flood', { status: 'ok', level: 'warn', alerts: [{ text: 'Orchard Rd', km: null }], at: at('19:11') }).title).toBe('Flood: Orchard Rd');
+  });
+  it('lightning', () => {
+    expect(T('lightning', { status: 'ok', level: 'clear', count: 0, nearestKm: null, at: at('19:12') })).toEqual({ title: 'No lightning within 5 km', line2: 'Lightning · NEA 19:12' });
+    expect(T('lightning', { status: 'ok', level: 'warn', count: 3, nearestKm: 2.1, at: at('19:12') }).title).toBe('Lightning 2.1 km away (3 strikes)');
+  });
+  it('air quality', () => {
+    expect(T('air', { status: 'ok', level: 'moderate', psi: 68, pm25: 24, region: 'central', at: at('19:00') })).toEqual({ title: 'Moderate air quality', line2: 'Air quality · PSI 68 · PM2.5 24 · NEA 19:00' });
+  });
+  it('heat stress', () => {
+    expect(T('heat', { status: 'ok', level: 'low', wbgt: 24.3, station: 'Upper Pickering Street', at: at('19:00') })).toEqual({ title: 'Low heat stress', line2: 'Heat stress · WBGT 24.3 °C · Upper Pickering Street · NEA 19:00' });
+  });
+  it('UV: after sunset, indoors, and in daylight', () => {
+    expect(T('uv', { status: 'ok', level: 'low', index: 0, night: true, indoors: false, at: at('19:00') })).toEqual({ title: 'No UV after sunset', line2: 'UV · NEA 19:00' });
+    expect(T('uv', { status: 'ok', level: 'veryHigh', index: 9, night: false, indoors: true, at: at('13:00') }).title).toBe('Indoors');
+    expect(T('uv', { status: 'ok', level: 'veryHigh', index: 9, night: false, indoors: false, at: at('13:00') }).title).toBe('UV 9 · Very high');
+  });
+  it('parking: one row per carpark, no agency named', () => {
+    expect(T('parking', { name: 'Amoy St Off St', lots: 112, m: 76 })).toEqual({ title: 'Amoy St Off St · 76 m', line2: 'Parking · 112 lots' });
+  });
+  it('an unavailable row keeps its name as the title', () => {
+    expect(T('heat', { status: 'unavailable' })).toEqual({ title: 'Heat stress', line2: 'Unavailable' });
+  });
+  it('the sheet renders through rowText', () => {
+    expect(code('web/_shared/components/OutsideNowSheet.jsx')).toMatch(/rowText\(/);
+  });
+});
+
+describe('Amendment 1 — the sheet on a wide window (item 4)', () => {
+  it('is capped and centred, not stretched across a desktop window', () => {
+    const c = code('web/_shared/components/OutsideNowSheet.jsx');
+    expect(c).toMatch(/maxWidth:\s*480/);
+    expect(c).toMatch(/margin:\s*'0 auto/);
+  });
+});
+
+describe('Amendment 1 — °C / °F (item 5)', () => {
+  it('the remembered unit lives under one key', () => {
+    expect(TEMP_UNIT_KEY).toBe('gia.tempUnit');
+  });
+  it('converts, and uses the server\'s °F when it has one', () => {
+    expect(tempText({ tempC: 25.3, tempF: 77.5 }, 'F')).toEqual({ value: '77.5', unit: '°F' });
+    expect(tempText({ tempC: 25.3 }, 'F')).toEqual({ value: '77.5', unit: '°F' });
+    expect(tempText({ tempC: 25.3, tempF: 77.5 }, 'C')).toEqual({ value: '25.3', unit: '°C' });
+    expect(tempText({}, 'C')).toBeNull();
+  });
+  for (const f of ['web/_shared/components/WeatherBadge.jsx', 'web/cuisine/src/v2/components/WeatherBadge.jsx']) {
+    it(`${f}: the unit toggles and is remembered; the number opens the sheet`, () => {
+      const c = code(f);
+      expect(c).toMatch(/localStorage\.getItem\(TEMP_UNIT_KEY/);
+      expect(c).toMatch(/localStorage\.setItem\(TEMP_UNIT_KEY/);
+      expect(c).toMatch(/tempText\(/);
+      expect((c.match(/<button\b/g) || []).length).toBeGreaterThanOrEqual(2);
+    });
+  }
 });
