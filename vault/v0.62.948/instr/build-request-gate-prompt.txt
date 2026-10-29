@@ -1,0 +1,40 @@
+Build request gate. Apply this in every session in this repository.
+
+Every build follows six stages, in order:
+Intent -> Interpretation -> Assumptions -> Invariants -> Execution -> Evidence
+
+SCOPE. This gate applies to a FRESH build request: new work I ask for. It
+does not apply to CI CR work (continuous integration paired with continuous
+resilience or response): a CI failure, a review thread, a merge conflict or
+an incident on work already under way, which you fix and push under the
+normal drive-to-green rules with no fresh gate. When a message could be
+either, say in one line which reading you took.
+
+BEFORE any build, reply with:
+1. TL;DR - two or three sentences: what you will do, why, the main caveat.
+2. Intent - the outcome, its force (must / should / may), and the check
+   that proves it done.
+3. Interpretation - UNDERSTANDING (what you think I mean, including what
+   you treat as given) and GAPS (interpretations that would change the
+   outcome).
+4. Assumptions - each one listed and marked verified (measured, and how),
+   inferred (from what) or unverified (taken on trust), with a confidence.
+5. Invariants - what must hold for the result to be correct, each mapped
+   to the test or command that will check it.
+
+Then PROCEED without waiting for my reply, unless any assumption is below
+95% confidence or your plan would break an invariant. In either of those
+cases: stop, ask one question, and wait. Silence is not approval.
+
+AFTER the build, reply with:
+1. TL;DR.
+2. Reassess the first four stages - what held, what Execution corrected
+   (quote the correction), any assumption that turned out wrong.
+3. Execution - what changed, file by file, and that it stayed within scope.
+4. Evidence - the verify command and its result, then an INVARIANTS REPORT:
+   each invariant Passed, Failed or Not Verifiable, with its evidence (test
+   name, command output, file:line). An invariant you did not check is Not
+   Verifiable, never Passed.
+
+The BEFORE writeup is the acknowledgement ask: I read it and intervene if I
+disagree. The wait is reserved for genuine uncertainty.

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soleat — Hawker mini-app rework (MVP mockup)</title>
+<style>
+  :root{
+    --ink:#1c1c1f; --soft:#55555c; --hint:#86868f; --line:#e3e3e8;
+    --bg:#ffffff; --paper:#fbfbfc; --accent:#1565C0; --good:#0a7d4d;
+    --card:#ffffff; --cardline:#e6e6ec; --chipline:#c9c9d2;
+    --mich:#b8860b; --michbg:#fff8e9; --sg:#c0392b; --hk:#8a5a00;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#d8d8dc;color:var(--ink);
+    font:13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .page{background:var(--bg);max-width:900px;margin:14px auto;padding:22px 26px;box-shadow:0 2px 14px rgba(0,0,0,.18);}
+  h1{font-size:23px;margin:0 0 2px;letter-spacing:-.4px;}
+  .sub{color:var(--soft);font-size:13px;margin:0 0 2px;}
+  .meta{color:var(--hint);font-size:10.5px;margin:0 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;}
+  h2{font-size:15px;margin:22px 0 8px;padding-bottom:3px;border-bottom:2px solid var(--ink);display:flex;gap:7px;align-items:center;}
+  h2 .n{font-size:11px;color:#fff;background:var(--ink);border-radius:4px;padding:1px 6px;font-weight:700;}
+  h3{font-size:12.5px;margin:14px 0 7px;color:var(--soft);text-transform:uppercase;letter-spacing:.4px;}
+  p{margin:7px 0;} code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:#f1f1f4;border-radius:4px;padding:.5px 5px;}
+  .cols{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  .col{flex:1;min-width:300px;}
+  .phone{background:#f4f4f6;border:1px solid var(--line);border-radius:16px;padding:12px;}
+  .tgbar{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .tgbar h4{font-size:14px;margin:0;font-weight:600;flex:1;}
+  .tgbar .wx{font-size:10px;color:var(--hint);}
+  .tgbar .nea{font-size:10px;border:1px solid var(--line);border-radius:11px;padding:2px 8px;background:#fff;}
+  .pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px;}
+  .rpill{font-size:11px;border:1px solid var(--chipline);border-radius:11px;padding:3px 9px;background:#fff;}
+  .rpill.sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+  /* per-centre detail card */
+  .detail{background:var(--card);border:1px solid var(--cardline);border-radius:14px;padding:12px;}
+  .detail .nm{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px;}
+  .zone{font-size:9px;font-weight:700;color:#fff;background:var(--good);border-radius:10px;padding:1px 7px;}
+  .detail .meta2{color:var(--soft);font-size:11.5px;margin-top:3px;}
+  .drow{display:flex;gap:6px;font-size:12px;margin-top:7px;align-items:flex-start;}
+  .drow .k{width:18px;text-align:center;flex:none;}
+  .spec{display:inline-block;border:1px solid var(--chipline);border-radius:10px;padding:1px 8px;margin:1px 3px 1px 0;font-size:11.5px;}
+  .bib{background:var(--michbg);border:1px solid #f0e2bf;border-radius:10px;padding:7px 9px;margin-top:8px;}
+  .bib .blbl{font-size:11px;font-weight:700;color:var(--mich);display:flex;gap:5px;align-items:center;}
+  .bib .brow{font-size:12px;padding:2px 0;}
+  .bib .brow .at{color:var(--hint);font-size:10.5px;}
+  .cta{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .cta a{flex:1;text-align:center;font-size:11px;border:1px solid var(--line);border-radius:9px;padding:6px 4px;background:var(--bg);white-space:nowrap;}
+  .cta a.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .neanote{font-size:10px;color:var(--hint);margin-top:8px;font-style:italic;}
+  .map{margin-top:9px;height:120px;border-radius:10px;background:
+    linear-gradient(135deg,#e8efe6 0%,#dfe8ef 100%);position:relative;border:1px solid var(--line);overflow:hidden;}
+  .map .you{position:absolute;left:32%;top:46%;font-size:18px;}
+  .map .hpin{position:absolute;left:54%;top:38%;background:var(--sg);color:#fff;font-size:10px;font-weight:700;border-radius:50% 50% 50% 0;width:22px;height:22px;display:flex;align-items:center;justify-content:center;transform:rotate(-45deg);border:1.5px solid #fff;}
+  .map .hpin span{transform:rotate(45deg);}
+  .map .lbl{position:absolute;left:60%;top:34%;font-size:9px;background:rgba(255,255,255,.85);padding:0 3px;border-radius:3px;}
+  .arrow{font-size:22px;color:var(--accent);align-self:center;padding:0 4px;}
+  /* the entry chip from Local food picks */
+  .lfp{background:var(--card);border:1px solid var(--cardline);border-radius:12px;padding:9px 11px;font-size:12px;}
+  .hkchip{display:inline-flex;gap:5px;align-items:center;border:1px solid var(--chipline);border-radius:11px;padding:4px 9px;margin:3px 4px 0 0;font-size:11.5px;cursor:pointer;}
+  .hkchip.hot{border-color:var(--sg);box-shadow:0 0 0 2px rgba(192,57,43,.15);}
+  .hkchip .km{color:var(--hint);font-size:10px;}
+  table{border-collapse:collapse;width:100%;font-size:12px;margin:8px 0;}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top;}
+  th{background:var(--paper);font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--soft);}
+  ul{margin:6px 0;padding-left:18px;} li{margin:4px 0;}
+  .gap{background:#fdecea;border:1px solid #f5c6cd;border-radius:8px;padding:9px 13px;}
+  .open-q{background:#fff8e9;border:1px solid #f0e2bf;border-radius:8px;padding:9px 13px;}
+  .foot{border-top:1px solid var(--line);padding-top:6px;margin-top:18px;color:var(--hint);font-size:10px;display:flex;justify-content:space-between;}
+</style>
+</head>
+<body>
+<section class="page">
+  <h1>Hawker mini-app — rework MVP</h1>
+  <p class="sub">A per-centre detail view for the Hawker mini-app — the landing target when a 🍜 hawker centre is tapped in the "Local food picks" plate, surfacing specialities + ✴️ Michelin/Bib stalls that already live in our data but are never shown today.</p>
+  <p class="meta">Mockup only — NOT built · example centre: ABC Brickworks Food Centre (real data) · sources: <code>data/hawker-centres.json</code>, <code>data/hawker-stalls.json</code>, <code>SG-michelin.js</code></p>
+
+  <h2><span class="n">1</span> The gap today</h2>
+  <div class="gap">
+    The Hawker mini-app is <b>region pills → a multi-pin map → external Google-Maps buttons</b>. Tapping a pin opens a small InfoWindow (name, stall count, address, transit, "Open on Google Maps ↗"). There is <b>no per-centre page</b>, and the data we already hold — each centre's <b>speciality tags</b> and the <b>Bib Gourmand stalls located inside it</b> — is never surfaced. So a tap from "Local food picks" has nowhere meaningful to land.
+  </div>
+
+  <h2><span class="n">2</span> The flow — tap a centre → land on its page</h2>
+  <div class="cols">
+    <div class="col" style="max-width:300px">
+      <h3>From "Local food picks" (③)</h3>
+      <div class="phone">
+        <div class="lfp">
+          📍 <b>Local food picks</b> · 🇸🇬 Bukit Merah
+          <div style="border-top:1px solid #ececf0;margin-top:7px;padding-top:7px;">
+            <div style="font-size:11px;font-weight:700;color:var(--sg);">🍜 Hawker centres near here</div>
+            <span class="hkchip hot">ABC Brickworks <span class="km">450 m</span></span>
+            <span class="hkchip">Bukit Merah Central <span class="km">600 m</span></span>
+            <span class="hkchip">Alexandra Village <span class="km">1.2 km</span></span>
+            <div style="font-size:10px;color:var(--hint);margin-top:5px;">tap a centre →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="col" style="max-width:330px">
+      <h3>Opens the Hawker mini-app, focused on it</h3>
+      <div class="phone">
+        <div class="tgbar"><h4>🍲 Hawker</h4><span class="wx">⛅ 31°</span><span class="nea">NEA ↗</span></div>
+        <div class="pills"><span class="rpill">Central</span><span class="rpill sel">📍 South</span><span class="rpill">East</span><span class="rpill">West</span><span class="rpill">North</span></div>
+        <div class="detail">
+          <div class="nm">ABC Brickworks Food Centre <span class="zone">SOUTH</span></div>
+          <div class="meta2">96 stalls · Existing</div>
+          <div class="drow"><span class="k">📇</span><span>6 Jalan Bukit Merah, S150006</span></div>
+          <div class="drow"><span class="k">🍜</span><span><b>Known for:</b> <span class="spec">Wonton Mee</span><span class="spec">Ipoh-style</span></span></div>
+          <div class="bib">
+            <div class="blbl">✴️ Michelin Bib Gourmand here (2)</div>
+            <div class="brow">Ar Er Soup <span class="at">· soup</span></div>
+            <div class="brow">Jason Penang Cuisine <span class="at">· Penang</span></div>
+          </div>
+          <div class="drow"><span class="k">🚉</span><span><u>EW / Redhill</u> · <u>NE / Tiong Bahru</u> (nearest MRT)</span></div>
+          <div class="drow"><span class="k">🚏</span><span>2 bus stops within 150 m</span></div>
+          <div class="cta">
+            <a class="primary" href="#">🧭 Directions</a>
+            <a href="#">📍 Google Maps ↗</a>
+            <a href="#">🍴 Eateries nearby</a>
+          </div>
+          <div class="neanote">NEA closes centres quarterly for cleaning — check the schedule before you go.</div>
+          <div class="map"><span class="you">📍</span><span class="hpin"><span>🍲</span></span><span class="lbl">ABC Brickworks</span></div>
+        </div>
+        <div style="font-size:10px;color:var(--hint);margin-top:6px;text-align:center;">▾ back to all South centres</div>
+      </div>
+    </div>
+  </div>
+
+  <h2><span class="n">3</span> What the per-centre view adds (all from existing data)</h2>
+  <table>
+    <thead><tr><th>Row</th><th>Source</th><th>New?</th></tr></thead>
+    <tbody>
+      <tr><td>Name · zone · stall count · status</td><td><code>hawker-centres.json</code> + <code>hawker-stalls.json</code></td><td>stall count already in pin popup; rest new to a page</td></tr>
+      <tr><td>🍜 Known for (speciality tags)</td><td><code>hawker-centres.json</code> <code>tags[]</code> (humanised; meta-tags like <i>iconic/michelin</i> filtered)</td><td><b>new</b> — never surfaced today</td></tr>
+      <tr><td>✴️ Bib Gourmand stalls here</td><td><code>SG-michelin.js</code> Bib entries matched to the centre by address</td><td><b>new</b> — the headline value</td></tr>
+      <tr><td>🚉 / 🚏 transit</td><td>existing station/bus-stop proximity (already in the pin popup)</td><td>reused</td></tr>
+      <tr><td>🧭 Directions · 📍 Maps · 🍴 Eateries nearby</td><td>Google Maps deep-link · existing; "Eateries nearby" hands the centre's coords to the Cuisine search</td><td>"Eateries nearby" is new glue</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11.5px;color:var(--soft)">Other strong examples in the data: <b>Bukit Merah View</b> (84 stalls, <b>3 Bib</b>: Chai Chuan Tou Yang Rou Tang · Na Na Curry · Yong Chun Wan Ton Noodle), <b>Tiong Bahru Market</b> (83 stalls, 3 Bib), <b>Alexandra Village</b> (88 stalls, Bib: Hong Kong Yummy Soup).</p>
+
+  <h2><span class="n">4</span> How the deep-link works</h2>
+  <ul>
+    <li>The 🍜 chip in "Local food picks" links to the Hawker mini-app with a centre param, e.g. <code>/app/hawker?centre=&lt;name|postal&gt;</code> (the same key the InfoWindow already uses: <code>name|postal</code>).</li>
+    <li>On load with that param the Hawker app pre-selects the centre's <b>region</b>, opens this detail view, and centres/zooms the map on its pin.</li>
+    <li>No new data — the detail view reads the same <code>centres</code> array the map already has, joined with the stall count + Bib lookups.</li>
+  </ul>
+
+  <h2><span class="n">5</span> Open questions for you</h2>
+  <div class="open-q">
+    <ul style="margin:0">
+      <li><b>Detail surface</b> — a focused <em>card</em> above the map (as mocked), or a full <em>screen</em> that replaces the list until you tap back?</li>
+      <li><b>"Eateries nearby"</b> — should it hand off to the Cuisine mini-app anchored at the centre, or stay in Hawker?</li>
+      <li><b>Pin tap parity</b> — should tapping a pin on the Hawker map also open this detail view (today it's just the small InfoWindow)?</li>
+      <li><b>Specialities source</b> — tags only (terse but curated), or also pull the centre's Bib stall cuisines as extra "known for" chips?</li>
+    </ul>
+  </div>
+
+  <div class="foot"><span>Soleat · Hawker mini-app rework — MVP mockup, nothing built</span><span>16 Jun 2026</span></div>
+</section>
+</body>
+</html>

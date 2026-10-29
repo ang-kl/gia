@@ -1,0 +1,48 @@
+{
+  "manifest_version": "1.1",
+  "document_date": "2026-10-29",
+  "status": "verified-object-identity; restore result recorded in doc/Journal [AMD-256]",
+  "repository": "ang-kl/gia",
+  "application_version": "0.62.948",
+  "source_commit": "bd9a310c835bfe2d91441d13eb33c37e1228e5c9",
+  "source_tree": "eb600b03c07c8b1967fbd004668f9cde3fff265b",
+  "prepared_at": "2026-10-29T08:58:06+08:00",
+  "destination": "vault/v0.62.948",
+  "spec": "doc/Feature/2026-10-29-docs-and-vault-v0-62-948.spec.md",
+  "inventory": {
+    "kind": "git-tree-reference",
+    "object_id_algorithm": "sha1",
+    "description": "Every tracked file of the source tree outside the exclusions, staged from the source commit's own blobs (git update-index --index-info), so each file keeps its object id and mode. Counted from Git, not estimated.",
+    "source_file_count": 2505,
+    "source_blob_bytes": 245383857,
+    "excluded_tracked_paths": "27,713 paths, all under vault/ (the 28 earlier snapshots); none elsewhere",
+    "full_exclusion_audit": "VAULT_VERIFY.mjs applies the exclusion rule to every source entry"
+  },
+  "archive_metadata": [
+    "VAULT_README.md",
+    "VAULT_MANIFEST.json",
+    "VAULT_VERIFY.mjs"
+  ],
+  "required_exclusions": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/vault/**",
+    "public/*/assets/**",
+    "**/.claude/settings.local.json",
+    "**/.env",
+    "**/.env.* except .env.example",
+    "**/*.log",
+    "**/tmp/**",
+    "migration_audit.log"
+  ],
+  "verify_command": "node vault/v0.62.948/VAULT_VERIFY.mjs",
+  "review_branch": "claude/handover-july-11-49uzvf",
+  "previous_snapshot": "vault/v0.62.937 (kept, rule V-1)",
+  "runtime_state_backed_up": false,
+  "production_deployment_authorised": false,
+  "limitations": [
+    "Git-object comparison and an isolated restore; no production credentials used and no bot started.",
+    "Gitlinks or LFS pointers, if present, do not include external payloads (none are present in this tree).",
+    "Not a backup of Railway variables, Redis data, Git history, dependencies or build output."
+  ]
+}
