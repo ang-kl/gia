@@ -799,6 +799,7 @@ import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { stationDisplay } from '../../../_shared/lib/station-display.js';
 import { placeSecondLine } from '../../../_shared/lib/sg-place-text.js';
+import { createPcnLayer, fetchPcn, parkMeta, parkVisible, mapBounds, PARK_FILL_OPACITY } from '../../../_shared/lib/pcn-layer.js';
 export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
 
 // v0.61.22 — popup colour palette.
@@ -1354,7 +1355,7 @@ export function createOverlayController(map, googleMaps, opts) {
     if (layers.exits) applyVisibility('exits');
     // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
     // label) — see amenityTier.
-    for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
+    for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark', 'pcn']) {
       if (layers[n]) applyVisibility(n);
     }
   });
@@ -1363,12 +1364,18 @@ export function createOverlayController(map, googleMaps, opts) {
   // which changes the Cuisine z12-14 zoom tier.
   map.addListener('idle', () => {
     if (layers.train && layers.train.visible) applyVisibility('train');
+    // v0.62.956 — parks and park connectors are drawn for the visible map (pcn-layer.js), so a pan re-culls them.
+    if (layers.parks && layers.parks.visible) applyVisibility('parks');
+    if (layers.pcn && layers.pcn.visible) applyVisibility('pcn');
   });
   // name -> { kind:'polygon'|'marker'|'line', items, visible, radius }
   //   marker items: { marker, lat, lng }
   //   line   items: { polyline, pts:[{lat,lng}] }
   const layers = Object.create(null);
   let destroyed = false;
+  // v0.62.956 — the panel's lock-chip listeners. Held here rather than on the Park Connector layer because the
+  // panel subscribes at mount, before the layer exists (it is built the first time 🌳 Park turns on).
+  const pcnListeners = new Set();
   // v0.62.886 — the reader's locale. Set through setLang() rather than opts
   // because all three call sites create the controller in a mount-once effect
   // with [] deps: anything passed at init would freeze at first render and the
@@ -1425,9 +1432,11 @@ export function createOverlayController(map, googleMaps, opts) {
         polygon: new Polygon({
           paths: rings,
           strokeColor: '#2E7D32', strokeOpacity: 0.6, strokeWeight: 1,
-          fillColor: '#4CAF50', fillOpacity: 0.22,
+          fillColor: '#4CAF50', fillOpacity: PARK_FILL_OPACITY,
           clickable: false
         }),
+        // v0.62.956 — area + box, for parkVisible (parks for the visible map, not 550 m of one corner).
+        meta: parkMeta(rings),
         lat, lng, labelMarker, _name: f.name || ''
       };
     });
@@ -1967,6 +1976,14 @@ export function createOverlayController(map, googleMaps, opts) {
       entry = { kind: 'train', visible: false,
         lines: buildTrain(lp.paths), stations: buildTrainStations(st.stations),
         highlights: [] };
+    } else if (name === 'pcn') {
+      // v0.62.956 — the Park Connector layer (web/_shared/lib/pcn-layer.js), fetched the first time 🌳 Park
+      // turns on. It reuses this controller's InfoWindow and infoCard, so its card looks and closes like the rest.
+      const d = await fetchPcn();
+      if (destroyed) return null;
+      const layer = createPcnLayer(map, googleMaps, d, { info, card: (h) => infoCard(h), lang: () => lang });
+      layer.onLockChange((n) => { for (const fn of pcnListeners) { try { fn(n); } catch { /* ignore */ } } });
+      entry = { kind: 'pcn', visible: false, layer };
     } else {
       const d = await fetchOverlays();
       if (destroyed) return null;
@@ -2180,9 +2197,12 @@ export function createOverlayController(map, googleMaps, opts) {
   function applyVisibility(name) {
     const e = layers[name];
     if (!e) return;
+    if (e.kind === 'pcn') { e.layer.setVisible(e.visible); return; }
     if (e.kind === 'polygon') {
-      // parks are radius-clipped to the anchor.
-      const r = currentRadius();
+      // v0.62.956 — parks are drawn for the VISIBLE map (pcn-layer.js parkVisible): every park meeting it from
+      // zoom 14, parks of 10 ha or more below. They were radius-clipped to the anchor by ONE point — the first
+      // corner of each boundary — so a large park whose boundary started far away vanished from inside it.
+      const bounds = mapBounds(map);
       // v0.61.97 — the 🌳 + name park label shows only at the z14+
       // tier; a label colliding with one already placed is hidden
       // (the green polygon still marks the park).
@@ -2190,7 +2210,7 @@ export function createOverlayController(map, googleMaps, opts) {
       const labelTier = e.visible && amenityTier(zoom) === 'label';
       const placedLabels = [];
       for (const it of e.items) {
-        const near = !Number.isFinite(it.lat) || inRadius(it.lat, it.lng, r);
+        const near = parkVisible(it.meta, zoom, bounds);
         it.polygon.setMap(e.visible && near ? map : null);
         if (it.labelMarker) {
           let show = labelTier && near && Number.isFinite(it.lat);
@@ -2499,6 +2519,11 @@ export function createOverlayController(map, googleMaps, opts) {
       // v0.61.26 — leaving station-detail un-scopes the Exits / Taxis
       // chips back to the anchor radius.
       if (name === 'train' && !visible) syncDetailAmenityLayers();
+      // v0.62.956 — I7: 🌳 Park drives the Park Connector layer; Park off also clears a locked loop (C8).
+      if (name === 'parks' && (visible || layers.pcn)) {
+        const pe = await ensureLayer('pcn');
+        if (pe && !destroyed) { pe.visible = visible; applyVisibility('pcn'); }
+      }
     },
     // Map viewport centre — re-clips every radius-filtered layer.
     setAnchor(lat, lng) {
@@ -2522,6 +2547,23 @@ export function createOverlayController(map, googleMaps, opts) {
     clearStationDetail() {
       if (detailStation) exitStationDetail();
     },
+    // v0.62.956 — the Park Connector lock, for the panel's Park ▾ list and lock chip (C8, C9).
+    pcnRoutes() {
+      const e = layers.pcn;
+      if (!e || !e.layer) return [];
+      const c = map.getCenter ? map.getCenter() : null;
+      return e.layer.routeNames(c ? { lat: c.lat(), lng: c.lng() } : null);
+    },
+    // A row tap: lock that route and fit the map to it, or unlock it if it is the one already locked.
+    pcnLock(name) {
+      const e = layers.pcn;
+      if (!e || !e.layer) return;
+      if (e.layer.locked() === name) { e.layer.unlock(); return; }
+      e.layer.lock(name);
+      if (e.layer.locked() === name) e.layer.fitRoute(name);
+    },
+    pcnUnlock() { if (layers.pcn && layers.pcn.layer) layers.pcn.layer.unlock(); },
+    onPcnLock(fn) { pcnListeners.add(fn); return () => pcnListeners.delete(fn); },
     destroy() {
       destroyed = true;
       detailStation = null;
@@ -2532,6 +2574,8 @@ export function createOverlayController(map, googleMaps, opts) {
         layers[name].visible = false;
         applyVisibility(name);
       }
+      if (layers.pcn && layers.pcn.layer) layers.pcn.layer.destroy();
+      pcnListeners.clear();
       if (colourOverlay) colourOverlay.setMap(null);
       info.close();
     }

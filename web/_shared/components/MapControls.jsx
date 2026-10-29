@@ -36,9 +36,13 @@ function pillClass() {
 
 export default function MapControls({
   layers = {}, onToggleLayer, rowToggles = [], menuToggles = [],
-  menuLabel = 'Layers', colourToggle = null, fill = false
+  menuLabel = 'Layers', colourToggle = null, fill = false, lockChip = null
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  // v0.62.956 — which menu row's ▾ list is open (the 🌳 Park row's Park Connector loops). A row opts in with a
+  // `submenu` field: { label, heading, items: () => [{ key, label, active }], onPick(key) }. `items` is a function so
+  // the list is read when it opens, nearest first from wherever the map is then (spec C9).
+  const [subOpen, setSubOpen] = useState(null);
   const wrapRef = useRef(null);
 
   // Close the dropdown on an outside tap or Escape.
@@ -109,16 +113,20 @@ export default function MapControls({
                 </div>
                 {menuToggles.map((it) => {
                   const on = !it.disabled && !!layers[it.key];
+                  const sub = it.submenu || null;
+                  const subShown = !!sub && subOpen === it.key;
+                  const subRows = subShown ? (sub.items() || []) : [];
                   return (
+                    <React.Fragment key={it.key}>
+                    <div className="flex items-stretch">
                     <button
-                      key={it.key}
                       type="button"
                       disabled={it.disabled}
                       onClick={() => fire(it)}
                       aria-pressed={on}
                       /* M3 Tier 0 — matches the dropdown wrapper's rounded-xl
                          (line ~103); was rounded-lg, an internal contradiction. */
-                      className={'flex items-center gap-1.5 px-2 py-1.5 rounded-xl '
+                      className={'flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-xl '
                         + 'text-[12px] text-left leading-none '
                         + (it.disabled
                           ? 'text-gray-400 cursor-default'
@@ -128,6 +136,35 @@ export default function MapControls({
                       {it.icon ? <span aria-hidden>{it.icon}</span> : null}
                       <span>{it.label}</span>
                     </button>
+                    {sub && (
+                      <button
+                        type="button"
+                        disabled={it.disabled}
+                        onClick={() => setSubOpen((k) => (k === it.key ? null : it.key))}
+                        aria-expanded={subShown}
+                        aria-label={sub.label}
+                        title={sub.label}
+                        className={'px-2 rounded-xl text-[12px] leading-none '
+                          + (it.disabled ? 'text-gray-400 cursor-default' : 'text-gray-700 hover:bg-gray-100')}
+                      ><span aria-hidden>▾</span></button>
+                    )}
+                    </div>
+                    {subShown && (
+                      <div className="flex flex-col pl-6 pb-1" role="group" aria-label={sub.heading}>
+                        {subRows.map((r) => (
+                          <button
+                            key={r.key}
+                            type="button"
+                            disabled={!on}
+                            onClick={() => sub.onPick(r.key)}
+                            aria-pressed={!!r.active}
+                            className={'text-left px-2 py-1 rounded-lg text-[11px] leading-tight '
+                              + (on ? 'text-gray-900 hover:bg-gray-100' : 'text-gray-400 cursor-default')}
+                          >{r.label}{r.active ? ' 🔒' : ''}</button>
+                        ))}
+                      </div>
+                    )}
+                    </React.Fragment>
                   );
                 })}
               </div>
@@ -171,6 +208,14 @@ export default function MapControls({
             <span aria-hidden>{it.icon}</span>{it.label}
           </button>
         ))}
+        {/* v0.62.956 — the locked Park Connector loop (spec C8): its name, and a ✕ that unlocks it. */}
+        {lockChip && (
+          <span className={pillClass()} style={giaToggleStyle(true)}>
+            <span>{lockChip.label}</span>
+            <button type="button" onClick={lockChip.onClear} aria-label={lockChip.ariaLabel}
+              title={lockChip.ariaLabel} className="ml-0.5 px-0.5 leading-none">✕</button>
+          </span>
+        )}
         </div>
       </div>
     </div>

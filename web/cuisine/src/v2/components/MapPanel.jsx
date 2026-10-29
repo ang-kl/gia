@@ -6,6 +6,7 @@ import { stationName } from '../../../../_shared/lib/mrt-stations-i18n.generated
 import { cachedPronunciation, streetOf, fetchPronunciations } from '../../../../_shared/lib/pronounce-client.js';
 import { initData } from '../../api/tg.js';
 import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
+import { pt } from '../../../../_shared/lib/pcn-i18n.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../../_shared/components/MapControls.jsx';
 import { mapsLanguageParam } from '../../../../_shared/lib/gmaps-language.js';
@@ -217,6 +218,8 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
   // v0.58.54: tablet-form-factor detection drives the map-height bump.
   // Re-evaluated on resize so rotating an iPad updates the layout.
   const [isTablet, setIsTablet] = useState(false);
+  // v0.62.956 — the locked Park Connector loop, pushed from the overlay controller for the lock chip (C8).
+  const [pcnLocked, setPcnLocked] = useState(null);
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
   const [expanded, setExpanded] = useState(false);
   // v0.62.691 — operator: "the ⇱ (U+21F1) and ⇲ (U+21F2) is missing in Cuisine
@@ -422,6 +425,7 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
     // so the carpark layer can pick LTA (SG) vs Places (JB/MY-PUT).
     // MapPanel keeps the controller in sync via setRegionMode below.
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'cuisine', regionMode: region || 'SG' });
+    overlayControllerRef.current.onPcnLock(setPcnLocked);
     // v0.62.537 — ring layer bound to this map; syncMarkers drives draw/clear.
     ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
@@ -1150,11 +1154,24 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
     // dataset; radius-clipped client-side so only nearby centres show).
     { key: 'hawker',      icon: '🍚', label: tr('layer.hawker', lang), disabled: isNonSg || isOther }
   ];
+  // v0.62.956 — 🌳 Park ▾: the Park Connector loops, nearest first (spec C9); a row locks that loop and fits
+  // the map to it. Empty until Park has been on once, because the layer is fetched then.
+  const pcnSubmenu = {
+    label: pt('showLoops', lang),
+    heading: pt('heading', lang),
+    items: () => (overlayControllerRef.current?.pcnRoutes?.() || [])
+      .map((n) => ({ key: n, label: n, active: n === pcnLocked })),
+    onPick: (n) => overlayControllerRef.current?.pcnLock?.(n)
+  };
+  const pcnChip = pcnLocked
+    ? { label: '🔒 ' + pcnLocked, ariaLabel: pt('unlockAria', lang),
+        onClear: () => overlayControllerRef.current?.pcnUnlock?.() }
+    : null;
   const menuToggles = [
     { key: 'exits',       icon: '',   label: tr('layer.exits', lang), disabled: isNonSg || isOther },
     { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang), disabled: isNonSg || isOther },
     { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang), disabled: isNonSg || isOther },
-    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang), disabled: isNonSg || isOther },
+    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang), disabled: isNonSg || isOther, submenu: pcnSubmenu },
     { key: 'police',  icon: '👮', label: tr('layer.police', lang), disabled: isNonSg || isOther },
     { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang), disabled: isNonSg || isOther },
     { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang), disabled: isNonSg || isOther }
@@ -1293,6 +1310,7 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
         })}
         rowToggles={rowToggles}
         menuToggles={menuToggles}
+        lockChip={pcnChip}
         menuLabel={tr('map.more', lang)}
         colourToggle={{
           on: overlayLayers?.colour !== false,

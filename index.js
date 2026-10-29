@@ -19388,6 +19388,23 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.956 — the Park Connector layer (data/geo-pcn.json, built by scripts/build-pcn.js from NParks' Park
+    // Connector Loop + URA's Master Plan 2025 park connector lines). Its own route, NOT a key in /api/geo/overlays:
+    // at ~345 KB it would otherwise ride every map open, and a map only asks for it the first time 🌳 Park is on.
+    let geoPcnCache;
+    app.get('/api/geo/pcn', (_req, res) => {
+      try {
+        if (geoPcnCache === undefined) {
+          geoPcnCache = JSON.parse(
+            require('fs').readFileSync(__dirname + '/data/geo-pcn.json', 'utf8')
+          );
+        }
+        res.json(geoPcnCache);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.63.0 — live carpark overlay layer for the TMA maps. Proxies the
     // LTA DataMall Carpark Availability feed (via carpark.js), Redis-
     // cached 60 s. Needs LTA_ACCOUNT_KEY; when unset the endpoint just

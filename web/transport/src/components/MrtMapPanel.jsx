@@ -47,6 +47,7 @@ import MapControls from '../../../_shared/components/MapControls.jsx';
 // it pairs with was already here as mapOverlays' private `fetchHawkerCentres`, so
 // the shared loader is used instead of exporting that.
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
+import { pt } from '../../../_shared/lib/pcn-i18n.js';
 import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interaction.js';
 // v0.62.814 — O-320. Official gov.sg station names in the reader's language.
@@ -186,6 +187,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // must be told to reflow (else it renders at the stale size); trigger a resize
   // and recenter so the view doesn't drift.
   const [expanded, setExpanded] = useState(false);
+  // v0.62.956 — the locked Park Connector loop, pushed from the overlay controller for the lock chip (C8).
+  const [pcnLocked, setPcnLocked] = useState(null);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !window.google?.maps?.event) return undefined;
@@ -447,6 +450,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // themed infoCard (with its own in-card ✕) is the whole popup.
     infoWindowRef.current = new window.google.maps.InfoWindow({ headerDisabled: true });
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'transport' });
+    overlayControllerRef.current.onPcnLock(setPcnLocked);
     // v0.61.95 — operator part 5: the coloured SVG train-line overlay,
     // shown in monochrome mode so the lines don't grey out with the
     // WebGL base-map canvas.
@@ -953,11 +957,24 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // OFF by default in the Train TMA (see App overlayLayers default).
     { key: 'hawker',      icon: '🍚', label: t('layer.hawker', lang) }
   ];
+  // v0.62.956 — 🌳 Park ▾: the Park Connector loops, nearest first (spec C9); a row locks that loop and fits
+  // the map to it. Empty until Park has been on once, because the layer is fetched then.
+  const pcnSubmenu = {
+    label: pt('showLoops', lang),
+    heading: pt('heading', lang),
+    items: () => (overlayControllerRef.current?.pcnRoutes?.() || [])
+      .map((n) => ({ key: n, label: n, active: n === pcnLocked })),
+    onPick: (n) => overlayControllerRef.current?.pcnLock?.(n)
+  };
+  const pcnChip = pcnLocked
+    ? { label: '🔒 ' + pcnLocked, ariaLabel: pt('unlockAria', lang),
+        onClear: () => overlayControllerRef.current?.pcnUnlock?.() }
+    : null;
   const menuToggles = [
     { key: 'exits',       icon: '',   label: t('layer.exits', lang) },
     { key: 'taxis',       icon: '🚕', label: t('layer.taxis', lang) },
     { key: 'attractions', icon: '⚝', label: t('layer.attractions', lang) },
-    { key: 'parks',       icon: '🌳', label: t('layer.parks', lang) },
+    { key: 'parks',       icon: '🌳', label: t('layer.parks', lang), submenu: pcnSubmenu },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
     { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) }
@@ -1053,6 +1070,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         })}
         rowToggles={rowToggles}
         menuToggles={menuToggles}
+        lockChip={pcnChip}
         menuLabel={t('map.more', lang)}
         colourToggle={{
           on: overlayLayers?.colour !== false,

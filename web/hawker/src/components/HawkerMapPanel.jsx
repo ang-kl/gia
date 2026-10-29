@@ -31,6 +31,7 @@ import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { activeClosure, nextClosure, closureTill, closureFrom, closureKey, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
+import { pt } from '../../../_shared/lib/pcn-i18n.js';
 import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../_shared/components/MapControls.jsx';
@@ -162,6 +163,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const overlayLayersRef = useRef(overlayLayers);
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const [isTablet, setIsTablet] = useState(false);
+  // v0.62.956 — the locked Park Connector loop, pushed from the overlay controller for the lock chip (C8).
+  const [pcnLocked, setPcnLocked] = useState(null);
   // v0.62.689 — the inspection globals are registered once (deps []), so they
   // must read the live breakpoint from a ref, not the captured state value.
   const isTabletRef = useRef(false);
@@ -399,6 +402,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     });
     setMapsKeyState('ready');
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'hawker' });
+    overlayControllerRef.current.onPcnLock(setPcnLocked);
     // v0.62.537 — ring layer bound to this map; a hawker pin tap draws, tap-out clears.
     ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
     // v0.62.689 — the temporary station pin + its nearest-3 centre pills.
@@ -693,11 +697,24 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     { key: 'carpark',     icon: '🅿️', label: t('layer.carpark', lang) },
     { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang) }
   ];
+  // v0.62.956 — 🌳 Park ▾: the Park Connector loops, nearest first (spec C9); a row locks that loop and fits
+  // the map to it. Empty until Park has been on once, because the layer is fetched then.
+  const pcnSubmenu = {
+    label: pt('showLoops', lang),
+    heading: pt('heading', lang),
+    items: () => (overlayControllerRef.current?.pcnRoutes?.() || [])
+      .map((n) => ({ key: n, label: n, active: n === pcnLocked })),
+    onPick: (n) => overlayControllerRef.current?.pcnLock?.(n)
+  };
+  const pcnChip = pcnLocked
+    ? { label: '🔒 ' + pcnLocked, ariaLabel: pt('unlockAria', lang),
+        onClear: () => overlayControllerRef.current?.pcnUnlock?.() }
+    : null;
   const menuToggles = [
     { key: 'exits',       icon: '',   label: t('layer.exits', lang) },
     { key: 'taxis',       icon: '🚕', label: t('layer.taxis', lang) },
     { key: 'attractions', icon: '⚝', label: t('layer.attractions', lang) },
-    { key: 'parks',       icon: '🌳', label: t('layer.parks', lang) },
+    { key: 'parks',       icon: '🌳', label: t('layer.parks', lang), submenu: pcnSubmenu },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
     { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) }
@@ -790,6 +807,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         })}
         rowToggles={rowToggles}
         menuToggles={menuToggles}
+        lockChip={pcnChip}
         menuLabel={t('map.more', lang)}
         colourToggle={{
           on: overlayLayers?.colour !== false,
