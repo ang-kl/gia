@@ -19755,6 +19755,40 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md). Heat stress, lightning,
+    // PUB flood alerts, air and UV for a point, plus the dot colour and warnings the three Mini Apps render. The five
+    // feeds are cached island-wide inside outside-now.js, so this route costs no upstream call per user. `parking=1`
+    // (Cuisine only) adds the two nearest car carparks within 300 m, read through the same `geo:carpark` cache the
+    // 🅿️ map layer uses.
+    app.get('/api/weather/outside', async (req, res) => {
+      try {
+        const lat = Number(req.query.lat);
+        const lng = Number(req.query.lng);
+        const hasCoords = Number.isFinite(lat) && Number.isFinite(lng)
+          && !(Math.abs(lat) < 0.001 && Math.abs(lng) < 0.001);
+        const getCarparks = async () => {
+          if (!process.env.LTA_ACCOUNT_KEY) return null;
+          if (redis.isOpen) {
+            const cached = await redis.get('geo:carpark').catch(() => null);
+            if (cached) return JSON.parse(cached).carparks;
+          }
+          const carparks = await require('./carpark').allPoints();
+          if (redis.isOpen) redis.set('geo:carpark', JSON.stringify({ carparks }), { EX: 60 }).catch(() => {});
+          return carparks;
+        };
+        const out = await require('./outside-now').forLocation({
+          lat: hasCoords ? lat : undefined,
+          lng: hasCoords ? lng : undefined,
+          parking: req.query.parking === '1',
+          getCarparks,
+        });
+        res.json(out);
+      } catch (err) {
+        console.error('[Error] /api/weather/outside failed:', err.message);
+        res.json({ ok: false });
+      }
+    });
+
     // v0.34.2: reverse-geocode endpoint. Turns raw lat/lng into a
     // human-readable neighbourhood/place name for the TMA Header so the
     // user sees "📍 Telok Blangah" instead of "📍 1.2722, 103.8112".

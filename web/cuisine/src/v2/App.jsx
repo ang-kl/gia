@@ -50,6 +50,10 @@ import ResultDrawer from './components/ResultDrawer.jsx';
 import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
+import OutsideNowStrip from '../../../_shared/components/OutsideNowStrip.jsx';
+import OutsideNowSheet from '../../../_shared/components/OutsideNowSheet.jsx';
+import useOutsideNow from '../../../_shared/lib/use-outside-now.js';
+import { ot } from '../../../_shared/lib/outside-now-i18n.js';
 import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
 import { streetOf } from '../../../_shared/lib/pronounce-client.js';
@@ -939,6 +943,16 @@ export default function App() {
   // /cuisine command can deep-link the recipient back to the same
   // anchor.
   const [locationAnchor, setLocationAnchor] = useState(initialOverrides?.location || null);
+  // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md): the chip's dot, the
+  // sheet it opens, and the warning strip in the header. Same point the weather chip already follows (anchor →
+  // search centre → device); Cuisine alone asks for the parking row. Outside Singapore the route answers
+  // inSg:false, so there is no dot, no strip and no sheet.
+  const outsideLat = (locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null;
+  const outsideLng = (locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null;
+  const outside = useOutsideNow({ lat: outsideLat, lng: outsideLng, parking: true });
+  const [outsideOpen, setOutsideOpen] = useState(false);
+  const openOutside = useCallback(() => setOutsideOpen(true), []);
+  const closeOutside = useCallback(() => setOutsideOpen(false), []);
   // v0.62.32 — Arrival Plate: the curated what-to-try card for the
   // anchored city, supplied by the server alongside the saved location.
   const [arrivalPlate, setArrivalPlate] = useState(null);
@@ -4258,6 +4272,9 @@ export default function App() {
                 v0.61.380 — pass the active location (anchor → search centre →
                 device) so the weather follows where you are, not always SG. */}
             <WeatherBadge
+              dot={outside?.dot}
+              onClick={outside?.inSg ? openOutside : null}
+              ariaLabel={ot('title', lang)}
               className="text-[11px] text-tg-hint"
               lat={(locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null}
               lng={(locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null}
@@ -4744,7 +4761,9 @@ export default function App() {
             ℹ️ {t('app.noNewlyOpened', lang)}
           </div>
         )}
+        <OutsideNowStrip data={outside} app="cuisine" lang={lang} onOpen={openOutside} className="-mx-1" />
       </header>
+      <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} app="cuisine" lang={lang} />
 
       {/* v0.62.x — the Search Insights strip moved OUT of here (was a full-bleed
           white band under the header that ate a row). It now renders as a slim,

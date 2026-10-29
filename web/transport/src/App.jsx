@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { LINES, LINES_BY_CODE } from './data/lines.js';
@@ -21,6 +21,11 @@ import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
+import OutsideNowStrip from '../../_shared/components/OutsideNowStrip.jsx';
+import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
+import useOutsideNow from '../../_shared/lib/use-outside-now.js';
+import { startLocationSync } from '../../_shared/lib/location-sync.js';
+import { ot } from '../../_shared/lib/outside-now-i18n.js';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import StationLocationField from '../../_shared/components/StationLocationField.jsx';
@@ -230,6 +235,16 @@ function Modal({ title, onClose, children }) {
 //   6. EngineeringList (next 7 days from data/mrt-engineering-closures.md)
 export default function App() {
   const lang = useLocale();
+  // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md): the chip's dot, the
+  // sheet it opens, and the warning strip under the header. The point is the device fix, read the same one-shot
+  // way StationLocationField already reads it (the origin's permission covers both); without one the route falls
+  // back to the Singapore centroid and the sheet says "Singapore".
+  const [outsideLoc, setOutsideLoc] = useState(null);
+  useEffect(() => startLocationSync({ durationMs: 0, onLocation: (l) => setOutsideLoc({ lat: l.lat, lng: l.lng }) }), []);
+  const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
+  const [outsideOpen, setOutsideOpen] = useState(false);
+  const openOutside = useCallback(() => setOutsideOpen(true), []);
+  const closeOutside = useCallback(() => setOutsideOpen(false), []);
   // v0.62.602 — which header popup is open: 'status' (service + engineering
   // closures, opened from the status chip / auto-shown once on first load) or
   // 'source' (data-source attribution, opened from the title). null = none.
@@ -538,7 +553,7 @@ export default function App() {
         {/* v0.62.603 — Cuisine-standard flush-right cluster: language, temp, refresh. */}
         <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
-          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -606,6 +621,7 @@ export default function App() {
         }}
         statusByLine={statusByLine}
       />
+      <OutsideNowStrip data={outside} app="train" lang={lang} onOpen={openOutside} className="-mx-1" />
     </header>
   );
 
@@ -744,6 +760,7 @@ export default function App() {
   // layout; rendered once alongside the footer bar in each return below.
   const popups = (
     <>
+      <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} app="train" lang={lang} />
       {popup === 'pickline' && (
         <Modal title={t('pickline.title', lang)} onClose={() => { setPopup(null); setBlinkCode(null); }}>
           <div className="text-xs text-tg-hint">{t('pickline.body', lang)}</div>
