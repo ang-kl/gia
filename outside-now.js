@@ -151,22 +151,39 @@ function airRow(psiFeed, pm25Feed, here) {
   return { status: 'ok', level: psiLevel(v), psi: v, pm25: Number.isFinite(pm) ? pm : null, region, at: item.timestamp };
 }
 
+// LTA's carpark names arrive in capitals ("AMOY ST OFF ST"). Title-case them, keeping the abbreviations people read
+// as letters.
+const KEEP_UPPER = new Set(['HDB', 'MSCP', 'URA', 'LTA', 'CBD', 'MRT', 'LRT', 'JTC', 'NEA', 'SAF', 'NUS', 'NTU', 'SMU', 'SGH', 'SCDF', 'ITE']);
+function titleCase(s) {
+  return String(s || '').toLowerCase().replace(/[a-z0-9][^\s/()-]*/g, (w) => {
+    if (KEEP_UPPER.has(w.toUpperCase())) return w.toUpperCase();
+    if (/\d/.test(w)) return w.toUpperCase();
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  });
+}
+
 function uvRow(feed, now) {
   const idx = feed.data.records[0].index
     .map((h) => ({ at: h.hour, t: Date.parse(h.hour), v: Number(h.value) }))
     .filter((h) => Number.isFinite(h.t) && Number.isFinite(h.v) && h.t <= now)
     .sort((a, b) => b.t - a.t)[0];
   if (!idx) throw new Error('no UV hour');
-  const hour = sgtHour(idx.at);
+  // The window is about NOW, not about the reading: a 15:00 reading of 9 must not still warn at 16:05 because no
+  // newer hour has arrived (Codex P2 on #1895). The reading's own time stays on the row for display.
+  const hour = sgtHour(new Date(now).toISOString());
   const inWindow = hour !== null && hour >= UV_WINDOW_HOURS[0] && hour <= UV_WINDOW_HOURS[1];
-  return { status: 'ok', level: uvLevel(idx.v), index: idx.v, warn: idx.v >= UV_WARN_AT && inWindow, at: idx.at };
+  // Amendment 1 (operator, 29-10 '26): UV 0 after dark is a true reading — the sun has set — so it is flagged as night
+  // and the sheet says so, rather than printing a bare 0 that reads like a fault.
+  const night = idx.v === 0 && hour !== null && (hour >= 19 || hour < 7);
+  return { status: 'ok', level: uvLevel(idx.v), index: idx.v, warn: idx.v >= UV_WARN_AT && inWindow, night, indoors: false, at: idx.at };
 }
 
 function parkingRow(carparks, here) {
   if (!Array.isArray(carparks)) return null;
   const list = carparks
-    .filter((c) => (c.lotType || 'C') === 'C' && Number.isFinite(c.availableLots) && Number.isFinite(c.lat) && Number.isFinite(c.lng))
-    .map((c) => ({ name: c.name, lots: c.availableLots, m: Math.round(km(here, c) * 1000) }))
+    // A full carpark (0 lots) is not a place to park; Amendment 1 drops it rather than listing "0 lots".
+    .filter((c) => (c.lotType || 'C') === 'C' && Number.isFinite(c.availableLots) && c.availableLots > 0 && Number.isFinite(c.lat) && Number.isFinite(c.lng))
+    .map((c) => ({ name: titleCase(c.name), lots: c.availableLots, m: Math.round(km(here, c) * 1000) }))
     .filter((c) => c.m <= PARKING_M)
     .sort((a, b) => a.m - b.m)
     .slice(0, PARKING_COUNT);
@@ -193,7 +210,7 @@ function compute(feeds, opts = {}) {
     lightning: need(feeds.lightning, () => lightningRow(feeds.lightning, here, now)),
     flood: need(feeds.flood, () => floodRow(feeds.flood, here)),
     air: need(feeds.psi, () => airRow(feeds.psi, isFeed(feeds.pm25) ? feeds.pm25 : null, here)),
-    uv: need(feeds.uv, () => uvRow(feeds.uv, now)),
+    uv: need(feeds.uv, () => ({ ...uvRow(feeds.uv, now), indoors: !!(hasCoords && opts.inBuilding) })),
     parking: parkingRow(opts.parking, here),
   };
   const ok = (r) => r && r.status === 'ok';
@@ -248,13 +265,20 @@ function createFeedCache({ fetchJson: fetcher = fetchJson, now = Date.now, ttlMs
 
 const defaultCache = createFeedCache();
 
-async function forLocation({ lat, lng, now, parking = false, getCarparks = null, feedCache = defaultCache } = {}) {
+// Amendment 1: a set location inside one of the large building footprints in data/buildings.json reads as "Indoors" on
+// the UV row. The footprints are a SUBSET of Singapore's buildings, so a miss does not mean "outdoors".
+function defaultBuildingAt(lat, lng) {
+  try { return require('./buildings').buildingAt(lat, lng); } catch { return null; }
+}
+
+async function forLocation({ lat, lng, now, parking = false, getCarparks = null, feedCache = defaultCache, buildingAt = defaultBuildingAt } = {}) {
   const feeds = await feedCache.all();
   let carparks = null;
   if (parking && typeof getCarparks === 'function') {
     try { carparks = await getCarparks(); } catch { carparks = null; }
   }
-  return compute(feeds, { lat, lng, now: Number.isFinite(now) ? now : Date.now(), parking: carparks });
+  const inBuilding = Number.isFinite(lat) && Number.isFinite(lng) ? !!buildingAt(lat, lng) : false;
+  return compute(feeds, { lat, lng, now: Number.isFinite(now) ? now : Date.now(), parking: carparks, inBuilding });
 }
 
-module.exports = { FEEDS, FEED_NAMES, PRIORITY, compute, createFeedCache, forLocation, psiLevel, uvLevel };
+module.exports = { FEEDS, FEED_NAMES, PRIORITY, compute, createFeedCache, forLocation, psiLevel, uvLevel, titleCase };

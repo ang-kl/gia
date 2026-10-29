@@ -103,6 +103,15 @@ describe('I1 — levels and thresholds (C2, C4)', () => {
     expect(late.rows.uv).toMatchObject({ index: 8, level: 'veryHigh' });
   });
 
+  it('UV: the 11:00-15:00 window is judged by the current time, not the reading\'s hour (Codex P2 on #1895)', () => {
+    const at1605 = Date.parse(at('16:05'));
+    const stale = on.compute({ ...calm(), uv: uv([{ hour: at('15:00'), value: 9 }], at('15:00')) }, { ...HERE, now: at1605 });
+    expect(stale.warnings).toEqual([]);
+    expect(stale.rows.uv).toMatchObject({ index: 9, at: at('15:00'), warn: false });
+    const early = on.compute({ ...calm(), uv: uv([{ hour: at('10:00'), value: 8 }], at('10:00')) }, { ...HERE, now: Date.parse(at('11:10')) });
+    expect(early.warnings).toEqual(['uv']);
+  });
+
   it('UV reads the latest hour at or before now, not the first entry', () => {
     const r = run({ uv: uv([{ hour: at('14:00'), value: 11 }, { hour: at('13:00'), value: 9 }, { hour: at('12:00'), value: 4 }]) });
     expect(r.rows.uv).toMatchObject({ index: 9, at: at('13:00') });
@@ -196,5 +205,33 @@ describe('C6 — parking (Cuisine only): two nearest car carparks within 300 m, 
   it('no carpark within 300 m, or no parking asked for: no row', () => {
     expect(run({}, { parking: [cp('Far', 400, 50)] }).rows.parking).toBeNull();
     expect(run().rows.parking).toBeNull();
+  });
+});
+
+describe('Amendment 1 (operator, 29-10 \'26 19:27: "APPROVE for items 1 to 5") — server side', () => {
+  const cp = (name, m, lots, lotType = 'C') => ({ name, lat: HERE.lat + m / 111195, lng: HERE.lng, availableLots: lots, lotType });
+  it('a full carpark (0 lots) is not listed, and LTA\'s ALL-CAPS names are title-cased', () => {
+    const r = run({}, { parking: [cp('AMOY ST OFF ST', 76, 0), cp('TELOK AYER ST OFF ST', 120, 112), cp('HDB BLK 5 MSCP', 200, 40)] });
+    expect(r.rows.parking.carparks).toEqual([{ name: 'Telok Ayer St Off St', lots: 112, m: 120 }, { name: 'HDB Blk 5 MSCP', lots: 40, m: 200 }]);
+  });
+  it('UV 0 after sunset is flagged as night, not shown as a reading', () => {
+    const night = on.compute({ ...calm(), uv: uv([{ hour: at('19:00'), value: 0 }], at('19:00')) }, { ...HERE, now: Date.parse(at('19:30')) });
+    expect(night.rows.uv).toMatchObject({ index: 0, night: true });
+    expect(run().rows.uv.night).toBe(false);
+  });
+  it('a set location inside a large building footprint marks UV as indoors', async () => {
+    const fx = calm();
+    const cache = on.createFeedCache({ fetchJson: async (path) => fx[on.FEED_NAMES[path]], now: () => NOW });
+    const inside = await on.forLocation({ ...HERE, feedCache: cache, now: NOW, buildingAt: () => ({ sqm: 5000 }) });
+    expect(inside.rows.uv.indoors).toBe(true);
+    const outside = await on.forLocation({ ...HERE, feedCache: cache, now: NOW, buildingAt: () => null });
+    expect(outside.rows.uv.indoors).toBe(false);
+    // The Singapore centroid is not a place anyone is standing in.
+    const centroid = await on.forLocation({ feedCache: cache, now: NOW, buildingAt: () => ({ sqm: 5000 }) });
+    expect(centroid.rows.uv.indoors).toBe(false);
+  });
+  it('compute itself refuses "indoors" without coordinates, whatever the caller passes', () => {
+    expect(on.compute(calm(), { now: NOW, inBuilding: true }).rows.uv.indoors).toBe(false);
+    expect(on.compute(calm(), { ...HERE, now: NOW, inBuilding: true }).rows.uv.indoors).toBe(true);
   });
 });

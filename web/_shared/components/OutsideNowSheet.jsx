@@ -1,11 +1,16 @@
 import React, { useEffect } from 'react';
-import { ot, sheetRows, levelKey, rowTone, ROW_SOURCE, hhmm } from '../lib/outside-now-i18n.js';
+import { ot, sheetRows, levelKey, rowTone, rowText } from '../lib/outside-now-i18n.js';
 
 // OutsideNowSheet.jsx — v0.62.952. Layout B of the "Outside now" spec
 // (doc/Feature/2026-10-29-outside-now-alerts.spec.md): the sheet the weather chip opens. One row per feed — heat
 // stress, lightning, flood alerts, air, UV — each with its level, its detail, NEA or PUB, and the reading time.
 // Cuisine adds the parking row, which names no agency (operator, 29-10 '26). A modal overlay rather than the shared
 // BottomSheet, which is the persistent results drawer in these apps.
+//
+// v0.62.953 — Amendment 1 (operator, 29-10 '26: "APPROVE for items 1 to 5"): each row LEADS with the finding ("No
+// flood near you") and line 2 names the row and its source ("Flood alert · PUB 19:11"); parking is one row per
+// carpark; and on a wide window (Telegram Desktop) the sheet is capped at 480 px and centred instead of stretching
+// edge to edge, which left every level pill stranded at the far right.
 
 const TONE = {
   red: { bg: '#fde8e8', fg: '#c63b3b' },
@@ -14,18 +19,19 @@ const TONE = {
   muted: { bg: 'rgba(127,127,127,.15)', fg: 'inherit' },
 };
 const ICON = { heat: '🌡️', lightning: '⚡', flood: '🌊', air: '🌫️', uv: '☀️', parking: '🅿️' };
+const WIDE_PX = 600;
 
-function detail(name, row, lang) {
-  if (!row || row.status !== 'ok') return '';
-  if (name === 'heat') return `WBGT ${row.wbgt} °C${row.station ? ` · ${row.station}` : ''}`;
-  if (name === 'lightning') return row.count ? ot('d.lightningNear', lang, { n: row.count, km: row.nearestKm }) : ot('d.lightningNone', lang);
-  if (name === 'flood') {
-    if (!row.alerts.length) return ot('d.floodNone', lang);
-    return row.alerts.map((a) => (a.km == null ? a.text : `${a.text} (${a.km} km)`)).join(' · ');
-  }
-  if (name === 'air') return `PSI ${row.psi}${row.pm25 != null ? ` · PM2.5 ${row.pm25}` : ''}`;
-  if (name === 'uv') return `UV ${row.index}`;
-  return '';
+function Row({ icon, title, line2, pill }) {
+  return (
+    <div data-row={icon.name} style={{ display: 'grid', gridTemplateColumns: '24px 1fr auto', gap: 8, alignItems: 'center', padding: '7px 0', borderTop: '1px solid rgba(127,127,127,.18)' }}>
+      <span aria-hidden="true">{icon.glyph}</span>
+      <span style={{ minWidth: 0 }}>
+        <b style={{ fontWeight: 600, display: 'block' }}>{title}</b>
+        <span style={{ display: 'block', fontSize: 11.5, opacity: 0.75 }}>{line2}</span>
+      </span>
+      {pill || <span />}
+    </div>
+  );
 }
 
 export default function OutsideNowSheet({ open, onClose, data, app = 'default', lang = 'en' }) {
@@ -37,7 +43,26 @@ export default function OutsideNowSheet({ open, onClose, data, app = 'default', 
   }, [open, onClose]);
   if (!open || !data || !data.inSg || !data.rows) return null;
   const place = data.place?.isDefault ? ot('singapore', lang) : ot('nearYou', lang);
-  const rows = sheetRows(app).filter((name) => name !== 'parking' || data.rows.parking);
+  const wide = typeof window !== 'undefined' && window.innerWidth >= WIDE_PX;
+  const rows = [];
+  for (const name of sheetRows(app)) {
+    if (name === 'parking') {
+      for (const c of (data.rows.parking?.carparks || [])) {
+        const tx = rowText('parking', c, lang);
+        rows.push(<Row key={`p-${c.name}`} icon={{ name: 'parking', glyph: ICON.parking }} title={tx.title} line2={tx.line2} />);
+      }
+      continue;
+    }
+    const row = data.rows[name];
+    const tx = rowText(name, row, lang);
+    const tone = TONE[rowTone(row, name)];
+    const pill = (
+      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: tone.bg, color: tone.fg, whiteSpace: 'nowrap' }}>
+        {ot(levelKey(row, name), lang)}
+      </span>
+    );
+    rows.push(<Row key={name} icon={{ name, glyph: ICON[name] }} title={tx.title} line2={tx.line2} pill={pill} />);
+  }
   return (
     <div data-outside-sheet style={{ position: 'fixed', inset: 0, zIndex: 1000 }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.32)' }} />
@@ -46,9 +71,10 @@ export default function OutsideNowSheet({ open, onClose, data, app = 'default', 
         aria-modal="true"
         aria-label={ot('title', lang)}
         style={{
-          position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '80vh', overflowY: 'auto',
+          position: 'absolute', left: 0, right: 0, bottom: wide ? 16 : 0, maxWidth: 480, margin: '0 auto',
+          maxHeight: '80vh', overflowY: 'auto',
           background: 'var(--tg-bg, var(--tg-theme-bg-color, #fff))', color: 'var(--tg-text, var(--tg-theme-text-color, #111))',
-          borderRadius: '18px 18px 0 0', boxShadow: '0 -6px 20px rgba(0,0,0,.18)',
+          borderRadius: wide ? 18 : '18px 18px 0 0', boxShadow: '0 -6px 20px rgba(0,0,0,.18)',
           padding: '10px 16px calc(14px + env(safe-area-inset-bottom, 0px))', fontSize: 13,
         }}
       >
@@ -56,38 +82,7 @@ export default function OutsideNowSheet({ open, onClose, data, app = 'default', 
           <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, flex: 1 }}>{ot('title', lang)} · {place}</h3>
           <button type="button" onClick={onClose} aria-label={ot('ui.close', lang)} style={{ all: 'unset', cursor: 'pointer', fontSize: 16, padding: 4 }}>✕</button>
         </div>
-        {rows.map((name) => {
-          const row = data.rows[name];
-          if (name === 'parking') {
-            return (
-              <div key={name} data-row={name} style={{ display: 'grid', gridTemplateColumns: '24px 1fr', gap: 6, padding: '7px 0', borderTop: '1px solid rgba(127,127,127,.18)' }}>
-                <span aria-hidden="true">{ICON.parking}</span>
-                <span>
-                  <b style={{ fontWeight: 600 }}>{ot('row.parking', lang)}</b>
-                  {row.carparks.map((c) => (
-                    <span key={c.name} style={{ display: 'block', fontSize: 12, opacity: 0.85 }}>{c.name} · {ot('d.lots', lang, { lots: c.lots, m: c.m })}</span>
-                  ))}
-                </span>
-              </div>
-            );
-          }
-          const tone = TONE[rowTone(row, name)];
-          const at = row && row.status === 'ok' ? hhmm(row.at) : '';
-          return (
-            <div key={name} data-row={name} style={{ display: 'grid', gridTemplateColumns: '24px 1fr auto', gap: 6, alignItems: 'center', padding: '7px 0', borderTop: '1px solid rgba(127,127,127,.18)' }}>
-              <span aria-hidden="true">{ICON[name]}</span>
-              <span style={{ minWidth: 0 }}>
-                <b style={{ fontWeight: 600 }}>{ot(`row.${name}`, lang)}</b>
-                <span style={{ display: 'block', fontSize: 11.5, opacity: 0.75 }}>
-                  {detail(name, row, lang)}{at ? `${detail(name, row, lang) ? ' · ' : ''}${ROW_SOURCE[name]} ${at}` : ''}
-                </span>
-              </span>
-              <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: tone.bg, color: tone.fg, whiteSpace: 'nowrap' }}>
-                {ot(levelKey(row, name), lang)}
-              </span>
-            </div>
-          );
-        })}
+        {rows}
       </div>
     </div>
   );
