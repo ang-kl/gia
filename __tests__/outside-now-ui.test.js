@@ -252,3 +252,16 @@ describe('Amendment 1 — °C / °F (item 5)', () => {
     });
   }
 });
+
+describe('UV pill after sunset (operator, 29-10 \'26: "Change the UV pill to \"—\" after sunset")', () => {
+  const night = { status: 'ok', level: 'low', index: 0, warn: false, night: true, indoors: false, at: at('19:00') };
+  it('reads "—" in every locale, in a muted tone', () => {
+    for (const l of OUTSIDE_LOCALES) expect(ot(levelKey(night, 'uv'), l)).toBe('—');
+    expect(rowTone(night, 'uv')).toBe('muted');
+  });
+  it('daytime UV keeps its level pill', () => {
+    const day = { ...night, night: false, index: 9, level: 'veryHigh', warn: true };
+    expect(ot(levelKey(day, 'uv'), 'en')).toBe('Very high');
+    expect(rowTone(day, 'uv')).toBe('red');
+  });
+});

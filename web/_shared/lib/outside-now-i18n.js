@@ -31,6 +31,8 @@ export const OUTSIDE_STRINGS = {
   'lvl.clear': { en: 'Clear', fr: 'Rien', id: 'Aman', ru: 'Нет', de: 'Keine', zh: '无', ja: 'なし', es: 'Despejado', ko: '없음' },
   'lvl.none': { en: 'None', fr: 'Aucune', id: 'Tidak ada', ru: 'Нет', de: 'Keine', zh: '无', ja: 'なし', es: 'Ninguna', ko: '없음' },
   'lvl.alert': { en: 'Alert', fr: 'Alerte', id: 'Waspada', ru: 'Тревога', de: 'Warnung', zh: '警报', ja: '警報', es: 'Alerta', ko: '경보' },
+  // v0.62.954 — operator, 29-10 '26: the UV pill after sunset reads "—" rather than "Low" beside "No UV after sunset".
+  'lvl.dash': { en: '—', fr: '—', id: '—', ru: '—', de: '—', zh: '—', ja: '—', es: '—', ko: '—' },
   'lvl.unavailable': { en: 'Unavailable', fr: 'Indisponible', id: 'Tidak tersedia', ru: 'Нет данных', de: 'Nicht verfügbar', zh: '暂无数据', ja: '取得できません', es: 'No disponible', ko: '정보 없음' },
   // Amendment 1 (operator, 29-10 '26: "APPROVE for items 1 to 5"): each sheet row leads with the finding.
   't.floodNone': { en: 'No flood near you', fr: 'Aucune inondation près de vous', id: 'Tidak ada banjir di dekat Anda', ru: 'Подтоплений рядом нет', de: 'Keine Überflutung in Ihrer Nähe', zh: '附近无水浸', ja: '付近に冠水なし', es: 'Sin inundaciones cerca', ko: '주변에 침수 없음' },
@@ -132,6 +134,7 @@ export function levelKey(row, rowName) {
   if (!row || row.status !== 'ok') return 'lvl.unavailable';
   if (rowName === 'lightning') return row.level === 'warn' ? 'lvl.alert' : 'lvl.clear';
   if (rowName === 'flood') return row.level === 'warn' ? 'lvl.alert' : 'lvl.none';
+  if (rowName === 'uv' && row.night) return 'lvl.dash';
   return `lvl.${row.level}`;
 }
 
@@ -141,6 +144,7 @@ export function rowTone(row, rowName) {
   if (rowName === 'lightning' || rowName === 'flood') return row.level === 'warn' ? 'red' : 'green';
   if (rowName === 'heat') return row.level === 'high' ? 'red' : row.level === 'moderate' ? 'amber' : 'green';
   if (rowName === 'air') return row.psi > 100 ? 'red' : row.psi > 50 ? 'amber' : 'green';
+  if (rowName === 'uv' && row.night) return 'muted';
   if (rowName === 'uv') return row.warn ? 'red' : row.index >= 6 ? 'amber' : 'green';
   return 'muted';
 }
