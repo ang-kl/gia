@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { m, useReducedMotion } from 'motion/react';
 import { openLink, initData, tg } from './tg.js';
@@ -12,6 +12,11 @@ import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import { codeHex } from './lib/mapOverlays.js';
 import { nearestByDistance, shortDist } from '../../_shared/lib/temp-pin.js';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
+import OutsideNowStrip from '../../_shared/components/OutsideNowStrip.jsx';
+import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
+import useOutsideNow from '../../_shared/lib/use-outside-now.js';
+import { startLocationSync } from '../../_shared/lib/location-sync.js';
+import { ot } from '../../_shared/lib/outside-now-i18n.js';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import { activeClosure, nextClosure, closureTill, closureFrom, closureKey, CLOSURE_TAB_BG } from './closure.js';
@@ -298,6 +303,16 @@ const REGION_EMOJI = {
 // or cuisine-TMA toggle propagates here without a reload.
 export default function App() {
   const lang = useLocale();
+  // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md): the chip's dot, the
+  // sheet it opens, and the warning strip under each header. The point is the device fix, read the same one-shot
+  // way StationLocationField already reads it (the origin's permission covers both); without one the route falls
+  // back to the Singapore centroid and the sheet says "Singapore".
+  const [outsideLoc, setOutsideLoc] = useState(null);
+  useEffect(() => startLocationSync({ durationMs: 0, onLocation: (l) => setOutsideLoc({ lat: l.lat, lng: l.lng }) }), []);
+  const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
+  const [outsideOpen, setOutsideOpen] = useState(false);
+  const openOutside = useCallback(() => setOutsideOpen(true), []);
+  const closeOutside = useCallback(() => setOutsideOpen(false), []);
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(true);
   const [err, setErr] = useState(null);
@@ -955,7 +970,7 @@ export default function App() {
                 refresh; NEA trails the trio. */}
             <div className="flex items-center gap-2 shrink-0">
               <LocaleToggle className="flex-shrink-0" />
-              <span className="text-[10px] text-tg-hint flex items-center"><WeatherBadge /></span>
+              <span className="text-[10px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
@@ -965,6 +980,7 @@ export default function App() {
               >↻</button>
             </div>
           </div>
+          <OutsideNowStrip data={outside} app="hawker" lang={lang} onOpen={openOutside} />
         </div>
         {busy && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-tg-hint bg-tg-bg/90 rounded-full px-3 py-1 z-20">{t('status.loading', lang)}</p>}
         {err && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-red-500 bg-tg-bg/90 rounded-full px-3 py-1 z-20">⚠ {err}</p>}
@@ -1023,7 +1039,7 @@ export default function App() {
         <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
         <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
-          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -1033,6 +1049,7 @@ export default function App() {
           >↻</button>
         </div>
       </div>
+      <OutsideNowStrip data={outside} app="hawker" lang={lang} onOpen={openOutside} />
       {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. On a
           PHONE lay them out as a tidy 3+2 TWO-ROW grid (segmented-control feel).
           v0.62.591 — operator (iPad Pro portrait): on a WIDE tablet squeeze all 5
@@ -1121,7 +1138,7 @@ export default function App() {
             <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
             <div className="flex items-center gap-3 shrink-0">
               <LocaleToggle className="flex-shrink-0" />
-              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
               <button type="button" onClick={() => window.location.reload()}
                 aria-label={t('ui.refresh', lang)} title={t('ui.refresh', lang)}
                 className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
@@ -1130,6 +1147,7 @@ export default function App() {
           {/* v0.62.659 — same location/station-search row as the carousel header. */}
           <StationLocationField lang={lang} onSelectStation={inspectStation} />
         </div>
+        <div className="pointer-events-auto"><OutsideNowStrip data={outside} app="hawker" lang={lang} onOpen={openOutside} /></div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
             the title card) so they read cleanly, matching the two-panel styling. */}
@@ -1212,9 +1230,10 @@ export default function App() {
   // exact static split tablets used before v0.62.642, kept unreferenced for
   // precisely this "restore it in one line" scenario. Every other case
   // (portrait phone, any tablet/desktop orientation) is unchanged.
+  const outsideSheet = <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} app="hawker" lang={lang} />;
   if (viewMode === 'list') {
-    if (vp.deviceClass === 'mobile' && vp.orientation === 'landscape') return portraitTabletPanel();
-    return drawerLayout();
+    if (vp.deviceClass === 'mobile' && vp.orientation === 'landscape') return <>{portraitTabletPanel()}{outsideSheet}</>;
+    return <>{drawerLayout()}{outsideSheet}</>;
   }
-  return carouselLayout(false);
+  return <>{carouselLayout(false)}{outsideSheet}</>;
 }
