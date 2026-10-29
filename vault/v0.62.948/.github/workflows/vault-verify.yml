@@ -1,0 +1,115 @@
+name: Vault archive verification
+
+on:
+  pull_request:
+    paths:
+      - 'vault/**'
+      - 'scripts/verify-vault-archives.mjs'
+      - '__tests__/vault-archives.test.js'
+      - '__tests__/repo-security-posture.test.js'
+      - '__tests__/no-nul-bytes.test.js'
+      - '__tests__/gemini-models.test.js'
+      - '__tests__/no-duplicate-tooling.test.js'
+      - '.github/workflows/vault-verify.yml'
+      - '.gitignore'
+      - 'doc/Feature/2026-09-28-vault-main-restoration.spec.md'
+      - 'doc/Journal/2026-09-28-vault-main-restoration.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vault-restoration-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  verify-vault:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      changed: ${{ steps.prepare.outputs.changed }}
+      parent: ${{ steps.prepare.outputs.parent }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      # The repository is private (observed 17-10 '26), so an anonymous fetch fails with
+      # "could not read Username". The job's read-only token is handed to THIS step
+      # only, as a one-shot header; persist-credentials stays false, so the tests and
+      # the historical npm installs below never see it.
+      - name: Fetch pinned source trees without production credentials
+        env:
+          FETCH_TOKEN: ${{ github.token }}
+        run: |
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$FETCH_TOKEN" | base64 -w0)"
+          git -c http.https://github.com/.extraheader="$auth" fetch --no-tags --depth=1 origin 439cf204312b5ad892ec8bd57f37a3d105212f7e
+          git -c http.https://github.com/.extraheader="$auth" fetch --no-tags --depth=1 origin 10ac96a7e412b42cde4a04d98e153befe0c3cdc4
+      - name: Test sanitiser and verify current snapshot
+        run: |
+          node scripts/verify-vault-archives.mjs --self-test
+          node vault/v0.62.937/VAULT_VERIFY.mjs
+      - name: Prepare or verify the sanitised candidate locally
+        id: prepare
+        env:
+          VAULT_TRANSFER: ${{ runner.temp }}/vault-transfer.json
+          VAULT_REPORT: ${{ runner.temp }}/vault-report.json
+          RESTORATION_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [ ! -f vault/RESTORATION_MANIFEST.json ]; then
+            test "$RESTORATION_BRANCH" = 'claude/handover-july-11-49uzvf'
+          fi
+          node scripts/verify-vault-archives.mjs --prepare
+      - name: Test the complete proposed repository tree
+        run: |
+          npm install --no-audit --no-fund --ignore-scripts
+          npm test
+      - name: Restore and build the current vault in isolation
+        env:
+          RESTORE_DIR: ${{ runner.temp }}/soleat-vault-restore
+        run: |
+          mkdir "$RESTORE_DIR"
+          git archive HEAD:vault/v0.62.937 | tar -x -C "$RESTORE_DIR"
+          cd "$RESTORE_DIR"
+          npm install --no-audit --no-fund --ignore-scripts
+          npm run build
+          npm run test:render
+      - name: Recheck committed archive identities after tests
+        env:
+          VAULT_REPORT: ${{ runner.temp }}/vault-report.json
+        run: node scripts/verify-vault-archives.mjs --verify
+      - name: Export only verified sanitised objects
+        if: steps.prepare.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitised-vault-objects
+          path: ${{ runner.temp }}/vault-transfer.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Export complete verified vault for operator recovery
+        run: git archive --format=tar HEAD:vault | gzip > "$RUNNER_TEMP/vault-sanitised.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: complete-sanitised-vault
+          path: ${{ runner.temp }}/vault-sanitised.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vault-verification-report
+          path: ${{ runner.temp }}/vault-report.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Require actual published archive files before merge
+        env:
+          PUBLISHED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # A green runner-local candidate is not publication to the PR branch.
+          # This gate intentionally stays red until the exact archives are committed.
+          git cat-file -e "$PUBLISHED_HEAD:vault/RESTORATION_MANIFEST.json"
+          test "$(git rev-parse HEAD:vault)" = "$(git rev-parse "$PUBLISHED_HEAD:vault")"

@@ -50,10 +50,12 @@ jobs:
           auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$FETCH_TOKEN" | base64 -w0)"
           git -c http.https://github.com/.extraheader="$auth" fetch --no-tags --depth=1 origin 439cf204312b5ad892ec8bd57f37a3d105212f7e
           git -c http.https://github.com/.extraheader="$auth" fetch --no-tags --depth=1 origin 10ac96a7e412b42cde4a04d98e153befe0c3cdc4
-      - name: Test sanitiser and verify current snapshot
+          git -c http.https://github.com/.extraheader="$auth" fetch --no-tags --depth=1 origin bd9a310c835bfe2d91441d13eb33c37e1228e5c9
+      - name: Test sanitiser and verify current snapshots
         run: |
           node scripts/verify-vault-archives.mjs --self-test
           node vault/v0.62.937/VAULT_VERIFY.mjs
+          node vault/v0.62.948/VAULT_VERIFY.mjs
       - name: Prepare or verify the sanitised candidate locally
         id: prepare
         env:
@@ -75,6 +77,17 @@ jobs:
         run: |
           mkdir "$RESTORE_DIR"
           git archive HEAD:vault/v0.62.937 | tar -x -C "$RESTORE_DIR"
+          cd "$RESTORE_DIR"
+          npm install --no-audit --no-fund --ignore-scripts
+          npm run build
+          npm run test:render
+      # v0.62.948 (29-10 '26): the second current snapshot gets the same isolated restore.
+      - name: Restore and build vault v0.62.948 in isolation
+        env:
+          RESTORE_DIR: ${{ runner.temp }}/soleat-vault-restore-948
+        run: |
+          mkdir "$RESTORE_DIR"
+          git archive HEAD:vault/v0.62.948 | tar -x -C "$RESTORE_DIR"
           cd "$RESTORE_DIR"
           npm install --no-audit --no-fund --ignore-scripts
           npm run build

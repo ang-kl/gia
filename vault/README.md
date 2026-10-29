@@ -2,7 +2,7 @@
 
 Version 2.1 - 28 September 2026.
 
-This folder contains 28 source snapshots: 27 historical versions recovered from 10ac96a7e412b42cde4a04d98e153befe0c3cdc4, plus v0.62.937 from 439cf204312b5ad892ec8bd57f37a3d105212f7e. These are source archives, not backups of Redis, credentials or production state.
+This folder contains 29 source snapshots: 27 historical versions recovered from 10ac96a7e412b42cde4a04d98e153befe0c3cdc4, plus v0.62.937 from 439cf204312b5ad892ec8bd57f37a3d105212f7e, plus v0.62.948 from bd9a310c835bfe2d91441d13eb33c37e1228e5c9 (added 29 October 2026). These are source archives, not backups of Redis, credentials or production state.
 
 ## Provenance and privacy
 
@@ -38,9 +38,10 @@ Nine historical folders retain their exact original Git trees. Eighteen are expl
 | v0.62.69 | sanitised derivative | 8da4880a8e03004ff6a59f60ad04fb86bd54da78 | 4c18b56b6e49ef6cf77b8e5a14fd65178254d51f |
 | v0.62.76 | sanitised derivative | b4a7087a31be9112ca6bc6d6a6d468b5f770c97a | b1096ca38f4b13fd3225e2a760fbe6c64c7d810d |
 | v0.62.937 | Unchanged current snapshot | f9941f040e4af3f39ea0e135ddf72a509aa41810 | f9941f040e4af3f39ea0e135ddf72a509aa41810 |
+| v0.62.948 | Unchanged current snapshot | b274ade89071cfe72085fdea6a97792191ce153a | b274ade89071cfe72085fdea6a97792191ce153a |
 
 ## Verify and restore
 
 Run `node scripts/verify-vault-archives.mjs --verify` from the repository root. The recorded original commits must be available locally. Export an individual version into an isolated directory with `git archive HEAD:vault/<version>`; install dependencies there with scripts disabled first. Do not start a historic bot with production credentials. Historical builds are not certified against today's dependencies; preserve the source rather than silently upgrading it.
 
-The current v0.62.937 snapshot is separately checked and built in an isolated temporary directory by the vault verification workflow. See its actual run for results. The claimed v0.62.655 local archive was not recoverable and is not represented as an original folder here. Feature-map work remains deferred.
+The current v0.62.937 and v0.62.948 snapshots are each separately checked (`node vault/<version>/VAULT_VERIFY.mjs`) and built in an isolated temporary directory by the vault verification workflow; see `vault/v0.62.948/VAULT_README.md` for its arc since v0.62.937. See its actual run for results. The claimed v0.62.655 local archive was not recoverable and is not represented as an original folder here. Feature-map work remains deferred.

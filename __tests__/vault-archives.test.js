@@ -1,5 +1,29 @@
 import { describe,it,expect } from 'vitest';
-import { isCredentialFixturePath, forbiddenArchivePath, credentialShapesInText, hasProtectedLocation, EXPECTED_FOLDERS, ALLOWED_SANITISED } from '../scripts/verify-vault-archives.mjs';
+import { isCredentialFixturePath, forbiddenArchivePath, credentialShapesInText, hasProtectedLocation, EXPECTED_FOLDERS, ALLOWED_SANITISED, CURRENT_SNAPSHOTS, CURRENT_SOURCE, CURRENT_VAULT_TREE, versionFolders } from '../scripts/verify-vault-archives.mjs';
+
+// Spec doc/Feature/2026-10-29-docs-and-vault-v0-62-948.spec.md (I1, I3): v0.62.948 joins as a second
+// unsanitised current snapshot; nothing pinned about the 27 historical folders or v0.62.937 moves.
+describe('current snapshots',()=>{
+  it('keeps v0.62.937 pinned exactly as before',()=>{
+    expect(CURRENT_SOURCE).toBe('439cf204312b5ad892ec8bd57f37a3d105212f7e');
+    expect(CURRENT_VAULT_TREE).toBe('f9941f040e4af3f39ea0e135ddf72a509aa41810');
+    expect(CURRENT_SNAPSHOTS.get('v0.62.937')).toEqual({source:CURRENT_SOURCE,tree:CURRENT_VAULT_TREE});
+  });
+  it('adds v0.62.948 from main at bd9a310c, with its own pinned tree',()=>{
+    const s=CURRENT_SNAPSHOTS.get('v0.62.948');
+    expect(s.source).toBe('bd9a310c835bfe2d91441d13eb33c37e1228e5c9');
+    expect(s.tree).toMatch(/^[0-9a-f]{40}$/);
+    expect(s.tree).not.toBe(CURRENT_VAULT_TREE);
+  });
+  it('holds exactly two current snapshots, neither sanitised nor historical',()=>{
+    expect([...CURRENT_SNAPSHOTS.keys()]).toEqual(['v0.62.937','v0.62.948']);
+    for(const v of CURRENT_SNAPSHOTS.keys()){ expect(ALLOWED_SANITISED.has(v)).toBe(false); expect(EXPECTED_FOLDERS.has(v)).toBe(false); }
+  });
+  it('expects 29 version folders in all',()=>{
+    expect(versionFolders().length).toBe(29);
+    expect(versionFolders()).toContain('v0.62.948');
+  });
+});
 
 describe('historical vault verifier',()=>{
   it('pins the 27 located historical folders',()=>{ expect(EXPECTED_FOLDERS.size).toBe(27); expect(EXPECTED_FOLDERS.has('v0.62.504')).toBe(true); });

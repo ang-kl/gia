@@ -1,6 +1,6 @@
 {
-  "generated": "2026-09-08",
-  "count": 1837,
+  "generated": "2026-10-29",
+  "count": 1862,
   "records": [
     {
       "pr": 1,
@@ -52661,6 +52661,763 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": true
+    },
+    {
+      "pr": 1866,
+      "status": "merged",
+      "merged": "2026-09-08 03:32:11+00:00",
+      "day": "2026-09-08",
+      "version": "0.62.932",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: the Vibe Journal catches up 49 PRs, and the redaction step bites on a real id",
+      "approach": "## Intent Operator, one word: **\"journal\"**.",
+      "codeImpact": "11 files — doc, package, root-docs, public/",
+      "modules": [
+        "root-docs",
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 11,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.62.932 — the Vibe Journal catches up 49 PRs, and the redaction step bites on a real id",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1867,
+      "status": "merged",
+      "merged": "2026-09-09 05:24:02+00:00",
+      "day": "2026-09-09",
+      "version": "0.62.933",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: seven hours down with every health check green: the Redis client had no error listener",
+      "approach": "## Intent Operator, 11:30 SGT: **\"is soleat railway service down?\"** — after four messages to the bot went unanswered.",
+      "codeImpact": "7 files — index.js, redis-guard.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "redis-guard.js"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.933 — seven hours down with every health check green: the Redis client had no error listener",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1868,
+      "status": "merged",
+      "merged": "2026-09-10 01:05:21+00:00",
+      "day": "2026-09-10",
+      "version": "0.62.934",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: Codex's two findings on the guard, both right, and a 503 that would have dropped Telegram updates",
+      "approach": "## Intent Two Codex review comments on #1867, posted five minutes after it merged.",
+      "codeImpact": "7 files — index.js, redis-guard.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "redis-guard.js"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.934 — Codex's two findings on the guard, both right, and a 503 that would have dropped Telegram updates",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1869,
+      "status": "merged",
+      "merged": "2026-09-10 23:56:41+00:00",
+      "day": "2026-09-10",
+      "version": "0.62.935",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: Codex's two findings on #1868's coalescing, both right: a joiner borrowed the wrong deadline, and the entry died before the PING did",
+      "approach": "## What Both Codex P2 threads on #1868 (`redis-guard.js`), read once the rate limit lifted, verified, and fixed.",
+      "codeImpact": "6 files — redis-guard.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "redis-guard.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.935 — Codex's two findings on #1868's coalescing, both right: a joiner borrowed the wrong deadline, and the entry died before the PING did",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1870,
+      "status": "merged",
+      "merged": "2026-09-20 12:52:57+00:00",
+      "day": "2026-09-20",
+      "version": "0.62.936",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: thread the reader's set location into the chat free-text place anchor",
+      "approach": "The bot's chat free-text handler (`index.js`) called `place-detector.js`'s `detectPlaceName(text)` with no `ctx` — the one call site that never threaded a country/location context, so a user who set a non-SG city via the Menu TMA and…",
+      "codeImpact": "8 files — index.js, tests, doc, package, root-docs, LICENSE, scripts/",
+      "modules": [
+        "root-docs",
+        "LICENSE",
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.936 — thread the reader's set location into the chat free-text place anchor",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1871,
+      "status": "merged",
+      "merged": "2026-09-26 10:00:01+00:00",
+      "day": "2026-09-26",
+      "version": "0.1.1",
+      "minor": "0.1",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: flow-kit v0.1.1 — the six-stage build flow moves from prose into hooks",
+      "approach": "Installs **flow-kit v0.1.1** at the operator's request, and (second commit) fixes a bug the operator reported live in the Cuisine TMA.",
+      "codeImpact": "16 files — TMA:cuisine, tests, doc, package, config, root-docs, .claude/",
+      "modules": [
+        ".claude/",
+        "config",
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 16,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "flow-kit v0.1.1 — the six-stage build flow moves from prose into hooks",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1872,
+      "status": "merged",
+      "merged": "2026-09-27 00:14:06+00:00",
+      "day": "2026-09-27",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: CLAUDE-protocol.md §12-§14: reply style, build-request gate, plus #1871's held merge record",
+      "approach": "Three substantive commits plus a held merge record riding along per D-210 (a merge record never gets a PR of its own): - **`[AMD-227]`** - the merge record for #1871 (flow-kit v0.1.1 + the Google Maps link fix), verified by content: the…",
+      "codeImpact": "4 files — doc, root-docs, instr/",
+      "modules": [
+        "root-docs",
+        "doc",
+        "instr/"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "CLAUDE-protocol.md §12-§14: reply style, build-request gate, plus #1871's held merge record",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1873,
+      "status": "merged",
+      "merged": "2026-09-28 01:39:55+00:00",
+      "day": "2026-09-28",
+      "version": "",
+      "minor": "",
+      "category": "infra",
+      "area": "Language / i18n",
+      "intent": "prepare sanitised historical vault restoration to main",
+      "approach": "## Current status - 28 September 2026, 09:06 SGT **NOT MERGED.",
+      "codeImpact": "2475 files — tests, doc, vault, ci, config, scripts/",
+      "modules": [
+        "ci",
+        "config",
+        "tests",
+        "doc",
+        "scripts/",
+        "vault"
+      ],
+      "nFiles": 2475,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "chore(vault): prepare sanitised historical vault restoration to main",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1874,
+      "status": "CLOSED",
+      "merged": "",
+      "day": "",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Privacy / legal",
+      "intent": "Fix: complete historical archive verification and restoration",
+      "approach": "## Requested outcome Restore all 27 historical version folders under main/vault alongside the already merged v0.62.937 snapshot.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "fix(vault): complete historical archive verification and restoration",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1875,
+      "status": "merged",
+      "merged": "2026-10-17 08:06:31+00:00",
+      "day": "2026-10-17",
+      "version": "0.62.938",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: a foreign location set by /location or a recent pick keeps its country",
+      "approach": "## What Fixes the Codex P1 left unanswered on #1870, which landed three minutes after that PR merged.",
+      "codeImpact": "7 files — index.js, recent-locations.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "recent-locations.js"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.938 — a foreign location set by /location or a recent pick keeps its country",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1876,
+      "status": "merged",
+      "merged": "2026-10-21 20:13:23+00:00",
+      "day": "2026-10-21",
+      "version": "",
+      "minor": "",
+      "category": "infra",
+      "area": "Privacy / legal",
+      "intent": "restore 27 historical snapshots with audited privacy sanitisation (supersedes #1874)",
+      "approach": "## What This PR restores all 27 historical version folders under `vault/`, next to the v0.62.937 snapshot that #1873 already put on main.",
+      "codeImpact": "25256 files — tests, doc, vault, ci",
+      "modules": [
+        "ci",
+        "tests",
+        "doc",
+        "vault"
+      ],
+      "nFiles": 25256,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "chore(vault): restore 27 historical snapshots with audited privacy sanitisation (supersedes #1874)",
+      "reworkCue": true,
+      "reworkOf": 1874,
+      "burst": false
+    },
+    {
+      "pr": 1877,
+      "status": "merged",
+      "merged": "2026-10-21 23:17:28+00:00",
+      "day": "2026-10-21",
+      "version": "0.62.939",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: a GPS pin shared from abroad gets the nearest curated city's country",
+      "approach": "## What This closes the third path of the Codex P1 left on #1870.",
+      "codeImpact": "8 files — location-cache.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "location-cache.js",
+        "package"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.939 — a GPS pin shared from abroad gets the nearest curated city's country",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1878,
+      "status": "merged",
+      "merged": "2026-10-24 23:00:20+00:00",
+      "day": "2026-10-24",
+      "version": "0.62.940",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the five Mini Apps follow a Telegram theme switch without a reload",
+      "approach": "## What Item 1 of the 17-10 TMA review.",
+      "codeImpact": "10 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.940 — the five Mini Apps follow a Telegram theme switch without a reload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1879,
+      "status": "merged",
+      "merged": "2026-10-25 00:51:29+00:00",
+      "day": "2026-10-25",
+      "version": "0.62.941",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Quick / AI lever on the Tell-me bar; AI route searches 1.5 km around a named place and checks \"new\"; chat questions go to the AI",
+      "approach": "## Why The operator typed \"What are the new eateries at Raffles City\" into the Cuisine Mini App's AI path and got 12 places spread from Lengkok Bahru to Sentosa, some of them long-established.",
+      "codeImpact": "22 files — index.js, newness-filter.js, nl-anchor.js, tell-gia-rate-limit.js, TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "index.js",
+        "newness-filter.js",
+        "nl-anchor.js",
+        "package",
+        "tell-gia-rate-limit.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 22,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.941 — Quick / AI lever on the Tell-me bar; AI route searches 1.5 km around a named place and checks \"new\"; chat questions go to the AI",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1880,
+      "status": "merged",
+      "merged": "2026-10-25 22:16:08+00:00",
+      "day": "2026-10-25",
+      "version": "0.62.942",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the lever is 12x18 px; opening 💬 first, or 10 minutes after the last results, folds the cards and blinks \"show results\"",
+      "approach": "## Why - The Quick / AI lever from v0.62.941 is live but too small to find.",
+      "codeImpact": "10 files — TMA:cuisine, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.942 — the lever is 12x18 px; opening 💬 first, or 10 minutes after the last results, folds the cards and blinks \"show results\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1881,
+      "status": "merged",
+      "merged": "2026-10-25 22:29:23+00:00",
+      "day": "2026-10-25",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add README for external data sources",
+      "approach": "Add README for external data sources",
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add README for external data sources",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1882,
+      "status": "merged",
+      "merged": "2026-10-25 23:25:08+00:00",
+      "day": "2026-10-25",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "2 files — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1883,
+      "status": "merged",
+      "merged": "2026-10-26 00:14:28+00:00",
+      "day": "2026-10-26",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: replace existing files",
+      "approach": "replace existing files",
+      "codeImpact": "2 files — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "replace existing files",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1884,
+      "status": "merged",
+      "merged": "2026-10-26 00:17:33+00:00",
+      "day": "2026-10-26",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Delete data/external/readme.md",
+      "approach": "Delete data/external/readme.md",
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Delete data/external/readme.md",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1885,
+      "status": "merged",
+      "merged": "2026-10-26 06:43:18+00:00",
+      "day": "2026-10-26",
+      "version": "0.62.943",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: the Quick / AI lever moves inside the bar; non-AI results are flagged in the footer",
+      "approach": "## Why - **The lever was hidden.** On a real phone, the v0.62.942 lever sat on the bar's top border directly over the map's bottom-left control button, and the button swallowed it.",
+      "codeImpact": "15 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 15,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.943 — the Quick / AI lever moves inside the bar; non-AI results are flagged in the footer",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1886,
+      "status": "merged",
+      "merged": "2026-10-26 09:38:27+00:00",
+      "day": "2026-10-26",
+      "version": "0.62.944",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: v0.62.944 + v0.62.945 — curated external eateries; AI and normal searches scoped to a named building or road",
+      "approach": "This PR carries two releases on one branch.",
+      "codeImpact": "33 files — index.js, building-scope.js, discovery-dish.js, dish-search-gate.js, external-eateries.js, i18n.js, nl-anchor.js, +3 more, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "building-scope.js",
+        "discovery-dish.js",
+        "dish-search-gate.js",
+        "doc",
+        "external-eateries.js",
+        "i18n.js",
+        "index.js",
+        "nl-anchor.js",
+        "package",
+        "place-detector.js",
+        "venue-templates.js",
+        "vibe-suggest.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 33,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.944 + v0.62.945 — curated external eateries; AI and normal searches scoped to a named building or road",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1887,
+      "status": "merged",
+      "merged": "2026-10-26 12:04:55+00:00",
+      "day": "2026-10-26",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: project handover report (26-10 '26) + #1886 merge record",
+      "approach": "## Why Operator, 26-10 '26: \"create a very detailed report about this project since beginning what has been done and what is the future and challenges … so future claude code can read and setup and not to make same mistakes\".",
+      "codeImpact": "3 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "doc: project handover report (26-10 '26) + #1886 merge record",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1888,
+      "status": "merged",
+      "merged": "2026-10-26 13:48:40+00:00",
+      "day": "2026-10-26",
+      "version": "0.62.946",
+      "minor": "0.62",
+      "category": "copy",
+      "area": "Docs / vault",
+      "intent": "Reword: cap review translation at 5 s per call and 6 s per search",
+      "approach": "## Why On 26-10 Railway's D707 timing line showed `reviewLocalise=62028ms` (and 13,750 ms two minutes later, which tripped the D706 deadline).",
+      "codeImpact": "6 files — cuisine-enrich.js, translate-review.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-enrich.js",
+        "doc",
+        "package",
+        "translate-review.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.946 - cap review translation at 5 s per call and 6 s per search",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1889,
+      "status": "merged",
+      "merged": "2026-10-28 03:31:07+00:00",
+      "day": "2026-10-28",
+      "version": "0.62.947",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Docs / vault",
+      "intent": "Refactor: read public holidays from MOM's consolidated dataset",
+      "approach": "## Why The dataset ID that `holidays.js` uses (`d_4e19214c1a6202f87b8a0bfd0ad1b2db`) is no longer on data.gov.sg.",
+      "codeImpact": "6 files — holidays.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "holidays.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.947 - read public holidays from MOM's consolidated dataset",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1890,
+      "status": "merged",
+      "merged": "2026-10-28 09:58:07+00:00",
+      "day": "2026-10-28",
+      "version": "0.62.948",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: refresh the hawker closure dates from NEA (28-10 '26)",
+      "approach": "## Why NEA's \"Dates of Hawker Centres Closure\" (`d_bda4baa634dd1cc7a6c7cad5f19e2d68`, updated 19-10) changed 11 of its 123 rows after our 18-07 snapshot.",
+      "codeImpact": "8 files — tests, doc, data, package, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.948 - refresh the hawker closure dates from NEA (28-10 '26)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ],
   "sessionReplies": [
