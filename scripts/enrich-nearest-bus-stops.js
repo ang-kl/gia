@@ -12,7 +12,7 @@
 //
 //   Stage A — offline triangulation (always runs):
 //     committed `data/stations.json` (station + exit coords) +
-//     `geoloc/LTABusStop.geojson` (5,166 bus stops — codes + coords,
+//     `geoloc/LTABusStop.geojson` (5,205 bus stops since 29-10 '26, 5,166 before — codes + coords,
 //     an LTA / data.gov.sg dataset) → nearest bus stops per station.
 //
 //   Stage B — OneMap name pass (runs only when ONEMAP_API_KEY is set):
