@@ -1,19 +1,19 @@
 {
-  "total_stations": 180,
-  "stations_with_bus_stops": 180,
+  "total_stations": 183,
+  "stations_with_bus_stops": 183,
   "stations_without_bus_stops": 0,
-  "bus_stop_entries": 880,
+  "bus_stop_entries": 897,
   "confidence": {
-    "high": 824,
-    "medium": 44,
-    "low": 12
+    "high": 887,
+    "medium": 10,
+    "low": 0
   },
   "radius_tier_used": {
-    "400": 171,
-    "800": 9,
+    "400": 178,
+    "800": 5,
     "1000": 0
   },
   "names_resolved": 0,
   "onemap_pass_run": false,
-  "generated_at": "2026-05-20T08:47:00.299Z"
+  "generated_at": "2026-10-29T04:58:29.422Z"
 }

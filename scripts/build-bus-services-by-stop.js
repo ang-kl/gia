@@ -6,7 +6,7 @@
 //
 // Inputs (committed in the repo):
 //   geoloc/LTABusStop.geojson     — full bus stop locations
-//                                   (~5,166 stops; BUS_STOP_NUM + coords)
+//                                   (5,205 stops since 29-10 '26; BUS_STOP_NUM + coords)
 //   data_realtime/BusRoutes.json  — LTA DataMall BusRoutes snapshot
 //                                   ({ value: [ { ServiceNo, BusStopCode, … } ] })
 //
