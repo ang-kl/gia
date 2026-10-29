@@ -103,6 +103,15 @@ describe('I1 — levels and thresholds (C2, C4)', () => {
     expect(late.rows.uv).toMatchObject({ index: 8, level: 'veryHigh' });
   });
 
+  it('UV: the 11:00-15:00 window is judged by the current time, not the reading\'s hour (Codex P2 on #1895)', () => {
+    const at1605 = Date.parse(at('16:05'));
+    const stale = on.compute({ ...calm(), uv: uv([{ hour: at('15:00'), value: 9 }], at('15:00')) }, { ...HERE, now: at1605 });
+    expect(stale.warnings).toEqual([]);
+    expect(stale.rows.uv).toMatchObject({ index: 9, at: at('15:00'), warn: false });
+    const early = on.compute({ ...calm(), uv: uv([{ hour: at('10:00'), value: 8 }], at('10:00')) }, { ...HERE, now: Date.parse(at('11:10')) });
+    expect(early.warnings).toEqual(['uv']);
+  });
+
   it('UV reads the latest hour at or before now, not the first entry', () => {
     const r = run({ uv: uv([{ hour: at('14:00'), value: 11 }, { hour: at('13:00'), value: 9 }, { hour: at('12:00'), value: 4 }]) });
     expect(r.rows.uv).toMatchObject({ index: 9, at: at('13:00') });

@@ -104,6 +104,15 @@ export function dismissKey(kind, data) {
   return `${kind}:${sig ? sig() : ''}`;
 }
 
+// Spec C7, as a pure step: `dismissed` is the one key the user hid, `current` is the key of the warning showing now
+// (null when none). The dismissal holds only while that same warning is current; any transition (cleared, replaced,
+// level changed) forgets it, so a later return of the same warning shows again (Codex P2 on #1895).
+export function stripDecision(dismissed, current) {
+  if (!current) return { show: false, dismissed: null };
+  if (dismissed && dismissed === current) return { show: false, dismissed };
+  return { show: true, dismissed: null };
+}
+
 // The row's level label key.
 export function levelKey(row, rowName) {
   if (!row || row.status !== 'ok') return 'lvl.unavailable';

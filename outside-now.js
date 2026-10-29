@@ -157,7 +157,9 @@ function uvRow(feed, now) {
     .filter((h) => Number.isFinite(h.t) && Number.isFinite(h.v) && h.t <= now)
     .sort((a, b) => b.t - a.t)[0];
   if (!idx) throw new Error('no UV hour');
-  const hour = sgtHour(idx.at);
+  // The window is about NOW, not about the reading: a 15:00 reading of 9 must not still warn at 16:05 because no
+  // newer hour has arrived (Codex P2 on #1895). The reading's own time stays on the row for display.
+  const hour = sgtHour(new Date(now).toISOString());
   const inWindow = hour !== null && hour >= UV_WINDOW_HOURS[0] && hour <= UV_WINDOW_HOURS[1];
   return { status: 'ok', level: uvLevel(idx.v), index: idx.v, warn: idx.v >= UV_WARN_AT && inWindow, at: idx.at };
 }

@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 import {
   OUTSIDE_STRINGS, OUTSIDE_LOCALES, ROW_SOURCE, ot, topWarning, stripText, dismissKey, sheetRows, levelKey, rowTone, hhmm,
+  stripDecision,
 } from '../web/_shared/lib/outside-now-i18n.js';
 
 const require = createRequire(import.meta.url);
@@ -111,6 +112,30 @@ describe('C7 — a dismissed strip returns only when the warning changes', () =>
     expect(dismissKey('haze', a)).toBe(dismissKey('haze', b));
     expect(dismissKey('haze', a)).not.toBe(dismissKey('haze', c));
     expect(dismissKey('heat', a)).not.toBe(dismissKey('haze', a));
+  });
+});
+
+describe('C7 — a dismissal lasts only until the warning changes (Codex P2 on #1895)', () => {
+  it('dismiss lightning, a clear refresh, then new strikes: the strip shows again', () => {
+    const k = dismissKey('lightning', payload(['lightning']));
+    let d = stripDecision(k, k);            // the dismissed warning is still current: hidden
+    expect(d).toEqual({ show: false, dismissed: k });
+    d = stripDecision(d.dismissed, null);   // a refresh with no warning clears the dismissal
+    expect(d).toEqual({ show: false, dismissed: null });
+    d = stripDecision(d.dismissed, k);      // the same kind returns: shown
+    expect(d).toEqual({ show: true, dismissed: null });
+  });
+  it('a different warning replacing the dismissed one shows, and forgets the old dismissal', () => {
+    const a = dismissKey('haze', payload(['haze']));
+    const b = dismissKey('lightning', payload(['lightning']));
+    const d = stripDecision(a, b);
+    expect(d).toEqual({ show: true, dismissed: null });
+    expect(stripDecision(d.dismissed, a).show).toBe(true);
+  });
+  it('the strip keeps one dismissed key, not a growing set', () => {
+    const c = code('web/_shared/components/OutsideNowStrip.jsx');
+    expect(c).not.toMatch(/new Set\(/);
+    expect(c).toMatch(/stripDecision\(/);
   });
 });
 
