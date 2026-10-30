@@ -22,17 +22,21 @@ export const PARK_VIEWPORT_ZOOM = 14;
 export const PARK_LARGE_HA = 10;
 export const PARK_FILL_OPACITY = 0.32;
 
-/** 'none' up to zoom 12, 'named' at 13-14 (the 8 named routes), 'all' from 15 (every connector). */
+/**
+ * 'loops' below zoom 13 (the 8 named routes, thin, no halo), 'named' at 13-14 (the same routes at full size with the
+ * halo), 'all' from 15 (every connector). Amendment 1, 30-10 '26: v0.62.956 drew nothing below 13, the apps open at
+ * 11-12, and the operator turned Park on and saw nothing; they chose "Loops at all zooms".
+ */
 export function pcnTier(zoom) {
   const z = Number(zoom) || 0;
   if (z >= PCN_ZOOM_ALL) return 'all';
   if (z >= PCN_ZOOM_NAMED) return 'named';
-  return 'none';
+  return 'loops';
 }
 
-/** Whether a connector of `kind` ('named' | 'other') is drawn at `tier`. */
+/** Whether a connector of `kind` ('named' | 'other') is drawn at `tier`. Named routes draw at every tier. */
 export function tierShows(tier, kind) {
-  return tier === 'all' || (tier === 'named' && kind === 'named');
+  return kind === 'named' || tier === 'all';
 }
 
 /** Bounding box of [[lng, lat], …] or [{lat, lng}, …] as { south, west, north, east }. */
@@ -109,10 +113,30 @@ export function lockReducer(current, action, lockable) {
  * C6 — the polyline options for a connector. The line itself is invisible (strokeOpacity 0) and carries a repeated
  * dot, which is what makes it read as dotted; its stroke weight still gives it a tap target. A named route also gets
  * a white halo underneath. `lockState`: 'none', 'this' (the locked loop: bigger) or 'faded' (another loop is locked).
+ * `tier` 'loops' (below zoom 13) draws a named route thin and without its halo, so the island view stays readable —
+ * except the locked loop, which is the reader's explicit pick and always draws at full size.
  */
-export function pcnStyle(kind, lockState, circlePath = 0) {
-  const named = kind === 'named';
+export function pcnStyle(kind, lockState, circlePath = 0, tier = 'named') {
   const isThis = lockState === 'this';
+  if (kind === 'named' && tier === 'loops' && !isThis) {
+    return {
+      line: {
+        strokeColor: PCN_COLOUR,
+        strokeOpacity: 0,
+        strokeWeight: 6,
+        clickable: true,
+        zIndex: 21,
+        icons: [{
+          icon: { path: circlePath, fillColor: PCN_COLOUR, fillOpacity: lockState === 'faded' ? 0.3 : 0.9,
+            strokeOpacity: 0, scale: 1.1 },
+          offset: '0',
+          repeat: '6px'
+        }]
+      },
+      halo: null
+    };
+  }
+  const named = kind === 'named';
   const faded = lockState === 'faded';
   const zIndex = named ? (isThis ? 32 : 22) : 12;
   const line = {
@@ -297,13 +321,18 @@ export function createPcnLayer(map, googleMaps, data, opts = {}) {
       }
       create(it);
       const ls = lockStateOf(it);
-      if (it.styleKey !== ls) {
-        const st = pcnStyle(it.kind, ls, circle);
+      const st = pcnStyle(it.kind, ls, circle, tier);
+      const key = ls + '|' + (st.halo ? 'h' : '-') + '|' + st.line.icons[0].icon.scale;
+      if (it.styleKey !== key) {
         it.line.setOptions(st.line);
         if (it.halo && st.halo) it.halo.setOptions(st.halo);
-        it.styleKey = ls;
+        it.styleKey = key;
       }
-      if (it.halo && !it.halo.getMap()) it.halo.setMap(map);
+      // Below zoom 13 an unlocked loop has no halo (Amendment 1): take it off the map rather than leave a stale one.
+      if (it.halo) {
+        if (st.halo && !it.halo.getMap()) it.halo.setMap(map);
+        else if (!st.halo && it.halo.getMap()) it.halo.setMap(null);
+      }
       if (!it.line.getMap()) it.line.setMap(map);
     }
     if (!visible) hideHover();
