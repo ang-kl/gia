@@ -97,7 +97,11 @@ export function clearedFilters() {
 
 export function readFromHash() {
   if (typeof window === 'undefined') return defaultState();
-  const hash = window.location.hash.replace(/^#/, '');
+  return parseHash(window.location.hash.replace(/^#/, ''));
+}
+
+// v0.62.959 — the hash parser, pure, so initialState can be tested without a window.
+function parseHash(hash) {
   if (!hash) return defaultState();
   const params = new URLSearchParams(hash);
   const s = defaultState();
@@ -129,6 +133,98 @@ export function readFromHash() {
   if (params.get('michBib') === '0') s.michelinFilter.bib = false;
   return s;
 }
+
+// v0.62.959 — spec B3. The first-paint state: the URL hash, unless it carries no filters, in which case the reader's
+// kept settings (web/_shared/lib/kept-settings.js) fill the filters in. A link that carries its own filters — the
+// bot's deep links, a shared URL — always wins, because it is a request for THOSE results. A region-only hash still
+// takes the kept filters and keeps its region.
+const HASH_FILTER_PARAMS = ['cuisines', ...QUICK_FILTERS, 'prices', 'michYoff', 'michY26', 'michY25', 'michBib'];
+export function initialState(hash, kept) {
+  const h = String(hash || '').replace(/^#/, '');
+  const s = parseHash(h);
+  const params = new URLSearchParams(h);
+  if (HASH_FILTER_PARAMS.some((p) => params.has(p))) return s;
+  const k = kept || {};
+  if (Array.isArray(k.cuisines)) s.cuisines = k.cuisines.slice(0, 5);
+  if (k.filters) {
+    for (const f of QUICK_FILTERS) if (typeof k.filters[f] === 'boolean') s.filters[f] = k.filters[f];
+    if (Array.isArray(k.filters.prices)) s.filters.prices = k.filters.prices.filter((p) => PRICE_LEVELS.includes(p));
+  }
+  if (k.michelinFilter && typeof k.michelinFilter === 'object') s.michelinFilter = { ...k.michelinFilter };
+  return s;
+}
+
+// v0.62.959 — spec B2 / I7. What a language-switch reload carries, for every useState in App.jsx. Cuisine reloads the
+// page on a language switch (Google fixes the map language at load), and v0.62.858-892 carried ten hand-picked fields,
+// so the map layers, list or carousel, the selected eatery, the typed text, the page history and the Park Connector
+// lock all reset. __tests__/locale-restore-coherence.test.js fails when a useState appears that is in none of these.
+//   carried   — the original payload fields, pinned by name by locale-reload.test.js.
+//   stashed   — travel in the payload's `view` object and are set back on the restored mount.
+//   transient — deliberately not carried, each with the reason.
+export const LOCALE_STASH = {
+  carried: ['venues', 'searchCenter', 'userLoc', 'selectedCityLocation', 'resultsOrigin', 'locationAnchor',
+    'searchLocName'],
+  stashed: [
+    'state', 'overlayLayers', 'pcnLock', 'drawerMode', 'drawerDismissed', 'focusedPlaceId', 'nlText', 'tellMeAi',
+    'placeAnchor', 'pages', 'cursor', 'cumulativeStart', 'cumulativeEnd', 'knownTotal', 'finalBatch', 'firstBatch',
+    'poolCount', 'sessionFull', 'pageStackDepth', 'michelinRemaining', 'searchedTerm', 'searchedTermMode', 'pinnedDish',
+    'comboInfo', 'cuisinePlate', 'arrivalPlate', 'lastRunSnap', 'lastPrompt', 'noProvenNew', 'misrepNote',
+    'cookMethodPivot', 'specialModeNotice', 'zeroReasonKey', 'zeroPlace', 'durianRatingNote', 'specialModeBlocked',
+    'jbFallbackNotice', 'degradedNotice', 'specialModeWidenedInfo', 'questionDeclined', 'allSeenInRange',
+    'widenActive', 'exhaustedNote', 'sparseNotice', 'michelinNotice', 'zeroRetried'
+  ],
+  transient: {
+    catalogue: 'refetched from the server on every mount',
+    authBlocked: 'recomputed from Telegram initData on every mount',
+    michelinCuisinesByCC: 'refetched with the catalogue',
+    michelinYearsByCC: 'refetched with the catalogue',
+    mapViewLocation: 'carried as the payload camera, with its zoom',
+    flyTarget: 'one-shot; the camera is re-stamped from the payload on restore',
+    locMoveNote: 'a toast about a location move that already happened',
+    visibleVenues: 'derived from the map viewport once it renders',
+    fitPins: 'one-shot fit request; the camera is restored instead',
+    loading: 'the restore clears it explicitly (v0.62.902)',
+    loadingReason: 'only meaningful while loading',
+    rotatingIndex: 'loading-overlay animation counter',
+    bootOverlayHold: 'boot-overlay dwell; the restore clears it',
+    funFact: 'loading-overlay content',
+    streamFirstName: 'loading-overlay content',
+    firstLoadPending: 'the restore marks the boot load finished (B1)',
+    error: 'a failed request from before the reload',
+    resultsFlash: 'animation flag',
+    composerOpen: 'an open sheet; reopening it after a reload would surprise',
+    criteriaOpen: 'an open sheet; reopening it after a reload would surprise',
+    resultsBlink: 'animation flag',
+    cuisinePickOpen: 'an open picker; reopening it after a reload would surprise',
+    drillDepth: 'picker navigation depth, meaningless once the picker is closed',
+    headerBottom: 'measured from the DOM after paint',
+    ratingPref: 'reloaded from the server rating preference',
+    ratingLoaded: 'set when the server rating preference arrives',
+    ratingReminder: 'a one-time reminder already shown',
+    reminderShownInOverlay: 'a one-time reminder already shown',
+    editSearchPulse: 'animation flag',
+    warmStartSeed: 'boot-time seed, superseded by the restored results',
+    outsideOpen: 'an open sheet; reopening it after a reload would surprise',
+    recommendHint: 'a hint shown once',
+    anchorPrecinctId: 'derived from the restored anchor',
+    listPeekPx: 'measured from the DOM after paint',
+    stripLiftPx: 'measured from the DOM after paint',
+    scrolledPastHero: 'derived from the restored scroll position',
+    modePeek: 'animation flag',
+    searchHintActive: 'hint animation flag',
+    searchFabFlash: 'animation flag',
+    locationName: 'resolved from the server location on mount',
+    regionExpanded: 'collapsed region pills are the resting state',
+    classicOpen: 'an open sheet; reopening it after a reload would surprise',
+    resultBoundH: 'measured from the DOM after paint',
+    locChanged: 'set by a location change after load, not by a reload',
+    locationGateOpen: 'boot location gate; the restore has a location',
+    bootMismatchHalt: 'boot-coherence state; never set on a restored mount (B1)',
+    coherenceMismatch: 'boot-coherence state, recomputed',
+    regionMismatch: 'boot-coherence state, recomputed',
+    anchorMismatch: 'boot-coherence state, recomputed'
+  }
+};
 
 export function writeToHash(s) {
   if (typeof window === 'undefined') return;

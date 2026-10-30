@@ -17,6 +17,7 @@ import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../_shared/lib/use-outside-now.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { ot } from '../../_shared/lib/outside-now-i18n.js';
+import { loadKept, saveKept } from '../../_shared/lib/kept-settings.js';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import { activeClosure, nextClosure, closureTill, closureFrom, closureKey, CLOSURE_TAB_BG } from './closure.js';
@@ -316,7 +317,8 @@ export default function App() {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(true);
   const [err, setErr] = useState(null);
-  const [activeRegion, setActiveRegion] = useState('Central');
+  // v0.62.959 — spec B3: the region, view and layers are kept on this device across reopening.
+  const [activeRegion, setActiveRegion] = useState(() => loadKept('hawker').activeRegion || 'Central');
   const [savingName, setSavingName] = useState(null);
   // v0.62.547 — tablet "list" toggle (operator, mirrors Cuisine's hide-results):
   // hide the list/panel to reveal the full-bleed map, and bring it back.
@@ -331,7 +333,7 @@ export default function App() {
   // list which is how the drawer effect takes place." Mirrors Transport's
   // `viewMode`: 'carousel' is the default on every device/orientation, and the
   // footer toggle is the ONE way into the drawer.
-  const [viewMode, setViewMode] = useState('carousel');
+  const [viewMode, setViewMode] = useState(() => loadKept('hawker').viewMode || 'carousel');
   // v0.62.637 (C2/C3) — AutoAnimate the centre list (cards fade/slide as the
   // region changes; honours reduced-motion) + a reduced-motion flag for the
   // Motion selected-card spring. Both hooks stay above any early return.
@@ -407,7 +409,10 @@ export default function App() {
     }, 80);
   };
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
-  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
+  const [overlayLayers, setOverlayLayers] = useState(() => ({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false, ...(loadKept('hawker').overlayLayers || {}) }));
+  useEffect(() => {
+    saveKept('hawker', { activeRegion, viewMode, overlayLayers });
+  }, [activeRegion, viewMode, overlayLayers]);
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
   // lazy-fetched per active region from /api/hawker/centre-transit.
   const [transitByName, setTransitByName] = useState({});

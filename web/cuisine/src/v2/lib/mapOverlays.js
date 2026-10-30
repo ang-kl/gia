@@ -2918,12 +2918,13 @@ export function createOverlayController(map, googleMaps, opts) {
       return e.layer.routeNames(c ? { lat: c.lat(), lng: c.lng() } : null);
     },
     // A row tap: lock that route and fit the map to it, or unlock it if it is the one already locked.
-    pcnLock(name) {
+    // v0.62.959 — `fit: false` re-applies a lock carried across a language switch without moving the restored camera.
+    pcnLock(name, { fit = true } = {}) {
       const e = layers.pcn;
       if (!e || !e.layer) return;
       if (e.layer.locked() === name) { e.layer.unlock(); return; }
       e.layer.lock(name);
-      if (e.layer.locked() === name) e.layer.fitRoute(name);
+      if (fit && e.layer.locked() === name) e.layer.fitRoute(name);
     },
     pcnUnlock() { if (layers.pcn && layers.pcn.layer) layers.pcn.layer.unlock(); },
     onPcnLock(fn) { pcnListeners.add(fn); return () => pcnListeners.delete(fn); },

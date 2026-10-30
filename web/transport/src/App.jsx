@@ -26,6 +26,7 @@ import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../_shared/lib/use-outside-now.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { ot } from '../../_shared/lib/outside-now-i18n.js';
+import { loadKept, saveKept } from '../../_shared/lib/kept-settings.js';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import StationLocationField from '../../_shared/components/StationLocationField.jsx';
@@ -256,7 +257,8 @@ export default function App() {
   const vp = useViewport();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [focusedCode, setFocusedCode] = useState(null);
+  // v0.62.959 — spec B3: the line, map type, view and layers are kept on this device across reopening.
+  const [focusedCode, setFocusedCode] = useState(() => loadKept('transport').focusedCode || null);
   // v0.62.659 — which line chip blinks to draw the eye while the first-load
   // "pick a line" popup is open (operator: "blink the top bar of East-West
   // line"). Cleared the moment the user taps any line chip or dismisses
@@ -290,13 +292,13 @@ export default function App() {
   // v0.62.223 — operator (IMG_2537) REVERSED this: "also start in google
   // map mode". Default is now 'gmap'; the schematic PNG stays one tap away
   // via the view toggle (the prior 2026-05-10 rationale kept above).
-  const [mapView, setMapView] = useState('gmap');
+  const [mapView, setMapView] = useState(() => loadKept('transport').mapView || 'gmap');
   // v0.62.606 — operator: the Train TMA now DEFAULTS to the Cuisine/Hawker
   // "full-map + bottom station carousel" across every device (was device-driven:
   // phone stacked / tablet two-panel / landscape carousel). The carousel is
   // EMPTY on first load (map only) until a line pill is tapped; the footer 🗺/⊞
   // toggle switches to the two-panel LIST. 'carousel' | 'list'.
-  const [viewMode, setViewMode] = useState('carousel');
+  const [viewMode, setViewMode] = useState(() => loadKept('transport').viewMode || 'carousel');
   // v0.62.606 — the list-mode scroller (for the footer ⇡/⇣ button + atBottom).
   const listScrollRef = useRef(null);
   const [listAtBottom, setListAtBottom] = useState(false);
@@ -310,7 +312,10 @@ export default function App() {
   };
   // v0.63.0 — map overlay layer toggles (parks / attractions / taxis /
   // carpark), shown only on the interactive Google Map view.
-  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, hawker: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
+  const [overlayLayers, setOverlayLayers] = useState(() => ({ attractions: false, carpark: false, busstop: false, hawker: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false, ...(loadKept('transport').overlayLayers || {}) }));
+  useEffect(() => {
+    saveKept('transport', { focusedCode, mapView, viewMode, overlayLayers });
+  }, [focusedCode, mapView, viewMode, overlayLayers]);
   // v0.60.99 — one-shot auto-switch from PNG → Google Map on the
   // first line-chip tap. After that (whether the user stayed on
   // Google Map or toggled back to Schematic), subsequent chip taps
@@ -345,7 +350,8 @@ export default function App() {
         // load in Cuisine TMA"). v0.62.659 — operator superseded the auto-shown
         // status popup with an explicit "select a line" prompt + a blinking EWL
         // chip; the status info is still one tap away on the status chip.
-        if (!firstPopupRef.current) {
+        // v0.62.959 — a reader whose line was kept from last time is not asked to pick one again.
+        if (!firstPopupRef.current && !loadKept('transport').focusedCode) {
           firstPopupRef.current = true;
           setPopup('pickline');
           setBlinkCode('EWL');

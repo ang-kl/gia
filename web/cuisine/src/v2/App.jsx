@@ -6,7 +6,8 @@ import { shouldFoldOnComposerOpen, RESULTS_BLINK_MS } from './lib/composer-fold.
 import { resultsFlagKey, RESULTS_ORIGIN } from './lib/results-origin.js';
 import { cuisineName } from './lib/cuisine-i18n.js';
 import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
-import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
+import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash, initialState } from './lib/state.js';
+import { loadKept, saveKept } from '../../../_shared/lib/kept-settings.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from '../../../_shared/lib/location-sync.js';
 // v0.62.561 — O-54 responsive port: shared device/orientation hook (drives the
@@ -276,7 +277,8 @@ export default function App() {
   // so the Michelin popup can grey a year nobody holds instead of offering a
   // tick that silently changes nothing.
   const [michelinYearsByCC, setMichelinYearsByCC] = useState({});
-  const [state, setState] = useState(() => readFromHash());
+  // v0.62.959 — spec B3: the hash, or — when it carries no filters — the reader's kept settings.
+  const [state, setState] = useState(() => initialState(typeof window !== 'undefined' ? window.location.hash : '', loadKept('cuisine')));
   const [userLoc, setUserLoc] = useState(null);
   // v0.61.353 — location-state model (subset): the live map centre + an
   // imperative fly target. activeSearchLocation = locationAnchor || userLoc
@@ -328,6 +330,10 @@ export default function App() {
   // off re-searching until the boot load lands — a mid-load re-search also
   // pops a fact card on the first load, which the operator doesn't want.
   const firstLoadPendingRef = useRef(true);
+  // v0.62.959 — spec B2: what a language-switch reload carries beyond the original payload fields. Filled after the
+  // last useState (viewStashRef / viewSettersRef assignments below) and read only from event handlers and effects.
+  const viewStashRef = useRef({});
+  const viewSettersRef = useRef({});
   // v0.61.430 — "explicit pick wins". Flips true once the user deliberately
   // chooses a location / country / foreign region (a city pick, the country
   // dropdown, or an inherited Menu pick that lands in OTHER/JB). While true,
@@ -685,7 +691,7 @@ export default function App() {
   // v0.62.138 — operator: results DEFAULT to the horizontal floating card strip
   // (ResultDrawer) over the map; the vertical list (page ResultPanel) is hidden
   // until the user toggles to 'vertical'. 'horizontal' | 'vertical'.
-  const [drawerMode, setDrawerMode] = useState('horizontal');
+  const [drawerMode, setDrawerMode] = useState(() => loadKept('cuisine').drawerMode || 'horizontal');
   // v0.62.564 — O-54 (operator: "not allow list in landscape, only when user
   // rotate to portrait"). On a tablet/desktop the results surface follows the
   // ORIENTATION — LANDSCAPE = the map + carousel (horizontal), PORTRAIT = the
@@ -751,7 +757,15 @@ export default function App() {
   }
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
-  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, hawker: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
+  // v0.62.959 — seeded from the kept settings (spec B3).
+  const [overlayLayers, setOverlayLayers] = useState(() => ({ attractions: false, carpark: false, busstop: false, hawker: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false, ...(loadKept('cuisine').overlayLayers || {}) }));
+  // v0.62.959 — the locked Park Connector loop, reported up by MapPanel so a language switch can carry it (B2).
+  const [pcnLock, setPcnLock] = useState(null);
+  // v0.62.959 — spec B3: settings, never results, are kept on this device across reopening.
+  useEffect(() => {
+    saveKept('cuisine', { cuisines: state.cuisines, filters: state.filters, michelinFilter: state.michelinFilter,
+      overlayLayers, drawerMode });
+  }, [state.cuisines, state.filters, state.michelinFilter, overlayLayers, drawerMode]);
   // v0.62.249 — operator ("why are there two codes"): the legacy footer
   // "Search criteria" bottom sheet (`criteriaOpen`) is REMOVED. It rendered a
   // SECOND copy of QuickFilters + CuisineDrawer that could resurface (with the
@@ -924,6 +938,17 @@ export default function App() {
       // Re-stamped, never reused: `_k` is the identity MapPanel keys the fly on,
       // and a value carried across a reload is by definition already spent.
       setFlyTarget({ ...restored.camera, _k: Date.now() });
+    }
+    // v0.62.959 — spec B1. THE RESTORED LIST USED TO BE WIPED HERE when the set location was abroad: this mount never
+    // cleared `firstLoadPending`, so the boot-coherence checks (country, JB region, anchor > 150 km from the device)
+    // called haltBootLoadForMismatch, which believed it was stopping the boot load and emptied the list.
+    // Reproduced headless before the fix: a Singapore phone with a Tokyo pin restored to an empty list.
+    firstLoadPendingRef.current = false;
+    setFirstLoadPending(false);
+    // v0.62.959 — spec B2: the rest of the screen.
+    if (restored.view && typeof restored.view === 'object') {
+      const set = viewSettersRef.current;
+      for (const [k, v] of Object.entries(restored.view)) if (typeof set[k] === 'function') set[k](v);
     }
     localeRestorePending = restored;
   }, []);   // once, on mount — takeStash CLEARS, so a re-run could not repeat it anyway
@@ -1407,8 +1432,10 @@ export default function App() {
         locationAnchor, searchLocName,
         explicitPick: explicitPickRef.current,
         camera: (cam && Number.isFinite(cam.lat) && Number.isFinite(cam.lng))
-          ? { lat: cam.lat, lng: cam.lng, zoom: 14 } : null,
+          ? { lat: cam.lat, lng: cam.lng, zoom: Number.isFinite(cam.zoom) ? cam.zoom : 14 } : null,
         scrollY: window.scrollY || 0,
+        // v0.62.959 — everything else on screen (spec B2), set back on the restored mount.
+        view: viewStashRef.current,
       };
       // DEFERRED ON PURPOSE. `setActiveLocale` writes localStorage, dispatches this event,
       // and only THEN dynamically imports api.js to POST the preference to the server, which
@@ -2083,6 +2110,8 @@ export default function App() {
   const bootMismatchRef = useRef(false);
   const [bootMismatchHalt, setBootMismatchHalt] = useState(false);
   function haltBootLoadForMismatch(reason) {
+    // v0.62.959 — B1: a restored mount has no boot load to stop, only restored results to lose.
+    if (localeReloadRestored) return;
     bootMismatchRef.current = true;
     // Only ever touch the BOOT load — never a user-initiated 🔍 search
     // (firstLoadPending is already false by the time the user can tap).
@@ -2256,6 +2285,14 @@ export default function App() {
   // mount so a deliberate mid-session overseas pick isn't nagged.
   const anchorCoherenceCheckedRef = useRef(false);
   const [anchorMismatch, setAnchorMismatch] = useState(null);
+  // v0.62.959 — spec B2 / I7. Every useState above is carried, stashed here, or named as transient in
+  // lib/state.js LOCALE_STASH, and __tests__/locale-restore-coherence.test.js fails on one that is none of them.
+  viewStashRef.current = {
+    state, overlayLayers, pcnLock, drawerMode, drawerDismissed, focusedPlaceId, nlText, tellMeAi, placeAnchor, pages, cursor, cumulativeStart, cumulativeEnd, knownTotal, finalBatch, firstBatch, poolCount, sessionFull, pageStackDepth, michelinRemaining, searchedTerm, searchedTermMode, pinnedDish, comboInfo, cuisinePlate, arrivalPlate, lastRunSnap, lastPrompt, noProvenNew, misrepNote, cookMethodPivot, specialModeNotice, zeroReasonKey, zeroPlace, durianRatingNote, specialModeBlocked, jbFallbackNotice, degradedNotice, specialModeWidenedInfo, questionDeclined, allSeenInRange, widenActive, exhaustedNote, sparseNotice, michelinNotice, zeroRetried
+  };
+  viewSettersRef.current = {
+    state: setState, overlayLayers: setOverlayLayers, pcnLock: setPcnLock, drawerMode: setDrawerMode, drawerDismissed: setDrawerDismissed, focusedPlaceId: setFocusedPlaceId, nlText: setNlText, tellMeAi: setTellMeAi, placeAnchor: setPlaceAnchor, pages: setPages, cursor: setCursor, cumulativeStart: setCumulativeStart, cumulativeEnd: setCumulativeEnd, knownTotal: setKnownTotal, finalBatch: setFinalBatch, firstBatch: setFirstBatch, poolCount: setPoolCount, sessionFull: setSessionFull, pageStackDepth: setPageStackDepth, michelinRemaining: setMichelinRemaining, searchedTerm: setSearchedTerm, searchedTermMode: setSearchedTermMode, pinnedDish: setPinnedDish, comboInfo: setComboInfo, cuisinePlate: setCuisinePlate, arrivalPlate: setArrivalPlate, lastRunSnap: setLastRunSnap, lastPrompt: setLastPrompt, noProvenNew: setNoProvenNew, misrepNote: setMisrepNote, cookMethodPivot: setCookMethodPivot, specialModeNotice: setSpecialModeNotice, zeroReasonKey: setZeroReasonKey, zeroPlace: setZeroPlace, durianRatingNote: setDurianRatingNote, specialModeBlocked: setSpecialModeBlocked, jbFallbackNotice: setJbFallbackNotice, degradedNotice: setDegradedNotice, specialModeWidenedInfo: setSpecialModeWidenedInfo, questionDeclined: setQuestionDeclined, allSeenInRange: setAllSeenInRange, widenActive: setWidenActive, exhaustedNote: setExhaustedNote, sparseNotice: setSparseNotice, michelinNotice: setMichelinNotice, zeroRetried: setZeroRetried
+  };
   // P1-d — focus trap for the anchor-coherence modal (forced choice, no onClose).
   const anchorDialogRef = useDialog({ open: !!anchorMismatch });
   useEffect(() => {
@@ -5057,6 +5094,8 @@ export default function App() {
         region={state.region}
         countryPref={state.countryPref}
         onMapMove={setMapViewLocation}
+        onPcnLockChange={setPcnLock}
+        restorePcnLock={localeReloadRestored ? pcnLock : null}
         flyTo={flyTarget}
         /* v0.62.125 — tap on the empty map exits the result carousel
            (back to the vertical list), per operator "tap-out → list". */
