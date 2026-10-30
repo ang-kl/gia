@@ -168,7 +168,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
+export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, onPcnLockChange = null, restorePcnLock = null, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -220,8 +220,28 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
   const [isTablet, setIsTablet] = useState(false);
   // v0.62.956 — the locked Park Connector loop, pushed from the overlay controller for the lock chip (C8).
   const [pcnLocked, setPcnLocked] = useState(null);
+  // v0.62.959 — spec B2: the lock is reported up so a language-switch reload can carry it, and a restored one is
+  // re-applied once. Read through a ref because the controller subscribes once, at map creation.
+  const onPcnLockChangeRef = useRef(onPcnLockChange);
+  onPcnLockChangeRef.current = onPcnLockChange;
+  const pcnRestoredRef = useRef(false);
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
   const [expanded, setExpanded] = useState(false);
+  // v0.62.959 — spec B2: put a restored Park Connector lock back once the layer has its routes. The layer is fetched
+  // when Park turns on, so this waits for it (bounded), and it does not re-fit the map: the restored camera stands.
+  useEffect(() => {
+    if (!restorePcnLock || pcnRestoredRef.current) return undefined;
+    let tries = 0;
+    const t = setInterval(() => {
+      const c = overlayControllerRef.current;
+      if (c && typeof c.pcnRoutes === 'function' && c.pcnRoutes().includes(restorePcnLock)) {
+        pcnRestoredRef.current = true;
+        c.pcnLock(restorePcnLock, { fit: false });
+        clearInterval(t);
+      } else if (++tries > 40) clearInterval(t);
+    }, 250);
+    return () => clearInterval(t);
+  }, [restorePcnLock]);
   // v0.62.691 — operator: "the ⇱ (U+21F1) and ⇲ (U+21F2) is missing in Cuisine
   // TMA. it is to expand the embedded map like Train TMA and Hawker TMA."
   // Correct: the button was GATED OUT on a phone (`fill` true, `onCollapse`
@@ -399,7 +419,7 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
     // search anchor). Separate listener so handleIdle's marker logic is untouched.
     mapRef.current.addListener('idle', () => {
       const c = mapRef.current && mapRef.current.getCenter && mapRef.current.getCenter();
-      if (c && onMapMove) onMapMove({ lat: c.lat(), lng: c.lng() });
+      if (c && onMapMove) onMapMove({ lat: c.lat(), lng: c.lng(), zoom: mapRef.current.getZoom() });
     });
     // v0.61.89 — troubleshooting: seed + track the bottom-right zoom-level readout.
     setZoomLevel(mapRef.current.getZoom());
@@ -425,7 +445,10 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
     // so the carpark layer can pick LTA (SG) vs Places (JB/MY-PUT).
     // MapPanel keeps the controller in sync via setRegionMode below.
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'cuisine', regionMode: region || 'SG' });
-    overlayControllerRef.current.onPcnLock(setPcnLocked);
+    overlayControllerRef.current.onPcnLock((n) => {
+      setPcnLocked(n);
+      if (onPcnLockChangeRef.current) onPcnLockChangeRef.current(n);
+    });
     // v0.62.537 — ring layer bound to this map; syncMarkers drives draw/clear.
     ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);

@@ -214,3 +214,30 @@ Version: 0.1. Date: 30 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 — loops at every zoom (30-10 '26, after v0.62.956 went live)
+
+Version: 0.2. This amendment changes C5 and I4. Everything else above stands as approved for v0.62.956.
+
+- **Why.** Measured on production (Hawker, 30-10 '26 08:2x SGT), v0.62.956 works from zoom 13: dotted loops, the
+  Park ▾ list (8 loops, nearest first) and the 🔒 lock chip all render. But the apps open at zoom 11-12 (Cuisine's
+  default is 12), so turning on Park showed no connectors. The operator reported: *"I cannot see the park when I
+  toggled on"*. Picking a loop from Park ▾ also failed: the routes span 8-39 km, so fitting the map to one lands at
+  zoom 11-12, where even the locked loop was hidden.
+- **Operator's choice**, 30-10 '26, asked with three options: *"Loops at all zooms"*.
+- **C5 (replaced):**
+  - Below zoom 13: the 8 named routes draw as soon as Park is on, as thin dotted magenta with no halo.
+  - Zoom 13 and 14: the named routes draw at full size with the white halo, as before.
+  - Zoom 15 and above: every other connector draws too, as before.
+  - **A locked loop always draws at full size, at every zoom.**
+- **I4 (replaced):**
+  - Maxim: named routes draw at every zoom, thin below 13 and haloed from 13; unnamed connectors draw from 15; a
+    locked loop draws at full size at any zoom.
+  - Contrary: a Park toggle, or a lock, that shows nothing.
+  - Check: `pcnTier` / `tierShows` / `pcnStyle` tests, and a fake-map run at zoom 11 showing the named routes thin,
+    plus a locked loop at full size.
+- **Mutations to add:**
+  - named routes hidden below 13 again;
+  - the locked loop thin at low zoom.
+- Scope for this amendment: `web/_shared/lib/pcn-layer.js`, `__tests__/pcn-layer.test.js`, `package.json`, this
+  spec, the journal and `doc/.serial-state.yml`. Ships as v0.62.957 on a new PR carrying the held `[AMD-274]`.

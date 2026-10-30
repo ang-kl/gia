@@ -410,8 +410,15 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
 
   // Re-render pins whenever stations, map readiness, focused line /
   // station, Overview state, locale, crowd, or station context change.
+  // v0.62.959 — spec B4: when ONLY the language changed, re-render in place. An open station detail used to re-centre at
+  // zoom 18 on every language switch (the detail branch of renderPins), undoing the reader's own pan and zoom.
+  const pinsDepsRef = useRef(null);
   useEffect(() => {
-    if (mapRef.current && stations) renderPins(stations);
+    const deps = [stations, linePaths, mapsKeyState, focusedCode, focusedStation, overview, crowd, detailCtxTick];
+    const prev = pinsDepsRef.current;
+    const onlyLang = !!prev && prev.deps.every((d, i) => d === deps[i]) && prev.lang !== lang;
+    pinsDepsRef.current = { deps, lang };
+    if (mapRef.current && stations) renderPins(stations, { keepView: onlyLang });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stations, linePaths, mapsKeyState, focusedCode, focusedStation, overview, lang, crowd, detailCtxTick]);
 

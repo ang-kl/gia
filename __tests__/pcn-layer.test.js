@@ -72,30 +72,61 @@ function fakeMaps({ zoom = 15, bounds = null } = {}) {
 
 beforeAll(() => { globalThis.window = globalThis.window || globalThis; });
 
-describe('I4 — zoom steps follow the station labels', () => {
-  it('nothing up to 12, the named routes at 13-14, every connector from 15', () => {
-    expect(pcnTier(12)).toBe('none');
+// Amendment 1 (30-10 '26): v0.62.956 hid every connector below zoom 13, and the apps open at 11-12, so the operator
+// turned Park on and saw nothing — "I cannot see the park when I toggled on". They chose "Loops at all zooms".
+describe('I4 (amended) — the named loops draw at every zoom; detail arrives as you zoom in', () => {
+  it('loops thin below 13, named routes with halo at 13-14, every connector from 15', () => {
+    expect(pcnTier(5)).toBe('loops');
+    expect(pcnTier(12)).toBe('loops');
     expect(pcnTier(13)).toBe('named');
     expect(pcnTier(14)).toBe('named');
     expect(pcnTier(15)).toBe('all');
-    expect(tierShows('named', 'named')).toBe(true);
+    expect(tierShows('loops', 'named')).toBe(true);
+    expect(tierShows('loops', 'other')).toBe(false);
     expect(tierShows('named', 'other')).toBe(false);
-    expect(tierShows('none', 'named')).toBe(false);
     expect(tierShows('all', 'other')).toBe(true);
   });
 
-  it('the real layer draws nothing at 12, named routes only at 13, and the unnamed ones too at 15', () => {
-    const f = fakeMaps({ zoom: 12 });
+  it('below 13 a loop is thin and has no halo; from 13 it has the halo', () => {
+    const thin = pcnStyle('named', 'none', 0, 'loops');
+    expect(thin.halo).toBe(null);
+    expect(thin.line.icons[0].icon.scale).toBeLessThan(pcnStyle('named', 'none', 0, 'named').line.icons[0].icon.scale);
+    expect(pcnStyle('named', 'none', 0, 'named').halo).not.toBe(null);
+  });
+
+  it('a locked loop draws at full size with its halo at every zoom', () => {
+    for (const tier of ['loops', 'named', 'all']) {
+      const st = pcnStyle('named', 'this', 0, tier);
+      expect(st.halo, tier).not.toBe(null);
+      expect(st.line.icons[0].icon.scale, tier).toBe(2.4);
+    }
+  });
+
+  it('the real layer draws the named loops at 11, thin and haloless, then adds halos at 13 and the rest at 15', () => {
+    const f = fakeMaps({ zoom: 11 });
     const layer = createPcnLayer(f.map, f.google, DATA, {});
     layer.setVisible(true);
-    expect(f.onMap().length).toBe(0);
+    const at11 = f.onMap();
+    expect(at11.length).toBeGreaterThan(0);
+    expect(at11.every((p) => p.o.icons && p.o.zIndex >= 21)).toBe(true);
+    expect(at11.some((p) => p.o.strokeColor === '#FFFFFF')).toBe(false);
     f.map.zoom = 13; layer.apply();
-    const at13 = f.onMap().length;
-    expect(at13).toBeGreaterThan(0);
-    expect(f.onMap().every((p) => p.o.zIndex >= 21)).toBe(true);
+    const at13 = f.onMap();
+    expect(at13.some((p) => p.o.strokeColor === '#FFFFFF')).toBe(true);
     f.map.zoom = 15; layer.apply();
-    expect(f.onMap().length).toBeGreaterThan(at13);
+    expect(f.onMap().length).toBeGreaterThan(at13.length);
     expect(f.onMap().some((p) => p.o.zIndex === 12)).toBe(true);
+  });
+
+  it('locking a loop at zoom 11 draws it at full size with its halo', () => {
+    const f = fakeMaps({ zoom: 11 });
+    const layer = createPcnLayer(f.map, f.google, DATA, {});
+    layer.setVisible(true);
+    layer.lock('Southern Ridges Loop');
+    const dots = f.onMap().filter((p) => p.o.icons).map((p) => p.o.icons[0].icon);
+    expect(dots.some((d) => d.scale === 2.4)).toBe(true);
+    expect(f.onMap().some((p) => p.o.strokeColor === '#FFFFFF' && p.o.strokeWeight === 8)).toBe(true);
+    layer.destroy();
   });
 
   it('only lines that meet the visible map are on it', () => {
