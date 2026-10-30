@@ -317,7 +317,7 @@ function fetchHawkerCentres() {
             n += 1;
             if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
             out.push({
-              name: c.name, lat: c.lat, lng: c.lng, isNew: !!c.isNew,
+              name: c.name, displayName: c.displayName || '', lat: c.lat, lng: c.lng, isNew: !!c.isNew,
               address: c.address || '', postal: c.postal || '',
               stalls: Number.isFinite(c.stalls) ? c.stalls : null,
               status: c.status || '', _num: n
@@ -367,7 +367,7 @@ function hawkerDroplet(isNew) {
   wrap.appendChild(el);
   if (isNew) {
     const badge = document.createElement('div');
-    badge.textContent = 'NEW';
+    badge.textContent = poiLabel('newBadge', _lang);
     badge.style.cssText = 'position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);'
       + 'background:#1e3a8a;color:#fff;font-size:8px;font-weight:700;line-height:1;letter-spacing:0.5px;'
       + 'padding:2px 4px;border-radius:3px;white-space:nowrap;border:1px solid #fff;';
@@ -799,6 +799,8 @@ import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { stationDisplay } from '../../../_shared/lib/station-display.js';
 import { placeSecondLine } from '../../../_shared/lib/sg-place-text.js';
+import { policeSecondLine, hospitalSecondLine, localiseHoursLine, poiTerm, poiLabel } from '../../../_shared/lib/poi-i18n.js';
+import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createPcnLayer, fetchPcn, parkMeta, parkVisible, mapBounds, PARK_FILL_OPACITY } from '../../../_shared/lib/pcn-layer.js';
 export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
 
@@ -1190,10 +1192,10 @@ function stationInfoCardHtml(rec, lang) {
 // render each bucket as a service-number list.
 function busArrivalRows(services) {
   const buckets = [
-    { max: 5, label: '≤5 min', svcs: [] },
-    { max: 10, label: '≤10 min', svcs: [] },
-    { max: 20, label: '≤20 min', svcs: [] },
-    { max: Infinity, label: '20+ min', svcs: [] }
+    { max: 5, label: poiLabel('minLe', _lang, { n: 5 }), svcs: [] },
+    { max: 10, label: poiLabel('minLe', _lang, { n: 10 }), svcs: [] },
+    { max: 20, label: poiLabel('minLe', _lang, { n: 20 }), svcs: [] },
+    { max: Infinity, label: poiLabel('minOver', _lang, { n: 20 }), svcs: [] }
   ];
   for (const s of (Array.isArray(services) ? services : [])) {
     const m = s && s.next && Number.isFinite(s.next.minutes) ? s.next.minutes : null;
@@ -1205,7 +1207,7 @@ function busArrivalRows(services) {
   for (const b of buckets) {
     if (!b.svcs.length) continue;
     h += '<div style="margin-top:5px;color:#1c1c1f;font-weight:600;">- '
-      + b.label + ' ‧ Bus № ' + escapeHtml(b.svcs.join(', ')) + '</div>';
+      + escapeHtml(poiLabel('busRow', _lang, { label: b.label, svcs: b.svcs.join(', ') })) + '</div>';
   }
   return h;
 }
@@ -1241,7 +1243,7 @@ function busInfoHtml(b, services) {
   if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
     h += '<div style="margin-top:8px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
       + '" target="_blank" rel="noopener" style="color:' + c.link
-      + ';font-weight:600;text-decoration:underline;">Google Map ➚</a></div>';
+      + ';font-weight:600;text-decoration:underline;">' + escapeHtml(scLabel('googleMap', _lang)) + '</a></div>';
   }
   return infoCard(h);
 }
@@ -1306,20 +1308,20 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
     // station-detail view; many features classify as kind:'stop').
     .filter((t) => !!t).slice(0, lim.taxi || 2)) {
     const pickup = x.kind === 'pickup';
-    place(x.lat, x.lng, amenityLabelNode(pickup ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f', true),
+    place(x.lat, x.lng, amenityLabelNode(poiLabel(pickup ? 'pickup' : 'taxi', _lang), AMENITY_TAXI_BG, '#1c1c1f', true),
       (m) => openCard(m, '<div style="font-weight:600;">'
-        + (pickup ? '🚕 Pick-up point' : '🚕 Taxi stand') + '</div>'
+        + '🚕 ' + escapeHtml(pickup ? poiLabel('pickupPoint', _lang) : poiTerm('taxi', 'Taxi Stand', _lang)) + '</div>'
         + (x.name ? '<div style="color:' + c.sub + ';margin-top:2px;">'
-          + escapeHtml(x.name) + '</div>' : ''), x.lat, x.lng));
+          + escapeHtml(poiTerm('taxi', x.name, _lang)) + '</div>' : ''), x.lat, x.lng));
   }
   for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : []).slice(0, lim.carpark || 2)) {
     if (!cp) continue;
     place(cp.lat, cp.lng, amenityLabelNode('🅿️', AMENITY_CARPARK_BG, '#fff', true),
       (m) => openCard(m, '<div style="font-weight:600;">🅿️ '
-        + escapeHtml(cp.name || 'Carpark') + '</div>'
+        + escapeHtml(cp.name || poiLabel('carpark', _lang)) + '</div>'
         + (Number.isFinite(cp.availableLots)
           ? '<div style="color:' + c.sub + ';margin-top:2px;">'
-            + cp.availableLots + ' lots available</div>' : ''), cp.lat, cp.lng));
+            + escapeHtml(poiLabel('lotsAvailable', _lang, { n: cp.availableLots })) + '</div>' : ''), cp.lat, cp.lng));
   }
   // v0.61.85 — the short 🚉 station pill + popup was removed: the train
   // overlay's station markers already open the full CR-7 station card,
@@ -1493,9 +1495,15 @@ export function createOverlayController(map, googleMaps, opts) {
   function hawkerCardHtml(f, transit) {
     const p = infoPalette();
     let h = '<div style="font-weight:600;font-size:13px;">' + escapeHtml(f.name || '') + (f.isNew ? ' 🆕' : '') + '</div>';
-    if (f.status) {
-      h += '<div style="color:' + p.sub + ';margin-top:2px;">🕒 ' + escapeHtml(f.status) + '</div>';
-    } else if (Number.isFinite(f.stalls) && f.stalls > 0) {
+    // v0.62.958 — the curated local name (zh / id), as the Hawker app's own popup shows it.
+    const hn = hawkerNameLocal(f.displayName || f.name, _lang);
+    if (hn) h += '<div style="font-size:12px;opacity:.7;">(' + escapeHtml(hn) + ')</div>';
+    // v0.62.958 — NEA's status is "Existing" / "Existing (new)" on all 123 centres. It was shown raw in English and,
+    // because it is always set, the translated stall count below it never rendered. Both lines now show.
+    if (/^Existing/.test(String(f.status || ''))) {
+      h += '<div style="color:' + p.sub + ';margin-top:2px;">🕒 ' + escapeHtml(poiLabel('operating', _lang)) + '</div>';
+    }
+    if (Number.isFinite(f.stalls) && f.stalls > 0) {
       h += '<div style="color:' + p.sub + ';margin-top:2px;">' + escapeHtml(scLabel('stalls', _lang, { n: f.stalls })) + '</div>';
     }
     if (f.address) {
@@ -1517,7 +1525,7 @@ export function createOverlayController(map, googleMaps, opts) {
       h += '<div onclick="window.__giaFocusStation&&window.__giaFocusStation(\'' + escapeHtml(firstCode) + '\')"'
         + ' style="margin-top:3px;cursor:pointer;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'
         + '<span aria-hidden>🚉</span>' + pills
-        + '<span style="color:' + p.sub + ';">' + escapeHtml(st.name) + '</span></div>';
+        + '<span style="color:' + p.sub + ';">' + escapeHtml(stationDisplay(st.name, _lang)) + '</span></div>';
     }
     return infoCard(h, f);
   }
@@ -1573,7 +1581,7 @@ export function createOverlayController(map, googleMaps, opts) {
         info.setContent(exitInfo(f));
         info.open(map, marker);
       });
-      return { marker, lat: f.lat, lng: f.lng, compact, full, _exit: true };
+      return { marker, lat: f.lat, lng: f.lng, compact, full, _exit: true, _code: code };
     });
   }
 
@@ -1585,7 +1593,7 @@ export function createOverlayController(map, googleMaps, opts) {
       const pickup = /pick ?up/i.test(String(f.name || ''));
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: amenityLabelNode(pickup ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f', true),
+        content: amenityLabelNode(poiLabel(pickup ? 'pickup' : 'taxi', lang), AMENITY_TAXI_BG, '#1c1c1f', true),
         title: f.name || '',
         gmpClickable: true
       });
@@ -1787,8 +1795,12 @@ export function createOverlayController(map, googleMaps, opts) {
   }
 
   // --- per-feature InfoWindow HTML -------------------------------------
+  // v0.62.958 — a bracketed second line in the reader's language, the shape bus stops already use.
+  const second = (t) => (t ? '<div style="margin-top:1px;"><small style="opacity:.75">(' + escapeHtml(t) + ')</small></div>' : '');
+  // v0.62.958 — nameInfo serves the taxi overlay, whose 371 points carry only 4 names; poiTerm returns any other
+  // name unchanged.
   const nameInfo = (f) =>
-    infoCard('<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>', f);
+    infoCard('<div style="font-weight:600;">' + escapeHtml(poiTerm('taxi', f.name || '', _lang)) + '</div>', f);
 
   // v0.61.24 — the Exit Template for an enriched geo-exits.json feature.
   const exitInfo = (f) =>
@@ -1800,9 +1812,9 @@ export function createOverlayController(map, googleMaps, opts) {
     // availability) + Actions (Google Maps ↗). The `f` 2nd arg to
     // infoCard auto-appends the standard gmapsLinkRow tail (the
     // TMA-wide convention from v0.61.31).
-    const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
+    const lots = Number.isFinite(f.availableLots) ? ' — ' + poiLabel('lotsAvailable', _lang, { n: f.availableLots }) : '';
     return infoCard('<div style="font-weight:600;">'
-      + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
+      + escapeHtml((f.name || poiLabel('carpark', _lang)) + lots) + '</div>', f);
   };
 
   // v0.61.109 — enriched attraction popup: star rating + review count,
@@ -1819,40 +1831,44 @@ export function createOverlayController(map, googleMaps, opts) {
       const cnt = Number.isFinite(f.ratingCount) ? ' (' + f.ratingCount + ')' : '';
       h += '<div style="color:' + c.sub + ';margin-top:2px;">⭐ ' + escapeHtml(f.rating.toFixed(1)) + cnt + '</div>';
     }
-    if (f.address) h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
+    if (f.address) {
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
+      const as = placeSecondLine(f.address, _lang);
+      if (as) h += second(as.text);
+    }
     let hoursLine = '';
     if (Array.isArray(f.hoursWeek) && f.hoursWeek.length) {
       const jsDay = new Date().getDay();
-      hoursLine = f.hoursWeek[jsDay === 0 ? 6 : jsDay - 1] || f.hoursWeek[0];
+      hoursLine = localiseHoursLine(f.hoursWeek[jsDay === 0 ? 6 : jsDay - 1] || f.hoursWeek[0], _lang);
     } else if (f.hours) {
       hoursLine = f.hours;
     }
     if (hoursLine) h += '<div style="color:' + c.sub + ';margin-top:2px;">🕰 ' + escapeHtml(hoursLine) + '</div>';
     if (f.phone) h += '<div style="color:' + c.sub + ';margin-top:2px;">☎ ' + escapeHtml(f.phone) + '</div>';
     if (f.wheelchair === true) {
-      h += '<div style="color:' + c.sub + ';margin-top:2px;">♿ Wheelchair accessible</div>';
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">♿ ' + escapeHtml(poiLabel('wheelchair', _lang)) + '</div>';
     }
     for (const st of (Array.isArray(f.stations) ? f.stations : [])) {
       if (!st || !st.name) continue;
       const codes = Array.isArray(st.codes) ? st.codes.join(' / ') : '';
-      h += '<div style="color:' + c.sub + ';margin-top:2px;">🚉 ' + escapeHtml(st.name)
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">🚉 ' + escapeHtml(stationDisplay(st.name, _lang))
         + (codes ? ' (' + escapeHtml(codes) + ')' : '') + '</div>';
       // v0.61.10 — nearest station's exits (verbatim EXIT_CODE values).
       const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
       if (exits.length) {
         h += '<div style="color:' + c.sub + ';margin-top:1px;font-size:12px;">'
-          + escapeHtml(exits.join(', ')) + '</div>';
+          + escapeHtml(exits.map((x) => String(x).replace(/^Exit\b/, scLabel('exit', _lang))).join(', ')) + '</div>';
       }
     }
     if (f.website) {
       const href = /^https?:\/\//.test(f.website) ? f.website : 'https://' + f.website;
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(href)
-        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 Website</a></div>';
+        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 ' + escapeHtml(poiLabel('website', _lang)) + '</a></div>';
     }
     if (f.instagram) {
       const ig = /^https?:\/\//.test(f.instagram) ? f.instagram : 'https://' + f.instagram;
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ig)
-        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">📷 Instagram</a></div>';
+        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">📷 ' + escapeHtml(poiLabel('instagram', _lang)) + '</a></div>';
     }
     return infoCard(h, f);
   };
@@ -1861,8 +1877,13 @@ export function createOverlayController(map, googleMaps, opts) {
   const poiInfo = (glyph) => (f) => {
     const c = infoPalette();
     let h = '<div style="font-weight:600;">' + glyph + ' ' + escapeHtml(f.name || '') + '</div>';
+    // v0.62.958 — SPF publishes English only; the composed line appears only when complete (spec A1).
+    const pl = policeSecondLine(f.name, _lang);
+    if (pl) h += second(pl.text);
     if (f.address) {
       h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
+      const as = placeSecondLine(f.address, _lang);
+      if (as) h += second(as.text);
     }
     return infoCard(h, f);
   };
@@ -1873,7 +1894,7 @@ export function createOverlayController(map, googleMaps, opts) {
   // in the CHAS dataset, so that line is omitted.
   const clinicInfo = (f) => {
     const c = infoPalette();
-    let h = '<div style="font-weight:600;">💊 ' + escapeHtml(f.name || 'Clinic') + '</div>';
+    let h = '<div style="font-weight:600;">💊 ' + escapeHtml(f.name || poiLabel('clinic', _lang)) + '</div>';
     const addr = [];
     if (f.unit) addr.push(escapeHtml(f.unit));
     if (f.building) addr.push(escapeHtml(f.building));
@@ -1885,13 +1906,15 @@ export function createOverlayController(map, googleMaps, opts) {
     if (addr.length) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">' + addr.join('<br>') + '</div>';
     }
+    const ss = f.street ? placeSecondLine(f.street, _lang) : null;
+    if (ss) h += second(ss.text);
     // v0.61.39 — opening hours (Google Places weekdayDescriptions, added
     // by scripts/fetch-clinic-hours.js; absent until that script runs).
     // Show today's line — the array is Monday-first, JS getDay() Sun=0.
     if (Array.isArray(f.hours) && f.hours.length) {
       const jsDay = new Date().getDay();
       const today = f.hours[jsDay === 0 ? 6 : jsDay - 1] || f.hours[0];
-      h += '<div style="color:' + c.sub + ';margin-top:3px;">🕒 ' + escapeHtml(today) + '</div>';
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">🕒 ' + escapeHtml(localiseHoursLine(today, _lang)) + '</div>';
     }
     if (f.tel) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">☎ ' + escapeHtml(f.tel) + '</div>';
@@ -1909,12 +1932,14 @@ export function createOverlayController(map, googleMaps, opts) {
     let h = '';
     if (f.category) {
       h += '<div style="color:' + c.sub + ';font-size:12px;text-transform:uppercase;'
-        + 'letter-spacing:.04em;">' + escapeHtml(f.category) + '</div>';
+        + 'letter-spacing:.04em;">' + escapeHtml(poiTerm('hospitalCategory', f.category, _lang)) + '</div>';
     }
-    h += '<div style="font-weight:600;margin-top:1px;">🏥 ' + escapeHtml(f.name || 'Hospital') + '</div>';
+    h += '<div style="font-weight:600;margin-top:1px;">🏥 ' + escapeHtml(f.name || poiLabel('hospital', _lang)) + '</div>';
+    const hl = hospitalSecondLine(f.name, _lang);
+    if (hl) h += second(hl.text);
     for (const p of (Array.isArray(f.phones) ? f.phones : [])) {
       if (!p || !p.number) continue;
-      const label = p.purpose && p.purpose !== 'Main' ? escapeHtml(p.purpose) + ': ' : '';
+      const label = p.purpose && p.purpose !== 'Main' ? escapeHtml(poiTerm('phonePurpose', p.purpose, _lang)) + ': ' : '';
       h += '<div style="color:' + c.sub + ';margin-top:3px;">☎ ' + label + escapeHtml(p.number) + '</div>';
     }
     if (f.whatsapp) {
@@ -1937,10 +1962,12 @@ export function createOverlayController(map, googleMaps, opts) {
     if (addr.length) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">📍 ' + addr.join('<br>') + '</div>';
     }
+    const hs = f.address ? placeSecondLine(f.address, _lang) : null;
+    if (hs) h += second(hs.text);
     let hours = f.hoursNote ? escapeHtml(f.hoursNote) : '';
     if (!hours && Array.isArray(f.hours) && f.hours.length) {
       const jsDay = new Date().getDay();
-      hours = escapeHtml(f.hours[jsDay === 0 ? 6 : jsDay - 1] || f.hours[0]);
+      hours = escapeHtml(localiseHoursLine(f.hours[jsDay === 0 ? 6 : jsDay - 1] || f.hours[0], _lang));
     }
     if (hours) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">🕒 ' + hours + '</div>';
@@ -2114,7 +2141,7 @@ export function createOverlayController(map, googleMaps, opts) {
         cLat /= items.length;
         cLng /= items.length;
         const text = isCarpark
-          ? items.length + ' 🅿 here'
+          ? poiLabel('carparkHere', _lang, { n: items.length })
           : items.length + ' ⚝ here';
         let cm = e._clusters[cIdx];
         if (!cm) {
@@ -2157,7 +2184,7 @@ export function createOverlayController(map, googleMaps, opts) {
             || placedIcons.some((p) => footprintOverlap(it.lat, it.lng, w, h, p, mpp));
           if (!labelClash) {
             const glyph = isCarpark ? '🅿' : (it._glyph || '⚝');
-            const displayName = it._name || (isCarpark ? 'Carpark' : 'Attraction');
+            const displayName = it._name || poiLabel(isCarpark ? 'carpark' : 'attraction', _lang);
             it.marker.content = amenityLabelNode((glyph + ' ' + displayName).trim(),
               '#ffffff', '#1c1c1f', true);
             it.marker.map = map;
@@ -2466,6 +2493,34 @@ export function createOverlayController(map, googleMaps, opts) {
   // v0.61.112 — frame the whole attraction set (not a radius subset):
   // the attractions layer is no longer radius-clipped, so applyVisibility
   // shows them all and the frame must match.
+  // v0.62.958 — spec I5. setLang used to store the language and rebuild nothing. Popups are built at click time so
+  // the next tap was right, but exit pills and taxi labels were built once and kept the old language, and bus, station
+  // and amenity labels changed only when the zoom band did. Cuisine hid this by reloading; Hawker and Train do not.
+  // An open overlay card is closed rather than left in the old language.
+  function relanguage() {
+    info.close();
+    const ex = layers.exits;
+    if (ex) {
+      for (const it of ex.items || []) {
+        if (it._exit) it.full = amenityLabelNode(scLabel('exit', lang) + ' ' + (it._code || ''), '#FFFFFF', '#1c1c1f', true);
+      }
+    }
+    const tx = layers.taxis;
+    if (tx) {
+      for (const it of tx.items || []) {
+        if (!it.marker) continue;
+        const pickup = /pick ?up/i.test(String(it.marker.title || ''));
+        it.marker.content = amenityLabelNode(poiLabel(pickup ? 'pickup' : 'taxi', lang), AMENITY_TAXI_BG, '#1c1c1f', true);
+      }
+    }
+    for (const name of Object.keys(layers)) {
+      const e = layers[name];
+      for (const it of e.items || []) { it._busTier = null; it._hawkerTier = null; it._tierRendered = null; }
+      for (const st of e.stations || []) st._mode = null;
+      applyVisibility(name);
+    }
+  }
+
   function frameAttractions(entry) {
     const pts = (entry.items || []).filter((it) =>
       Number.isFinite(it.lat) && Number.isFinite(it.lng));
@@ -2540,8 +2595,13 @@ export function createOverlayController(map, googleMaps, opts) {
     },
     // v0.62.886 — the reader's locale, pushed in from a useEffect([lang]).
     setLang(l) {
-      lang = l || 'en';
+      const next = l || 'en';
+      const changed = next !== lang;
+      lang = next;
       setOverlayLang(lang);
+      // v0.62.958 — I5: re-render what is already drawn, or it keeps the old language until a zoom band changes
+      // (bus, station, amenity labels) or for the life of the map (exit pills, taxi labels).
+      if (changed) relanguage();
     },
     // v0.61.17 — clear the station-detail view (if any).
     clearStationDetail() {
