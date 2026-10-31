@@ -1,5 +1,8 @@
 import React, { useEffect } from 'react';
-import { ot, sheetRows, levelKey, rowTone, rowText } from '../lib/outside-now-i18n.js';
+import {
+  ot, sheetRows, levelKey, rowTone, rowText, hhmm, outlookLabel, outlookDay, outlookTemp, TEMP_UNIT_KEY,
+} from '../lib/outside-now-i18n.js';
+import useOutlook from '../lib/use-outlook.js';
 
 // OutsideNowSheet.jsx — v0.62.952. Layout B of the "Outside now" spec
 // (doc/Feature/2026-10-29-outside-now-alerts.spec.md): the sheet the weather chip opens. One row per feed — heat
@@ -11,6 +14,11 @@ import { ot, sheetRows, levelKey, rowTone, rowText } from '../lib/outside-now-i1
 // flood near you") and line 2 names the row and its source ("Flood alert · PUB 19:11"); parking is one row per
 // carpark; and on a wide window (Telegram Desktop) the sheet is capped at 480 px and centred instead of stretching
 // edge to edge, which left every level pill stranded at the far right.
+//
+// v0.62.960 — spec doc/Feature/2026-10-30-weather-fixes-and-4-day-forecast.spec.md. C4: "Next 4 days" at the bottom,
+// NEA's outlook from tomorrow, fetched only while the sheet is open, following the badge's °C / °F switch; it is the
+// one block where the Outside-now spec's "no forecast language" (its C9) is lifted. C3: the Singapore Open Data Licence
+// notice for the NEA and PUB data above it. The sheet itself stays Singapore-only.
 
 const TONE = {
   red: { bg: '#fde8e8', fg: '#c63b3b' },
@@ -41,7 +49,10 @@ export default function OutsideNowSheet({ open, onClose, data, app = 'default', 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+  const outlook = useOutlook(!!(open && data && data.inSg));
   if (!open || !data || !data.inSg || !data.rows) return null;
+  let unit = 'C';
+  try { unit = localStorage.getItem(TEMP_UNIT_KEY) === 'F' ? 'F' : 'C'; } catch { /* storage unavailable: °C */ }
   const place = data.place?.isDefault ? ot('singapore', lang) : ot('nearYou', lang);
   const wide = typeof window !== 'undefined' && window.innerWidth >= WIDE_PX;
   const rows = [];
@@ -83,6 +94,23 @@ export default function OutsideNowSheet({ open, onClose, data, app = 'default', 
           <button type="button" onClick={onClose} aria-label={ot('ui.close', lang)} style={{ all: 'unset', cursor: 'pointer', fontSize: 16, padding: 4 }}>✕</button>
         </div>
         {rows}
+        {outlook && outlook.days && outlook.days.length > 0 && (
+          <div data-outlook style={{ borderTop: '1px solid rgba(127,127,127,.18)', paddingTop: 8, marginTop: 2 }}>
+            <b style={{ fontWeight: 600, display: 'block', marginBottom: 2 }}>{ot('outlook.title', lang)}</b>
+            {outlook.days.map((d) => (
+              <div key={d.date} data-outlook-day={d.date} style={{ display: 'grid', gridTemplateColumns: '44px 24px auto 1fr', gap: 6, alignItems: 'center', padding: '3px 0' }}>
+                <span>{outlookDay(d.date, lang)}</span>
+                <span aria-hidden="true">{d.emoji}</span>
+                <span style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{outlookTemp(d.lowC, d.highC, unit)}</span>
+                <span style={{ minWidth: 0, opacity: 0.85 }}>{outlookLabel(d.text, lang)}</span>
+              </div>
+            ))}
+            <span style={{ display: 'block', fontSize: 11.5, opacity: 0.75 }}>{ot('outlook.issued', lang, { t: hhmm(outlook.issuedAt) })}</span>
+          </div>
+        )}
+        <p data-licence style={{ margin: '10px 0 0', fontSize: 10.5, opacity: 0.65, lineHeight: 1.35 }}>
+          <a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{ot('licence.sg', lang)}</a>
+        </p>
       </div>
     </div>
   );

@@ -975,7 +975,7 @@ export default function App() {
                 refresh; NEA trails the trio. */}
             <div className="flex items-center gap-2 shrink-0">
               <LocaleToggle className="flex-shrink-0" />
-              <span className="text-[10px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
+              <span className="text-[10px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
@@ -1044,7 +1044,7 @@ export default function App() {
         <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
         <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
-          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -1143,7 +1143,7 @@ export default function App() {
             <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
             <div className="flex items-center gap-3 shrink-0">
               <LocaleToggle className="flex-shrink-0" />
-              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
+              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
               <button type="button" onClick={() => window.location.reload()}
                 aria-label={t('ui.refresh', lang)} title={t('ui.refresh', lang)}
                 className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
