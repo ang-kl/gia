@@ -6,6 +6,9 @@
 // Wording rules (spec C9 and the operator, 29-10 '26: *"no need to state "LTA" but keeps "NEA" or "PUB""*): weather
 // rows name NEA or PUB with the reading time, and the parking row names no agency. No forecast language, and nothing
 // about sheltered exits or air-conditioning — no data source says either.
+//
+// v0.62.960 lifts "no forecast language" for the 4-day block only (spec doc/Feature/2026-10-30-weather-fixes-and-4-day-
+// forecast.spec.md): its labels name NEA's own condition classes, and NEA's prose summary is never shown.
 
 export const OUTSIDE_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
@@ -60,6 +63,24 @@ export const OUTSIDE_STRINGS = {
   'strip.uv': { en: 'UV {i} · shade helps', fr: 'UV {i} · cherchez l’ombre', id: 'UV {i} · cari tempat teduh', ru: 'УФ {i} · держитесь в тени', de: 'UV {i} · Schatten suchen', zh: '紫外线 {i} · 请找阴凉处', ja: '紫外線 {i} · 日陰へ', es: 'UV {i} · busca sombra', ko: '자외선 {i} · 그늘을 찾으세요' },
   'ui.close': { en: 'Close', fr: 'Fermer', id: 'Tutup', ru: 'Закрыть', de: 'Schließen', zh: '关闭', ja: '閉じる', es: 'Cerrar', ko: '닫기' },
   'ui.dismiss': { en: 'Dismiss', fr: 'Masquer', id: 'Sembunyikan', ru: 'Скрыть', de: 'Ausblenden', zh: '隐藏', ja: '非表示', es: 'Ocultar', ko: '숨기기' },
+  // v0.62.960 — spec doc/Feature/2026-10-30-weather-fixes-and-4-day-forecast.spec.md. C3: the licence notice for the
+  // NEA and PUB rows. C2: the badge's weather card abroad, with Open-Meteo's required credit. C4/C5: the 4-day block.
+  'licence.sg': { en: 'Contains information from NEA and PUB via data.gov.sg, under the Singapore Open Data Licence', fr: 'Contient des informations de NEA et PUB via data.gov.sg, sous la Singapore Open Data Licence', id: 'Berisi informasi dari NEA dan PUB melalui data.gov.sg, di bawah Singapore Open Data Licence', ru: 'Содержит информацию NEA и PUB с data.gov.sg по лицензии Singapore Open Data Licence', de: 'Enthält Informationen von NEA und PUB über data.gov.sg, unter der Singapore Open Data Licence', zh: '包含来自 NEA 和 PUB 的信息（经 data.gov.sg），依据新加坡开放数据许可（Singapore Open Data Licence）', ja: 'NEA・PUB の情報を含みます（data.gov.sg 経由、Singapore Open Data Licence に基づく）', es: 'Contiene información de NEA y PUB a través de data.gov.sg, bajo la Singapore Open Data Licence', ko: 'NEA 및 PUB의 정보를 포함합니다 (data.gov.sg 제공, Singapore Open Data Licence 적용)' },
+  'abroad.note': { en: 'Heat, lightning, flood, air and UV readings are available in Singapore only', fr: 'Les relevés de chaleur, foudre, inondations, air et UV ne sont disponibles qu’à Singapour', id: 'Data panas, petir, banjir, udara, dan UV hanya tersedia di Singapura', ru: 'Данные о жаре, молниях, подтоплениях, воздухе и УФ доступны только в Сингапуре', de: 'Werte zu Hitze, Blitzen, Überflutung, Luft und UV gibt es nur in Singapur', zh: '高温、闪电、水浸、空气和紫外线读数仅限新加坡', ja: '暑さ・雷・冠水・大気・紫外線の情報はシンガポールのみです', es: 'Los datos de calor, rayos, inundaciones, aire y UV solo están disponibles en Singapur', ko: '열, 낙뢰, 침수, 대기, 자외선 정보는 싱가포르에서만 제공됩니다' },
+  'abroad.humidity': { en: 'Humidity {pct}%', fr: 'Humidité {pct} %', id: 'Kelembapan {pct}%', ru: 'Влажность {pct}%', de: 'Luftfeuchte {pct} %', zh: '湿度 {pct}%', ja: '湿度 {pct}%', es: 'Humedad {pct} %', ko: '습도 {pct}%' },
+  'abroad.credit': { en: 'Weather data by Open-Meteo.com', fr: 'Données météo : Open-Meteo.com', id: 'Data cuaca oleh Open-Meteo.com', ru: 'Данные о погоде: Open-Meteo.com', de: 'Wetterdaten von Open-Meteo.com', zh: '天气数据来自 Open-Meteo.com', ja: '気象データ：Open-Meteo.com', es: 'Datos meteorológicos de Open-Meteo.com', ko: '날씨 데이터: Open-Meteo.com' },
+  'outlook.title': { en: 'Next 4 days', fr: 'Les 4 prochains jours', id: '4 hari ke depan', ru: 'Следующие 4 дня', de: 'Nächste 4 Tage', zh: '未来 4 天', ja: '今後4日間', es: 'Próximos 4 días', ko: '향후 4일' },
+  'outlook.issued': { en: 'NEA · issued {t}', fr: 'NEA · émis à {t}', id: 'NEA · terbit {t}', ru: 'NEA · выпущен в {t}', de: 'NEA · ausgegeben {t}', zh: 'NEA · {t} 发布', ja: 'NEA · {t} 発表', es: 'NEA · emitido a las {t}', ko: 'NEA · {t} 발표' },
+  'wx.thunder': { en: 'Thundery showers', fr: 'Averses orageuses', id: 'Hujan badai petir', ru: 'Грозовые ливни', de: 'Gewitterschauer', zh: '雷阵雨', ja: '雷雨', es: 'Chubascos tormentosos', ko: '뇌우' },
+  'wx.lightning': { en: 'Lightning', fr: 'Éclairs', id: 'Petir', ru: 'Молнии', de: 'Blitze', zh: '闪电', ja: '雷', es: 'Rayos', ko: '번개' },
+  'wx.showers': { en: 'Showers', fr: 'Averses', id: 'Hujan lokal', ru: 'Ливни', de: 'Schauer', zh: '阵雨', ja: 'にわか雨', es: 'Chubascos', ko: '소나기' },
+  'wx.rain': { en: 'Rain', fr: 'Pluie', id: 'Hujan', ru: 'Дождь', de: 'Regen', zh: '雨', ja: '雨', es: 'Lluvia', ko: '비' },
+  'wx.haze': { en: 'Hazy', fr: 'Brumeux', id: 'Berkabut', ru: 'Дымка', de: 'Dunstig', zh: '有霾', ja: 'もや', es: 'Calima', ko: '연무' },
+  'wx.windy': { en: 'Windy', fr: 'Venteux', id: 'Berangin', ru: 'Ветрено', de: 'Windig', zh: '有风', ja: '風が強い', es: 'Ventoso', ko: '바람' },
+  'wx.overcast': { en: 'Overcast', fr: 'Couvert', id: 'Mendung', ru: 'Пасмурно', de: 'Bedeckt', zh: '阴天', ja: 'どんより曇り', es: 'Cubierto', ko: '흐림' },
+  'wx.partlyCloudy': { en: 'Partly cloudy', fr: 'Partiellement nuageux', id: 'Berawan sebagian', ru: 'Переменная облачность', de: 'Teilweise bewölkt', zh: '局部多云', ja: '晴れ時々曇り', es: 'Parcialmente nublado', ko: '구름 조금' },
+  'wx.cloudy': { en: 'Cloudy', fr: 'Nuageux', id: 'Berawan', ru: 'Облачно', de: 'Bewölkt', zh: '多云', ja: '曇り', es: 'Nublado', ko: '구름 많음' },
+  'wx.fair': { en: 'Fair', fr: 'Beau temps', id: 'Cerah', ru: 'Ясно', de: 'Heiter', zh: '晴', ja: '晴れ', es: 'Despejado', ko: '맑음' },
 };
 
 // Source agency per row. Parking deliberately has none.
@@ -200,3 +221,48 @@ export function tempText(wx, unit) {
 }
 
 export const TEMP_UNIT_KEY = 'gia.tempUnit';
+
+// v0.62.960 — C5. NEA publishes no list of its forecast codes, so a day is labelled from its TEXT, with the same
+// ordered patterns weather-emoji.js forecastEmoji() uses: the most specific first, so "Thundery Showers" is thunder and
+// "Partly Cloudy (Day)" is not plain cloudy. Text matching none is shown exactly as NEA wrote it, never guessed.
+export const OUTLOOK_CLASSES = [
+  ['thunder', /thunder/],
+  ['lightning', /lightning/],
+  ['showers', /shower/],
+  ['rain', /rain|drizzle/],
+  ['haze', /haz[ey]|mist|\bfog/],
+  ['windy', /wind|gust/],
+  ['overcast', /overcast/],
+  ['partlyCloudy', /partly\s*cloud/],
+  ['cloudy', /cloud/],
+  ['fair', /fair|sunny|clear|warm|hot/],
+];
+
+export function outlookClass(text) {
+  const t = String(text || '').toLowerCase();
+  if (!t.trim()) return null;
+  const hit = OUTLOOK_CLASSES.find(([, re]) => re.test(t));
+  return hit ? hit[0] : null;
+}
+
+export function outlookLabel(text, lang) {
+  const c = outlookClass(text);
+  return c ? ot(`wx.${c}`, lang) : String(text || '');
+}
+
+// C4: the weekday in the reader's own locale, from the browser's Intl names. `date` is NEA's YYYY-MM-DD.
+export function outlookDay(date, lang) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return '';
+  const d = new Date(`${date}T12:00:00+08:00`);
+  try {
+    return new Intl.DateTimeFormat(lang, { weekday: 'short', timeZone: 'Asia/Singapore' }).format(d);
+  } catch {
+    return new Intl.DateTimeFormat('en', { weekday: 'short', timeZone: 'Asia/Singapore' }).format(d);
+  }
+}
+
+// C4: the day's low-high range, following the badge's °C / °F switch.
+export function outlookTemp(lowC, highC, unit) {
+  const f = (c) => Math.round(c * 9 / 5 + 32);
+  return unit === 'F' ? `${f(lowC)}-${f(highC)}°F` : `${lowC}-${highC}°C`;
+}

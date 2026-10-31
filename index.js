@@ -19806,6 +19806,19 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.960 — NEA's four-day outlook for the "Outside now" sheet (spec doc/Feature/2026-10-30-weather-fixes-and-
+    // 4-day-forecast.spec.md, C4 and C6). Island-wide, starting tomorrow as NEA issues it; cached as `nea:4day` for
+    // 30 minutes inside weather-outlook.js. The sheet asks only when it opens, and a failure is { ok: false }.
+    app.get('/api/weather/outlook', async (req, res) => {
+      try {
+        const out = await require('./weather-outlook').getOutlook({ cache: redis.isOpen ? redis : null });
+        res.json(out);
+      } catch (err) {
+        console.error('[Error] /api/weather/outlook failed:', err.message);
+        res.json({ ok: false });
+      }
+    });
+
     // v0.34.2: reverse-geocode endpoint. Turns raw lat/lng into a
     // human-readable neighbourhood/place name for the TMA Header so the
     // user sees "📍 Telok Blangah" instead of "📍 1.2722, 103.8112".

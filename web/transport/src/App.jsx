@@ -559,7 +559,7 @@ export default function App() {
         {/* v0.62.603 — Cuisine-standard flush-right cluster: language, temp, refresh. */}
         <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
-          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={openOutside} ariaLabel={ot('title', lang)} /></span>
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
           <button
             type="button"
             onClick={() => window.location.reload()}
