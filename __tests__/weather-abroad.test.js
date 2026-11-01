@@ -11,8 +11,9 @@
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 import {
-  OUTSIDE_STRINGS, OUTSIDE_LOCALES, badgeDot, jmaName, jmaLineKey, JMA_NAMES, windText, localTime, topJma,
+  OUTSIDE_STRINGS, OUTSIDE_LOCALES, badgeDot, jmaName, jmaLineKey, JMA_NAMES, windText, localTime, topJma, outlookTemp,
 } from '../web/_shared/lib/outside-now-i18n.js';
+import { CITIES_BY_COUNTRY } from '../web/cuisine/src/v2/lib/cities.js';
 
 const require = createRequire(import.meta.url);
 const fs = require('fs');
@@ -193,6 +194,30 @@ describe('C6 — each city\'s time zone', () => {
       expect(() => new Intl.DateTimeFormat('en', { timeZone: z }), `${name}: ${z}`).not.toThrow();
     }
   });
+  // Operator, 01-11 '26: "include all cities' weather". Every city the picker offers must get its OWN zone, not a
+  // longitude band. The expected zone is worked out here from the picker's own country and state, independently of
+  // weather.js's table: a single zone per country, Australia by state, and Indonesia's WITA cities by name.
+  it('every one of the 284 picker cities resolves to its own country\'s (or state\'s) zone', () => {
+    const ONE = { MY: 'Asia/Kuala_Lumpur', ID: 'Asia/Jakarta', TH: 'Asia/Bangkok', VN: 'Asia/Ho_Chi_Minh', PH: 'Asia/Manila',
+      BN: 'Asia/Brunei', NZ: 'Pacific/Auckland', JP: 'Asia/Tokyo', KR: 'Asia/Seoul', CN: 'Asia/Shanghai', HK: 'Asia/Hong_Kong',
+      MO: 'Asia/Macau', TW: 'Asia/Taipei', FR: 'Europe/Paris', SG: 'Asia/Singapore' };
+    const STATE = { NSW: 'Australia/Sydney', ACT: 'Australia/Sydney', VIC: 'Australia/Melbourne', QLD: 'Australia/Brisbane',
+      SA: 'Australia/Adelaide', WA: 'Australia/Perth', TAS: 'Australia/Hobart', NT: 'Australia/Darwin' };
+    let n = 0;
+    const wrong = [];
+    for (const [cc, list] of Object.entries(CITIES_BY_COUNTRY)) {
+      for (const c of list) {
+        if (!Number.isFinite(c.lat)) continue;
+        n++;
+        const want = cc === 'AU' ? STATE[c.region]
+          : cc === 'ID' && /Makassar|Bali|Denpasar/.test(c.name) ? 'Asia/Makassar' : ONE[cc];
+        const got = weather.tzForPoint(c.lat, c.lng);
+        if (got !== want) wrong.push(`${cc} ${c.name}: ${got} (want ${want})`);
+      }
+    }
+    expect(n).toBe(284);
+    expect(wrong).toEqual([]);
+  });
   it('a point near no city falls back to the hour band of its longitude', () => {
     expect(weather.tzForPoint(-40, -140)).toBe('Etc/GMT+9');
   });
@@ -351,6 +376,17 @@ describe('C7 — the strip shows JMA\'s worst current warning, and nothing other
   });
   it('the strip component uses it', () => {
     expect(code('web/_shared/components/OutsideNowStrip.jsx')).toMatch(/topJma\(abroad\)/);
+  });
+});
+
+describe('the four-day range below zero (found by the live run of every city, 01-11 \'26: Harbin read "-9-1°C")', () => {
+  it('a negative end switches the separator, so the range stays readable', () => {
+    expect(outlookTemp(-9, 1, 'C')).toBe('-9 / 1°C');
+    expect(outlookTemp(-9, -1, 'C')).toBe('-9 / -1°C');
+    expect(outlookTemp(-9, 1, 'F')).toBe('16-34°F'); // both ends positive in °F
+  });
+  it('Singapore\'s form is untouched', () => {
+    expect(outlookTemp(25, 33, 'C')).toBe('25-33°C');
   });
 });
 

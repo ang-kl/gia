@@ -280,9 +280,12 @@ export function outlookDay(date, lang) {
 }
 
 // C4: the day's low-high range, following the badge's °C / °F switch.
+// v0.62.962 — below zero a hyphen reads as a minus sign ("-9-1°C" for Harbin, found by calling MET for every city), so
+// a negative end switches the separator to " / ". Singapore's ranges never go below zero and keep their form.
 export function outlookTemp(lowC, highC, unit) {
   const f = (c) => Math.round(c * 9 / 5 + 32);
-  return unit === 'F' ? `${f(lowC)}-${f(highC)}°F` : `${lowC}-${highC}°C`;
+  const [lo, hi, u] = unit === 'F' ? [f(lowC), f(highC), '°F'] : [lowC, highC, '°C'];
+  return lo < 0 || hi < 0 ? `${lo} / ${hi}${u}` : `${lo}-${hi}${u}`;
 }
 
 // ── v0.62.962 — the abroad sheet and JMA (spec doc/Feature/2026-11-01-local-weather-every-city.spec.md) ──────────
