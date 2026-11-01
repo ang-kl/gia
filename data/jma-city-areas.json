@@ -1,0 +1,17 @@
+{
+  "_spec": "doc/Feature/2026-11-01-local-weather-every-city.spec.md, C7 and I14",
+  "_how": "Each city's point is its entry in city-centroids.js (a station). The area is the JMA warning area (気象警報・注意報（市町村等）) that contains that point, found by point-in-polygon against JMA's own GIS file 20260226_AreaInformationCity_weather_GIS.zip (市町村等（気象警報等）, https://www.data.jma.go.jp/developer/gis.html), read 01-11 '26. Every point fell in exactly one polygon. The office is the area's chain class20 -> class15 -> class10 -> office in https://www.jma.go.jp/bosai/common/const/area.json, read the same day. Five cities are split by JMA, and the point decides which part: Yokohama (south), Sendai (east), Nara (west), Kobe (Chuo-ku) and Hiroshima (Minami-ku).",
+  "cities": {
+    "Tokyo": { "office": "130000", "area": "1310100", "areaName": "千代田区" },
+    "Yokohama": { "office": "140000", "area": "1410012", "areaName": "横浜市南部" },
+    "Osaka": { "office": "270000", "area": "2710000", "areaName": "大阪市" },
+    "Kyoto": { "office": "260000", "area": "2610000", "areaName": "京都市" },
+    "Kobe": { "office": "280000", "area": "2811000", "areaName": "神戸市中央区" },
+    "Fukuoka": { "office": "400000", "area": "4013000", "areaName": "福岡市" },
+    "Sapporo": { "office": "016000", "area": "0110000", "areaName": "札幌市" },
+    "Hiroshima": { "office": "340000", "area": "3410300", "areaName": "広島市南区" },
+    "Sendai": { "office": "040000", "area": "0410001", "areaName": "仙台市東部" },
+    "Naha": { "office": "471000", "area": "4720100", "areaName": "那覇市" },
+    "Nara": { "office": "290000", "area": "2920101", "areaName": "奈良市西部" }
+  }
+}

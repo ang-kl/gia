@@ -19721,8 +19721,8 @@ async function cacheBotUsername() {
     app.get('/api/weather/summary', async (req, res) => {
       // v0.61.380 — operator: weather must follow the country expansion.
       // The TMA now sends the user's lat/lng; coords inside Singapore use
-      // NEA (authoritative local), everywhere else uses Open-Meteo (free,
-      // global). No coords → SG centroid (legacy behaviour). Cache is keyed
+      // NEA (authoritative local), everywhere else a global source (MET Norway
+      // since v0.62.962). No coords → SG centroid (legacy behaviour). Cache is keyed
       // per ~11 km grid cell so Tokyo and Singapore don't share one entry.
       const qLat = Number(req.query.lat);
       const qLng = Number(req.query.lng);
@@ -19752,7 +19752,9 @@ async function cacheBotUsername() {
             source: 'nea'
           };
         } else {
-          const w = await weather.summaryGlobal(lat, lng);
+          // v0.62.962 — MET Norway (spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C2), through the
+          // same per-cell MET cache /api/weather/abroad reads, so the badge and the sheet cost one MET request.
+          const w = await weather.summaryGlobal(lat, lng, { cache: redis.isOpen ? redis : null });
           const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
           payload = tempC == null ? { ok: false } : {
             ok: true,
@@ -19761,7 +19763,7 @@ async function cacheBotUsername() {
             humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
             condition: w?.condition || null,
             emoji: w?.emoji || '🌡️',
-            source: 'open-meteo'
+            source: 'met-norway'
           };
         }
         if (redis.isOpen && payload.ok) redis.setEx(CACHE_KEY, 300, JSON.stringify(payload)).catch(() => {});
@@ -19809,6 +19811,25 @@ async function cacheBotUsername() {
     // v0.62.960 — NEA's four-day outlook for the "Outside now" sheet (spec doc/Feature/2026-10-30-weather-fixes-and-
     // 4-day-forecast.spec.md, C4 and C6). Island-wide, starting tomorrow as NEA issues it; cached as `nea:4day` for
     // 30 minutes inside weather-outlook.js. The sheet asks only when it opens, and a failure is { ok: false }.
+    // v0.62.962 — the "Outside now" sheet outside Singapore (spec doc/Feature/2026-11-01-local-weather-every-city.spec.md,
+    // C3, C5, C7): MET Norway's reading, rain next hour, clear-sky UV and four days for the point, in the city's own
+    // time zone, plus JMA's warnings when the point is one of Japan's 11 cities. A Singapore point answers
+    // { ok: true, inSg: true } and the apps keep NEA's sheet. MET is cached per 0.1° cell (shared with the badge);
+    // the JMA feed is read at most every 5 minutes server-wide, only from here. A failure is { ok: false }.
+    app.get('/api/weather/abroad', async (req, res) => {
+      try {
+        const lat = Number(req.query.lat);
+        const lng = Number(req.query.lng);
+        const cache = redis.isOpen ? redis : null;
+        const jma = require('./jma-warnings').forServer(cache);
+        const out = await weather.abroadForPoint(lat, lng, { cache, jma: (a, b) => jma.warningsForPoint(a, b) });
+        res.json(out);
+      } catch (err) {
+        console.error('[Error] /api/weather/abroad failed:', err.message);
+        res.json({ ok: false });
+      }
+    });
+
     app.get('/api/weather/outlook', async (req, res) => {
       try {
         const out = await require('./weather-outlook').getOutlook({ cache: redis.isOpen ? redis : null });

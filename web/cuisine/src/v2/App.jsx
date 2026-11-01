@@ -54,7 +54,8 @@ import WeatherBadge from './components/WeatherBadge.jsx';
 import OutsideNowStrip from '../../../_shared/components/OutsideNowStrip.jsx';
 import OutsideNowSheet from '../../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../../_shared/lib/use-outside-now.js';
-import { ot } from '../../../_shared/lib/outside-now-i18n.js';
+import useWeatherAbroad from '../../../_shared/lib/use-weather-abroad.js';
+import { ot, badgeDot } from '../../../_shared/lib/outside-now-i18n.js';
 import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
 import { streetOf } from '../../../_shared/lib/pronounce-client.js';
@@ -972,9 +973,15 @@ export default function App() {
   // sheet it opens, and the warning strip in the header. Same point the weather chip already follows (anchor →
   // search centre → device); Cuisine alone asks for the parking row. Outside Singapore the route answers
   // inSg:false, so there is no dot, no strip and no sheet.
-  const outsideLat = (locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null;
-  const outsideLng = (locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null;
+  // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md. C1: a PREVIEWED city comes first. The
+  // operator's Kyoto screenshot showed a Singapore reading while Kyoto was on screen; reproduced headless on 01-11 '26:
+  // picking Kyoto from the city list set `selectedCityLocation` and sent no weather request at all, because this point
+  // never read it. C3/C7: outside Singapore the same sheet, strip and dot come from /api/weather/abroad (MET Norway,
+  // and JMA in Japan), and the dot follows badgeDot (none abroad except JMA's).
+  const outsideLat = (selectedCityLocation?.lat ?? locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null;
+  const outsideLng = (selectedCityLocation?.lng ?? locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null;
   const outside = useOutsideNow({ lat: outsideLat, lng: outsideLng, parking: true });
+  const abroad = useWeatherAbroad({ lat: outsideLat, lng: outsideLng, enabled: outside?.inSg === false });
   const [outsideOpen, setOutsideOpen] = useState(false);
   const openOutside = useCallback(() => setOutsideOpen(true), []);
   const closeOutside = useCallback(() => setOutsideOpen(false), []);
@@ -4309,12 +4316,12 @@ export default function App() {
                 v0.61.380 — pass the active location (anchor → search centre →
                 device) so the weather follows where you are, not always SG. */}
             <WeatherBadge
-              dot={outside?.dot}
-              onClick={outside?.inSg ? openOutside : null}
+              dot={badgeDot(outside, abroad)}
+              onClick={(outside?.inSg || abroad?.ok) ? openOutside : null}
               ariaLabel={ot('title', lang)}
               className="text-[11px] text-tg-hint"
-              lat={(locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null}
-              lng={(locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null}
+              lat={outsideLat}
+              lng={outsideLng}
             />
             {/* v0.62.x — operator: tiny ↻ refresh after the weather temp (same
                 size), so a stale webview can be force-reloaded without closing
@@ -4798,9 +4805,9 @@ export default function App() {
             ℹ️ {t('app.noNewlyOpened', lang)}
           </div>
         )}
-        <OutsideNowStrip data={outside} app="cuisine" lang={lang} onOpen={openOutside} className="-mx-1" />
+        <OutsideNowStrip data={outside} abroad={abroad} app="cuisine" lang={lang} onOpen={openOutside} className="-mx-1" />
       </header>
-      <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} app="cuisine" lang={lang} />
+      <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} abroad={abroad} app="cuisine" lang={lang} />
 
       {/* v0.62.x — the Search Insights strip moved OUT of here (was a full-bleed
           white band under the header that ate a row). It now renders as a slim,

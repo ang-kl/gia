@@ -68,7 +68,25 @@ export const OUTSIDE_STRINGS = {
   'licence.sg': { en: 'Contains information from NEA and PUB via data.gov.sg, under the Singapore Open Data Licence', fr: 'Contient des informations de NEA et PUB via data.gov.sg, sous la Singapore Open Data Licence', id: 'Berisi informasi dari NEA dan PUB melalui data.gov.sg, di bawah Singapore Open Data Licence', ru: 'Содержит информацию NEA и PUB с data.gov.sg по лицензии Singapore Open Data Licence', de: 'Enthält Informationen von NEA und PUB über data.gov.sg, unter der Singapore Open Data Licence', zh: '包含来自 NEA 和 PUB 的信息（经 data.gov.sg），依据新加坡开放数据许可（Singapore Open Data Licence）', ja: 'NEA・PUB の情報を含みます（data.gov.sg 経由、Singapore Open Data Licence に基づく）', es: 'Contiene información de NEA y PUB a través de data.gov.sg, bajo la Singapore Open Data Licence', ko: 'NEA 및 PUB의 정보를 포함합니다 (data.gov.sg 제공, Singapore Open Data Licence 적용)' },
   'abroad.note': { en: 'Heat, lightning, flood, air and UV readings are available in Singapore only', fr: 'Les relevés de chaleur, foudre, inondations, air et UV ne sont disponibles qu’à Singapour', id: 'Data panas, petir, banjir, udara, dan UV hanya tersedia di Singapura', ru: 'Данные о жаре, молниях, подтоплениях, воздухе и УФ доступны только в Сингапуре', de: 'Werte zu Hitze, Blitzen, Überflutung, Luft und UV gibt es nur in Singapur', zh: '高温、闪电、水浸、空气和紫外线读数仅限新加坡', ja: '暑さ・雷・冠水・大気・紫外線の情報はシンガポールのみです', es: 'Los datos de calor, rayos, inundaciones, aire y UV solo están disponibles en Singapur', ko: '열, 낙뢰, 침수, 대기, 자외선 정보는 싱가포르에서만 제공됩니다' },
   'abroad.humidity': { en: 'Humidity {pct}%', fr: 'Humidité {pct} %', id: 'Kelembapan {pct}%', ru: 'Влажность {pct}%', de: 'Luftfeuchte {pct} %', zh: '湿度 {pct}%', ja: '湿度 {pct}%', es: 'Humedad {pct} %', ko: '습도 {pct}%' },
-  'abroad.credit': { en: 'Weather data by Open-Meteo.com', fr: 'Données météo : Open-Meteo.com', id: 'Data cuaca oleh Open-Meteo.com', ru: 'Данные о погоде: Open-Meteo.com', de: 'Wetterdaten von Open-Meteo.com', zh: '天气数据来自 Open-Meteo.com', ja: '気象データ：Open-Meteo.com', es: 'Datos meteorológicos de Open-Meteo.com', ko: '날씨 데이터: Open-Meteo.com' },
+  // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md. C2: the credit now names MET Norway
+  // (Open-Meteo's free tier is non-commercial). C3: the abroad sheet's rows, the clear-sky UV label (I4) and the
+  // Singapore-only line. C7: JMA's block. `abroad.note` above is v0.62.960's card line, kept because
+  // weather-outlook.test.js pins it in nine locales; the sheet uses `abroad.sgOnly`, the spec's own wording.
+  'abroad.credit': { en: 'Weather data from MET Norway', fr: 'Données météo de MET Norway', id: 'Data cuaca dari MET Norway', ru: 'Данные о погоде: MET Norway', de: 'Wetterdaten von MET Norway', zh: '天气数据来自 MET Norway', ja: '気象データ：MET Norway', es: 'Datos meteorológicos de MET Norway', ko: '날씨 데이터: MET Norway' },
+  'abroad.uv': { en: 'UV {i} if the sky is clear', fr: 'UV {i} par ciel dégagé', id: 'UV {i} jika langit cerah', ru: 'УФ {i} при ясном небе', de: 'UV {i} bei klarem Himmel', zh: '晴空时紫外线 {i}', ja: '快晴なら紫外線 {i}', es: 'UV {i} con cielo despejado', ko: '맑은 하늘이면 자외선 {i}' },
+  'abroad.sgOnly': { en: 'Heat stress, lightning, flood and air-quality readings are Singapore-only.', fr: 'Les relevés de stress thermique, foudre, inondations et qualité de l’air ne concernent que Singapour.', id: 'Data stres panas, petir, banjir, dan kualitas udara hanya untuk Singapura.', ru: 'Данные о тепловом стрессе, молниях, подтоплениях и качестве воздуха есть только для Сингапура.', de: 'Werte zu Hitzestress, Blitzen, Überflutung und Luftqualität gibt es nur für Singapur.', zh: '热压力、闪电、水浸和空气质量读数仅限新加坡。', ja: '暑さストレス・雷・冠水・大気の質の情報はシンガポールのみです。', es: 'Los datos de estrés térmico, rayos, inundaciones y calidad del aire son solo de Singapur.', ko: '열 스트레스, 낙뢰, 침수, 대기질 정보는 싱가포르에서만 제공됩니다.' },
+  'abroad.wind': { en: 'Wind {kmh} km/h from {dir}', fr: 'Vent {kmh} km/h du {dir}', id: 'Angin {kmh} km/j dari {dir}', ru: 'Ветер {kmh} км/ч, {dir}', de: 'Wind {kmh} km/h aus {dir}', zh: '{dir}风 {kmh} 公里/小时', ja: '{dir}の風 {kmh} km/h', es: 'Viento {kmh} km/h del {dir}', ko: '{dir}풍 {kmh}km/h' },
+  'abroad.rain': { en: 'Rain next hour {mm} mm', fr: 'Pluie dans l’heure {mm} mm', id: 'Hujan 1 jam ke depan {mm} mm', ru: 'Осадки за час {mm} мм', de: 'Regen nächste Stunde {mm} mm', zh: '未来一小时降雨 {mm} 毫米', ja: '今後1時間の雨量 {mm} mm', es: 'Lluvia próxima hora {mm} mm', ko: '향후 1시간 강수 {mm}mm' },
+  'abroad.at': { en: 'Read at {t} local time', fr: 'Relevé à {t} heure locale', id: 'Dibaca pukul {t} waktu setempat', ru: 'Данные на {t} по местному времени', de: 'Stand {t} Ortszeit', zh: '当地时间 {t} 读数', ja: '現地時間 {t} 時点', es: 'Lectura a las {t} hora local', ko: '현지 시각 {t} 기준' },
+  'jma.title': { en: 'Warnings · JMA', fr: 'Alertes · JMA', id: 'Peringatan · JMA', ru: 'Предупреждения · JMA', de: 'Warnungen · JMA', zh: '警报 · JMA', ja: '警報・注意報 · 気象庁', es: 'Avisos · JMA', ko: '특보 · JMA' },
+  'jma.none': { en: 'No warnings', fr: 'Aucune alerte', id: 'Tidak ada peringatan', ru: 'Предупреждений нет', de: 'Keine Warnungen', zh: '无警报', ja: '発表なし', es: 'Sin avisos', ko: '특보 없음' },
+  'jma.noBulletin': { en: 'No JMA bulletin received yet', fr: 'Aucun bulletin de la JMA reçu pour l’instant', id: 'Belum ada buletin JMA yang diterima', ru: 'Бюллетень JMA пока не получен', de: 'Noch kein JMA-Bulletin empfangen', zh: '尚未收到 JMA 公报', ja: '気象庁の発表をまだ受信していません', es: 'Aún no se ha recibido ningún boletín de la JMA', ko: '아직 JMA 발표를 받지 못했습니다' },
+  'jma.issued': { en: 'JMA · {t} Japan time', fr: 'JMA · {t} heure du Japon', id: 'JMA · {t} waktu Jepang', ru: 'JMA · {t} по японскому времени', de: 'JMA · {t} japanische Zeit', zh: 'JMA · 日本时间 {t}', ja: '気象庁 · {t} 日本時間', es: 'JMA · {t} hora de Japón', ko: 'JMA · 일본 시각 {t}' },
+  'jma.credit': { en: 'Source: Japan Meteorological Agency (JMA), processed by Soleat', fr: 'Source : Agence météorologique du Japon (JMA), traité par Soleat', id: 'Sumber: Badan Meteorologi Jepang (JMA), diolah oleh Soleat', ru: 'Источник: Японское метеорологическое агентство (JMA), обработано Soleat', de: 'Quelle: Japanische Wetterbehörde (JMA), bearbeitet von Soleat', zh: '来源：日本气象厅（JMA），经 Soleat 处理', ja: '出典：気象庁（JMA）、Soleatが加工', es: 'Fuente: Agencia Meteorológica de Japón (JMA), procesado por Soleat', ko: '출처: 일본 기상청(JMA), Soleat 가공' },
+  'lvl.jma.emergency': { en: 'Emergency', fr: 'Urgence', id: 'Darurat', ru: 'Экстренно', de: 'Notfall', zh: '特别警报', ja: '特別警報', es: 'Emergencia', ko: '특별경보' },
+  'lvl.jma.danger': { en: 'Danger', fr: 'Danger', id: 'Bahaya', ru: 'Опасность', de: 'Gefahr', zh: '危险警报', ja: '危険警報', es: 'Peligro', ko: '위험경보' },
+  'lvl.jma.warning': { en: 'Warning', fr: 'Alerte', id: 'Peringatan', ru: 'Предупреждение', de: 'Warnung', zh: '警报', ja: '警報', es: 'Aviso', ko: '경보' },
+  'lvl.jma.advisory': { en: 'Advisory', fr: 'Vigilance', id: 'Waspada', ru: 'Внимание', de: 'Hinweis', zh: '注意报', ja: '注意報', es: 'Advertencia', ko: '주의보' },
   'outlook.title': { en: 'Next 4 days', fr: 'Les 4 prochains jours', id: '4 hari ke depan', ru: 'Следующие 4 дня', de: 'Nächste 4 Tage', zh: '未来 4 天', ja: '今後4日間', es: 'Próximos 4 días', ko: '향후 4일' },
   'outlook.issued': { en: 'NEA · issued {t}', fr: 'NEA · émis à {t}', id: 'NEA · terbit {t}', ru: 'NEA · выпущен в {t}', de: 'NEA · ausgegeben {t}', zh: 'NEA · {t} 发布', ja: 'NEA · {t} 発表', es: 'NEA · emitido a las {t}', ko: 'NEA · {t} 발표' },
   'wx.thunder': { en: 'Thundery showers', fr: 'Averses orageuses', id: 'Hujan badai petir', ru: 'Грозовые ливни', de: 'Gewitterschauer', zh: '雷阵雨', ja: '雷雨', es: 'Chubascos tormentosos', ko: '뇌우' },
@@ -265,4 +283,117 @@ export function outlookDay(date, lang) {
 export function outlookTemp(lowC, highC, unit) {
   const f = (c) => Math.round(c * 9 / 5 + 32);
   return unit === 'F' ? `${f(lowC)}-${f(highC)}°F` : `${lowC}-${highC}°C`;
+}
+
+// ── v0.62.962 — the abroad sheet and JMA (spec doc/Feature/2026-11-01-local-weather-every-city.spec.md) ──────────
+
+// I5 — the badge's dot. Singapore keeps NEA's; abroad there is none, because MET gives forecasts, not warnings;
+// except Japan, where it is JMA's worst current level. Nothing else abroad can raise one.
+export function badgeDot(outside, abroad) {
+  if (outside && outside.inSg) return outside.dot || null;
+  const j = abroad && abroad.jma;
+  return j && j.status === 'ok' ? (j.dot || null) : null;
+}
+
+// C7 — the strip's warning abroad: JMA's worst current one, or nothing.
+export function topJma(abroad) {
+  const j = abroad && abroad.jma;
+  if (!j || j.status !== 'ok' || !Array.isArray(j.warnings) || !j.warnings.length) return null;
+  return j.warnings[0];
+}
+
+// I12 — the JMA block's one line when there is no warning to list. "No warnings" only with a current bulletin.
+export function jmaLineKey(j) {
+  if (!j || j.status !== 'ok') return 'jma.noBulletin';
+  return Array.isArray(j.warnings) && j.warnings.length ? null : 'jma.none';
+}
+
+// C7 / I11 — JMA's warning names in the reader's language, keyed on JMA's Japanese name. A name is the phenomenon
+// plus a level suffix; both parts are translated here, but only names in JMA_NAMES are composed, so a name we have
+// not listed is shown exactly as JMA wrote it, never guessed. Japanese readers always get JMA's own name.
+const JMA_PHENOMENA = {
+  大雨: { en: 'heavy rain', fr: 'fortes pluies', id: 'hujan lebat', ru: 'сильный дождь', de: 'Starkregen', zh: '大雨', es: 'lluvias intensas', ko: '호우' },
+  洪水: { en: 'flood', fr: 'crue', id: 'banjir', ru: 'наводнение', de: 'Hochwasser', zh: '洪水', es: 'inundación', ko: '홍수' },
+  大雪: { en: 'heavy snow', fr: 'fortes chutes de neige', id: 'salju lebat', ru: 'сильный снегопад', de: 'starker Schneefall', zh: '大雪', es: 'nevadas intensas', ko: '대설' },
+  暴風: { en: 'storm', fr: 'tempête', id: 'badai', ru: 'шторм', de: 'Sturm', zh: '暴风', es: 'temporal', ko: '폭풍' },
+  暴風雪: { en: 'snowstorm', fr: 'tempête de neige', id: 'badai salju', ru: 'снежная буря', de: 'Schneesturm', zh: '暴风雪', es: 'tormenta de nieve', ko: '눈보라' },
+  波浪: { en: 'high waves', fr: 'fortes vagues', id: 'gelombang tinggi', ru: 'высокие волны', de: 'hoher Seegang', zh: '波浪', es: 'oleaje alto', ko: '풍랑' },
+  高潮: { en: 'storm surge', fr: 'onde de tempête', id: 'gelombang pasang badai', ru: 'штормовой нагон', de: 'Sturmflut', zh: '风暴潮', es: 'marea de tormenta', ko: '폭풍해일' },
+  強風: { en: 'strong wind', fr: 'vents forts', id: 'angin kencang', ru: 'сильный ветер', de: 'starker Wind', zh: '强风', es: 'vientos fuertes', ko: '강풍' },
+  風雪: { en: 'wind and snow', fr: 'vent et neige', id: 'angin dan salju', ru: 'ветер со снегом', de: 'Wind und Schnee', zh: '风雪', es: 'viento y nieve', ko: '풍설' },
+  雷: { en: 'thunderstorm', fr: 'orages', id: 'badai petir', ru: 'грозы', de: 'Gewitter', zh: '雷电', es: 'tormentas eléctricas', ko: '뇌우' },
+  融雪: { en: 'snowmelt', fr: 'fonte des neiges', id: 'salju mencair', ru: 'таяние снега', de: 'Schneeschmelze', zh: '融雪', es: 'deshielo', ko: '융설' },
+  濃霧: { en: 'dense fog', fr: 'brouillard dense', id: 'kabut tebal', ru: 'густой туман', de: 'dichter Nebel', zh: '浓雾', es: 'niebla densa', ko: '짙은 안개' },
+  乾燥: { en: 'dry air', fr: 'air sec', id: 'udara kering', ru: 'сухой воздух', de: 'Trockenheit', zh: '干燥', es: 'aire seco', ko: '건조' },
+  なだれ: { en: 'avalanche', fr: 'avalanches', id: 'longsoran salju', ru: 'лавины', de: 'Lawinen', zh: '雪崩', es: 'aludes', ko: '눈사태' },
+  低温: { en: 'low temperature', fr: 'basses températures', id: 'suhu rendah', ru: 'низкие температуры', de: 'Kälte', zh: '低温', es: 'bajas temperaturas', ko: '저온' },
+  霜: { en: 'frost', fr: 'gel', id: 'embun beku', ru: 'заморозки', de: 'Frost', zh: '霜冻', es: 'heladas', ko: '서리' },
+  着氷: { en: 'icing', fr: 'givrage', id: 'lapisan es', ru: 'обледенение', de: 'Vereisung', zh: '积冰', es: 'engelamiento', ko: '착빙' },
+  着雪: { en: 'snow accretion', fr: 'dépôt de neige', id: 'penumpukan salju', ru: 'налипание снега', de: 'Schneeanhang', zh: '积雪附着', es: 'acumulación de nieve', ko: '착설' },
+  土砂災害: { en: 'landslide', fr: 'glissements de terrain', id: 'tanah longsor', ru: 'оползни', de: 'Erdrutsche', zh: '泥石流灾害', es: 'deslizamientos', ko: '산사태' },
+  氾濫: { en: 'river flooding', fr: 'débordement de rivière', id: 'luapan sungai', ru: 'разлив рек', de: 'Flussüberflutung', zh: '河流泛滥', es: 'desbordamiento de ríos', ko: '하천 범람' },
+};
+const JMA_LEVEL_TEMPLATES = {
+  特別警報: { en: '{P} emergency warning', fr: 'Alerte extrême {p}', id: 'Peringatan darurat {p}', ru: 'Экстренное предупреждение: {p}', de: 'Extremwarnung: {p}', zh: '{p}特别警报', es: 'Aviso de emergencia: {p}', ko: '{p} 특별경보' },
+  危険警報: { en: '{P} danger warning', fr: 'Alerte danger {p}', id: 'Peringatan bahaya {p}', ru: 'Опасность: {p}', de: 'Gefahrenwarnung: {p}', zh: '{p}危险警报', es: 'Aviso de peligro: {p}', ko: '{p} 위험경보' },
+  警報: { en: '{P} warning', fr: 'Alerte {p}', id: 'Peringatan {p}', ru: 'Предупреждение: {p}', de: 'Warnung: {p}', zh: '{p}警报', es: 'Aviso: {p}', ko: '{p} 경보' },
+  注意報: { en: '{P} advisory', fr: 'Vigilance {p}', id: 'Waspada {p}', ru: 'Внимание: {p}', de: 'Hinweis: {p}', zh: '{p}注意报', es: 'Advertencia: {p}', ko: '{p} 주의보' },
+};
+// The current-system names (6 emergency, 7 warning, 16 advisory) and the four danger warnings of JMA's revised
+// system, 33 in all.
+export const JMA_NAMES = [
+  ...['大雨', '大雪', '暴風', '暴風雪', '波浪', '高潮'].map((p) => `${p}特別警報`),
+  ...['大雨', '洪水', '大雪', '暴風', '暴風雪', '波浪', '高潮'].map((p) => `${p}警報`),
+  ...['大雨', '洪水', '大雪', '強風', '風雪', '波浪', '高潮', '雷', '融雪', '濃霧', '乾燥', 'なだれ', '低温', '霜', '着氷', '着雪'].map((p) => `${p}注意報`),
+  ...['大雨', '土砂災害', '氾濫', '高潮'].map((p) => `${p}危険警報`),
+];
+const JMA_NAME_SET = new Set(JMA_NAMES);
+
+export function jmaName(name, lang) {
+  const n = String(name || '');
+  if (lang === 'ja' || !JMA_NAME_SET.has(n)) return n;
+  const suffix = ['特別警報', '危険警報', '注意報', '警報'].find((s) => n.endsWith(s));
+  const p = JMA_PHENOMENA[n.slice(0, n.length - suffix.length)];
+  const tpl = JMA_LEVEL_TEMPLATES[suffix];
+  const word = (p && (p[lang] || p.en)) || '';
+  const t = tpl[lang] || tpl.en;
+  return t.replace('{P}', word.charAt(0).toUpperCase() + word.slice(1)).replace('{p}', word);
+}
+
+// Wind: km/h and the compass point it blows FROM, in the reader's language.
+const DIRS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+const DIR_NAMES = {
+  en: DIRS, fr: ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'], id: ['U', 'TL', 'T', 'TG', 'S', 'BD', 'B', 'BL'],
+  ru: ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ'], de: ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'],
+  zh: ['北', '东北', '东', '东南', '南', '西南', '西', '西北'], ja: ['北', '北東', '東', '南東', '南', '南西', '西', '北西'],
+  es: ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'], ko: ['북', '북동', '동', '남동', '남', '남서', '서', '북서'],
+};
+export function windText(now, lang) {
+  if (!now || !Number.isFinite(now.windKmh)) return '';
+  const i = DIRS.indexOf(now.windFrom);
+  const dir = i >= 0 ? (DIR_NAMES[lang] || DIRS)[i] : '';
+  return ot('abroad.wind', lang, { kmh: now.windKmh, dir });
+}
+
+// I6 — "HH:MM" in the given zone (the city's own, or Asia/Tokyo for JMA), never the device's or Singapore's.
+export function localTime(iso, tz) {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return '';
+  try {
+    return new Intl.DateTimeFormat('en-GB', { timeZone: tz || 'UTC', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d);
+  } catch {
+    return '';
+  }
+}
+
+// C3 — the four-day row's weekday. The server already dated each day in the city's own zone (I6), so the weekday of
+// that calendar date is read at UTC noon and no zone can move it (outlookDay above anchors NEA's dates in Singapore).
+export function cityDay(date, lang) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return '';
+  const d = new Date(`${date}T12:00:00Z`);
+  try {
+    return new Intl.DateTimeFormat(lang, { weekday: 'short', timeZone: 'UTC' }).format(d);
+  } catch {
+    return new Intl.DateTimeFormat('en', { weekday: 'short', timeZone: 'UTC' }).format(d);
+  }
 }

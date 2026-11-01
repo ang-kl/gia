@@ -13,6 +13,8 @@ scope:
   - "web/_shared/lib/use-weather-abroad.js"
   - "jma-warnings.js"
   - "data/jma-city-areas.json"
+  - "scripts/build-jma-areas.js"
+  - "data/jma-areas.json"
   - "web/_shared/components/OutsideNowStrip.jsx"
   - "__tests__/jma-warnings.test.js"
   - "web/cuisine/src/v2/App.jsx"
@@ -220,3 +222,53 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 — JMA areas from JMA's own map (01-11 '26)
+
+Raised as FLOW ALERT F5 during Execution. Nothing above is rewritten; this section changes C7's "Which warnings
+apply", I13's trigger and I14's check, and adds I15-I16, two assumptions and two paths to the scope.
+
+- **Finding (measured 01-11 '26).**
+  - `data/jma-city-areas.json` was built from the 11 station points in `city-centroids.js`, each placed in its JMA
+    warning area by point-in-polygon against JMA's GIS file.
+  - Cuisine's city picker sends its **own** points (`web/cuisine/src/v2/lib/cities.js:295-302`, 8 Japanese cities).
+    Against the same polygons, 6 land in the same area as the station. Two do not:
+    - Tokyo (35.6762, 139.6503) is in 杉並区 (Suginami), 10.6 km from Tokyo Station. A headless render showed **no
+      JMA block at all**.
+    - Hiroshima (34.3853, 132.4553) is in 中区, but would have been shown 南区's warnings: I11's contrary.
+  - Train and Hawker send the device location, which can be anywhere.
+- **Operator, 01-11 '26, choosing between three stated options: *"Ship JMA's map"*.**
+- **C7, "Which warnings apply", becomes:**
+  - The area is the JMA warning area (気象警報・注意報（市町村等）) that **contains the point**.
+  - It is looked up in `data/jma-areas.json`, a cut-down copy of JMA's polygons, built by `scripts/build-jma-areas.js`.
+  - **Source:** JMA's GIS file `20260226_AreaInformationCity_weather_GIS.zip` (市町村等（気象警報等）, linked from
+    https://www.data.jma.go.jp/developer/gis.html). The office comes from each area's class20 → class15 → class10 →
+    office chain in `area.json`.
+  - **Coverage:** every area whose bounding box comes within 45 km of one of the 11 cities. That is 595 areas, measured.
+  - **Simplification:** Douglas-Peucker to 0.0005° (about 50 m), about 176,000 vertices, about 3 MB. So a point within
+    about 50 m of an area boundary may be placed in the neighbouring area.
+  - **A point outside the coverage gets no JMA block**, never a guessed area.
+  - The sheet names the area found.
+  - `data/jma-city-areas.json` is removed. It was new in this branch and never shipped.
+- **I13's trigger** becomes "only for a point inside the covered areas", replacing "only while a Japanese city is open".
+  The 5-minute server-wide limit is unchanged.
+- **I14's check** becomes: every area in `data/jma-areas.json` carries the office its `area.json` chain gives. This is
+  checked against the saved `area.json` extract, now covering the areas of the 19 known points.
+- **New invariants:**
+
+| ID | Maxim | Scope | Limit | Contrary | Check |
+|----|-------|-------|-------|----------|-------|
+| I15 | The shipped polygons place each of the 19 known points (11 stations plus 8 picker points) in the area JMA's full-resolution polygons give | `data/jma-areas.json`, `jma-warnings.js` | 50 m simplification | the wrong ward's warning | `jma-warnings.test.js`, a table of the 19 points with codes from the full-resolution run |
+| I16 | The data file names its source file and build date, holds only covered areas, and is under 4 MB | `data/jma-areas.json`, build script | none | an unexplained or bloated blob | test |
+
+- **New assumptions:**
+
+| ID | Assumption | Status | Note |
+|----|------------|--------|------|
+| A5 | A 45 km coverage and about 50 m simplification (about 3 MB) are acceptable; the alternative is 20 km (283 areas, about 1.2 MB) | confirmed | Operator, 01-11 '26: *"45 km, ~3 MB (Recommended)"* |
+| A6 | Keeping the simplified polygons server-side is allowed under JMA's terms with the credit already shown. JMA's GIS page asks users to follow the website's terms of use, and lists approval numbers (情使 第…号) for JMA's own use of Geospatial Information Authority base data; whether a derived copy needs more was not verified | confirmed | Operator, 01-11 '26: *"Proceed, credit JMA (Recommended)"*; the Geospatial Information Authority question stays recorded as not verified |
+
+- **Scope additions:** `scripts/build-jma-areas.js`, `data/jma-areas.json`. `data/jma-city-areas.json` stays listed so
+  that its removal is in scope.
+- **Added mutation:** point-in-polygon replaced by the old 10 km nearest-station match. The Tokyo and Hiroshima picker
+  points must catch it.

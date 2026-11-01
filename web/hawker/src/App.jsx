@@ -15,8 +15,9 @@ import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import OutsideNowStrip from '../../_shared/components/OutsideNowStrip.jsx';
 import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../_shared/lib/use-outside-now.js';
+import useWeatherAbroad from '../../_shared/lib/use-weather-abroad.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
-import { ot } from '../../_shared/lib/outside-now-i18n.js';
+import { ot, badgeDot } from '../../_shared/lib/outside-now-i18n.js';
 import { loadKept, saveKept } from '../../_shared/lib/kept-settings.js';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
@@ -311,6 +312,9 @@ export default function App() {
   const [outsideLoc, setOutsideLoc] = useState(null);
   useEffect(() => startLocationSync({ durationMs: 0, onLocation: (l) => setOutsideLoc({ lat: l.lat, lng: l.lng }) }), []);
   const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
+  // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3/C7: outside Singapore the sheet, the
+  // strip and the dot come from MET Norway (and JMA in Japan); the dot follows badgeDot, so none abroad but JMA's.
+  const abroad = useWeatherAbroad({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null, enabled: outside?.inSg === false });
   const [outsideOpen, setOutsideOpen] = useState(false);
   const openOutside = useCallback(() => setOutsideOpen(true), []);
   const closeOutside = useCallback(() => setOutsideOpen(false), []);
@@ -975,7 +979,7 @@ export default function App() {
                 refresh; NEA trails the trio. */}
             <div className="flex items-center gap-2 shrink-0">
               <LocaleToggle className="flex-shrink-0" />
-              <span className="text-[10px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
+              <span className="text-[10px] text-tg-hint flex items-center"><WeatherBadge dot={badgeDot(outside, abroad)} onClick={(outside?.inSg || abroad?.ok) ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
@@ -985,7 +989,7 @@ export default function App() {
               >↻</button>
             </div>
           </div>
-          <OutsideNowStrip data={outside} app="hawker" lang={lang} onOpen={openOutside} />
+          <OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} />
         </div>
         {busy && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-tg-hint bg-tg-bg/90 rounded-full px-3 py-1 z-20">{t('status.loading', lang)}</p>}
         {err && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-red-500 bg-tg-bg/90 rounded-full px-3 py-1 z-20">⚠ {err}</p>}
@@ -1044,7 +1048,7 @@ export default function App() {
         <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
         <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
-          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={badgeDot(outside, abroad)} onClick={(outside?.inSg || abroad?.ok) ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -1054,7 +1058,7 @@ export default function App() {
           >↻</button>
         </div>
       </div>
-      <OutsideNowStrip data={outside} app="hawker" lang={lang} onOpen={openOutside} />
+      <OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} />
       {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. On a
           PHONE lay them out as a tidy 3+2 TWO-ROW grid (segmented-control feel).
           v0.62.591 — operator (iPad Pro portrait): on a WIDE tablet squeeze all 5
@@ -1143,7 +1147,7 @@ export default function App() {
             <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
             <div className="flex items-center gap-3 shrink-0">
               <LocaleToggle className="flex-shrink-0" />
-              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
+              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={badgeDot(outside, abroad)} onClick={(outside?.inSg || abroad?.ok) ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
               <button type="button" onClick={() => window.location.reload()}
                 aria-label={t('ui.refresh', lang)} title={t('ui.refresh', lang)}
                 className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
@@ -1152,7 +1156,7 @@ export default function App() {
           {/* v0.62.659 — same location/station-search row as the carousel header. */}
           <StationLocationField lang={lang} onSelectStation={inspectStation} />
         </div>
-        <div className="pointer-events-auto"><OutsideNowStrip data={outside} app="hawker" lang={lang} onOpen={openOutside} /></div>
+        <div className="pointer-events-auto"><OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} /></div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
             the title card) so they read cleanly, matching the two-panel styling. */}
@@ -1235,7 +1239,7 @@ export default function App() {
   // exact static split tablets used before v0.62.642, kept unreferenced for
   // precisely this "restore it in one line" scenario. Every other case
   // (portrait phone, any tablet/desktop orientation) is unchanged.
-  const outsideSheet = <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} app="hawker" lang={lang} />;
+  const outsideSheet = <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} abroad={abroad} app="hawker" lang={lang} />;
   if (viewMode === 'list') {
     if (vp.deviceClass === 'mobile' && vp.orientation === 'landscape') return <>{portraitTabletPanel()}{outsideSheet}</>;
     return <>{drawerLayout()}{outsideSheet}</>;

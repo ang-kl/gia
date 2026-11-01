@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { topWarning, stripText, dismissKey, stripDecision, ot, ROW_SOURCE, hhmm } from '../lib/outside-now-i18n.js';
+import { topWarning, stripText, dismissKey, stripDecision, ot, ROW_SOURCE, hhmm, topJma, jmaName, localTime } from '../lib/outside-now-i18n.js';
 
 // OutsideNowStrip.jsx — v0.62.952. Layout A of the "Outside now" spec
 // (doc/Feature/2026-10-29-outside-now-alerts.spec.md): one line under the header, shown ONLY while a warning is
@@ -19,13 +19,34 @@ const TONES = {
 };
 const ROW_OF = { lightning: 'lightning', flood: 'flood', haze: 'air', heat: 'heat', uv: 'uv' };
 
-export default function OutsideNowStrip({ data, app = 'default', lang = 'en', onOpen, className = '' }) {
+// v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C7: in Japan's 11 cities the strip shows
+// JMA's worst current warning from `abroad` (topJma: nothing for an all-clear, a stale bulletin or any other
+// country), red for a warning or worse and amber for an advisory, with the same ✕ rule keyed on its name and level.
+const JMA_TONE = { red: { bg: '#fde8e8', fg: '#b42f2f' }, amber: { bg: '#fff4d6', fg: '#8a5b00' } };
+
+export default function OutsideNowStrip({ data, abroad = null, app = 'default', lang = 'en', onOpen, className = '' }) {
   const [, force] = useState(0);
   const kind = topWarning(data, app);
-  const key = kind ? dismissKey(kind, data) : null;
+  const jw = kind ? null : topJma(abroad);
+  const key = kind ? dismissKey(kind, data) : (jw ? `jma:${jw.name}:${jw.level}` : null);
   const decision = stripDecision(dismissed, key);
   dismissed = decision.dismissed;
   if (!decision.show) return null;
+  const hide = () => { dismissed = key; force((n) => n + 1); };
+  if (jw) {
+    const jt = JMA_TONE[jw.level === 'advisory' ? 'amber' : 'red'];
+    return (
+      <div role="status" data-outside-strip="jma" className={className}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 8px 0', padding: '7px 10px', borderRadius: 10, fontSize: 12, lineHeight: 1.3, background: jt.bg, color: jt.fg }}>
+        <button type="button" onClick={onOpen} style={{ all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+          <span aria-hidden="true">⚠️</span>
+          <span style={{ flex: 1, minWidth: 0, fontWeight: 600 }}>{jmaName(jw.name, lang)}</span>
+          <span style={{ fontSize: 11, opacity: 0.8, whiteSpace: 'nowrap' }}>JMA {localTime(abroad.jma.reportAt, 'Asia/Tokyo')} ›</span>
+        </button>
+        <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={hide} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
+      </div>
+    );
+  }
   const tone = TONES[kind];
   const row = data.rows[ROW_OF[kind]] || {};
   return (
