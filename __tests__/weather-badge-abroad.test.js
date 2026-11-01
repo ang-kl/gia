@@ -46,34 +46,32 @@ describe('I1 — the badge asks for the reader\'s own location', () => {
   });
 });
 
-describe('I2 — abroad the tap opens the weather card with the credit; in Singapore it opens the sheet', () => {
+// v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3: the abroad "Outside now" sheet
+// replaces v0.62.960's small card, and C2 replaces Open-Meteo with MET Norway. This block used to pin the card and
+// Open-Meteo's credit; it now pins that the card is gone, that the tap opens the sheet in Singapore AND abroad, and
+// that the credit (carried by the sheet) names MET Norway. The I1 and I3 blocks above and below are unchanged.
+describe('I2 — the tap opens the Outside-now sheet, in Singapore and abroad; the credit names MET Norway', () => {
   for (const f of [SHARED, CUISINE]) {
-    it(`${f}: the card is Open-Meteo-only and carries the credit and its link`, () => {
+    it(`${f}: no small card any more; the tap is the one the app passes`, () => {
       const c = code(f);
-      expect(c).toMatch(/source === 'open-meteo'/);
-      expect(c).toMatch(/href="https:\/\/open-meteo\.com\/"/);
-      expect(c).toMatch(/'abroad\.credit'/);
-      expect(c).toMatch(/'abroad\.note'/);
-      expect(c).toMatch(/'abroad\.humidity'/);
-      expect(c).toMatch(/data-weather-card/);
-    });
-    it(`${f}: a passed-in tap still wins (Singapore opens the sheet)`, () => {
-      expect(code(f)).toMatch(/onClick \|\| \(abroad \?/);
+      expect(c).not.toMatch(/data-weather-card/);
+      expect(c).not.toMatch(/open-meteo/i);
+      expect(c).toMatch(/const tap = onClick;/);
     });
   }
   for (const [app, f] of Object.entries(APPS)) {
-    it(`${app}: the sheet tap is passed only in Singapore`, () => {
+    it(`${app}: the sheet tap is passed in Singapore, and abroad once MET has answered`, () => {
       const bs = badges(f);
       expect(bs.length).toBeGreaterThan(0);
-      for (const b of bs) expect(b, b).toMatch(/onClick=\{outside\?\.inSg \? openOutside : null\}/);
+      for (const b of bs) expect(b, b).toMatch(/onClick=\{\(outside\?\.inSg \|\| abroad\?\.ok\) \? openOutside : null\}/);
     });
   }
-  it('the credit names Open-Meteo.com in every locale', () => {
-    for (const l of OUTSIDE_LOCALES) expect(OUTSIDE_STRINGS['abroad.credit'][l]).toMatch(/Open-Meteo\.com/);
+  it('the credit names MET Norway in every locale', () => {
+    for (const l of OUTSIDE_LOCALES) expect(OUTSIDE_STRINGS['abroad.credit'][l]).toMatch(/MET Norway/);
   });
-  it('the note says the readings are Singapore-only, in every locale', () => {
-    for (const l of OUTSIDE_LOCALES) expect(OUTSIDE_STRINGS['abroad.note'][l].length).toBeGreaterThan(10);
-    expect(OUTSIDE_STRINGS['abroad.note'].en).toBe('Heat, lightning, flood, air and UV readings are available in Singapore only');
+  it('the Singapore-only line, in every locale', () => {
+    for (const l of OUTSIDE_LOCALES) expect(OUTSIDE_STRINGS['abroad.sgOnly'][l].length).toBeGreaterThan(10);
+    expect(OUTSIDE_STRINGS['abroad.sgOnly'].en).toBe('Heat stress, lightning, flood and air-quality readings are Singapore-only.');
   });
 });
 

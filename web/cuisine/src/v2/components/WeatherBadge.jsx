@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { DOT_COLOURS, tempText, TEMP_UNIT_KEY, ot, outlookLabel } from '../../../../_shared/lib/outside-now-i18n.js';
-import { useLocale } from '../lib/i18n.js';
+import { DOT_COLOURS, tempText, TEMP_UNIT_KEY } from '../../../../_shared/lib/outside-now-i18n.js';
 
 // v0.60.219 — live weather chip. Fetches the public, no-PII
 // /api/weather/summary endpoint and renders an emoji + temperature
 // (e.g. "⛅ 31°C"). Renders nothing until data arrives or if the fetch
 // fails — never blocks or errors the header.
 // v0.61.380 — operator: weather follows the country expansion. Pass the
-// user's lat/lng so the server returns THEIR weather (NEA in SG,
-// Open-Meteo elsewhere) instead of a fixed Singapore reading. Re-fetches
+// user's lat/lng so the server returns THEIR weather (NEA in SG, a global
+// source elsewhere) instead of a fixed Singapore reading. Re-fetches
 // when the location changes.
 // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md, layout B): an optional `dot`
 // colour (the worst outdoor condition, from /api/weather/outside) and `onClick`, which turns the chip into the button
 // that opens the sheet. Without either it renders exactly as before.
-// v0.62.960 — spec doc/Feature/2026-10-30-weather-fixes-and-4-day-forecast.spec.md, C2: abroad (an Open-Meteo reading)
-// with no `onClick` passed — App.jsx passes it only in Singapore — tapping the number opens a small card with the
-// condition, humidity, a Singapore-only note and Open-Meteo's required credit, which Cuisine showed nowhere before.
+// v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3: v0.62.960's small abroad card is gone.
+// Abroad the tap opens the "Outside now" sheet too, which carries MET Norway's credit, so the chip only ever runs the
+// tap App.jsx passes. The chip asks for the city on screen (C1), which App.jsx works out.
 export default function WeatherBadge({ className = '', lat = null, lng = null, dot = null, onClick = null, ariaLabel = '' }) {
-  const [lang] = useLocale();
   const [wx, setWx] = useState(null);
-  const [cardOpen, setCardOpen] = useState(false);
   // v0.62.953 — Amendment 1, item 5: tapping the unit flips °C / °F, remembered on this device (a per-viewer
   // convenience, so localStorage; it may be unavailable, hence the try/catch). Tapping the number opens the sheet.
   const [unit, setUnit] = useState(() => { try { return localStorage.getItem(TEMP_UNIT_KEY) === 'F' ? 'F' : 'C'; } catch { return 'C'; } });
@@ -39,40 +36,19 @@ export default function WeatherBadge({ className = '', lat = null, lng = null, d
   }, [lat, lng]);
   if (!wx) return null;
   const tt = tempText(wx, unit);
-  const abroad = wx.source === 'open-meteo';
   const dotEl = dot && DOT_COLOURS[dot]
     ? <span data-outside-dot={dot} aria-hidden="true" style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', marginLeft: 4, background: DOT_COLOURS[dot], verticalAlign: 'middle' }} />
     : null;
   const plain = { all: 'unset', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' };
   const value = <>{wx.emoji}{tt ? ` ${tt.value}` : ''}</>;
-  const tap = onClick || (abroad ? () => setCardOpen((o) => !o) : null);
+  const tap = onClick;
   return (
     <span className={className} title={wx.condition || ''} style={{ display: 'inline-flex', alignItems: 'center', position: 'relative' }}>
       {tap
-        ? <button type="button" onClick={tap} aria-label={ariaLabel || undefined} aria-expanded={onClick ? undefined : cardOpen} style={plain}>{value}</button>
+        ? <button type="button" onClick={tap} aria-label={ariaLabel || undefined} style={plain}>{value}</button>
         : value}
       {tt && <button type="button" onClick={flipUnit} data-temp-unit={unit} aria-label={unit === 'F' ? '°C' : '°F'} style={plain}>{tt.unit}</button>}
       {dotEl}
-      {cardOpen && abroad && !onClick && (
-        <span
-          data-weather-card
-          role="dialog"
-          style={{
-            position: 'absolute', top: '100%', right: 0, marginTop: 6, zIndex: 1000, width: 220, padding: '8px 10px',
-            borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,.2)', fontSize: 12, lineHeight: 1.35, whiteSpace: 'normal',
-            background: 'var(--tg-bg, var(--tg-theme-bg-color, #fff))', color: 'var(--tg-text, var(--tg-theme-text-color, #111))',
-            display: 'block', textAlign: 'left',
-          }}
-        >
-          <span style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-            <b style={{ flex: 1, fontWeight: 600 }}>{wx.emoji} {outlookLabel(wx.condition, lang)}{tt ? ` · ${tt.value}${tt.unit}` : ''}</b>
-            <button type="button" onClick={() => setCardOpen(false)} aria-label={ot('ui.close', lang)} style={{ ...plain, padding: '0 2px' }}>✕</button>
-          </span>
-          {Number.isFinite(wx.humidityPct) && <span style={{ display: 'block' }}>{ot('abroad.humidity', lang, { pct: wx.humidityPct })}</span>}
-          <span style={{ display: 'block', marginTop: 4, opacity: 0.8 }}>{ot('abroad.note', lang)}</span>
-          <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginTop: 4, fontSize: 11, color: 'inherit', opacity: 0.75 }}>{ot('abroad.credit', lang)}</a>
-        </span>
-      )}
     </span>
   );
 }

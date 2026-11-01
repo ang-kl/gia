@@ -24,8 +24,9 @@ import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import OutsideNowStrip from '../../_shared/components/OutsideNowStrip.jsx';
 import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../_shared/lib/use-outside-now.js';
+import useWeatherAbroad from '../../_shared/lib/use-weather-abroad.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
-import { ot } from '../../_shared/lib/outside-now-i18n.js';
+import { ot, badgeDot } from '../../_shared/lib/outside-now-i18n.js';
 import { loadKept, saveKept } from '../../_shared/lib/kept-settings.js';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
@@ -243,6 +244,9 @@ export default function App() {
   const [outsideLoc, setOutsideLoc] = useState(null);
   useEffect(() => startLocationSync({ durationMs: 0, onLocation: (l) => setOutsideLoc({ lat: l.lat, lng: l.lng }) }), []);
   const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
+  // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3/C7: outside Singapore the sheet, the
+  // strip and the dot come from MET Norway (and JMA in Japan); the dot follows badgeDot, so none abroad but JMA's.
+  const abroad = useWeatherAbroad({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null, enabled: outside?.inSg === false });
   const [outsideOpen, setOutsideOpen] = useState(false);
   const openOutside = useCallback(() => setOutsideOpen(true), []);
   const closeOutside = useCallback(() => setOutsideOpen(false), []);
@@ -559,7 +563,7 @@ export default function App() {
         {/* v0.62.603 — Cuisine-standard flush-right cluster: language, temp, refresh. */}
         <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
-          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={outside?.dot} onClick={outside?.inSg ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge dot={badgeDot(outside, abroad)} onClick={(outside?.inSg || abroad?.ok) ? openOutside : null} ariaLabel={ot('title', lang)} lat={outsideLoc?.lat ?? null} lng={outsideLoc?.lng ?? null} lang={lang} /></span>
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -627,7 +631,7 @@ export default function App() {
         }}
         statusByLine={statusByLine}
       />
-      <OutsideNowStrip data={outside} app="train" lang={lang} onOpen={openOutside} className="-mx-1" />
+      <OutsideNowStrip data={outside} abroad={abroad} app="train" lang={lang} onOpen={openOutside} className="-mx-1" />
     </header>
   );
 
@@ -766,7 +770,7 @@ export default function App() {
   // layout; rendered once alongside the footer bar in each return below.
   const popups = (
     <>
-      <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} app="train" lang={lang} />
+      <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} abroad={abroad} app="train" lang={lang} />
       {popup === 'pickline' && (
         <Modal title={t('pickline.title', lang)} onClose={() => { setPopup(null); setBlinkCode(null); }}>
           <div className="text-xs text-tg-hint">{t('pickline.body', lang)}</div>
