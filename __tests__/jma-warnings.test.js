@@ -1,6 +1,7 @@
 // __tests__/jma-warnings.test.js — v0.62.962.
 //
-// Spec: doc/Feature/2026-11-01-local-weather-every-city.spec.md, C7 and invariants I10-I14. JMA's warnings for
+// Spec: doc/Feature/2026-11-01-local-weather-every-city.spec.md, C7, invariants I10-I14 and Amendment 1 (I15, I16:
+// the area is the JMA polygon containing the point, from data/jma-areas.json). JMA's warnings for
 // Japan's 11 cities, read from JMA's official XML feed (never the website's `bosai` JSON, which was frozen at
 // 2026-05-28 when sampled on 01-11 '26).
 //
@@ -19,7 +20,7 @@ const require = createRequire(import.meta.url);
 const fs = require('fs');
 const path = require('path');
 const jma = require('../jma-warnings.js');
-const AREAS = require('../data/jma-city-areas.json');
+const AREAS = require('../data/jma-areas.json');
 const { CITY_CENTROIDS } = require('../city-centroids.js');
 
 const ROOT = path.join(__dirname, '..');
@@ -268,35 +269,101 @@ describe('I11 — a city\'s warnings are its municipality\'s rows, minus lifted 
   });
 });
 
-// ── I14: the city → area table ───────────────────────────────────────────────────────────────────────────────────
-describe('I14 — every municipality code exists in JMA\'s area.json under the stated office', () => {
-  const jpCities = Object.entries(CITY_CENTROIDS).filter(([, c]) => c.country === 'JP').map(([k]) => k).sort();
-  it('covers exactly the 11 Japanese cities', () => {
-    expect(jpCities).toHaveLength(11);
-    expect(Object.keys(AREAS.cities).sort()).toEqual(jpCities);
-  });
-  for (const [city, a] of Object.entries(AREAS.cities)) {
-    it(`${city}: ${a.area} ${a.areaName} under office ${a.office}`, () => {
-      const chain = AREA_JSON_EXTRACT[a.area];
-      expect(chain, `${a.area} is not in the area.json extract`).toBeTruthy();
-      expect(chain[0]).toBe(a.areaName);
-      expect(chain[3]).toBe(a.office);
+// ── Amendment 1: the area is the JMA polygon that contains the point ─────────────────────────────────────────────
+// The 19 points the apps are known to send: the 11 stations in city-centroids.js and the 8 points Cuisine's city
+// picker sends (web/cuisine/src/v2/lib/cities.js:295-302). Each expected code was found by point-in-polygon against
+// JMA's FULL-resolution polygons (20260226_AreaInformationCity_weather_GIS.zip) on 01-11 '26, not by the shipped file.
+const KNOWN_POINTS = [
+  ['Tokyo Station', 35.6813, 139.767066, '1310100'],
+  ['Yokohama Station', 35.465981, 139.622062, '1410012'],
+  ['Osaka Station', 34.702485, 135.495951, '2710000'],
+  ['Kyoto Station', 34.985849, 135.758767, '2610000'],
+  ['Sannomiya Station', 34.693157, 135.192875, '2811000'],
+  ['Hakata Station', 33.589728, 130.420727, '4013000'],
+  ['Sapporo Station', 43.068661, 141.350755, '0110000'],
+  ['Hiroshima Station', 34.397667, 132.475379, '3410300'],
+  ['Sendai Station', 38.260132, 140.882438, '0410001'],
+  ['Kenchomae Station', 26.214395, 127.679333, '4720100'],
+  ['Nara Station', 34.680993, 135.819531, '2920101'],
+  ['picker Tokyo', 35.6762, 139.6503, '1311500'],
+  ['picker Yokohama', 35.4437, 139.6380, '1410012'],
+  ['picker Osaka', 34.6937, 135.5023, '2710000'],
+  ['picker Kyoto', 35.0116, 135.7681, '2610000'],
+  ['picker Fukuoka', 33.5904, 130.4017, '4013000'],
+  ['picker Sapporo', 43.0618, 141.3545, '0110000'],
+  ['picker Hiroshima', 34.3853, 132.4553, '3410100'],
+  ['picker Nara', 34.6851, 135.8048, '2920101'],
+];
+const AREA_JSON_MORE = { 1311500: ['杉並区', '130011', '130010', '130000'], 3410100: ['広島市中区', '340011', '340010', '340000'] };
+const CHAINS = { ...AREA_JSON_EXTRACT, ...AREA_JSON_MORE };
+
+describe('I15 — the shipped polygons put each known point in the area JMA\'s full-resolution polygons give', () => {
+  for (const [label, lat, lng, code] of KNOWN_POINTS) {
+    it(`${label} → ${code}`, () => {
+      expect(jma.areaForPoint(lat, lng)?.area).toBe(code);
     });
   }
-  it('the Kyoto example the spec gives: 京都市 2610000', () => {
-    expect(AREAS.cities.Kyoto).toMatchObject({ office: '260000', area: '2610000', areaName: '京都市' });
+  it('the two that a nearest-station rule got wrong: Tokyo\'s picker point is Suginami, Hiroshima\'s is Naka-ku', () => {
+    expect(jma.areaForPoint(35.6762, 139.6503)).toMatchObject({ area: '1311500', areaName: '杉並区', office: '130000' });
+    expect(jma.areaForPoint(34.3853, 132.4553)).toMatchObject({ area: '3410100', areaName: '広島市中区', office: '340000' });
+  });
+  it('outside the coverage there is no area, never a guessed one', () => {
+    expect(jma.areaForPoint(35.3606, 138.7274)).toBeNull(); // Mt Fuji, over 45 km from every city
+    expect(jma.areaForPoint(48.8566, 2.3522)).toBeNull();
+    expect(jma.areaForPoint(1.2937, 103.8531)).toBeNull();
+    expect(jma.areaForPoint(NaN, 135)).toBeNull();
   });
 });
 
-describe('cityForPoint — a point is a Japanese city only near that city', () => {
-  it('the city centroid itself', () => {
-    expect(jma.cityForPoint(KYOTO.lat, KYOTO.lng)).toMatchObject({ city: 'Kyoto', area: '2610000', office: '260000' });
+describe('I14 — areas carry the office their area.json chain gives', () => {
+  it('the areas of the 19 known points, against the saved area.json extract', () => {
+    for (const [label, lat, lng, code] of KNOWN_POINTS) {
+      const a = jma.areaForPoint(lat, lng);
+      const chain = CHAINS[code];
+      expect(chain, `${code} not in the extract`).toBeTruthy();
+      expect(a.areaName, label).toBe(chain[0]);
+      expect(a.office, label).toBe(chain[3]);
+    }
   });
-  it('5 km away still is; 15 km away is not; Paris and Singapore are not', () => {
-    expect(jma.cityForPoint(KYOTO.lat + 0.045, KYOTO.lng)?.city).toBe('Kyoto');
-    expect(jma.cityForPoint(KYOTO.lat + 0.135, KYOTO.lng)).toBeNull();
-    expect(jma.cityForPoint(48.8566, 2.3522)).toBeNull();
-    expect(jma.cityForPoint(1.2937, 103.8531)).toBeNull();
+  it('every shipped area: a 7-digit code under a 6-digit office of the same prefecture', () => {
+    for (const a of AREAS.areas) {
+      expect(a.code, a.name).toMatch(/^\d{7}$/);
+      expect(a.office, a.code).toMatch(/^\d{6}$/);
+      expect(a.office.slice(0, 2), a.code).toBe(a.code.slice(0, 2));
+    }
+  });
+  it('every one of the 11 offices the spec names is present', () => {
+    const offices = new Set(AREAS.areas.map((a) => a.office));
+    for (const o of ['130000', '140000', '270000', '260000', '280000', '400000', '016000', '340000', '040000', '471000', '290000']) expect(offices.has(o), o).toBe(true);
+  });
+});
+
+describe('I16 — the data file explains itself, holds only covered areas, and stays under 4 MB', () => {
+  const file = path.join(ROOT, 'data/jma-areas.json');
+  it('names its source, its build date, coverage and tolerance', () => {
+    expect(AREAS.source.gis).toBe('20260226_AreaInformationCity_weather_GIS.zip');
+    expect(AREAS.source.page).toBe('https://www.data.jma.go.jp/developer/gis.html');
+    expect(AREAS.builtAt).toMatch(/^\d{4}-\d{2}-\d{2}/);
+    expect(AREAS.coverageKm).toBe(45);
+    expect(AREAS.epsilonDeg).toBe(0.0005);
+  });
+  it('is under 4 MB', () => {
+    expect(fs.statSync(file).size).toBeLessThan(4 * 1024 * 1024);
+  });
+  it('every area\'s box comes within the coverage of one of the 11 cities', () => {
+    const jp = Object.values(CITY_CENTROIDS).filter((c) => c.country === 'JP');
+    expect(jp).toHaveLength(11);
+    for (const a of AREAS.areas) {
+      const [x0, y0, x1, y1] = a.bbox;
+      const near = jp.some((c) => {
+        const dLat = 45 / 111, dLng = 45 / (111 * Math.cos(c.lat * Math.PI / 180));
+        return x1 >= c.lng - dLng && x0 <= c.lng + dLng && y1 >= c.lat - dLat && y0 <= c.lat + dLat;
+      });
+      expect(near, a.code).toBe(true);
+    }
+  });
+  it('the station table it replaces is gone', () => {
+    expect(fs.existsSync(path.join(ROOT, 'data/jma-city-areas.json'))).toBe(false);
   });
 });
 
@@ -371,6 +438,12 @@ describe('I13 — the feed is read at most every 5 minutes server-wide, and only
     await a.j.warningsForPoint(KYOTO.lat, KYOTO.lng);
     clock.t += 30_000; await b.j.warningsForPoint(KYOTO.lat, KYOTO.lng);
     expect(feedCalls(a.f) + feedCalls(b.f)).toBe(1);
+  });
+  it('no point inside the covered JMA areas, no feed read (Amendment 1: the trigger is the coverage)', async () => {
+    const clock = { t: T0 };
+    const { f, j } = make(fakeCache(clock), clock);
+    expect(await j.warningsForPoint(35.3606, 138.7274)).toBeNull(); // Mt Fuji: in Japan, outside the coverage
+    expect(f.calls).toHaveLength(0);
   });
   it('no Japanese city open, no feed read', async () => {
     const clock = { t: T0 };

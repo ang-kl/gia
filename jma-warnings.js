@@ -7,9 +7,8 @@
 // offices and every file stopped at 2026-05-28, so it is never requested (I10). JMA's Standard Terms of Use are
 // compatible with CC BY 4.0; the sheet credits "Source: Japan Meteorological Agency (JMA), processed by Soleat".
 //
-// WHICH WARNINGS. Each city maps to one JMA warning area in data/jma-city-areas.json (the area containing the
-// city's point, checked against JMA's own polygons). Only the Body's <Warning type="気象警報・注意報（市町村等）"> rows
-// for that code count, minus "解除" (lifted) and "発表警報・注意報はなし" (none issued) (I11). The Headline repeats
+// WHICH WARNINGS. The point's JMA warning area (see WHICH AREA below). Only the Body's
+// <Warning type="気象警報・注意報（市町村等）"> rows for that area's code count, minus "解除" (lifted) and "発表警報・注意報はなし" (none issued) (I11). The Headline repeats
 // warnings in an <Information> summary and the bulletin also has grouped-area <Warning> blocks; neither is read.
 //
 // LEVELS from the name's suffix, so names from JMA's revised system still sort: 特別警報 emergency, 危険警報 danger,
@@ -19,27 +18,30 @@
 // 'none-yet' or 'stale' and nothing is claimed: the sheet then says "No JMA bulletin received yet", never "No warnings".
 //
 // TRAFFIC (I13). The feed is read at most every 5 minutes server-wide (a Redis NX lock, with a per-process window as
-// well), and only from warningsForPoint for a point near a Japanese city, i.e. only while someone has one open. A
-// bulletin is fetched only when the feed names a newer one for one of our 11 offices.
+// well), and only from warningsForPoint for a point inside the covered areas, i.e. only while someone has one open. A
+// bulletin is fetched only when the feed names a newer one for an office whose areas we hold.
 //
-// CITY MATCH. A point counts as a city within 10 km of the city's point. Cuisine's city picker sends the point itself;
-// the sheet names the JMA area, so a reader further out can see which area the warnings are for.
+// WHICH AREA (Amendment 1, operator 01-11 '26: "Ship JMA's map"). The area is the JMA warning area that CONTAINS the
+// point, looked up in data/jma-areas.json (JMA's own polygons within 45 km of the 11 cities, simplified to about
+// 50 m; built by scripts/build-jma-areas.js). A first version matched the nearest station within 10 km, and a
+// headless render showed why that was wrong: Cuisine's picker point for Tokyo sits in Suginami, 10.6 km from Tokyo
+// Station, and got nothing; Hiroshima's sits in Naka-ku and would have been shown Minami-ku's warnings. A point
+// outside the covered areas gets no JMA block, never a guessed one. The sheet names the area found.
 'use strict';
 
 const axios = require('axios');
-const { CITY_CENTROIDS } = require('./city-centroids.js');
-const AREAS = require('./data/jma-city-areas.json');
+const AREAS = require('./data/jma-areas.json');
 
 const FEED_URL = 'https://www.data.jma.go.jp/developer/xml/feed/extra.xml';
 const DATA_PREFIX = 'https://www.data.jma.go.jp/developer/xml/data/';
 const FEED_MIN_INTERVAL_MS = 5 * 60 * 1000;
 const FRESH_MS = 24 * 60 * 60 * 1000;
-const CITY_RADIUS_KM = 10;
 const STORE_TTL_S = 3 * 24 * 60 * 60;
 const LOCK_KEY = 'jma:feed:lock';
 const storeKey = (office) => `jma:vpww53:${office}`;
 
-const OUR_OFFICES = new Set(Object.values(AREAS.cities).map((c) => c.office));
+const OUR_OFFICES = new Set(AREAS.areas.map((a) => a.office));
+const OUR_CODES = new Set(AREAS.areas.map((a) => a.code));
 const RANK = { emergency: 4, danger: 3, warning: 2, advisory: 1 };
 
 function levelOf(name) {
@@ -117,28 +119,27 @@ function areaWarnings(bulletin, code) {
     .map((x) => x.w);
 }
 
-function haversineKm(a, b) {
-  const R = 6371, rad = (d) => d * Math.PI / 180;
-  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
-function cityForPoint(lat, lng) {
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  let best = null;
-  for (const [city, a] of Object.entries(AREAS.cities)) {
-    const c = CITY_CENTROIDS[city];
-    if (!c) continue;
-    const d = haversineKm({ lat, lng }, c);
-    if (d <= CITY_RADIUS_KM && (!best || d < best.d)) best = { d, city, ...a };
+// Even-odd point-in-polygon over every ring of the area (outer rings and holes alike); rings are flat [lng, lat, …].
+function inRings(x, y, rings) {
+  let inside = false;
+  for (const r of rings) {
+    for (let i = 0, j = r.length - 2; i < r.length; j = i, i += 2) {
+      const xi = r[i], yi = r[i + 1], xj = r[j], yj = r[j + 1];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+    }
   }
-  if (!best) return null;
-  const { d, ...rest } = best;
-  return rest;
+  return inside;
 }
 
-const OUR_CODES = new Set(Object.values(AREAS.cities).map((c) => c.area));
+function areaForPoint(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  for (const a of AREAS.areas) {
+    const [x0, y0, x1, y1] = a.bbox;
+    if (lng < x0 || lng > x1 || lat < y0 || lat > y1) continue;
+    if (inRings(lng, lat, a.rings)) return { office: a.office, area: a.code, areaName: a.name };
+  }
+  return null;
+}
 
 function createJma({ fetchText, cache = null, now = Date.now } = {}) {
   const memory = new Map();
@@ -180,7 +181,7 @@ function createJma({ fetchText, cache = null, now = Date.now } = {}) {
   }
 
   async function warningsForPoint(lat, lng) {
-    const city = cityForPoint(lat, lng);
+    const city = areaForPoint(lat, lng);
     if (!city) return null;
     if (!inflight) inflight = refresh().finally(() => { inflight = null; });
     await inflight;
@@ -209,6 +210,6 @@ function forServer(cache) {
 }
 
 module.exports = {
-  FEED_URL, FEED_MIN_INTERVAL_MS, FRESH_MS, CITY_RADIUS_KM,
-  levelOf, isActiveStatus, dotFor, parseFeed, parseBulletin, areaWarnings, cityForPoint, createJma, forServer,
+  FEED_URL, FEED_MIN_INTERVAL_MS, FRESH_MS,
+  levelOf, isActiveStatus, dotFor, parseFeed, parseBulletin, areaWarnings, areaForPoint, createJma, forServer,
 };
