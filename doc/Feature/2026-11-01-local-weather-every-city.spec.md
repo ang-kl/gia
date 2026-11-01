@@ -120,10 +120,10 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Assumptions
 | ID | Assumption | Status | Note |
 |----|------------|--------|------|
-| A1 | The Kyoto bug is the missing `selectedCityLocation` in Cuisine's weather location | pending | Probable from code; I1 reproduces it first. If the cause differs, a FLOW ALERT before fixing |
-| A2 | Replacing Open-Meteo with MET Norway everywhere is acceptable | pending | Open-Meteo's free tier is non-commercial. The operator said they don't want to pay |
-| A3 | The User-Agent names `soleat.net` without a personal email | pending | MET asks apps to identify themselves. A website is a common choice; MET may ask for contact details if traffic grows |
-| A4 | National warnings (Japan, Malaysia, …) are separate, later specs | pending | Their licences differ; Malaysia's is unverified |
+| A1 | The Kyoto bug is the missing `selectedCityLocation` in Cuisine's weather location; I1 reproduces it first and a FLOW ALERT is raised before fixing if the cause differs | confirmed | Operator, 01-11 '26, answering: *"Both OK (Recommended)"* (reproduce first, stop if the cause differs) |
+| A2 | Replacing Open-Meteo with MET Norway everywhere is acceptable | confirmed | Operator, 01-11 '26: *"Yes, MET Norway (Recommended)"* |
+| A3 | The User-Agent names `soleat.net` without a personal email | confirmed | Operator, 01-11 '26: *"Website only (Recommended)"* |
+| A4 | National warnings (Japan, Malaysia, …) are separate, later specs | confirmed | Operator, 01-11 '26, the same answer as A1: *"Both OK (Recommended)"* |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
