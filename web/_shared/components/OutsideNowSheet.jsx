@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import {
   ot, sheetRows, levelKey, rowTone, rowText, hhmm, outlookLabel, outlookDay, outlookTemp, TEMP_UNIT_KEY,
-  tempText, windText, localTime, cityDay, jmaName, jmaLineKey,
+  tempText, windText, localTime, cityDay, jmaName, jmaLineKey, jmaTime,
 } from '../lib/outside-now-i18n.js';
 import useOutlook from '../lib/use-outlook.js';
 
@@ -99,7 +99,8 @@ function AbroadSheet({ onClose, abroad, lang, unit }) {
     rows.push(<Row key="uv" icon={{ name: 'uv', glyph: ICON.uv }} title={ot('abroad.uv', lang, { i: abroad.uvClearSky })} line2="MET Norway" />);
   }
   const j = abroad.jma;
-  const issued = j && j.reportAt ? ot('jma.issued', lang, { t: localTime(j.reportAt, 'Asia/Tokyo') }) : '';
+  // v0.62.963 — I19: the date as well when the bulletin is from an earlier day in Japan.
+  const issued = j && j.reportAt ? ot('jma.issued', lang, { t: jmaTime(j.reportAt, lang) }) : '';
   const lineKey = j ? jmaLineKey(j) : null;
   return (
     <Shell onClose={onClose} title={ot('title', lang)} lang={lang}>

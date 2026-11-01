@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { topWarning, stripText, dismissKey, stripDecision, ot, ROW_SOURCE, hhmm, topJma, jmaName, localTime } from '../lib/outside-now-i18n.js';
+import { topWarning, stripText, dismissKey, stripDecision, ot, ROW_SOURCE, hhmm, topJma, jmaName, jmaTime } from '../lib/outside-now-i18n.js';
 
 // OutsideNowStrip.jsx — v0.62.952. Layout A of the "Outside now" spec
 // (doc/Feature/2026-10-29-outside-now-alerts.spec.md): one line under the header, shown ONLY while a warning is
@@ -41,7 +41,7 @@ export default function OutsideNowStrip({ data, abroad = null, app = 'default', 
         <button type="button" onClick={onOpen} style={{ all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
           <span aria-hidden="true">⚠️</span>
           <span style={{ flex: 1, minWidth: 0, fontWeight: 600 }}>{jmaName(jw.name, lang)}</span>
-          <span style={{ fontSize: 11, opacity: 0.8, whiteSpace: 'nowrap' }}>JMA {localTime(abroad.jma.reportAt, 'Asia/Tokyo')} ›</span>
+          <span style={{ fontSize: 11, opacity: 0.8, whiteSpace: 'nowrap' }}>JMA {jmaTime(abroad.jma.reportAt, lang)} ›</span>
         </button>
         <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={hide} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
       </div>

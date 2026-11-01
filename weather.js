@@ -459,12 +459,15 @@ async function fetchMet(lat, lng, { getFn = axios.get, cache = null, now = Date.
 }
 
 // MET symbol → one of the existing condition classes (outside-now-i18n.js OUTLOOK_CLASSES), most specific first.
-// Snow and sleet have no class there: they get none rather than a wrong one, and the sheet shows the emoji alone.
+// v0.62.963 — Amendment 2 (A9, operator: "Snow and Sleet"): snow and sleet have their own classes, `wx.snow` and
+// `wx.sleet`, used by the abroad sheet only; NEA's OUTLOOK_CLASSES is unchanged. Thunder still wins, so MET's 12
+// "…andthunder" snow and sleet symbols stay "thunder". Checked against all 40 IDs in MET's published legend.
 function metSymbolClass(sym) {
   const s = String(sym || '');
   if (!s) return null;
   if (/thunder/.test(s)) return 'thunder';
-  if (/snow|sleet/.test(s)) return null;
+  if (/sleet/.test(s)) return 'sleet';
+  if (/snow/.test(s)) return 'snow';
   if (/showers/.test(s)) return 'showers';
   if (/rain/.test(s)) return 'rain';
   if (/fog/.test(s)) return 'haze';
@@ -490,13 +493,10 @@ function metSymbolEmoji(sym) {
 }
 
 // The English condition text the badge's title and outlookLabel() read; outlookLabel maps it back to the class.
-const CLASS_TEXT = { thunder: 'Thundery showers', showers: 'Showers', rain: 'Rain', haze: 'Fog', partlyCloudy: 'Partly cloudy', cloudy: 'Cloudy', fair: 'Fair' };
+const CLASS_TEXT = { thunder: 'Thundery showers', showers: 'Showers', rain: 'Rain', haze: 'Fog', partlyCloudy: 'Partly cloudy', cloudy: 'Cloudy', fair: 'Fair', snow: 'Snow', sleet: 'Sleet' };
 function metConditionText(sym) {
   const c = metSymbolClass(sym);
-  if (c) return CLASS_TEXT[c];
-  if (/sleet/.test(String(sym || ''))) return 'Sleet';
-  if (/snow/.test(String(sym || ''))) return 'Snow';
-  return null;
+  return c ? CLASS_TEXT[c] : null;
 }
 
 // The step for "now": the latest one not after now, or the first if MET starts in the future.

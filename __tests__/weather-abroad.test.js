@@ -12,6 +12,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 import {
   OUTSIDE_STRINGS, OUTSIDE_LOCALES, badgeDot, jmaName, jmaLineKey, JMA_NAMES, windText, localTime, topJma, outlookTemp,
+  jmaTime, OUTLOOK_CLASSES,
 } from '../web/_shared/lib/outside-now-i18n.js';
 import { CITIES_BY_COUNTRY } from '../web/cuisine/src/v2/lib/cities.js';
 
@@ -234,9 +235,85 @@ describe('MET symbols → the existing condition classes', () => {
     expect(weather.metSymbolClass('cloudy')).toBe('cloudy');
     expect(weather.metSymbolClass('fair_day')).toBe('fair');
     expect(weather.metSymbolClass('clearsky_day')).toBe('fair');
-    expect(weather.metSymbolClass('heavysnow')).toBeNull();
-    expect(weather.metSymbolClass('sleetshowers_day')).toBeNull();
+    // v0.62.963 — Amendment 2 (A9, operator: "Snow and Sleet"): these two asserted null before; they now get their
+    // own classes. The full legend is checked below.
+    expect(weather.metSymbolClass('heavysnow')).toBe('snow');
+    expect(weather.metSymbolClass('sleetshowers_day')).toBe('sleet');
     expect(weather.metSymbolEmoji('heavysnow')).toBe('🌨️');
+  });
+});
+
+// I18 — every symbol in MET's published legend (github.com/metno/weathericons, weather/legend.csv, read 01-11 '26: 40
+// IDs, copied verbatim, including MET's own "lightss…" spellings). Each base ID may carry _day / _night / _polartwilight.
+describe('I18 — MET\'s 40 symbols: snow and sleet get their words, thunder stays thunder, the rest are unchanged', () => {
+  const LEGEND = ['clearsky', 'fair', 'partlycloudy', 'cloudy', 'lightrainshowers', 'rainshowers', 'heavyrainshowers',
+    'lightrainshowersandthunder', 'rainshowersandthunder', 'heavyrainshowersandthunder', 'lightsleetshowers', 'sleetshowers',
+    'heavysleetshowers', 'lightssleetshowersandthunder', 'sleetshowersandthunder', 'heavysleetshowersandthunder',
+    'lightsnowshowers', 'snowshowers', 'heavysnowshowers', 'lightssnowshowersandthunder', 'snowshowersandthunder',
+    'heavysnowshowersandthunder', 'lightrain', 'rain', 'heavyrain', 'lightrainandthunder', 'rainandthunder',
+    'heavyrainandthunder', 'lightsleet', 'sleet', 'heavysleet', 'lightsleetandthunder', 'sleetandthunder',
+    'heavysleetandthunder', 'lightsnow', 'snow', 'heavysnow', 'lightsnowandthunder', 'snowandthunder', 'heavysnowandthunder', 'fog'];
+  const want = (id) => (/thunder/.test(id) ? 'thunder' : /sleet/.test(id) ? 'sleet' : /snow/.test(id) ? 'snow'
+    : /showers/.test(id) ? 'showers' : /rain/.test(id) ? 'rain' : id === 'fog' ? 'haze'
+      : id === 'partlycloudy' ? 'partlyCloudy' : id === 'cloudy' ? 'cloudy' : 'fair');
+  it('the legend holds 40 symbols; 12 snow or sleet without thunder, 12 with', () => {
+    expect(new Set(LEGEND).size).toBe(LEGEND.length);
+    expect(LEGEND.filter((s) => /snow|sleet/.test(s) && !/thunder/.test(s))).toHaveLength(12);
+    expect(LEGEND.filter((s) => /snow|sleet/.test(s) && /thunder/.test(s))).toHaveLength(12);
+  });
+  for (const id of LEGEND) {
+    it(`${id} → ${want(id)}`, () => {
+      expect(weather.metSymbolClass(id)).toBe(want(id));
+      expect(weather.metSymbolClass(`${id}_day`)).toBe(want(id));
+    });
+  }
+  it('the badge reading names snow and sleet', async () => {
+    const step = (sym) => ({ time: '2026-11-01T08:00:00Z', data: { instant: { details: { air_temperature: -2, relative_humidity: 80 } }, next_1_hours: { summary: { symbol_code: sym }, details: { precipitation_amount: 1 } } } });
+    const get = (sym) => async () => ({ data: { properties: { timeseries: [step(sym)] } }, headers: {} });
+    expect((await weather.summaryGlobal(45.8, 126.5, { getFn: get('snow'), cache: null, now: () => NOW })).condition).toBe('Snow');
+    expect((await weather.summaryGlobal(45.8, 126.5, { getFn: get('lightsleet'), cache: null, now: () => NOW })).condition).toBe('Sleet');
+  });
+  it('the two labels exist in 9 locales, translated rather than copied, and NEA\'s classes are untouched', () => {
+    for (const k of ['wx.snow', 'wx.sleet']) {
+      for (const l of OUTSIDE_LOCALES) expect(OUTSIDE_STRINGS[k]?.[l], `${k}.${l}`).toBeTruthy();
+      for (const l of ['zh', 'ja', 'ko', 'ru']) expect(OUTSIDE_STRINGS[k][l]).not.toBe(OUTSIDE_STRINGS[k].en);
+    }
+    expect(OUTSIDE_STRINGS['wx.snow'].en).toBe('Snow');
+    expect(OUTSIDE_STRINGS['wx.sleet'].en).toBe('Sleet');
+    expect(OUTLOOK_CLASSES.map(([c]) => c)).not.toContain('snow');
+  });
+});
+
+// Amendment 2 — the stale line, and dated JMA times (I12, I19).
+describe('Amendment 2 — "No JMA bulletin in the last 24 hours", and the date on an older bulletin', () => {
+  it('stale and none-yet get different, true lines', () => {
+    expect(jmaLineKey({ status: 'stale', warnings: [] })).toBe('jma.noRecent');
+    expect(jmaLineKey({ status: 'none-yet', warnings: [] })).toBe('jma.noBulletin');
+    expect(OUTSIDE_STRINGS['jma.noRecent'].en).toBe('No JMA bulletin in the last 24 hours');
+    for (const l of OUTSIDE_LOCALES) expect(OUTSIDE_STRINGS['jma.noRecent'][l], l).toMatch(/24/);
+  });
+  // "Now" is 02-11 '26 05:00 JST.
+  const NOW_JST = Date.parse('2026-11-01T20:00:00Z');
+  it('a bulletin from today in Japan shows its time only', () => {
+    expect(jmaTime('2026-11-02T04:10:00+09:00', 'en', NOW_JST)).toBe('04:10');
+  });
+  it('one from an earlier day in Japan shows its date too, in the reader\'s language', () => {
+    expect(jmaTime('2026-11-01T22:45:00+09:00', 'en', NOW_JST)).toBe('1 Nov 22:45');
+    expect(jmaTime('2026-11-01T22:45:00+09:00', 'ja', NOW_JST)).toMatch(/11月1日.*22:45/);
+  });
+  it('"today" is Japan\'s day, not Singapore\'s: 23:30 JST on 1 Nov is yesterday at 00:30 JST on 2 Nov', () => {
+    const at = Date.parse('2026-11-01T15:30:00Z'); // 00:30 JST 2 Nov, 23:30 SGT 1 Nov
+    expect(jmaTime('2026-11-01T23:30:00+09:00', 'en', at)).toBe('1 Nov 23:30');
+  });
+  it('the sheet and the strip use it', () => {
+    expect(code('web/_shared/components/OutsideNowSheet.jsx')).toMatch(/jmaTime\(/);
+    expect(code('web/_shared/components/OutsideNowStrip.jsx')).toMatch(/jmaTime\(/);
+  });
+});
+
+describe('MET symbols — no class is invented', () => {
+  it('an unknown symbol gets none', () => {
+    expect(weather.metSymbolClass('nonsense')).toBeNull();
   });
 });
 
@@ -356,7 +433,8 @@ describe('I12 — the sheet says "No warnings" only with a current bulletin', ()
   it('the line for each JMA state', () => {
     expect(jmaLineKey({ status: 'ok', warnings: [] })).toBe('jma.none');
     expect(jmaLineKey({ status: 'ok', warnings: [{ name: '雷注意報', level: 'advisory' }] })).toBeNull();
-    expect(jmaLineKey({ status: 'stale', warnings: [] })).toBe('jma.noBulletin');
+    // v0.62.963 — Amendment 2: a bulletin older than 24 h was received, so "received yet" was untrue for it.
+    expect(jmaLineKey({ status: 'stale', warnings: [] })).toBe('jma.noRecent');
     expect(jmaLineKey({ status: 'none-yet', warnings: [] })).toBe('jma.noBulletin');
     expect(jmaLineKey(undefined)).toBe('jma.noBulletin');
   });

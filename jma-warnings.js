@@ -38,6 +38,12 @@ const FEED_MIN_INTERVAL_MS = 5 * 60 * 1000;
 const FRESH_MS = 24 * 60 * 60 * 1000;
 const STORE_TTL_S = 3 * 24 * 60 * 60;
 const LOCK_KEY = 'jma:feed:lock';
+// v0.62.963 — Amendment 2 (operator, A7: "Seed only, <=1/hour"). The short feed covers about 9 hours and, on 01-11
+// '26, 40 of 58 offices; the long feed (3.5 MB) covers 7 days and all 58. It is read only while an office in the map
+// has no stored bulletin, at most once an hour server-wide, and never once every office holds one.
+const LONG_FEED_URL = 'https://www.data.jma.go.jp/developer/xml/feed/extra_l.xml';
+const LONG_FEED_MIN_INTERVAL_MS = 60 * 60 * 1000;
+const LONG_LOCK_KEY = 'jma:feedl:lock';
 const storeKey = (office) => `jma:vpww53:${office}`;
 
 const OUR_OFFICES = new Set(AREAS.areas.map((a) => a.office));
@@ -144,6 +150,7 @@ function areaForPoint(lat, lng) {
 function createJma({ fetchText, cache = null, now = Date.now } = {}) {
   const memory = new Map();
   let lastFeedAt = -Infinity;
+  let lastLongAt = -Infinity;
   let inflight = null;
 
   const read = async (office) => {
@@ -168,9 +175,15 @@ function createJma({ fetchText, cache = null, now = Date.now } = {}) {
       } catch { /* no lock available: the per-process window above still holds */ }
     }
     let latest;
-    try { latest = parseFeed(await fetchText(FEED_URL)); } catch { return; }
+    try { latest = parseFeed(await fetchText(FEED_URL)); } catch { latest = null; }
+    if (latest) await take(latest);
+    await seed(t);
+  }
+
+  // Store the newest bulletin of each of our offices that a feed names, unless we already hold that one.
+  async function take(latest, only = null) {
     for (const [office, e] of Object.entries(latest)) {
-      if (!OUR_OFFICES.has(office)) continue;
+      if (!OUR_OFFICES.has(office) || (only && !only.has(office))) continue;
       const have = await read(office);
       if (have && have.url === e.url) continue;
       try {
@@ -178,6 +191,25 @@ function createJma({ fetchText, cache = null, now = Date.now } = {}) {
         await write(office, { url: e.url, reportAt: b.reportAt, areas: b.areas });
       } catch { /* keep what we had */ }
     }
+  }
+
+  // I13′ / I17 — fill offices with no stored bulletin from the long feed: at most once an hour, server-wide, and not
+  // at all once every office holds one. Only the missing offices are taken from it; the short feed keeps the rest.
+  async function seed(t) {
+    if (t - lastLongAt < LONG_FEED_MIN_INTERVAL_MS) return;
+    const missing = new Set();
+    for (const office of OUR_OFFICES) if (!(await read(office))) missing.add(office);
+    if (!missing.size) return;
+    lastLongAt = t;
+    if (cache) {
+      try {
+        const got = await cache.set(LONG_LOCK_KEY, String(t), { NX: true, EX: LONG_FEED_MIN_INTERVAL_MS / 1000 });
+        if (got == null) return; // another process read the long feed inside the hour
+      } catch { /* the per-process hour above still holds */ }
+    }
+    let longest;
+    try { longest = parseFeed(await fetchText(LONG_FEED_URL)); } catch { return; }
+    await take(longest, missing);
   }
 
   async function warningsForPoint(lat, lng) {
@@ -210,6 +242,6 @@ function forServer(cache) {
 }
 
 module.exports = {
-  FEED_URL, FEED_MIN_INTERVAL_MS, FRESH_MS,
+  FEED_URL, FEED_MIN_INTERVAL_MS, FRESH_MS, LONG_FEED_URL, LONG_FEED_MIN_INTERVAL_MS,
   levelOf, isActiveStatus, dotFor, parseFeed, parseBulletin, areaWarnings, areaForPoint, createJma, forServer,
 };

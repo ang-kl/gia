@@ -207,7 +207,11 @@ describe('I10 — only the official XML feed; the frozen bosai warning JSON is n
     const f = fakeFetch({ [jma.FEED_URL]: xml });
     const j = jma.createJma({ fetchText: f, cache: fakeCache(clock), now: () => clock.t });
     await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
-    expect(f.calls).toEqual([jma.FEED_URL]);
+    // v0.62.963 — this asserted `toEqual([jma.FEED_URL])`. Amendment 2 also reads the long feed while offices are
+    // unseeded, so the purpose is kept and the exact list is not: nothing outside JMA's developer feeds is fetched.
+    expect(f.calls[0]).toBe(jma.FEED_URL);
+    expect(f.calls.some((u) => /bosai/.test(u))).toBe(false);
+    for (const u of f.calls) expect([jma.FEED_URL, jma.LONG_FEED_URL]).toContain(u);
   });
 });
 
@@ -458,5 +462,100 @@ describe('I13 — the feed is read at most every 5 minutes server-wide, and only
     await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
     clock.t += 4 * 60_000; await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
     expect(feedCalls(f)).toBe(1);
+  });
+});
+
+// ── Amendment 2: the long feed seeds offices the short feed's ~9-hour window does not reach (I13′, I17) ──────────
+// Measured 01-11 '26: extra.xml held VPWW53 from 40 of 58 offices (not Osaka, Kyoto or Nara); extra_l.xml (3.5 MB)
+// held all 58 over 7 days. Kyoto's newest was 09:49 JST, 7 hours old at 17:00 JST: current under the 24-hour rule,
+// but invisible to the short feed. Operator, A7: "Seed only, <=1/hour". A8: "Keep a 24-hour limit".
+describe('Amendment 2 — the long feed seeds quiet offices, at most once an hour, and never once all are seeded', () => {
+  const OFFICES = [...new Set(AREAS.areas.map((a) => a.office))];
+  const KYOTO_NEW = '20261101004917_0_VPWW53_260000.xml';
+  const KYOTO_OLD = '20261031120000_0_VPWW53_260000.xml';
+  const OSAKA = '20261030134527_0_VPWW53_270000.xml';
+  const TOKYO = '20261101075745_0_VPWW53_130000.xml';
+  const short = feed(entry({ file: TOKYO, updated: '2026-11-01T07:57:45Z', author: '気象庁本庁' }));
+  const longEntries = [
+    entry({ file: KYOTO_OLD, updated: '2026-10-31T12:00:00Z' }),
+    entry({ file: KYOTO_NEW, updated: '2026-11-01T00:49:16Z' }),
+    entry({ file: OSAKA, updated: '2026-10-30T13:45:26Z', author: '大阪管区気象台' }),
+    entry({ file: TOKYO, updated: '2026-11-01T07:57:45Z', author: '気象庁本庁' }),
+  ];
+  const bodies = {
+    [FILE_URL(KYOTO_NEW)]: bulletin({ reportAt: '2026-11-01T09:49:00+09:00' }), // 発表警報・注意報はなし for 京都市
+    [FILE_URL(KYOTO_OLD)]: bulletin({ reportAt: '2026-10-31T21:00:00+09:00', kinds: [{ name: '大雨警報' }] }),
+    [FILE_URL(OSAKA)]: bulletin({ reportAt: '2026-10-30T22:45:00+09:00', code: '2710000', areaName: '大阪市', kinds: [{ name: '雷注意報', status: '解除' }] }),
+    [FILE_URL(TOKYO)]: TOKYO_0101,
+  };
+  const make = (longXml, extra = {}) => {
+    const clock = { t: T0 };
+    const calls = [];
+    const fetchText = async (u) => {
+      calls.push(u);
+      if (u === jma.FEED_URL) return short;
+      if (u === jma.LONG_FEED_URL) return longXml;
+      if (u in extra) return extra[u];
+      if (u in bodies) return bodies[u];
+      throw new Error(`unexpected ${u}`);
+    };
+    const j = jma.createJma({ fetchText, cache: fakeCache(clock), now: () => clock.t });
+    const count = (u) => calls.filter((x) => x === u).length;
+    return { clock, j, calls, count };
+  };
+  const OSAKA_PT = [34.702485, 135.495951];
+
+  it('the long feed is JMA\'s developer long feed', () => {
+    expect(jma.LONG_FEED_URL).toBe('https://www.data.jma.go.jp/developer/xml/feed/extra_l.xml');
+    expect(jma.LONG_FEED_MIN_INTERVAL_MS).toBe(60 * 60 * 1000);
+  });
+  it('I17 — Kyoto, missing from the short feed, is filled from the long feed with its NEWEST bulletin', async () => {
+    const { j, count } = make(feed(...longEntries));
+    const r = await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
+    expect(r).toMatchObject({ status: 'ok', area: { code: '2610000', name: '京都市' }, warnings: [], dot: null });
+    expect(r.reportAt).toBe('2026-11-01T09:49:00+09:00');
+    expect(count(FILE_URL(KYOTO_OLD))).toBe(0);
+    expect(count(jma.LONG_FEED_URL)).toBe(1);
+  });
+  it('A8 — the 24-hour rule still applies to what the seed fills: Osaka\'s 47-hour-old all-clear is stale', async () => {
+    const { j } = make(feed(...longEntries));
+    expect((await j.warningsForPoint(...OSAKA_PT)).status).toBe('stale');
+  });
+  it('I13′ — the long feed is read at most once an hour while offices are still unseeded', async () => {
+    const { clock, j, count } = make(feed(...longEntries));
+    await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
+    clock.t += 5 * 60_000 + 1; await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
+    clock.t += 30 * 60_000; await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
+    expect(count(jma.FEED_URL)).toBe(3);
+    expect(count(jma.LONG_FEED_URL)).toBe(1);
+    clock.t += 25 * 60_000; await j.warningsForPoint(KYOTO.lat, KYOTO.lng); // 60 min + 1 ms after the first read
+    expect(count(jma.LONG_FEED_URL)).toBe(2);
+  });
+  it('I13′ — once every office in the map holds a bulletin, the long feed is never read again', async () => {
+    const files = OFFICES.map((o, i) => `20261101${String(i).padStart(6, '0')}_0_VPWW53_${o}.xml`);
+    const extra = Object.fromEntries(files.map((f) => [FILE_URL(f), bulletin({ reportAt: '2026-11-01T09:00:00+09:00' })]));
+    const { clock, j, count } = make(feed(...files.map((f) => entry({ file: f, updated: '2026-11-01T00:00:00Z' }))), extra);
+    await j.warningsForPoint(KYOTO.lat, KYOTO.lng);
+    expect(count(jma.LONG_FEED_URL)).toBe(1);
+    for (let h = 1; h <= 3; h++) { clock.t += 60 * 60_000 + 1; await j.warningsForPoint(KYOTO.lat, KYOTO.lng); }
+    expect(count(jma.LONG_FEED_URL)).toBe(1);
+    expect(count(jma.FEED_URL)).toBe(4);
+  });
+  it('server-wide: a second process sharing the cache does not read the long feed inside the hour', async () => {
+    const clock = { t: T0 };
+    const cache = fakeCache(clock);
+    const calls = [];
+    const fetchText = async (u) => { calls.push(u); if (u === jma.FEED_URL) return short; if (u === jma.LONG_FEED_URL) return feed(...longEntries); if (u in bodies) return bodies[u]; throw new Error(u); };
+    const a = jma.createJma({ fetchText, cache, now: () => clock.t });
+    const b = jma.createJma({ fetchText, cache, now: () => clock.t });
+    await a.warningsForPoint(KYOTO.lat, KYOTO.lng);
+    clock.t += 6 * 60_000; await b.warningsForPoint(KYOTO.lat, KYOTO.lng);
+    expect(calls.filter((u) => u === jma.LONG_FEED_URL)).toHaveLength(1);
+  });
+  it('a failing long feed leaves none-yet, never an all-clear', async () => {
+    const clock = { t: T0 };
+    const fetchText = async (u) => { if (u === jma.FEED_URL) return short; throw new Error('ETIMEDOUT'); };
+    const j = jma.createJma({ fetchText, cache: fakeCache(clock), now: () => clock.t });
+    expect((await j.warningsForPoint(KYOTO.lat, KYOTO.lng)).status).toBe('none-yet');
   });
 });
