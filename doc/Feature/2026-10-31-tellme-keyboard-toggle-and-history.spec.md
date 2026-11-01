@@ -9,6 +9,7 @@ scope:
   - "web/cuisine/src/v2/lib/freetext-history.js"
   - "__tests__/freetext-history.test.js"
   - "__tests__/tellme-keyboard-toggle.test.js"
+  - "__tests__/tellme-ai-lever.test.js"
   - "package.json"
   - "doc/Feature/2026-10-31-tellme-keyboard-toggle-and-history.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -156,3 +157,28 @@ Version: 0.1. Date: 31 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 — one order check in `tellme-ai-lever.test.js` follows the ⌨️ button (02-11 '26)
+
+Raised as FLOW ALERT F5 at the start of Execution, before any code. Nothing above is rewritten.
+
+- **The conflict.**
+  - C3 turns the box's left 💬 button into the ⌨️ toggle, labelled "Hide keyboard" or "Show keyboard".
+  - "Done when" also requires `tellme-ai-lever.test.js` to pass unedited. Its check at lines 156-160 ("the lever sits
+    inside the bar, between 💬 and the text box", v0.62.943) finds the left button by the label `tell.collapse`
+    ("Collapse"). Once relabelled, that button cannot be found, so the two cannot both hold.
+- **Operator, 02-11 '26, choosing between stated options: *"Edit that test line (Recommended)"*.** The alternative was
+  keeping a separate Collapse button beside ⌨️.
+- **The change.**
+  - That one check finds the left button by the ⌨️ toggle's label instead.
+  - What it protects is kept: the lever sits between the left button and the text box.
+  - Every other check in the file is unchanged.
+  - The edit is quoted in the journal.
+- **Scope addition:** `__tests__/tellme-ai-lever.test.js`, limited to that check.
+- **"Done when" now reads:** `composer-fold.test.js` and `cuisine-tellme-anchor.test.js` pass unedited;
+  `tellme-ai-lever.test.js` passes with only that check changed.
+- **Measured for this amendment:**
+  - No other test reads `TellMePanel`, `onBlurClose`, `tell.collapse` or `composerOpen`.
+  - `composer-fold.test.js` reads `openComposer`'s text. The change keeps every string it checks:
+    `shouldFoldOnComposerOpen({` before `setComposerOpen(true)`, and `onClick={openComposer}`.
+  - The `tell.collapse` key stays in `i18n.js` (unused), because removing it would break the 410-key pins C8 avoids.
