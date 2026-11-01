@@ -1,8 +1,8 @@
 counters:
-  commit: 1599
-  build: 863
+  commit: 1600
+  build: 864
   documents:
-    journal: 1305
+    journal: 1306
     builder: 4
     persona: 5
     feature: 70
@@ -14,7 +14,8 @@ sessions:
   current_chat_counter: 126  # per §3.2 the CHAT counter resets per session and starts at 1;
                             # replies 1-4 of this session mistakenly carried commit-counter
                             # values (1,236-1,239) in their headers. See chat-0_62_723 turn 5.
-last_anchor_time: 01-11 '26 09:02 SGT
+last_anchor_time: 01-11 '26 09:58 SGT
+last_anchor_time_prior42: 01-11 '26 09:02 SGT
 last_anchor_time_prior43: 31-10 '26 22:39 SGT
 last_anchor_time_prior44: 31-10 '26 20:15 SGT
 last_anchor_time_prior45: 31-10 '26 08:48 SGT
@@ -157,7 +158,8 @@ last_anchor_time_prior181: 01-09 '26 10:30 SGT
 last_anchor_time_prior182: 01-09 '26 09:44 SGT
 last_anchor_time_prior183: 01-09 '26 09:29 SGT
 last_anchor_time_prior184: 01-09 '26 08:24 SGT
-last_anchor_source: system_clock_d203_max_sensor_0902_44_wins_over_operator_continue_message_0900_00_by_164_seconds_amd282
+last_anchor_source: system_clock_d203_max_sensor_0958_06_wins_over_trains_spec_approval_0929_00_by_1746_seconds_amd283
+last_anchor_source_prior42: system_clock_d203_max_sensor_0902_44_wins_over_operator_continue_message_0900_00_by_164_seconds_amd282
 last_anchor_source_prior43: system_clock_d203_max_sensor_2239_34_wins_over_pr_1902_squash_merge_2239_06_by_28_seconds_amd281
 last_anchor_source_prior44: system_clock_d203_max_sensor_2015_49_wins_over_weather_spec_approval_0959_00_by_37009_seconds_amd280
 last_anchor_source_prior45: system_clock_d203_max_sensor_0848_50_wins_over_pr_1901_squash_merge_0848_15_by_35_seconds_amd279
@@ -331,7 +333,8 @@ last_anchor_source_prior212: system_clock_d203_max_sensor_2039_wins_over_pr_1797
 last_anchor_source_prior213: system_clock_d203_max_sensor_2033_wins_over_pr_1796_merge_2017
 last_anchor_source_prior214: system_clock_d203_max_sensor_2018_wins_over_pr_1796_merge_2017_and_corrects_amd87s_future_dated_2030
 last_anchor_source_prior215: system_clock_d203_max_sensor_wins_over_pr_1795_merge   # future-dated by 45 min; kept per AU-1, superseded 30-08 '26 20:18 SGT
-last_anchor_note: d203_amd282_feature_and_technical_snapshots_current_to_v0_62_960_on_operator_continue
+last_anchor_note: d203_amd283_v0_62_961_simulated_trains_train_tma_on_operator_approve_spec_aa93cc9f
+last_anchor_note_prior42: d203_amd282_feature_and_technical_snapshots_current_to_v0_62_960_on_operator_continue
 last_anchor_note_prior43: d203_amd281_1902_merged_4e29e054_v0_62_960_ci_4_of_4_merged_tree_identical_held_per_d210
 last_anchor_note_prior44: d203_amd280_v0_62_960_weather_fixes_and_4_day_outlook_on_operator_approve_spec_f74444ef
 last_anchor_note_prior45: d203_amd279_1901_merged_6bc262ac_specs_only_on_operator_merge_when_green_held_per_d210
@@ -789,7 +792,8 @@ last_anchor_source_prior: strips_no_overlap_optionB_2026-07-03_1217
 # on which representation a reader trusted. Flagged by review on #1735. The durable fix is not
 # this edit but the gate in __tests__/serial-state-anchor.test.js, which fails when the three
 # representations disagree — a comment asking to keep them in sync has now failed twice.
-last_anchor_iso8601_current: 2026-11-01T09:02:44+08:00
+last_anchor_iso8601_current: 2026-11-01T09:58:06+08:00
+last_anchor_iso8601_current_prior42: 2026-11-01T09:02:44+08:00
 last_anchor_iso8601_current_prior43: 2026-10-31T22:39:34+08:00
 last_anchor_iso8601_current_prior44: 2026-10-31T20:15:49+08:00
 last_anchor_iso8601_current_prior45: 2026-10-31T08:48:50+08:00
@@ -985,7 +989,8 @@ last_anchor_iso8601: 2026-08-26T15:03:00+08:00   # superseded 26-08 '26 15:12 SG
 last_anchor_iso8601: 2026-08-26T14:01:00+08:00   # superseded 26-08 '26 15:03 SGT; was _current
 last_anchor_iso8601: 2026-08-26T13:42:00+08:00   # superseded 26-08 '26 14:01 SGT; was _current
 last_anchor_iso8601: 2026-08-26T13:19:00+08:00   # superseded 26-08 '26 13:42 SGT; was _current
-last_anchor_utc_current: 2026-11-01T01:02:44Z
+last_anchor_utc_current: 2026-11-01T01:58:06Z
+last_anchor_utc_current_prior42: 2026-11-01T01:02:44Z
 last_anchor_utc_current_prior43: 2026-10-31T14:39:34Z
 last_anchor_utc_current_prior44: 2026-10-31T12:15:49Z
 last_anchor_utc_current_prior45: 2026-10-31T00:48:50Z
