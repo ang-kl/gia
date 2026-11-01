@@ -46,7 +46,8 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Interpretation
 - UNDERSTANDING (measured 01-11, read-only):
   - **The key.** Railway's Soleat project, service `gia4lunch`, production, has a variable named
-    **`FLIGHTRADER24_API_KEY`**. It has **no** `FLIGHTRADER24_API_TOKEN`. Values are redacted to this session.
+    **`FLIGHTRADER24_API_TOKEN`** (renamed by the operator from `..._KEY` on 01-11 '26, re-read after). Values are
+    redacted to this session.
   - **The API**, from FR24's OpenAPI file downloaded from the docs page, and from its docs and pricing pages
     rendered in a browser:
     - Base `https://fr24api.flightradar24.com/api`. Headers `Authorization: Bearer <token>` and
@@ -95,9 +96,10 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     - Plane markers are a small ✈ rotated to the heading, in grey.
   - C6 — **Server and key.**
     - New `fr24.js` and routes `GET /api/fr24/changi` and `GET /api/fr24/flight/:id`.
-    - The token is read from **`FLIGHTRADER24_API_TOKEN`, falling back to `FLIGHTRADER24_API_KEY`** (the name
-      Railway has today). The token never reaches the client. Without one, the routes answer
-      `{ ok: false, reason: 'nokey' }` and the marker says "Flight data unavailable".
+    - The token is read from **`FLIGHTRADER24_API_TOKEN`** only. The operator renamed it from `..._KEY` on 01-11 '26,
+      and Railway was re-read the same day: only `..._TOKEN` exists.
+    - The token never reaches the client. Without one, the routes answer `{ ok: false, reason: 'nokey' }` and the
+      marker says "Flight data unavailable".
   - C7 — **Spending guards, because every call costs credits:**
     - **Shared cache:** planes for 60 s; a flight's details for 10 min; an airport's name for 30 days (the storage
       limit). Many readers tapping in the same minute cost one call.
@@ -130,7 +132,7 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 | ID | Assumption | Status | Note |
 |----|------------|--------|------|
 | A1 | "I don't need to know the plane in and out, unless I click on the plane" means: no arrivals/departures list; tapping the airport shows the planes, and tapping a plane shows its details | pending | The other reading would be "only fetch anything when I tap", which C2 also honours |
-| A2 | The code reads `FLIGHTRADER24_API_TOKEN` and falls back to `FLIGHTRADER24_API_KEY` | pending | Railway has only `..._KEY` today (measured). Approving accepts the fallback; or rename the variable in Railway |
+| A2 | The code reads `FLIGHTRADER24_API_TOKEN` | confirmed | Operator, 01-11 '26: *"i change from FLIGHTRADER24_API_KEY to FLIGHTRADER24_API_TOKEN"*. Re-read in Railway the same day: only `_TOKEN` is present (value redacted) |
 | A3 | Explorer's terms allow showing this data to Soleat's users | pending | FR24's terms page is behind a Cloudflare check the headless browser could not pass, and its "prohibited use cases" were not read. The operator should confirm on their account |
 | A4 | The key is active on Explorer | pending | Proved by the `/fr24usage` reply after deploy |
 
