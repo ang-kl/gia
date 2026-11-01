@@ -57,6 +57,10 @@ import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interact
 import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
+// v0.62.961 — simulated trains (spec doc/Feature/2026-10-30-simulated-trains-train-tma.spec.md). Built from the
+// operators' published timetable by scripts/build-train-sim.js; no live positions exist to show.
+import trainSim from '../data/train-sim.json';
+import { createTrainSimLayer, simState, lineGeometry, simT } from '../lib/train-sim.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -266,6 +270,57 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
 
   // Stable ref for the InfoWindow CTA closure.
   useEffect(() => { stationsRef.current = stations || []; }, [stations]);
+  // v0.62.961 — "🚆 Simulated" (spec C1-C7). Off by default and held here only, so it resets when the Mini App closes
+  // (C2); it is never written to the kept settings. Trains run on the SELECTED line only, from the published timetable,
+  // and the caption under the toggle row says so whenever the toggle is on (C6).
+  const [simOn, setSimOn] = useState(false);
+  const [simNow, setSimNow] = useState(() => Date.now());
+  const simLayerRef = useRef(null);
+  const simGeomRef = useRef({ key: null, geometry: null });
+  const simCtxRef = useRef(null);
+  const simStatus = simState({ lineCode: focusedCode, status: statusByLine?.[focusedCode]?.status ?? null, sim: trainSim, nowMs: simNow });
+  useEffect(() => {
+    if (!simOn) return undefined;
+    const id = setInterval(() => setSimNow(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, [simOn]);
+  useEffect(() => {
+    const state = simStatus;
+    const map = mapRef.current;
+    const gmaps = window.google?.maps;
+    const draw = simOn && state === 'running';
+    if (!draw || !map || !gmaps || !stations) {
+      simLayerRef.current?.stop();
+      simLayerRef.current = null;
+      return undefined;
+    }
+    const line = trainSim.lines[focusedCode];
+    const key = `${focusedCode}:${stations.length}:${linePathsRef.current ? 1 : 0}`;
+    if (simGeomRef.current.key !== key) {
+      const coords = {};
+      for (const s of stations) for (const c of (s.codes || [])) if (Number.isFinite(s.lat) && Number.isFinite(s.lng)) coords[c] = { lat: s.lat, lng: s.lng };
+      simGeomRef.current = { key, geometry: lineGeometry(line.stations, coords, linePathsRef.current?.[focusedCode] || []) };
+    }
+    const nameOf = (code) => {
+      const s = stations.find((x) => (x.codes || []).includes(code));
+      return s ? stationName(s.name, lang) : code;
+    };
+    simCtxRef.current = { line, geometry: simGeomRef.current.geometry, hex: LINES_BY_CODE[focusedCode]?.hex || '#555' };
+    const layer = createTrainSimLayer(map, gmaps, () => simCtxRef.current, {
+      onTap: (tr, pos) => {
+        const iw = infoWindowRef.current;
+        if (!iw || !tr) return;
+        const towards = escapeHtml(simT('towards', lang, { stn: nameOf(tr.terminus) }));
+        const next = tr.next ? `<br>${escapeHtml(simT('next', lang, { stn: nameOf(tr.next), min: Math.max(1, Math.round(tr.nextInSec / 60)) }))}` : '';
+        iw.setContent(infoCard(`<strong>🚆 ${towards}</strong>${next}<br><em>${escapeHtml(simT('caption', lang))}</em>`));
+        iw.setPosition(pos);
+        iw.open({ map });
+      },
+    });
+    layer.start();
+    simLayerRef.current = layer;
+    return () => { layer.stop(); if (simLayerRef.current === layer) simLayerRef.current = null; };
+  }, [simOn, simStatus, focusedCode, stations, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // v0.61.10 — realtime platform-crowd levels ({ "<code>": "l|m|h" }).
   // Best-effort: an empty/failed fetch leaves every pin unblinking.
@@ -962,7 +1017,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang) },
     // v0.62.278 — operator: 🍚 Hawker overlay pill, standardized from Cuisine.
     // OFF by default in the Train TMA (see App overlayLayers default).
-    { key: 'hawker',      icon: '🍚', label: t('layer.hawker', lang) }
+    { key: 'hawker',      icon: '🍚', label: t('layer.hawker', lang) },
+    // v0.62.961 — simulated trains (spec C2): local state, not an overlay layer, so it is never kept across a reopen.
+    { key: 'simTrains',   icon: '🚆', label: simT('toggle', lang) }
   ];
   // v0.62.956 — 🌳 Park ▾: the Park Connector loops, nearest first (spec C9); a row locks that loop and fits
   // the map to it. Empty until Park has been on once, because the layer is fetched then.
@@ -1071,10 +1128,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
-        layers={overlayLayers || {}}
-        onToggleLayer={(key) => onOverlayChange?.({
+        layers={{ ...(overlayLayers || {}), simTrains: simOn }}
+        onToggleLayer={(key) => (key === 'simTrains' ? setSimOn((v) => !v) : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
-        })}
+        }))}
         rowToggles={rowToggles}
         menuToggles={menuToggles}
         lockChip={pcnChip}
@@ -1085,6 +1142,17 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
+      {/* v0.62.961 — spec C6/I4: whenever the toggle is on, say these are simulated, never live; when none are drawn,
+          also say why (C5 paused, C7 out of hours, C3 no timetable, or no line picked). */}
+      {simOn && (
+        // Top, under the toggle row: at the bottom the station carousel (a fixed sibling at z-[38]) covered it.
+        <div data-sim-caption={simStatus} role="status" className="absolute left-12 right-2 top-[6.5rem] z-[39] px-2 py-1 rounded-md bg-white/90 text-gray-800 border border-gray-300 shadow-sm text-[10.5px] leading-snug pointer-events-none">
+          <span className="block">🚆 {simT('caption', lang)}</span>
+          {simStatus !== 'running' && (
+            <span className="block font-semibold">{simT(simStatus === 'disrupted' ? 'paused' : simStatus, lang)}</span>
+          )}
+        </div>
+      )}
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed
           when there is no focused line / station to toggle from.
