@@ -99,6 +99,12 @@ export const OUTSIDE_STRINGS = {
   'wx.partlyCloudy': { en: 'Partly cloudy', fr: 'Partiellement nuageux', id: 'Berawan sebagian', ru: 'Переменная облачность', de: 'Teilweise bewölkt', zh: '局部多云', ja: '晴れ時々曇り', es: 'Parcialmente nublado', ko: '구름 조금' },
   'wx.cloudy': { en: 'Cloudy', fr: 'Nuageux', id: 'Berawan', ru: 'Облачно', de: 'Bewölkt', zh: '多云', ja: '曇り', es: 'Nublado', ko: '구름 많음' },
   'wx.fair': { en: 'Fair', fr: 'Beau temps', id: 'Cerah', ru: 'Ясно', de: 'Heiter', zh: '晴', ja: '晴れ', es: 'Despejado', ko: '맑음' },
+  // v0.62.963 — Amendment 2 (spec doc/Feature/2026-11-01-local-weather-every-city.spec.md). A9: snow and sleet for MET's
+  // abroad readings only; they are deliberately NOT in OUTLOOK_CLASSES, which labels NEA's Singapore text. I12: a
+  // bulletin older than 24 hours was received, so the stale case gets its own true line.
+  'wx.snow': { en: 'Snow', fr: 'Neige', id: 'Salju', ru: 'Снег', de: 'Schnee', zh: '雪', ja: '雪', es: 'Nieve', ko: '눈' },
+  'wx.sleet': { en: 'Sleet', fr: 'Neige fondue', id: 'Hujan salju', ru: 'Мокрый снег', de: 'Schneeregen', zh: '雨夹雪', ja: 'みぞれ', es: 'Aguanieve', ko: '진눈깨비' },
+  'jma.noRecent': { en: 'No JMA bulletin in the last 24 hours', fr: 'Aucun bulletin de la JMA depuis 24 heures', id: 'Tidak ada buletin JMA dalam 24 jam terakhir', ru: 'Бюллетеней JMA за последние 24 часа нет', de: 'Kein JMA-Bulletin in den letzten 24 Stunden', zh: '过去 24 小时内没有 JMA 公报', ja: '過去24時間に気象庁の発表はありません', es: 'Ningún boletín de la JMA en las últimas 24 horas', ko: '최근 24시간 동안 JMA 발표가 없습니다' },
 };
 
 // Source agency per row. Parking deliberately has none.
@@ -307,8 +313,27 @@ export function topJma(abroad) {
 
 // I12 — the JMA block's one line when there is no warning to list. "No warnings" only with a current bulletin.
 export function jmaLineKey(j) {
+  if (j && j.status === 'stale') return 'jma.noRecent';
   if (!j || j.status !== 'ok') return 'jma.noBulletin';
   return Array.isArray(j.warnings) && j.warnings.length ? null : 'jma.none';
+}
+
+// I19 — JMA's bulletin time in Japan time, with the date when the bulletin is from an earlier day IN JAPAN (a bulletin
+// under 24 hours old can still be yesterday's). `nowMs` is a clock seam for the tests.
+export function jmaTime(iso, lang, nowMs = Date.now()) {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return '';
+  const t = localTime(iso, 'Asia/Tokyo');
+  const day = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms));
+  if (day(d.getTime()) === day(nowMs)) return t;
+  const loc = lang === 'en' ? 'en-GB' : lang;
+  let date;
+  try {
+    date = new Intl.DateTimeFormat(loc, { timeZone: 'Asia/Tokyo', day: 'numeric', month: 'short' }).format(d);
+  } catch {
+    date = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tokyo', day: 'numeric', month: 'short' }).format(d);
+  }
+  return `${date} ${t}`;
 }
 
 // C7 / I11 — JMA's warning names in the reader's language, keyed on JMA's Japanese name. A name is the phenomenon
