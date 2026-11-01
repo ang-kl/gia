@@ -272,3 +272,99 @@ apply", I13's trigger and I14's check, and adds I15-I16, two assumptions and two
   that its removal is in scope.
 - **Added mutation:** point-in-polygon replaced by the old 10 km nearest-station match. The Tokyo and Hiroshima picker
   points must catch it.
+
+## Amendment 2 — JMA's long feed, warnings that stay in force, and a snow label (01-11 '26)
+
+Operator, 01-11 '26: *"draft the JMA long-feed and snow label amendment"*. v0.62.962 shipped under the approval
+above (#1904, `58db3312`). This amendment is for **v0.62.963**. Nothing above is rewritten. It changes C3's condition
+labels, C7's source and freshness, and I12-I13, and adds I17-I19.
+
+### What was measured (01-11 '26, 21:10-21:20 SGT)
+
+- **Coverage.**
+  - `extra.xml` (the short feed, 148 KB) spans about **9 hours**: 262 entries, 03:40Z to 12:44Z. Its VPWW53 entries
+    come from **40 of 58** offices. Osaka (270000), Kyoto (260000) and Nara (290000) were not among them.
+  - `extra_l.xml` (the long feed, `https://www.data.jma.go.jp/developer/xml/feed/extra_l.xml`, **3.5 MB**) spans
+    **7 days**: 6,026 entries, 25-10 13:09Z to 01-11 12:44Z. Its VPWW53 entries come from **all 58 offices**,
+    including the three missing ones.
+- **I12's 24-hour rule was wrong.**
+  - The newest bulletins: Osaka 30-10 22:45 JST and Nara 30-10 23:33 JST, both about 47 hours old; Kyoto 01-11
+    09:49 JST.
+  - Read live, Osaka's and Nara's newest bulletins *lift* a thunder advisory (雷注意報 解除) for 大阪市 and 奈良市西部.
+    Kyoto's says 発表警報・注意報はなし for 京都市.
+  - So all three are genuinely clear. Under the 24-hour rule, Osaka and Nara would still read "No JMA bulletin
+    received yet" even with the long feed.
+  - JMA issues a VPWW53 bulletin when something changes. The newest one stays **in force until the next one
+    replaces it**, however old it is. The 24-hour rule assumed daily reissue, and that was never checked.
+- **The map spans 28 offices**, not 11: `data/jma-areas.json` covers areas within 45 km that sit in neighbouring
+  prefectures.
+- **MET's symbols.** MET's published legend (`https://github.com/metno/weathericons`, `weather/legend.csv`) lists
+  40 symbols:
+  - **24** are snow or sleet. The 12 with thunder already map to "thunder".
+  - The other **12** (6 snow, 6 sleet: `lightsnow`, `snow`, `heavysnow`, `lightsnowshowers`, `snowshowers`,
+    `heavysnowshowers`, and the same six for sleet) get no word today.
+  - Harbin read -5.7°C in the 01-11 live run.
+
+### Changes
+
+- **C7, source.**
+  - The short feed is read as now: at most every 5 minutes server-wide, and only for a point inside the covered
+    areas.
+  - **New:** the long feed is read only to *seed*, when a covered office has no stored bulletin. It is read at most
+    **once an hour** server-wide, behind its own Redis lock. Once every office in the map has a bulletin, it is not
+    read at all.
+  - The seed takes the newest VPWW53 per office in the long feed and fetches it, as the short feed does.
+- **C7, freshness. I12 and its 24-hour rule stay as approved.**
+  - The first draft of this amendment replaced I12 with "in force until replaced, if the short feed was read in the
+    last 30 minutes". The operator chose otherwise (A8 below), so that rule, its 30-minute check, its "JMA could not
+    be checked just now" string and 30-day retention are **not** part of this amendment.
+  - **Consequence, stated plainly.** Offices that issue nothing for more than 24 hours show no JMA status. On
+    01-11 that was Osaka and Nara, both actually clear. The long feed still helps every office whose newest bulletin
+    is under 24 hours old but older than the short feed's ~9-hour window; on 01-11 that included Kyoto.
+  - **The stale line becomes accurate.** With no stored bulletin the sheet says "No JMA bulletin received yet"
+    (unchanged). With one older than 24 hours it says **"No JMA bulletin in the last 24 hours"**, a new string in 9
+    locales, instead of claiming none was received.
+- **C7, display.** The JMA time shows the **date** as well when the bulletin is not from today in Japan time, e.g.
+  "JMA · 31 Oct 22:45 Japan time". A bulletin under 24 hours old can still be from yesterday.
+- **C3, labels.** Two new condition classes, **"Snow"** and **"Sleet"**, in 9 locales, for the 12 non-thunder snow
+  and sleet symbols.
+  - They are used only by the abroad (MET) sheet and badge.
+  - NEA's `OUTLOOK_CLASSES` table is unchanged, so Singapore's labels and the tests pinning it are untouched.
+- Ships as **v0.62.963**.
+
+### Invariants
+
+| ID | Maxim | Scope | Limit | Contrary | Check |
+|----|-------|-------|-------|----------|-------|
+| I12 | Unchanged as approved; plus: the stale case (a bulletin older than 24 h) says "No JMA bulletin in the last 24 hours", and the none-yet case keeps "No JMA bulletin received yet" | `jma-warnings.js`, sheet, i18n | none | a received bulletin described as never received | `jma-warnings.test.js` and `weather-abroad.test.js`: `jmaLineKey` for each status |
+| I13′ | Short feed at most every 5 min; long feed at most once an hour, only while an office has no stored bulletin, never once all are seeded | `jma-warnings.js` | JMA courtesy | 3.5 MB read every 5 minutes | test with a fake clock and fetch, counting each URL |
+| I17 | The seed fills an office missing from the short feed with its newest bulletin from the long feed | `jma-warnings.js` | the 24 h rule still applies to what it fills | an office whose bulletin is 10 hours old reads "no bulletin" | test with saved excerpts of both feeds |
+| I18 | Every one of MET's 12 non-thunder snow and sleet symbols gets the Snow or Sleet class; the 12 with thunder stay "thunder"; the other 16 are unchanged | `weather.js` | MET's legend | snow labelled rain, or no word | test over all 40 legend IDs |
+| I19 | A bulletin not from today in Japan time shows its date | sheet, i18n | none | a two-day-old all-clear read as today's | test |
+
+I7-I9 still apply: Singapore unchanged, every string in 9 locales, suite green and three builds.
+
+### Acceptance criteria
+- [ ] Tests first and red → I12 (the stale line), I13′, I17-I19
+- [ ] Mutations caught:
+  - the long feed read every 5 minutes;
+  - the long feed read once every office is seeded;
+  - the seed skipped;
+  - the stale line merged back into "received yet";
+  - snow mapped to rain;
+  - the date dropped from yesterday's bulletin.
+- [ ] A live run against JMA from the sandbox: Kyoto reads its real current state; Osaka and Nara read whatever
+      the 24-hour rule gives on the day, reported as measured
+- [ ] Full suite green, three builds, `package.json` at 0.62.963
+
+### Assumptions
+
+| ID | Assumption | Status | Note |
+|----|------------|--------|------|
+| A7 | Reading the 3.5 MB long feed at most once an hour, only while an office is unseeded, is acceptable traffic to JMA | confirmed | Operator, 01-11 '26: *"Seed only, ≤1/hour (Recommended)"* |
+| A8 | A VPWW53 bulletin stays in force until JMA issues the next one for that office | corrected | Operator, 01-11 '26: *"Keep a 24-hour limit"*. I12's 24-hour rule stays; see C7, freshness |
+| A9 | "Snow" and "Sleet" as two labels (not one "Snow or sleet") | confirmed | Operator, 01-11 '26: *"Snow and Sleet (Recommended)"* |
+
+### Out of scope
+Other countries' warnings; JMA's revised-system (R06) bulletins; snow for Singapore's NEA labels (it never snows
+there).
