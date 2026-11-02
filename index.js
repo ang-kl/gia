@@ -43,7 +43,10 @@ const {
   isProcessing,
   setProcessing,
   clearProcessing,
-  touchLastSeen
+  touchLastSeen,
+  describeSavedPlace,          // v0.62.965 — the 6-hour lock, stated to the Mini Apps
+  resolveCuisineLaunchAnchor,  // v0.62.965 — the /cuisine link carries a place only while locked
+  describeSavedPlaceAge        // v0.62.965 — "today 4:10 PM" / "yesterday …" for the reply line
 } = require('./location-cache');
 // v0.62.530 — resolveLang hoisted to a single top-level import (was re-required
 // inline in ~37 handlers). One shared binding; require() is module-cached so this
@@ -1713,7 +1716,10 @@ const PENDING_CUISINE_PREFIX = 'cuisine:';
 // sub-hour location drift — most SG residents don't move > 1 km in
 // 4 h. The 24 h cap matches the location-cache TTL so cached → asked
 // for fresh transitions only when the cache itself expires.
-const CUISINE_FRESH_LOC_MS = 24 * 60 * 60 * 1000;
+// v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, C5: the 24-hour window that used to live here
+// (CUISINE_FRESH_LOC_MS) is gone. resolveCuisineLaunchAnchor (location-cache.js) puts a place in the link only while
+// it is LOCKED — labelled and under 6 hours old, the chat's own IDLE_WAKE_MS. That is how yesterday's Kyoto opened in
+// Singapore the next morning (operator, 02-11 '26): the 4:10 PM pick was 19 hours old and still inside 24.
 bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
   // v0.59.17: thread lang into the chat reply so it flips with /language.
   const { t } = require('./i18n');
@@ -1738,17 +1744,17 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
     // adds a defensive server-region read in App.jsx so the TMA
     // is correct even when the hash is incomplete.
     let preResolvedAnchor = null;
+    let cachedPlace = null;   // v0.62.965 — read once; the reply line names it and its age
     try {
       const cached = await getUserLocation(redis, msg.chat.id);
-      const ageMs = cached?.setAt ? Date.now() - cached.setAt : Infinity;
-      const validCoord = cached?.lat && cached?.lng
-        && Math.abs(cached.lat) > 0.001 && Math.abs(cached.lng) > 0.001;
-      if (validCoord && ageMs <= CUISINE_FRESH_LOC_MS) {
-        preResolvedAnchor = { lat: cached.lat, lng: cached.lng, region: cached.region || null };
-      }
+      cachedPlace = cached || null;
+      preResolvedAnchor = await resolveCuisineLaunchAnchor(cached);
     } catch (err) {
       console.warn('[/cuisine] getUserLocation failed:', err.message);
     }
+    // A labelled place past its lock: the app will use the phone, and the reply says so (C5).
+    const stalePlaceLabel = (!preResolvedAnchor && cachedPlace && typeof cachedPlace.label === 'string' && cachedPlace.label.trim())
+      ? cachedPlace.label.trim() : null;
 
     // Don't overwrite a tokeniser-supplied @location with the cached
     // anchor — explicit args win.
@@ -1765,8 +1771,30 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
     if (finalHash) url += `#${finalHash}`;
 
     if (preResolvedAnchor) {
+      // v0.62.965 — C5: name the place and when it was set ("Anchored to Kyoto, set yesterday 4:10 PM"), so the
+      // reader can see what the app is about to open on. A locked place always has a label and a setAt.
+      const { tn } = require('./i18n');
+      const age = await describeSavedPlaceAge(cachedPlace.setAt);
+      const ageKey = age.day === 'today' ? 'cuisine.chat.anchoredToday'
+        : age.day === 'yesterday' ? 'cuisine.chat.anchoredYesterday' : 'cuisine.chat.anchoredOn';
+      const anchoredLine = tn(ageKey, lang, { label: cachedPlace.label.trim(), time: age.time, date: age.date });
       await bot.sendMessage(msg.chat.id,
-        `${t('cuisine.chat.title', lang)}\n${t('cuisine.chat.anchored', lang)}`,
+        `${t('cuisine.chat.title', lang)}\n${anchoredLine}`,
+        {
+          reply_markup: {
+            inline_keyboard: [[{
+              text: t('cuisine.chat.openBtn', lang),
+              web_app: { url }
+            }]]
+          }
+        }
+      );
+    } else if (stalePlaceLabel) {
+      // v0.62.965 — C5: the saved place is past its 6-hour lock. One message: the app opens on the phone's location,
+      // and the place is one pick away in the app ("↩ Back to …").
+      const { tn } = require('./i18n');
+      await bot.sendMessage(msg.chat.id,
+        `${t('cuisine.chat.title', lang)}\n${tn('cuisine.chat.usingPhone', lang, { label: stalePlaceLabel })}`,
         {
           reply_markup: {
             inline_keyboard: [[{
@@ -15375,7 +15403,9 @@ async function cacheBotUsername() {
         // /location quick-pick + Menu TMA dropdown so the Cuisine TMA
         // can auto-flip its region toggle to JB (and the Menu TMA's
         // LocationFieldMenu shows the current label / cap).
-        const payload = { lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null };
+        // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, C1: `ageMinutes` and `locked` (a labelled
+        // place under 6 hours old). Both Mini Apps read `locked` instead of deciding from the label alone.
+        const payload = { lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null, ...(await describeSavedPlace(cached)) };
         if (cached.region) {
           payload.region = cached.region;
         } else {

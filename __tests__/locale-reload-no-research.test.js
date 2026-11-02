@@ -149,8 +149,10 @@ describe('a locale toggle re-languages the map without re-running the search', (
     // that cannot tell code from prose is not a census. 17 is measured; adding a call site means
     // bumping it, which is the decision this file exists to force — the same reason
     // i18n-coverage.test.js hardcodes KEYS.length rather than asserting a floor.
+    // v0.62.965 — 17 → 19: the start-up check's two loads (at the kept place, and at the phone after a switch), both
+    // automatic and both passing `auto: true`. Spec 2026-11-02-saved-place-expires-after-six-hours, Amendment 2.
     expect(calls.length, 'a runSearch call site was added or removed — classify it, then bump this')
-      .toBe(17);
+      .toBe(19);
   });
 
   it('the gate is ONE decision, not a patch at each site', () => {

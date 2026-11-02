@@ -100,3 +100,29 @@ describe('shouldFollowDevice', () => {
     })).toBe(true);
   });
 });
+
+// v0.62.965 — spec doc/Feature/2026-11-02-saved-place-expires-after-six-hours.spec.md, I3 and C9.
+// A named anchor used to block the follow for ever. Now `locked` (the 6-hour rule, computed by anchor-age.js) is what
+// blocks it; a named anchor past its lock follows only when the phone is over 50 km away, so the 1.5 km rule for an
+// unnamed anchor is unchanged. The 14 tests above are unedited.
+describe('shouldFollowDevice — locked (v0.62.965)', () => {
+  const base = { initialResolveDone: true, firstLoadPending: false, explicitPick: false };
+  const KYOTO = { lat: 35.0116, lng: 135.7681 };
+  const KYOTO_5KM = { lat: 35.0116 + 5 / 111.2, lng: 135.7681 };
+  it('a locked named anchor never follows, however far the phone is', () => {
+    expect(shouldFollowDevice({ ...base, explicitAnchorName: 'Kyoto', locked: true, current: KYOTO, loc: SG })).toBe(false);
+  });
+  it('an unlocked named anchor follows only past 50 km: 5 km keeps, Singapore switches', () => {
+    expect(shouldFollowDevice({ ...base, explicitAnchorName: 'Kyoto', locked: false, current: KYOTO, loc: KYOTO_5KM })).toBe(false);
+    expect(shouldFollowDevice({ ...base, explicitAnchorName: 'Kyoto', locked: false, current: KYOTO, loc: SG })).toBe(true);
+  });
+  it('an unnamed anchor keeps the 1.5 km rule', () => {
+    const NEAR = { lat: SG.lat + 0.001, lng: SG.lng };       // ~110 m
+    const TWO_KM = { lat: SG.lat + 2 / 111.2, lng: SG.lng };
+    expect(shouldFollowDevice({ ...base, explicitAnchorName: '', locked: false, current: SG, loc: NEAR })).toBe(false);
+    expect(shouldFollowDevice({ ...base, explicitAnchorName: '', locked: false, current: SG, loc: TWO_KM })).toBe(true);
+  });
+  it('explicitPick still blocks (an in-session pick is locked by construction)', () => {
+    expect(shouldFollowDevice({ ...base, explicitPick: true, explicitAnchorName: 'Kyoto', locked: false, current: KYOTO, loc: SG })).toBe(false);
+  });
+});
