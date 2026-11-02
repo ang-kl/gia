@@ -27,6 +27,8 @@ import useOutsideNow from '../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../_shared/lib/use-weather-abroad.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { ot, badgeDot } from '../../_shared/lib/outside-now-i18n.js';
+// v0.62.966 — spec 2026-11-02-train-sim-caption-in-header-band: the simulation caption as a header strip.
+import { simStripModel } from './lib/train-sim.js';
 import { loadKept, saveKept } from '../../_shared/lib/kept-settings.js';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
@@ -235,6 +237,28 @@ function Modal({ title, onClose, children }) {
 //   4. AffectedTicker (horizontal-scroll list of all affected lines)
 //   5. LocationCard (you-are-here + nearest stations)
 //   6. EngineeringList (next 7 days from data/mrt-engineering-closures.md)
+// v0.62.966 — spec doc/Feature/2026-11-02-train-sim-caption-in-header-band.spec.md (C1-C4). While "🚆 Simulated" is
+// on, the caption sits in the header band right after the weather strip, in the same shape (operator, 02-11 '26:
+// "should be like the weather alert and not a separate like this"), with the reason line when nothing is drawn. The
+// ✕ hides it for the session, like the weather strip's (operator: "Yes, a ✕ like the weather strip"); the toggle
+// going off and on brings it back, and a tapped train's bubble still says "simulated", so nothing is ever unlabelled.
+function SimCaptionStrip({ on, status, lang = 'en', className = '' }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => { if (on) setHidden(false); }, [on]);
+  if (!on || hidden) return null;
+  const m = simStripModel({ status, lang });
+  return (
+    <div role={m.role} data-sim-strip={m['data-sim-strip']} className={className} style={m.style}>
+      <span aria-hidden="true">{m.icon}</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block' }}>{m.lines[0]}</span>
+        {m.lines[1] && <span style={{ display: 'block', fontWeight: 600 }}>{m.lines[1]}</span>}
+      </span>
+      <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={() => setHidden(true)} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
+    </div>
+  );
+}
+
 export default function App() {
   const lang = useLocale();
   // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md): the chip's dot, the
@@ -243,6 +267,8 @@ export default function App() {
   // back to the Singapore centroid and the sheet says "Singapore".
   const [outsideLoc, setOutsideLoc] = useState(null);
   useEffect(() => startLocationSync({ durationMs: 0, onLocation: (l) => setOutsideLoc({ lat: l.lat, lng: l.lng }) }), []);
+  // v0.62.966 — what the map panel reports about "🚆 Simulated" (onSimChange): the header strip reads it.
+  const [sim, setSim] = useState({ on: false, status: null });
   const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
   // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3/C7: outside Singapore the sheet, the
   // strip and the dot come from MET Norway (and JMA in Japan); the dot follows badgeDot, so none abroad but JMA's.
@@ -632,6 +658,7 @@ export default function App() {
         statusByLine={statusByLine}
       />
       <OutsideNowStrip data={outside} abroad={abroad} app="train" lang={lang} onOpen={openOutside} className="-mx-1" />
+      <SimCaptionStrip on={sim.on} status={sim.status} lang={lang} className="-mx-1" />
     </header>
   );
 
@@ -655,6 +682,7 @@ export default function App() {
             lang={lang}
             overlayLayers={overlayLayers}
             onOverlayChange={setOverlayLayers}
+            onSimChange={setSim}
           />
         </div>
   );

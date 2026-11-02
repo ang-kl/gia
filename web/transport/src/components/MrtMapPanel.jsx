@@ -149,7 +149,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, onSimChange = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -284,6 +284,12 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     const id = setInterval(() => setSimNow(Date.now()), 30000);
     return () => clearInterval(id);
   }, [simOn]);
+  // v0.62.966 — spec 2026-11-02-train-sim-caption-in-header-band, C1: the caption now lives in the header, which
+  // App.jsx draws, so the panel reports the toggle and its status upward. The toggle itself stays here (C2 of the
+  // trains spec): local state, never kept.
+  useEffect(() => {
+    onSimChange?.({ on: simOn, status: simStatus });
+  }, [simOn, simStatus]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const state = simStatus;
     const map = mapRef.current;
@@ -1143,16 +1149,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         }}
       />
       {/* v0.62.961 — spec C6/I4: whenever the toggle is on, say these are simulated, never live; when none are drawn,
-          also say why (C5 paused, C7 out of hours, C3 no timetable, or no line picked). */}
-      {simOn && (
-        // Top, under the toggle row: at the bottom the station carousel (a fixed sibling at z-[38]) covered it.
-        <div data-sim-caption={simStatus} role="status" className="absolute left-12 right-2 top-[6.5rem] z-[39] px-2 py-1 rounded-md bg-white/90 text-gray-800 border border-gray-300 shadow-sm text-[10.5px] leading-snug pointer-events-none">
-          <span className="block">🚆 {simT('caption', lang)}</span>
-          {simStatus !== 'running' && (
-            <span className="block font-semibold">{simT(simStatus === 'disrupted' ? 'paused' : simStatus, lang)}</span>
-          )}
-        </div>
-      )}
+          also say why. v0.62.966 — the pill that stood here moved into the header band (App.jsx, SimCaptionStrip),
+          beside the weather strip: operator, 02-11 '26, "should be like the weather alert and not a separate like
+          this". The panel reports simOn / simStatus through onSimChange above. */}
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed
           when there is no focused line / station to toggle from.

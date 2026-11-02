@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 import {
   headwayMinutes, trainsAt, simState, parseClock, serviceClock, lineGeometry, positionOf, ghostMarkerStyle, SIM_LINES,
-  DWELL_SEC, SIM_STRINGS, simT,
+  DWELL_SEC, SIM_STRINGS, simT, simStripModel,
 } from '../web/transport/src/lib/train-sim.js';
 
 const require = createRequire(import.meta.url);
@@ -217,9 +217,47 @@ describe('I4 — never presented as live', () => {
   it('the shared Train string table is untouched', () => {
     expect(src('web/transport/src/i18n.js')).not.toMatch(/sim\./);
   });
-  it('the caption is shown whenever the toggle is on, whatever the state', () => {
-    const c = code('web/transport/src/components/MrtMapPanel.jsx');
-    expect(c).toMatch(/\{simOn && \(\s*<div[^>]*data-sim-caption/);
+  // v0.62.966 — spec doc/Feature/2026-11-02-train-sim-caption-in-header-band.spec.md (C1, C5, C7). This check used
+  // to pin the pill over the map: `expect(c).toMatch(/\{simOn && \(\s*<div[^>]*data-sim-caption/)`. Operator,
+  // 02-11 '26: "should be like the weather alert and not a separate like this". The caption now lives in the header
+  // band: the map panel reports the toggle (onSimChange) and App.jsx renders the strip after OutsideNowStrip.
+  it('the caption is shown whenever the toggle is on, whatever the state — in the header band, not over the map', () => {
+    const panel = code('web/transport/src/components/MrtMapPanel.jsx');
+    expect(panel, 'the pill over the map is gone').not.toMatch(/data-sim-caption/);
+    expect(panel, 'the panel reports the toggle and its status upward').toMatch(/onSimChange\?\.\(\{ on: simOn, status: simStatus \}\)/);
+    expect(panel).toMatch(/\}, \[simOn, simStatus(, onSimChange)?\]\)/);
+    const app = code('web/transport/src/App.jsx');
+    const strip = app.indexOf('<OutsideNowStrip');
+    const sim = app.indexOf('<SimCaptionStrip');
+    expect(strip, 'OutsideNowStrip is rendered').toBeGreaterThan(-1);
+    expect(sim, 'SimCaptionStrip is rendered').toBeGreaterThan(-1);
+    expect(sim, 'the strip follows the weather strip in the header').toBeGreaterThan(strip);
+    expect(app.slice(sim, sim + 400)).toMatch(/on=\{sim\.on\}/);
+    expect(app).toMatch(/onSimChange=\{/);
+  });
+  it('the strip model: the caption always, the reason only when nothing is drawn, the neutral tone, no warning tint', () => {
+    const m = simStripModel({ status: 'running', lang: 'en' });
+    expect(m.lines).toEqual(['Simulated from the published timetable, not live train positions']);
+    expect(m['data-sim-strip']).toBe('running');
+    expect(m.role).toBe('status');
+    expect(m.style.background).toBe('#e8eef7');
+    expect(m.style.color).toBe('#2b4a6f');
+    expect(m.icon).toBe('🚆');
+    for (const s of ['disrupted', 'outOfHours', 'noData', 'noLine']) {
+      const r = simStripModel({ status: s, lang: 'en' });
+      expect(r.lines, s).toHaveLength(2);
+      expect(r.lines[1], s).toBe(simT(s === 'disrupted' ? 'paused' : s, 'en'));
+    }
+    expect(simStripModel({ status: 'running', lang: 'ko' }).lines[0]).toBe(SIM_STRINGS.caption.ko);
+  });
+  it('the strip is dismissable for the session and comes back when the toggle goes off and on (C3)', () => {
+    const app = code('web/transport/src/App.jsx');
+    const i = app.indexOf('function SimCaptionStrip');
+    expect(i).toBeGreaterThan(-1);
+    const body = app.slice(i, i + 1600);
+    expect(body, 'a ✕ with the shared dismiss label').toMatch(/aria-label=\{ot\('ui\.dismiss', lang\)\}/);
+    expect(body, 'the dismissal is state that the toggle resets').toMatch(/useEffect\(\(\) => \{ if \(on\) setHidden\(false\); \}, \[on\]\)/);
+    expect(body).toMatch(/if \(!on \|\| hidden\) return null;/);
   });
   it('markers are ghost-style: hollow, in the line colour', () => {
     const s = ghostMarkerStyle('#009645');
