@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import Icon from './Icon.jsx';
+import { addEntry, removeEntry, defaultHistoryStore, ft } from '../lib/freetext-history.js';
 
 // v0.59.0: standalone "Tell me" panel — replaces the v0.57.30 FlipPanel
 // back-face textarea + flip animation. Always visible below the map
@@ -31,15 +32,113 @@ export function submitRoute({ text, aiMode } = {}) {
   return aiMode === true ? 'ai' : 'quick';
 }
 
-export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading, searchIcon = false, onEmptySearch, searchDisabled = false, searchPulse = false, autoFocus = false, onBlurClose, onCollapse, aiMode = false, onToggleAi, onQuickSearch }) {
+// ── v0.62.964 — spec doc/Feature/2026-10-31-tellme-keyboard-toggle-and-history.spec.md ──────────────────────────────
+//
+// C3 — ⌨️ hides and shows the keyboard while the cursor stays in the box. Hiding sets inputmode="none" and blurs and
+// re-focuses in the same tap, which Android Chrome and iOS Safari 12.2+ honour; inside Telegram's iOS web view that
+// was unverified, so (A2, operator: "Build, test on phone") it carries a fallback: if the visual viewport has not
+// grown after 350 ms, the keyboard is still up, and a plain blur closes it. The box stays open either way, because it
+// no longer closes on blur (C2). Showing clears inputmode and focuses inside the tap, which raises the keyboard.
+// Returns whether the keyboard is now hidden.
+export function keyboardToggle(el, hidden, { viewport = null, later = null } = {}) {
+  if (!el) return Boolean(hidden);
+  if (!hidden) {
+    const before = viewport && Number.isFinite(viewport.height) ? viewport.height : null;
+    el.setAttribute('inputmode', 'none');
+    el.blur();
+    el.focus();
+    if (before != null && typeof later === 'function') {
+      later(() => { if (!(viewport.height > before + 80)) el.blur(); });
+    }
+    return true;
+  }
+  el.removeAttribute('inputmode');
+  el.blur();
+  el.focus();
+  return false;
+}
+
+// C2 — the box closes on a pointerdown anywhere outside it (map, cards, header), and on nothing else: hiding the
+// keyboard, switching the lever and tapping a remembered entry all happen inside it. Capture phase, so a map or card
+// that stops propagation still closes it. Returns the cleanup.
+export function installOutsideClose(doc, getRoot, onClose) {
+  if (!doc || typeof doc.addEventListener !== 'function') return () => {};
+  const handler = (e) => {
+    const root = getRoot();
+    if (root && e && e.target && root.contains(e.target)) return;
+    onClose?.();
+  };
+  doc.addEventListener('pointerdown', handler, true);
+  return () => doc.removeEventListener('pointerdown', handler, true);
+}
+
+// C6 — the list shows only while the box is empty and there is something to show.
+export function showHistory({ text, entries } = {}) {
+  return !String(text || '').trim() && Array.isArray(entries) && entries.length > 0;
+}
+
+// C4 — a search is remembered when it is submitted with text, by Quick or by AI.
+export function shouldRemember(route) {
+  return route === 'quick' || route === 'ai';
+}
+
+// C6 — at most 5 rows of 2rem show; the rest scroll inside the list. A row puts its text back (🔍 still searches);
+// ✕ removes it; the list ends with "Clear all". onMouseDown prevents the input losing focus, so the keyboard state
+// is kept.
+export function HistoryList({ entries = [], lang = 'en', onPick, onRemove, onClear }) {
+  const keep = (e) => e.preventDefault();
+  return (
+    <div data-freetext-history="" className="overflow-y-auto rounded-md border loc-field-surface bg-tg-card text-sm" style={{ maxHeight: '10rem' }}>
+      {entries.map((entry) => (
+        <div key={entry} className="flex items-center h-8 px-2 gap-2 border-b border-tg-hint/20">
+          <button type="button" data-entry={entry} onMouseDown={keep} onClick={() => onPick?.(entry)} className="flex-1 min-w-0 text-left truncate active:opacity-60">{entry}</button>
+          <button type="button" data-entry={entry} aria-label={ft('list.remove', lang)} onMouseDown={keep} onClick={() => onRemove?.(entry)} className="flex-shrink-0 text-tg-hint px-1 active:scale-90">✕</button>
+        </div>
+      ))}
+      <button type="button" onMouseDown={keep} onClick={() => onClear?.()} className="w-full h-8 text-xs text-tg-link text-left px-2 active:opacity-60">{ft('list.clearAll', lang)}</button>
+    </div>
+  );
+}
+
+export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading, searchIcon = false, onEmptySearch, searchDisabled = false, searchPulse = false, autoFocus = false, onClose, inputRef, historyStore, aiMode = false, onToggleAi, onQuickSearch }) {
   const [lang] = useLocale();
   const [submitting, setSubmitting] = useState(false);
+  const [kbHidden, setKbHidden] = useState(false);
+  const [history, setHistory] = useState([]);
+  const ownInputRef = useRef(null);
+  const ref = inputRef || ownInputRef;
+  const rootRef = useRef(null);
+  const storeRef = useRef(historyStore || null);
+  const store = () => { if (!storeRef.current) storeRef.current = defaultHistoryStore(); return storeRef.current; };
   const text = typeof value === 'string' ? value : '';
   const ai = aiMode === true;
+
+  // C5 — read the list once when the box opens.
+  useEffect(() => {
+    let alive = true;
+    store().load().then((l) => { if (alive) setHistory(l); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  // C2 — close on a tap outside the box.
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    return installOutsideClose(document, () => rootRef.current, () => onClose?.());
+  }, [onClose]);
+
+  const keep = (next) => { setHistory(next); store().save(next).catch?.(() => {}); };
+  function remember(t) { keep(addEntry(history, t)); }
+  function toggleKeyboard() {
+    const w = typeof window !== 'undefined' ? window : null;
+    setKbHidden(keyboardToggle(ref.current, kbHidden, {
+      viewport: w && w.visualViewport ? w.visualViewport : null,
+      later: (fn) => setTimeout(fn, 350),
+    }));
+  }
 
   async function submit() {
     const t = text.trim();
     const route = submitRoute({ text: t, aiMode: ai });
+    if (shouldRemember(route) && !searchDisabled && !loading && !submitting) remember(t);
     // v0.62.178 — operator: the end button is now the 🔍 SEARCH (→ merged into the
     // FAB). With text → submit the free-text; empty → run the criteria search.
     if (route === 'criteria') { if (searchIcon && onEmptySearch && !searchDisabled && !loading) onEmptySearch(); return; }
@@ -55,7 +154,7 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
   }
 
   return (
-    <div className="flex flex-col gap-1 px-0.5">
+    <div ref={rootRef} className="flex flex-col gap-1 px-0.5">
       {/* v0.62.147 — operator: the "Last asked …" remark sits ABOVE the free-text
           field, not below it.
           v0.62.167 — operator: the last-searched text ITSELF is now the link that
@@ -122,15 +221,19 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
       <div className={`relative flex items-center gap-2 px-3 py-1 rounded-md border loc-field-surface${ai ? ' tellme-ai' : ''}`}>
         {/* v0.62.287 — operator: tapping the 💬 icon on the EXPANDED composer
             collapses it back to the 💬 button FAB. onMouseDown preventDefault
-            keeps the input from blur-racing the click. */}
+            keeps the input from blur-racing the click.
+            v0.62.964 — spec doc/Feature/2026-10-31-tellme-keyboard-toggle-and-history.spec.md, C3: this button is
+            now ⌨️, the keyboard toggle; collapsing moved to a tap outside the box (C2). onMouseDown still keeps the
+            input focused, so the cursor stays. */}
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onCollapse?.()}
-          aria-label={tr('tell.collapse', lang)}
-          className="flex-shrink-0 active:scale-90 leading-none"
+          onClick={(e) => { e?.preventDefault?.(); toggleKeyboard(); }}
+          aria-label={ft(kbHidden ? 'kb.show' : 'kb.hide', lang)}
+          aria-pressed={kbHidden}
+          className={`flex-shrink-0 active:scale-90 leading-none text-[15px]${kbHidden ? ' opacity-50' : ''}`}
         >
-          <Icon name="message" className="w-4 h-4 text-tg-hint" />
+          <span aria-hidden="true">⌨️</span>
         </button>
         {/* v0.62.941 — the Quick / AI lever. 8×12 px (12×18 since v0.62.942, set in
             styles.css; the operator could not find it at 8×12), flat like the bar's line icons:
@@ -158,11 +261,13 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
             <path className="tellme-lever-base" d="M1.2 11.2 H6.8" />
           </svg>
         </button>
+        {/* v0.62.964 — C2: no onBlur any more. The box used to close 150 ms after the input lost focus, so hiding
+            the keyboard would have closed it; it now closes only on a tap outside (installOutsideClose). */}
         <input
+          ref={ref}
           type="text"
           value={text}
           onChange={(e) => onChange?.(e.target.value)}
-          onBlur={() => { if (onBlurClose) setTimeout(() => onBlurClose(), 150); }}
           disabled={submitting || loading}
           autoFocus={autoFocus}
           placeholder={tr(ai ? 'tellme.placeholderAi' : 'tellme.placeholder', lang)}
@@ -191,6 +296,17 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           ? <Icon name={ai ? 'robot' : 'search'} className="w-[18px] h-[18px]" />
           : <Icon name="arrow-right" className="w-4 h-4" />)}</button>
       </div>
+      {/* v0.62.964 — C6: the remembered list, under the box, only while it is empty. Inside rootRef, so tapping it
+          never counts as a tap outside. */}
+      {showHistory({ text, entries: history }) && (
+        <HistoryList
+          entries={history}
+          lang={lang}
+          onPick={(entry) => onChange?.(entry)}
+          onRemove={(entry) => keep(removeEntry(history, entry))}
+          onClear={() => keep([])}
+        />
+      )}
     </div>
   );
 }

@@ -153,7 +153,10 @@ describe('the rendered bar, AI', () => {
   });
   it('the lever sits inside the bar, between 💬 and the text box (v0.62.943)', () => {
     const nodes = panel({ value: '' });
-    const collapseAt = nodes.findIndex((n) => n.type === 'button' && n.props['aria-label'] === mod.t('tell.collapse', 'en'));
+    // v0.62.964 — spec doc/Feature/2026-10-31-tellme-keyboard-toggle-and-history.spec.md, Amendment 1: the left
+    // button is now the ⌨️ keyboard toggle (C3), so it is found by that label instead of `tell.collapse`. The order
+    // this check protects is unchanged: left button, then the lever, then the text box.
+    const collapseAt = nodes.findIndex((n) => n.type === 'button' && n.props['aria-label'] === 'Hide keyboard');
     const leverAt = nodes.findIndex((n) => n.props?.role === 'switch');
     const inputAt = nodes.findIndex((n) => n.type === 'input');
     expect(collapseAt).toBeGreaterThanOrEqual(0);

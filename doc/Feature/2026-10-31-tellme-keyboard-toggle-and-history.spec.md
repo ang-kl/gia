@@ -7,9 +7,9 @@ scope:
   - "web/cuisine/src/v2/components/TellMePanel.jsx"
   - "web/cuisine/src/v2/App.jsx"
   - "web/cuisine/src/v2/lib/freetext-history.js"
-  - "web/cuisine/src/v2/lib/i18n.js"
   - "__tests__/freetext-history.test.js"
   - "__tests__/tellme-keyboard-toggle.test.js"
+  - "__tests__/tellme-ai-lever.test.js"
   - "package.json"
   - "doc/Feature/2026-10-31-tellme-keyboard-toggle-and-history.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -104,16 +104,24 @@ Version: 0.1. Date: 31 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
     - So the list's own "Clear all" (C6) is the way to erase it, and `/forgetme`'s reply is not changed.
     - If the operator wants `/forgetme` to cover it, the alternative is server storage in Redis with `/forgetme`
       wired in, which is a different spec.
-  - Ships as **v0.62.962**, after the weather fixes (v0.62.960) and simulated trains (v0.62.961), or with the next
-    free version number if those are not built first.
+  - C8 — **Where the new strings live: a separate table in `freetext-history.js`**, not Cuisine's `i18n.js`.
+    - Strings: "Hide keyboard", "Show keyboard", "Clear all", and "Remove" (the ✕ row's label). Each is in 9
+      locales, as `FREETEXT_STRINGS`, beside the code that uses them, with their own test.
+    - Why: `tma-i18n-korean.test.js` and `tma-i18n-coverage.test.js` pin `i18n.js` at exactly 410 Cuisine keys, and
+      neither is in scope. Adding keys there would stop the build on them.
+    - Operator, 02-11 '26, choosing between stated options: *"Separate table (Recommended)"*. This is the same choice
+      as the simulated trains' `SIM_STRINGS` (v0.62.961).
+    - `i18n.js` was removed from `scope:` for this reason.
+  - Ships as the next free version: **v0.62.964**. The v0.62.962 first named here went to the weather work, as did
+    v0.62.963.
 - GAPS: none that change the outcome, given C1-C7. A1 and A2 are device facts only the operator's phone settles.
 
 ## Assumptions
 | ID | Assumption | Status | Note |
 |----|------------|--------|------|
-| A1 | Focusing inside the 💬 tap raises the keyboard on iPhone and Android in Telegram | pending | Standard iOS behaviour; not testable headless |
-| A2 | `inputmode="none"` plus a re-focus hides the keyboard and keeps the cursor inside Telegram's iOS and Android web views | pending | About 60 % for iOS (№ 3,966 §A ¶A·3). If it fails on a device, ⌨️ falls back to blur (the keyboard hides, the cursor goes, the box stays open) |
-| A3 | Remembered entries are kept in the user's Telegram account, not on our server | pending | Recommended in № 3,966 §B; the operator has not chosen yet. Approving this spec confirms it |
+| A1 | Focusing inside the 💬 tap raises the keyboard on iPhone and Android in Telegram | confirmed | Operator, 02-11 '26: *"yes, tapping 💬 raise the keyboard on iPhone and Android"* |
+| A2 | `inputmode="none"` plus a re-focus hides the keyboard and keeps the cursor inside Telegram's iOS and Android web views | corrected | Untestable before the build: the ⌨️ button does not exist yet. The operator, 02-11 '26: *"I haven't try"*, then, choosing between stated options: *"Build, test on phone (Recommended)"*. So the build ships the technique **with** its blur fallback, and whether the technique itself works is the operator's post-deploy phone check (acceptance criterion "The operator tries ⌨️ on their own phone"), not a fact this spec assumes |
+| A3 | Remembered entries are kept in the user's Telegram account, not on our server | confirmed | Operator, 02-11 '26, asked *"which is better"*, then chose: *"Telegram account (Recommended)"*. C5 and C7 stand as written |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
@@ -123,7 +131,7 @@ Version: 0.1. Date: 31 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 | I3 | ⌨️ flips `inputmode` between `none` and the default and keeps the input focused | `TellMePanel.jsx` | device behaviour (A2) | the cursor lost on hide | `tellme-keyboard-toggle.test.js` |
 | I4 | The history keeps at most 30 entries, each at most 120 characters, newest first, repeats moved up regardless of case, the stored value under 4,096 characters | `freetext-history.js` | none | a 31st entry, a duplicate, or a value CloudStorage refuses | `freetext-history.test.js`, called with fake CloudStorage and localStorage |
 | I5 | Only submitted searches with text are remembered; reading never throws, and a bad value is an empty list | `freetext-history.js`, `App.jsx` | none | a crash on a corrupt value, or keystrokes remembered | `freetext-history.test.js` |
-| I6 | Every new string exists in all 9 locales | `i18n.js` | none | an English fallback | test |
+| I6 | Every new string exists in all 9 locales, translated rather than copied, in `FREETEXT_STRINGS`; `i18n.js` is untouched | `freetext-history.js` | none | an English fallback, or a broken 410-key pin | `freetext-history.test.js`; the two pinned tests pass unedited |
 | I7 | The Quick/AI lever, the fold-on-open behaviour and the location anchor are unchanged; the suite passes and Cuisine builds | suite, build | none | a broken search box | the three existing tests unedited; `npm test`; `vite build` for Cuisine |
 
 ## Acceptance criteria
@@ -149,3 +157,28 @@ Version: 0.1. Date: 31 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 — one order check in `tellme-ai-lever.test.js` follows the ⌨️ button (02-11 '26)
+
+Raised as FLOW ALERT F5 at the start of Execution, before any code. Nothing above is rewritten.
+
+- **The conflict.**
+  - C3 turns the box's left 💬 button into the ⌨️ toggle, labelled "Hide keyboard" or "Show keyboard".
+  - "Done when" also requires `tellme-ai-lever.test.js` to pass unedited. Its check at lines 156-160 ("the lever sits
+    inside the bar, between 💬 and the text box", v0.62.943) finds the left button by the label `tell.collapse`
+    ("Collapse"). Once relabelled, that button cannot be found, so the two cannot both hold.
+- **Operator, 02-11 '26, choosing between stated options: *"Edit that test line (Recommended)"*.** The alternative was
+  keeping a separate Collapse button beside ⌨️.
+- **The change.**
+  - That one check finds the left button by the ⌨️ toggle's label instead.
+  - What it protects is kept: the lever sits between the left button and the text box.
+  - Every other check in the file is unchanged.
+  - The edit is quoted in the journal.
+- **Scope addition:** `__tests__/tellme-ai-lever.test.js`, limited to that check.
+- **"Done when" now reads:** `composer-fold.test.js` and `cuisine-tellme-anchor.test.js` pass unedited;
+  `tellme-ai-lever.test.js` passes with only that check changed.
+- **Measured for this amendment:**
+  - No other test reads `TellMePanel`, `onBlurClose`, `tell.collapse` or `composerOpen`.
+  - `composer-fold.test.js` reads `openComposer`'s text. The change keeps every string it checks:
+    `shouldFoldOnComposerOpen({` before `setComposerOpen(true)`, and `onClick={openComposer}`.
+  - The `tell.collapse` key stays in `i18n.js` (unused), because removing it would break the 410-key pins C8 avoids.

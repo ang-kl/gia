@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from '../../../_shared/lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
@@ -729,6 +730,9 @@ export default function App() {
   // the last search"), with cards showing → hide them as "hide results" does and blink that button
   // for 2 s. Refs, not state: neither value is rendered, and both reset with the Mini App.
   const composerOpenedRef = useRef(false);
+  // v0.62.964 — the free-text input, so the 💬 tap can focus it itself (spec doc/Feature/2026-10-31-tellme-keyboard-
+  // toggle-and-history.spec.md, C1).
+  const composerInputRef = useRef(null);
   const lastResultsAtRef = useRef(null);
   const blinkTimerRef = useRef(null);
   const [resultsBlink, setResultsBlink] = useState(false);
@@ -754,7 +758,11 @@ export default function App() {
       blinkTimerRef.current = setTimeout(() => setResultsBlink(false), RESULTS_BLINK_MS);
     }
     composerOpenedRef.current = true;
-    setComposerOpen(true);
+    // v0.62.964 — C1: iOS raises the keyboard only when focus() runs inside the user's tap, and the input does not
+    // exist until the box mounts. So the box is mounted synchronously and its input focused, both in this handler,
+    // rather than left to autoFocus on a later render.
+    flushSync(() => setComposerOpen(true));
+    composerInputRef.current?.focus();
   }
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
@@ -5843,8 +5851,8 @@ export default function App() {
                 searchDisabled={searchDisabled}
                 searchPulse={searchHintActive || searchFabFlash}
                 autoFocus
-                onBlurClose={() => setComposerOpen(false)}
-                onCollapse={() => setComposerOpen(false)}
+                inputRef={composerInputRef}
+                onClose={() => setComposerOpen(false)}
               />
             </div>
           ) : (
