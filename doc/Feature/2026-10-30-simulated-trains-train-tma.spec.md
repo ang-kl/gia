@@ -133,3 +133,16 @@ Version: 0.1. Date: 30 October 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment — where the caption lives (02-11 '26, v0.62.966)
+
+Made under `doc/Feature/2026-11-02-train-sim-caption-in-header-band.spec.md` (its C6), approved 02-11 '26 17:27 SGT.
+Nothing above is rewritten.
+
+- C6 said *"A fixed caption while on"* and v0.62.961 drew it as a pill over the map, under the toggle row. Operator,
+  02-11 '26, with a screenshot: *"the message 'Simulated from the published timetable, not live train positions'
+  should be like the weather alert and not a separate like this."*
+- From v0.62.966 the caption (and the C5/C7 reason line) is a strip in the header band, right after the weather
+  strip, in the same shape; the map panel reports the toggle through `onSimChange` and `App.jsx` renders it. A ✕
+  hides it for the session; the toggle going off and on brings it back. The tapped-train bubble's line is unchanged.
+- I4's check in `__tests__/train-sim.test.js` moved with it: it pins the header strip and the absence of the pill.

@@ -55,6 +55,24 @@ export function simT(key, lang, vars = {}) {
   const s = row[lang] || row.en;
   return s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] == null ? '' : String(vars[k])));
 }
+
+// v0.62.966 — spec doc/Feature/2026-11-02-train-sim-caption-in-header-band.spec.md, C2 and C4. What the header
+// strip shows while the toggle is on: the caption always, and the reason line when nothing is drawn (the four
+// statuses simState returns other than 'running'). The same shape as OutsideNowStrip (role, margin, padding,
+// radius, font size), in its own neutral blue-grey rather than one of the five warning tints (operator, 02-11 '26:
+// "Neutral blue-grey"). Pure, React-free: App.jsx renders it, this file has no React to import.
+export const SIM_STRIP_TONE = { background: '#e8eef7', color: '#2b4a6f' };
+export function simStripModel({ status, lang = 'en' } = {}) {
+  const lines = [simT('caption', lang)];
+  if (status && status !== 'running') lines.push(simT(status === 'disrupted' ? 'paused' : status, lang));
+  return {
+    role: 'status',
+    'data-sim-strip': status || 'running',
+    icon: '🚆',
+    lines,
+    style: { display: 'flex', alignItems: 'center', gap: 8, margin: '6px 8px 0', padding: '7px 10px', borderRadius: 10, fontSize: 12, lineHeight: 1.3, ...SIM_STRIP_TONE },
+  };
+}
 export const SIM_LINES = ['DTL', 'NEL', 'NSL', 'EWL', 'CCL', 'TEL', 'BPL'];
 const PAUSED = new Set(['disrupted', 'closure']);
 const SGT_MS = 8 * 3600 * 1000;
