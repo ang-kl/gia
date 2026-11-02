@@ -29,6 +29,8 @@ import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { ot, badgeDot } from '../../_shared/lib/outside-now-i18n.js';
 // v0.62.966 — spec 2026-11-02-train-sim-caption-in-header-band: the simulation caption as a header strip.
 import { simStripModel } from './lib/train-sim.js';
+// v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma: the bus route strip.
+import { routeStripModel } from './lib/bus-route.js';
 import { loadKept, saveKept } from '../../_shared/lib/kept-settings.js';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
@@ -259,6 +261,27 @@ function SimCaptionStrip({ on, status, lang = 'en', className = '' }) {
   );
 }
 
+// v0.62.967 — spec doc/Feature/2026-11-02-bus-route-and-live-buses-train-tma.spec.md, C7. While a bus route is drawn,
+// a strip after the sim caption names the service and its last stop, the buses shown and the LTA reading time, with
+// ↔ for the other direction and ✕ to clear the route, the buses and the strip. The state (and the two actions) come
+// up from the map panel's layer through onBusRouteChange.
+function BusRouteStrip({ state, lang = 'en', className = '' }) {
+  if (!state || !state.active) return null;
+  const m = routeStripModel({ service: state.service, lastStop: state.lastStop, count: state.count, readAt: state.readAt, shapeSource: state.shapeSource, lang, error: !!state.error });
+  return (
+    <div role={m.role} data-bus-route={m['data-bus-route']} className={className} style={m.style}>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontWeight: 600 }}>{m.title}</span>
+        {m.sub && <span style={{ display: 'block' }}>{m.sub}</span>}
+      </span>
+      {!state.error && (
+        <button type="button" onClick={() => state.swap?.()} style={{ all: 'unset', cursor: 'pointer', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>{m.swap}</button>
+      )}
+      <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={() => state.clear?.()} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
+    </div>
+  );
+}
+
 export default function App() {
   const lang = useLocale();
   // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md): the chip's dot, the
@@ -269,6 +292,8 @@ export default function App() {
   useEffect(() => startLocationSync({ durationMs: 0, onLocation: (l) => setOutsideLoc({ lat: l.lat, lng: l.lng }) }), []);
   // v0.62.966 — what the map panel reports about "🚆 Simulated" (onSimChange): the header strip reads it.
   const [sim, setSim] = useState({ on: false, status: null });
+  // v0.62.967 — what the map panel reports about a drawn bus route (onBusRouteChange): the route strip reads it.
+  const [busRoute, setBusRoute] = useState(null);
   const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
   // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3/C7: outside Singapore the sheet, the
   // strip and the dot come from MET Norway (and JMA in Japan); the dot follows badgeDot, so none abroad but JMA's.
@@ -659,6 +684,7 @@ export default function App() {
       />
       <OutsideNowStrip data={outside} abroad={abroad} app="train" lang={lang} onOpen={openOutside} className="-mx-1" />
       <SimCaptionStrip on={sim.on} status={sim.status} lang={lang} className="-mx-1" />
+      <BusRouteStrip state={busRoute} lang={lang} className="-mx-1" />
     </header>
   );
 
@@ -683,6 +709,7 @@ export default function App() {
             overlayLayers={overlayLayers}
             onOverlayChange={setOverlayLayers}
             onSimChange={setSim}
+            onBusRouteChange={setBusRoute}
           />
         </div>
   );

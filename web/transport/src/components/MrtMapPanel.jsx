@@ -60,6 +60,8 @@ import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
 // v0.62.961 — simulated trains (spec doc/Feature/2026-10-30-simulated-trains-train-tma.spec.md). Built from the
 // operators' published timetable by scripts/build-train-sim.js; no live positions exist to show.
 import trainSim from '../data/train-sim.json';
+// v0.62.967 — a bus service's route and the buses on it, drawn when a service number in a stop's bubble is tapped.
+import { createBusRouteLayer } from '../lib/mapOverlays.js';
 import { createTrainSimLayer, simState, lineGeometry, simT } from '../lib/train-sim.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -149,7 +151,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, onSimChange = null }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, onSimChange = null, onBusRouteChange = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -290,6 +292,33 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   useEffect(() => {
     onSimChange?.({ on: simOn, status: simStatus });
   }, [simOn, simStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+  // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C4-C7. The bubble's service numbers call
+  // window.__giaBusRoute(service, stopCode); the layer is created on the first tap, once the map exists, and reports
+  // its state (plus swap / clear) upward so App.jsx can draw the header strip. Cleared on unmount; never kept.
+  const busRouteRef = useRef(null);
+  const onBusRouteChangeRef = useRef(onBusRouteChange);
+  onBusRouteChangeRef.current = onBusRouteChange;
+  const langRef = useRef(lang);
+  langRef.current = lang;
+  useEffect(() => {
+    window.__giaBusRoute = (service, stopCode) => {
+      const map = mapRef.current;
+      const gmaps = window.google && window.google.maps;
+      if (!map || !gmaps) return;
+      if (!busRouteRef.current) {
+        busRouteRef.current = createBusRouteLayer(map, gmaps, {
+          lang: langRef.current,
+          onState: (s) => onBusRouteChangeRef.current?.({ ...s, swap: () => busRouteRef.current?.swap(), clear: () => busRouteRef.current?.stop() }),
+        });
+      }
+      busRouteRef.current.show(String(service), String(stopCode));
+    };
+    return () => {
+      delete window.__giaBusRoute;
+      busRouteRef.current?.stop();
+      busRouteRef.current = null;
+    };
+  }, []);
   useEffect(() => {
     const state = simStatus;
     const map = mapRef.current;
