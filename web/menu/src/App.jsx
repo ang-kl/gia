@@ -14,6 +14,10 @@ import { CITIES_BY_COUNTRY } from './cities.js';
 import { coordsToCountry } from './coords-to-country.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { deviceId } from '../../_shared/lib/device-id.js';
+// v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours: a place set on purpose is locked for 6 hours, then
+// the phone wins past 50 km, with "↩ Back to <place>". One rule, shared with Cuisine and the bot.
+import { shouldSwitchToDevice } from '../../_shared/lib/anchor-age.js';
+import { backToChipProps } from '../../_shared/lib/anchor-age-i18n.js';
 // v0.62.x — idle-return rating reset (operator): shared floor → Good+ 3.7.
 import { saveRatingPref } from './api.js';
 
@@ -161,6 +165,26 @@ export default function App() {
   // anchor changes (the user re-picked).
   const [farFromPickHint, setFarFromPickHint] = useState(null);
   useEffect(() => { setFarFromPickHint(null); }, [anchor?.lat, anchor?.lng, anchor?.label]);
+  // v0.62.965 — the place the start-up check switched away from (spec C4): { label, lat, lng, region, country }.
+  // Shown as "↩ Back to <label>"; tapping it saves the place again as a deliberate pick (a fresh 6-hour lock).
+  const [backTo, setBackTo] = useState(null);
+  const restoreBackTo = async () => {
+    const b = backTo;
+    if (!b) return;
+    setBackTo(null);
+    try {
+      const w = tg();
+      await fetch('/api/cuisine/set-location', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lat: b.lat, lng: b.lng, label: b.label,
+          ...(b.region ? { region: b.region } : {}), ...(b.country ? { country: b.country } : {}),
+          deviceId: deviceId(), initData: (w && w.initData) || ''
+        }),
+      });
+    } catch { /* non-fatal: the anchor below still shows the restored place */ }
+    setAnchor((a) => ({ ...(a || {}), label: b.label, lat: b.lat, lng: b.lng, region: b.region || null, country: b.country || null, locked: true, setAt: Date.now() }));
+  };
   // v0.62.259 — operator (urgent): trace the Menu TMA loading state (anchor +
   // region resolution) alongside the Cuisine TMA log, so the two surfaces'
   // loading can be compared side by side in the console.
@@ -246,6 +270,9 @@ export default function App() {
         if (b && Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
           setAnchor({
             label: b.label || null,
+            // v0.62.965 — the server's lock (labelled and under 6 hours) and setAt; the auto-detect reads `locked`.
+            locked: b.locked === true,
+            setAt: Number.isFinite(b.setAt) ? b.setAt : null,
             lat: b.lat,
             lng: b.lng,
             // v0.61.279 — Register O-27: drop the `|| 'SG'` fallback.
@@ -295,6 +322,8 @@ export default function App() {
         if (!b || !Number.isFinite(b.lat) || !Number.isFinite(b.lng)) return;
         setAnchor({
           label: b.label || null,
+          locked: b.locked === true,                          // v0.62.965
+          setAt: Number.isFinite(b.setAt) ? b.setAt : null,  // v0.62.965
           lat: b.lat,
           lng: b.lng,
           region: b.region || null,
@@ -361,6 +390,7 @@ export default function App() {
     runAutoDetect();
 
     async function runAutoDetect() {
+      let switchedFromUnlocked = false;   // v0.62.965 — set when an unlocked pick gives way to the phone (spec C2)
       const w = tg();
       if (!w) return;
       // Fresh GPS reading. v0.62.x — prefer Telegram's native LocationManager
@@ -412,13 +442,26 @@ export default function App() {
         // device GPS (same "explicit pick wins" rule as the Cuisine TMA's
         // v0.61.430 latch). The user re-anchors by picking a location.
         if (anchor.label && String(anchor.label).trim()) {
-          console.log(`[Menu-TMA] auto-detect: cached anchor is a labelled pick ("${anchor.label}"), skip — explicit pick wins`);
-          // v0.62.31 — stale-travel recovery (operator: "hint, never auto"):
-          // when the device sits FAR (>50 km — genuine travel, not the daily
-          // SG↔JB hop) from the kept pick, surface a dismissible hint so the
-          // user knows the pick is held and how to update it.
-          if (drift > 50) setFarFromPickHint(String(anchor.label).trim());
-          return;
+          // v0.62.965 — spec C2 / C6: the pick holds only while LOCKED (the server's `locked`: under 6 hours old).
+          // Inside the lock, v0.62.31's rule stands unchanged ("hint, never auto"). Past it, the operator chose
+          // (02-11 '26, "Yes, supersede after 6 h") to switch to the phone when it is over 50 km away, with
+          // "↩ Back to <label>" to restore the pick.
+          if (anchor.locked === true) {
+            console.log(`[Menu-TMA] auto-detect: cached anchor is a labelled pick ("${anchor.label}"), skip — explicit pick wins`);
+            // v0.62.31 — stale-travel recovery (operator: "hint, never auto"):
+            // when the device sits FAR (>50 km — genuine travel, not the daily
+            // SG↔JB hop) from the kept pick, surface a dismissible hint so the
+            // user knows the pick is held and how to update it.
+            if (drift > 50) setFarFromPickHint(String(anchor.label).trim());
+            return;
+          }
+          if (!shouldSwitchToDevice({ saved: anchor, device: fresh, now: Date.now() })) {
+            console.log(`[Menu-TMA] auto-detect: KEPT unlocked pick ("${anchor.label}") — phone within 50 km`);
+            return;
+          }
+          switchedFromUnlocked = true;
+          setBackTo({ label: String(anchor.label).trim(), lat: anchor.lat, lng: anchor.lng, region: anchor.region || null, country: anchor.country || null });
+          console.log(`[Menu-TMA] auto-detect: SWITCHED to the phone; "${anchor.label}" is past its 6-hour lock and over 50 km away`);
         }
       }
       // Local IATA lookup.
@@ -503,6 +546,28 @@ export default function App() {
         labelOut = `${detected.countryCode || 'Pinned'} location`;
       }
 
+      // v0.62.965 — a switch away from an unlocked pick persists an AUTOMATIC, label-less place (spec C8), through
+      // the route that takes bare coordinates with the ambient flag; the server's D787 guard lets it through because
+      // the lock has expired (C3). The detected name is shown here only. /api/menu/set-location needs a label.
+      if (switchedFromUnlocked) {
+        const region = isSgDetected ? 'SG' : (detected.countryCode === 'MY' && detected.iata === 'JHB') ? 'JB' : 'OTHER';
+        try {
+          await fetch('/api/cuisine/set-location', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: fresh.lat, lng: fresh.lng, region, country: detected.countryCode, ambient: true, deviceId: deviceId(), initData: w.initData || '' }),
+            keepalive: true
+          });
+        } catch (err) { console.warn('[Menu-TMA] auto-detect: ambient set-location failed', err?.message); }
+        setAnchor((a) => ({ ...(a || {}), label: labelOut, lat: fresh.lat, lng: fresh.lng, region, country: detected.countryCode || null, locked: false, setAt: Date.now(), radiusCapM: null, street: null, building: null, postal: null }));
+        if (!isSgDetected) {
+          fetch('/api/cuisine/country-pref', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ countryCode: detected.countryCode, deviceId: deviceId(), initData: w.initData || '' })
+          }).catch(() => { /* non-fatal */ });
+        }
+        console.log('[Menu-TMA] auto-detect applied (switched from an unlocked pick)', { iata: detected.iata, region });
+        return;
+      }
       // POST set-location.
       try {
         const r = await fetch('/api/menu/set-location', {
@@ -812,6 +877,16 @@ export default function App() {
                     held a labelled pick while the device is >50 km away
                     (operator: "hint, never auto"). Blue accent — colour-blind
                     safe, no red/green. */}
+                {/* v0.62.965 — "↩ Back to <place>" after the start-up check switched to the phone (spec C4). */}
+                {backTo && (
+                  <button
+                    {...backToChipProps({ label: backTo.label, lang })}
+                    onClick={restoreBackTo}
+                    className="self-start mb-1.5 rounded-full border border-tg-accent/40 bg-tg-card px-3 py-1.5 text-[12px] leading-snug text-tg-text active:opacity-60"
+                  >
+                    {backToChipProps({ label: backTo.label, lang }).text}
+                  </button>
+                )}
                 {farFromPickHint && (
                   <button
                     type="button"

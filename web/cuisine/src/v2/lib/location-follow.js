@@ -49,6 +49,11 @@ export function shouldFollowDevice({
   firstLoadPending = false,
   explicitAnchorName,
   explicitPick = false,
+  // v0.62.965 — anchor-age.js isLocked(): a labelled place under 6 hours old. Defaults to TRUE on purpose: a caller
+  // that does not know the age keeps the old never-follow-off-a-name rule, which is the safe side (the v0.61.430
+  // country-drift bug was a follow that should not have happened). App.jsx passes it explicitly and
+  // saved-place-expiry.test.js pins that it does.
+  locked = true,
   current,
   loc,
   thresholdM = 1500,
@@ -56,10 +61,16 @@ export function shouldFollowDevice({
   if (!initialResolveDone) return false;
   if (firstLoadPending) return false;
   if (explicitPick) return false;
-  if (explicitAnchorName && String(explicitAnchorName).trim()) return false;
+  // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, I3 / C9. A named anchor used to block the follow
+  // for ever (yesterday's Kyoto still won in Singapore the next morning). Now `locked` (anchor-age.js: a labelled
+  // place under 6 hours old) is what blocks it; a named anchor past its lock follows only when the phone is over
+  // 50 km away. An unnamed anchor keeps the 1.5 km rule below, unchanged.
+  const named = !!(explicitAnchorName && String(explicitAnchorName).trim());
+  if (named && locked) return false;
+  const threshold = named ? Math.max(thresholdM, 50_000) : thresholdM;
   if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) return false;
   if (current && Number.isFinite(current.lat) && Number.isFinite(current.lng)
-      && haversineMeters(current, loc) < thresholdM) {
+      && haversineMeters(current, loc) < threshold) {
     return false;
   }
   return true;

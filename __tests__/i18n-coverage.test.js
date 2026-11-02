@@ -218,7 +218,9 @@ describe('i18n coverage', () => {
     // arithmetic stops balancing, which is what makes them worth pinning at all.
     // v0.62.944 — 292 → 295: card.curated, card.halalCertified, card.halal (external eateries).
     // v0.62.945 — 295 → 297: card.beyond, place.nothingIn (building / road scope).
-    expect(KEYS.length).toBe(297);
+    // v0.62.965 — 297 → 301: the four /cuisine anchored lines (cuisine.chat.anchoredToday / anchoredYesterday /
+    // anchoredOn / usingPhone), spec 2026-11-02-saved-place-expires-after-six-hours Amendment 1, operator's (a).
+    expect(KEYS.length).toBe(301);
   });
 
   it('no key is identical to English except the pinned ones', () => {
@@ -265,11 +267,12 @@ describe('i18n coverage', () => {
     // v0.62.944 — +3 keys complete in all nine: 2628 → 2655 possible, 2511 → 2538 present,
     // `absentPinned` still 117.
     // v0.62.945 — +2 keys complete in all nine: 2655 → 2673, 2538 → 2556.
-    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2673);
+    // v0.62.965 — +4 keys complete in all nine: 2673 → 2709, 2556 → 2592; `absentPinned` still 117.
+    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2709);
     // 2394 + 13×9 = 2511. `absentPinned` is unchanged at 117 because every new key is
     // complete in all nine — if one were not, this line and the one above would disagree.
-    expect(have).toBe(2556);
-    expect(absentPinned.size).toBe(2556 - 2439);
+    expect(have).toBe(2592);
+    expect(absentPinned.size).toBe(2592 - 2475);
   });
 
   it('no locale entry is MISSING except the pinned ones', () => {

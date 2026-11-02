@@ -65,14 +65,22 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   // use-current, /location, autocomplete picks) pass no flag and keep full
   // overwrite semantics — back-compat safe. Returns { kept: true, label }
   // when the guard holds so callers can log it.
+  // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, C3 / I4: the guard holds only while the labelled
+  // place is LOCKED (anchor-age.js: under 6 hours old). Past the lock an automatic write goes through, otherwise the
+  // Mini Apps would switch to the phone on screen while the server kept yesterday's place, and the next open would
+  // jump back to it.
   if (opts && opts.ambient === true) {
     try {
       const existingRaw = await redis.get(key);
       if (existingRaw) {
         const existing = JSON.parse(existingRaw);
         if (existing && typeof existing.label === 'string' && existing.label.trim()) {
-          console.log(`[location-cache] D787 label-guard: kept "${existing.label.slice(0, 40)}" over an ambient label-less write`);
-          return { kept: true, label: existing.label };
+          const { isLocked } = await anchorAge();
+          if (isLocked(existing, Date.now())) {
+            console.log(`[location-cache] D787 label-guard: kept "${existing.label.slice(0, 40)}" over an ambient label-less write`);
+            return { kept: true, label: existing.label };
+          }
+          console.log(`[location-cache] D787 label-guard: "${existing.label.slice(0, 40)}" is past its 6-hour lock; the ambient write goes through`);
         }
       }
     } catch { /* malformed cache — fall through to the write */ }
@@ -173,6 +181,41 @@ async function getUserLocation(redis, chatId, deviceId) {
   }
 }
 
+// v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours. The one rule for the saved place lives in
+// web/_shared/lib/anchor-age.js so the two Mini Apps, the bot and the tests call the same code. That file is ESM and
+// this one is CommonJS; require() of an ES module needs Node 22.12 and CI runs Node 20, so it is loaded once with a
+// dynamic import(), which is why the three helpers below are async.
+let _anchorAgeP = null;
+function anchorAge() {
+  if (!_anchorAgeP) _anchorAgeP = import('./web/_shared/lib/anchor-age.js');
+  return _anchorAgeP;
+}
+
+// C1 — what /api/cuisine/user-location adds to its payload: how old the saved place is, and whether it is locked
+// (labelled and under 6 hours). Both Mini Apps read `locked` instead of deciding from the label alone.
+async function describeSavedPlace(cached, now = Date.now()) {
+  const { isLocked } = await anchorAge();
+  const ageMinutes = (cached && Number.isFinite(cached.setAt)) ? Math.floor((now - cached.setAt) / 60000) : null;
+  return { ageMinutes, locked: isLocked(cached, now) };
+}
+
+// C5 — what the chat /cuisine command puts in the Mini App's link: the saved place only while it is locked. Before
+// this version any place under 24 hours old went in, which is how yesterday's Kyoto opened in Singapore.
+async function resolveCuisineLaunchAnchor(cached, now = Date.now()) {
+  const { isLocked } = await anchorAge();
+  if (!isLocked(cached, now)) return null;
+  const validCoord = Number.isFinite(cached.lat) && Number.isFinite(cached.lng)
+    && Math.abs(cached.lat) > 0.001 && Math.abs(cached.lng) > 0.001;
+  if (!validCoord) return null;
+  return { lat: cached.lat, lng: cached.lng, region: cached.region || null };
+}
+
+// The chat line's "today 4:10 PM" / "yesterday 4:10 PM" / "30 Oct 12:00 PM" (Singapore time).
+async function describeSavedPlaceAge(setAt, now = Date.now()) {
+  const { describeAge } = await anchorAge();
+  return describeAge(setAt, now);
+}
+
 // v0.30.2: minutes since the user last shared/typed a location, or
 // `null` if no location stored / pre-v0.30.2 entry without timestamp.
 async function getLocationAgeMinutes(redis, chatId) {
@@ -234,6 +277,9 @@ module.exports = {
   setUserLocation,
   getUserLocation,
   getLocationAgeMinutes,
+  describeSavedPlace,          // v0.62.965
+  resolveCuisineLaunchAnchor,  // v0.62.965
+  describeSavedPlaceAge,       // v0.62.965
   touchLastSeen,
   setPendingMeal,
   consumePendingMeal,

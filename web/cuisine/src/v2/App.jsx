@@ -19,6 +19,10 @@ import { useViewport, viewportTag } from '../../../_shared/lib/use-viewport.js';
 // focus restore) for the three coherence modals below.
 import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { shouldFollowDevice } from './lib/location-follow.js';
+// v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours: a place set on purpose is locked for 6 hours, then
+// the phone wins past 50 km, with "↩ Back to <place>". One rule, shared with Menu and the bot.
+import { shouldSwitchToDevice } from '../../../_shared/lib/anchor-age.js';
+import { backToChipProps } from '../../../_shared/lib/anchor-age-i18n.js';
 import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
@@ -343,6 +347,11 @@ export default function App() {
   // the SG device GPS (the country-drift bug). Resets to false on reload, so
   // device-follow still works on a plain GPS start with no pick.
   const explicitPickRef = useRef(false);
+  // v0.62.965 — whether the cached place is LOCKED (the server's `locked`: labelled and under 6 hours old), and the
+  // cached place itself, kept so the start-up check can measure the phone's distance from it and so "↩ Back to
+  // <place>" can restore it after a switch. The latch above now arms only on a locked label.
+  const anchorLockedRef = useRef(false);
+  const savedPlaceRef = useRef(null);
   // v0.62.97 — operator: tapping 🇸🇬 after a non-SG anchor (e.g. Johor → SG)
   // used to keep the old anchor (KL's Mid Valley) and only flip the flag.
   // Remember the last REAL Singapore anchor so the pill can restore it;
@@ -379,6 +388,7 @@ export default function App() {
           firstLoadPending: firstLoadPendingRef.current, // v0.61.387 — don't re-search over the boot load
           explicitAnchorName: anchorNow && anchorNow.name,
           explicitPick: explicitPickRef.current,          // v0.61.430 — explicit pick wins over device GPS
+          locked: anchorLockedRef.current,                // v0.62.965 — a named anchor past its 6-hour lock follows past 50 km
           current: cur,
           loc,
         })) return;
@@ -415,6 +425,9 @@ export default function App() {
     return stop;
   }, []); // eslint-disable-line
   const [venues, setVenues] = useState([]);
+  // v0.62.965 — the place the start-up check switched away from (C4): { name, lat, lng, region, country }. Shown as
+  // "↩ Back to <name>" until a pick is made; tapping it restores the place as a fresh deliberate pick.
+  const [backTo, setBackTo] = useState(null);
 
   // v0.62.846 — THE SECOND LINE HAS TO FOLLOW THE TOGGLE, NOT THE SEARCH.
   //
@@ -1834,8 +1847,15 @@ export default function App() {
           // (KL pick yanked back to SG GPS) would regress now that the
           // region-watching latch is gone. Plain GPS-shaped cache entries
           // (no label) do NOT latch, so device-follow keeps working.
-          if (r.label && String(r.label).trim()) explicitPickRef.current = true;
-          console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
+          // v0.62.965 — the latch arms only while the labelled place is LOCKED (server `locked`: under 6 hours).
+          // Past the lock the start-up check below may switch to the phone (spec C2).
+          savedPlaceRef.current = r;
+          anchorLockedRef.current = r.locked === true;
+          if (r.label && String(r.label).trim() && r.locked === true) explicitPickRef.current = true;
+          // An UNLOCKED labelled place: the boot load is claimed here so the gate does not search yesterday's place
+          // while the phone reading is still pending; the start-up check loads once, at the place it decides on.
+          if (r.label && String(r.label).trim() && r.locked !== true) { initialLoadFiredRef.current = true; initialSearchDone.current = true; }
+          console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r, 'locked=' + anchorLockedRef.current);
           return true;
         }
         console.log('[Cuisine-TMA-v2] tryServerCache: MISS (no/stale/zero cache)');
@@ -1973,9 +1993,16 @@ export default function App() {
           // too. Coords/UX unchanged (no popup, no auto-load — the
           // v0.61.409 policy stands); the sync just can no longer silently
           // clobber a deliberate pick.
-          if (r?.label && String(r.label).trim()) {
+          // v0.62.965 — as in tryServerCache: arm only on a LOCKED label (spec C2).
+          if (r) { savedPlaceRef.current = r; anchorLockedRef.current = r.locked === true; }
+          if (r?.label && String(r.label).trim() && r.locked === true) {
             explicitPickRef.current = true;
             console.log('[Cuisine-TMA-v2] explicit-pick latch armed from cached label:', r.label);
+          }
+          // As in tryServerCache: an unlocked labelled place defers the boot load to the start-up check. Not on a
+          // deep link, whose load is the hash anchor's own.
+          if (r?.label && String(r.label).trim() && r.locked !== true && userLocSource !== 'hash') {
+            initialLoadFiredRef.current = true; initialSearchDone.current = true;
           }
         } catch { /* non-fatal */ }
       }
@@ -2728,6 +2755,30 @@ export default function App() {
 
     (async () => {
       const fresh = await getFreshGps();
+      // v0.62.965 — spec C2 / I2: a labelled place past its 6-hour lock (the latch above did not arm, so we are
+      // here) is kept unless the phone is over 50 km away; then we switch to the phone and offer "↩ Back to <name>".
+      // The switch persists an automatic, label-less place (C8) so the server's record no longer carries the old
+      // name; the server's D787 guard lets it through because the lock has expired (C3).
+      let switchedFromUnlocked = false;
+      const savedPlace = savedPlaceRef.current;
+      const savedName = (savedPlace?.label || '').trim();
+      if (savedName && !anchorLockedRef.current) {
+        if (!shouldSwitchToDevice({ saved: savedPlace, device: fresh, now: Date.now() })) {
+          console.log('[Cuisine-TMA-v2] auto-detect: KEPT unlocked pick "' + savedName + '" (phone within 50 km, or no reading)');
+          // The boot load was deferred to this decision (see tryServerCache): run it at the kept place, as
+          // runInitialLoad would have, with the place's own region and country.
+          // Automatic, so `auto: true` lets a locale-reload restore suppress it (v0.62.865), and one line, so the
+          // runSearch call-site census in locale-reload-no-research.test.js can read the flag.
+          const keptRegion = savedPlace.region === 'MY-PUT' ? 'OTHER' : (savedPlace.region || state.region);
+          const keptSnap = { ...state, region: keptRegion, ...(savedPlace.country ? { countryPref: savedPlace.country } : {}) };
+          setSearchCenter({ lat: savedPlace.lat, lng: savedPlace.lng });
+          runSearch(keptSnap, { lat: savedPlace.lat, lng: savedPlace.lng, name: savedName }, { boot: true, auto: true });
+          return;
+        }
+        switchedFromUnlocked = true;
+        setBackTo({ name: savedName, lat: savedPlace.lat, lng: savedPlace.lng, region: savedPlace.region || null, country: savedPlace.country || null });
+        console.log('[Cuisine-TMA-v2] auto-detect: SWITCHED to the phone; "' + savedName + '" is past its 6-hour lock and over 50 km away');
+      }
       const target = fresh || userLoc;
       console.log('[Cuisine-TMA-v2] auto-detect: target', target, 'fresh-gps=' + !!fresh);
 
@@ -2842,11 +2893,17 @@ export default function App() {
       // bare coords-only entry again (the root of the mixed-flag boot).
       saveUserLocation({
         lat: target.lat, lng: target.lng, ambient: true,
-        ...(anchorName ? { label: anchorName } : {}),
+        ...(switchedFromUnlocked ? {} : (anchorName ? { label: anchorName } : {})),
         ...(stateDelta.region ? { region: stateDelta.region } : {}),
         ...(stateDelta.countryPref ? { country: stateDelta.countryPref } : {})
       }).catch(() => {});
       if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
+
+      // v0.62.965 — the switch searches where the phone is (spec: "the app searches where the phone is"). The boot
+      // load was deferred to this decision, so this is the first and only load of this open.
+      if (switchedFromUnlocked) {
+        runSearch({ ...state, ...stateDelta }, { lat: target.lat, lng: target.lng, name: anchorName }, { auto: true });
+      }
 
       // 6) v0.61.323 — DO NOT fire the venue load here anymore. The boot
       //    load is deferred to the gate-opener's runInitialLoad() so no
@@ -3809,8 +3866,22 @@ export default function App() {
       .catch(() => commit(t('region.current', lang)));
   }, [lang]);
 
+  // v0.62.965 — "↩ Back to <place>" (spec C4): restore the place the start-up check switched away from, as a fresh
+  // deliberate pick. onLocationSelect latches explicit-pick, persists it with its label (a new 6-hour lock) and
+  // searches it; the region and country are put back first so the pill and the picker agree with the anchor.
+  const restoreBackTo = React.useCallback(() => {
+    if (!backTo) return;
+    if (backTo.region) {
+      setState((s) => ({ ...s, region: backTo.region, ...(backTo.region === 'OTHER' && backTo.country ? { countryPref: backTo.country } : {}) }));
+    }
+    anchorLockedRef.current = true;
+    onLocationSelect({ lat: backTo.lat, lng: backTo.lng, label: backTo.name, fly: true,
+      ...(backTo.region ? { region: backTo.region } : {}), ...(backTo.country ? { country: backTo.country } : {}) });   // also retires the chip
+  }, [backTo]); // eslint-disable-line
+
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
+      setBackTo(null);   // v0.62.965 — any pick retires the "↩ Back to" chip
       // v0.62.33 — operator: "i switch from putrajaya to Hanoi, the what to
       // try here is still the old dishes … the card should be wipe clean."
       // Wipe the Arrival Plate SYNCHRONOUSLY on every pick — the old city's
@@ -3942,11 +4013,13 @@ export default function App() {
           if (c === 'SG') inferredRegion = 'SG';
           else if (c === 'MY') inferredRegion = isJbCoords({ lat: p.lat, lng: p.lng }) ? 'JB' : 'OTHER';
         }
-        const persistRegion = inferredRegion
+        // v0.62.965 — a caller that knows the place's region and country (the "↩ Back to" restore) says so; the
+        // closure's `state` can be a render behind the setState just made for that same place.
+        const persistRegion = p.region || inferredRegion
           || ((state.region && state.region !== '__NONE__') ? state.region : undefined);
-        const persistCountry = (inferredRegion === 'OTHER' || (state.region === 'OTHER' && state.countryPref))
+        const persistCountry = p.country || ((inferredRegion === 'OTHER' || (state.region === 'OTHER' && state.countryPref))
           ? (inferredRegion === 'OTHER' ? 'MY' : state.countryPref)
-          : undefined;
+          : undefined);
         saveUserLocation({
           lat: p.lat,
           lng: p.lng,
@@ -4358,6 +4431,21 @@ export default function App() {
             pills into ONE line ("Set location is: <X>. Click to change", temp-size
             font) just below the title, to give the map more room. Tapping it
             re-expands the pills; picking a region collapses again. */}
+        {/* v0.62.965 — "↩ Back to <place>" (spec C4), in the always-visible header above the "Set location is"
+            line: the start-up check switched to the phone because the saved place was past its 6-hour lock and
+            over 50 km away. The first draft put it beside the location field, inside the filters drawer, which is
+            closed on opening, so the headless render found it in the DOM and not on screen. Retired by any pick. */}
+        {backTo && (
+          <div className="px-0.5 pb-1">
+            <button
+              {...backToChipProps({ label: backTo.name, lang })}
+              onClick={restoreBackTo}
+              className="rounded-full border border-tg-accent/40 bg-tg-card px-3 py-1.5 text-[12px] leading-snug text-tg-text active:opacity-60"
+            >
+              {backToChipProps({ label: backTo.name, lang }).text}
+            </button>
+          </div>
+        )}
         {venues.length > 0 && !regionExpanded && (
           <div className="text-[11px] text-tg-hint text-left leading-tight px-0.5">
             {/* v0.62.176 — operator: "Click to change" on a SECOND line. */}

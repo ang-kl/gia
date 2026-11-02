@@ -15,6 +15,10 @@ scope:
   - "__tests__/anchor-age.test.js"
   - "__tests__/location-follow.test.js"
   - "__tests__/saved-place-expiry.test.js"
+  - "web/cuisine/src/v2/lib/state.js"
+  - "__tests__/i18n-coverage.test.js"
+  - "__tests__/i18n-korean.test.js"
+  - "__tests__/locale-reload-no-research.test.js"
   - "package.json"
   - "doc/Feature/2026-11-02-saved-place-expires-after-six-hours.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -143,3 +147,66 @@ Version: 0.1. Date: 2 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 — three guards the build moves, and what Execution found (02-11 '26)
+
+Raised as FLOW ALERT [F7 + F3] at № 4,416, after the build was complete and proved (tests first and red; 10 of 10
+mutations caught; Cuisine and Menu built; the headless render of the built Cuisine showing the switch, the chip and
+the restore). Nothing above is rewritten.
+
+- **Operator, 02-11 '26, choosing between three stated options: *"(a) bump the pins and list backTo as transient"*.**
+
+- **The spec was wrong about one measurement.** UNDERSTANDING says *"The bot's `i18n.js` has no count pin, so the chat
+  line is a new key there."* It has two files of pins, and both fail on the four new chat lines:
+  - `__tests__/i18n-coverage.test.js:221` `expect(KEYS.length).toBe(297);` → 301;
+    `:268` `expect(KEYS.length * i18n.SUPPORTED.length).toBe(2673);` → 2709;
+    `:271` `expect(have).toBe(2556);` → 2592; `:272` `expect(absentPinned.size).toBe(2556 - 2439);` → `2592 - 2475`
+    (the pinned absences stay 117, which is the check that all four keys are complete in all nine locales).
+  - `__tests__/i18n-korean.test.js:59` the table size `.toBe(457)` → 461; `:69` the Korean count `.toBe(448)` → 452;
+    `:95` the six other locales `.toBe(439)` → 443; and the "does not disturb a single value" expectation
+    `{ en: 457, fr: 457 }` → 461.
+  - Each pin carries a history line per release; this one adds *"v0.62.965 — +4: the /cuisine anchored lines"*.
+- **A third guard, outside the scope.** `__tests__/locale-restore-coherence.test.js:61` requires every `useState` in
+  Cuisine's `App.jsx` to be stashed across a language reload or named transient with a reason, in
+  `web/cuisine/src/v2/lib/state.js:176`. The new `backTo` state is added there as transient:
+  *"a one-open way back after the start-up check switched to the phone; a language reload runs the check again"*.
+- **Scope additions:** `web/cuisine/src/v2/lib/state.js`, `__tests__/i18n-coverage.test.js`,
+  `__tests__/i18n-korean.test.js`, limited to the lines named above.
+
+**Also found in Execution, recorded here because approving this amendment accepts them:**
+
+- **Node.** CI runs Node 20 (`ci.yml:26`), where `require()` of an ES module is not available, so `location-cache.js`
+  loads the shared `anchor-age.js` with a dynamic `import()`. Its three helpers (`describeSavedPlace`,
+  `resolveCuisineLaunchAnchor`, `describeSavedPlaceAge`) are therefore async. Four lines of my own new
+  `saved-place-expiry.test.js` were changed to `await` them minutes after it was written; the hook flagged each as F7.
+- **"Searches where the phone is" needed more than the lock.** The boot load fires from the gate opener at the cached
+  place before the phone reading arrives, so the first wiring searched Kyoto and then switched the anchor without
+  searching again. Now an unlocked labelled place claims the boot load in `tryServerCache`, and the start-up check
+  runs the one load itself: at the phone after a switch, at the kept place otherwise. The render shows one search,
+  at Singapore, on the 19-hour-old Kyoto.
+- **The chip's place.** C4 says "above the location field". That field sits inside the filters drawer, closed on
+  opening, so the render found the chip in the DOM and not on screen. It is in the always-visible header, above the
+  "Set location is" line, instead.
+- **The restore's region.** `onLocationSelect` persisted the restored Kyoto as region `SG`, because it read the region
+  from a render behind the `setState` just made. It now honours `p.region` and `p.country` when a caller passes them,
+  and the restore does. The render shows the restore persisted with region `OTHER`, country `JP`.
+- **C8 overstated.** It says the chip's restore "writes a labelled one, which [the recent-locations list] already
+  records". The list is written only by the chat's own pick paths (`index.js:2771`, `:2824`, `:2878`, `:3486`); no
+  Mini App write reaches it. Nothing changes in behaviour; the sentence was wrong.
+- **Menu's follow sync, pre-existing.** Its label-less POST to `/api/menu/set-location` has no branch to land in and
+  returns 400 *missing precinctId or text*, swallowed by `catch`. Not touched here; logged in the Journal.
+- **`shouldFollowDevice`'s `locked` defaults to true.** A caller that does not pass it keeps the old never-follow rule,
+  which lets the 14 existing follow tests pass unedited as I3 requires; `App.jsx` passes it explicitly and the new
+  test pins that it does.
+
+## Amendment 2 — the search call-site census (02-11 '26)
+
+Raised as FLOW ALERT [F7 + F3] at № 4,430 once Amendment 1's three guards were green. **Operator, 02-11 '26:
+*"APPROVE"*, read as option (a).**
+
+- `__tests__/locale-reload-no-research.test.js:152-153` counts every `runSearch(` call in Cuisine's `App.jsx`
+  exactly: `expect(calls.length, 'a runSearch call site was added or removed — classify it, then bump this').toBe(17)`.
+  The start-up check's two loads (at the kept place, and at the phone after a switch) make it 19. Both carry
+  `auto: true`, so the census's first assertion, that every automatic caller is suppressible on a language reload,
+  already passes; only the count moves, 17 → 19, with a history line.
+- **Scope addition:** `__tests__/locale-reload-no-research.test.js`, limited to that line.

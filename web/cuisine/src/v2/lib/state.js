@@ -181,6 +181,8 @@ export const LOCALE_STASH = {
     mapViewLocation: 'carried as the payload camera, with its zoom',
     flyTarget: 'one-shot; the camera is re-stamped from the payload on restore',
     locMoveNote: 'a toast about a location move that already happened',
+    // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, Amendment 1.
+    backTo: 'a one-open way back after the start-up check switched to the phone; a language reload runs the check again',
     visibleVenues: 'derived from the map viewport once it renders',
     fitPins: 'one-shot fit request; the camera is restored instead',
     loading: 'the restore clears it explicitly (v0.62.902)',
