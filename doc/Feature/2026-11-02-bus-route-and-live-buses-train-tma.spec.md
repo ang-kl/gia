@@ -11,6 +11,7 @@ scope:
   - "web/transport/src/components/MrtMapPanel.jsx"
   - "web/transport/src/App.jsx"
   - "__tests__/bus-route.test.js"
+  - "__tests__/map-overlays-copies.test.js"
   - "package.json"
   - "doc/Feature/2026-11-02-bus-route-and-live-buses-train-tma.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -141,3 +142,29 @@ Version: 0.1. Date: 2 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 3 — the three-copies pin (02-11 '26 → 03-11 '26)
+
+Raised as FLOW ALERT [F3 + F7] at № 4,474, after the build was complete and proved (tests first and red; 8 of 8
+mutations caught; the Train app built; the headless render of the built app showing the route, the buses, the strip,
+the swap and the ✕ with no further fetches). Nothing above is rewritten.
+
+- **Operator, 03-11 '26, choosing between three stated options: *"(a) write Amendment 3 and bump the pins"*.**
+
+- **The spec did not name one existing guard.** `__tests__/map-overlays-copies.test.js:90-92` pins the three
+  `mapOverlays.js` copies (Train, Hawker, Cuisine) against each other: *"total top-level bindings 87 / present in
+  all three 71 / byte-identical across all three 63"*. This build changes the Train copy only, and the pin sees it
+  twice: two bindings are added (`busServiceSpans`, `createBusRouteLayer`) and two that were byte-identical across
+  the three now differ (`busArrivalRows` takes the stop code; `busInfoHtml` passes it). Measured with the test's own
+  counter: **89 / 71 / 61**. The pin exists so that drift between the copies is a deliberate number change and not a
+  sentence quietly becoming untrue, which is exactly this case.
+- **Scope** gains `__tests__/map-overlays-copies.test.js`. The edit (F7, quoted in the journal): line 90
+  `expect(names.length, 'total top-level bindings').toBe(87);` → `.toBe(89)`; line 92
+  `expect(identical.length, 'byte-identical across all three').toBe(63);` → `.toBe(61)`. Line 91 (`71`) is unchanged.
+  Every other check in the file is unchanged.
+- **Two more failures on the first full-suite run were mine, not the pin's**, and were fixed in code already in
+  scope: a new helper and a comment had been placed inside the region that `map-overlays-copies.test.js:112` and
+  `station-card-labels.test.js:234` hold byte-identical across the three (`stationInfoCardHtml` up to
+  `busArrivalRows`). Moving the helper below `busInfoHtml` and restoring the original comment line made both pass.
+- Invariant I7 ("the suite passes") is unchanged in meaning; this amendment names the one guard whose number it
+  moves. Scope otherwise unchanged. Assumptions unchanged.

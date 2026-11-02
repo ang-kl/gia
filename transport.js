@@ -164,10 +164,10 @@ async function allStops(redis) {
 // both omit the load suffix entirely when no info is available.
 const LOAD_LABEL = { SEA: 'seats', SDA: 'standing', LSD: 'limited' };
 
-async function busArrivals(busStopCode) {
+async function busArrivals(busStopCode, { http = axios } = {}) {
   if (!process.env.LTA_ACCOUNT_KEY) return [];
   try {
-    const { data } = await axios.get(BUS_ARRIVAL_URL, {
+    const { data } = await http.get(BUS_ARRIVAL_URL, {
       headers: authHeaders(),
       params: { BusStopCode: busStopCode },
       timeout: 6000
@@ -219,7 +219,12 @@ function arrivalToObject(b, nowMs) {
     // is still on the row object as `load` for future re-enable.
     loadLabel: '',
     type: b.Type || '',  // SD = single deck, DD = double deck, BD = bendy
-    feature: b.Feature || '' // WAB = wheelchair-accessible
+    feature: b.Feature || '', // WAB = wheelchair-accessible
+    // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C3: the bus's own position and visit number,
+    // which LTA has returned all along and this parser dropped. Everything above is unchanged.
+    lat: Number.isFinite(Number(b.Latitude)) && Number(b.Latitude) !== 0 ? Number(b.Latitude) : null,
+    lng: Number.isFinite(Number(b.Longitude)) && Number(b.Longitude) !== 0 ? Number(b.Longitude) : null,
+    visit: Number.isFinite(Number(b.VisitNumber)) && Number(b.VisitNumber) > 0 ? Number(b.VisitNumber) : null
   };
 }
 
@@ -698,8 +703,228 @@ function nearestHawkerCentre(coords, lat, lng) {
   return best;
 }
 
+// ── v0.62.967 — a bus service's route and the buses on it now ─────────────────────────────────────────────────────
+// Spec: doc/Feature/2026-11-02-bus-route-and-live-buses-train-tma.spec.md, C1, C2, C3, C5, C5a.
+// Routes are cached daily from LTA's BusRoutes the way the stops are (C1); the buses on a route come from the arrival
+// feed, sampled along the route (C2); the road shape comes from Google Directions once per service and direction per
+// 30 days, capped daily, with a stop-to-stop fallback (C5, C5a). The sampler and the dedupe are shared with the Mini
+// App (web/transport/src/lib/bus-route.js, ESM), loaded here with a dynamic import() because CI runs Node 20.
+const BUS_ROUTES_URL = `${LTA_BASE}/BusRoutes`;
+const ROUTES_TS_KEY = 'lta:busroutes:cachedAt';
+const ROUTE_PREFIX = 'lta:busroute:';
+const SHAPE_PREFIX = 'lta:busroute:shape:';
+const SHAPE_CAP_PREFIX = 'lta:busroute:shapecap:';
+const SHAPE_TTL_S = 30 * 24 * 60 * 60;
+const SHAPE_DAILY_CAP = 200;
+const DIRECTIONS_URL = 'https://maps.googleapis.com/maps/api/directions/json';
+let _busRouteLibP = null;
+function busRouteLib() {
+  if (!_busRouteLibP) _busRouteLibP = import('./web/transport/src/lib/bus-route.js');
+  return _busRouteLibP;
+}
+
+async function fetchAllRoutes(http) {
+  const out = [];
+  let skip = 0;
+  for (let page = 0; page < 80; page++) {
+    const { data } = await http.get(BUS_ROUTES_URL, { headers: authHeaders(), params: { $skip: skip }, timeout: 10000 });
+    const batch = data?.value ?? [];
+    out.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+    skip += batch.length;
+  }
+  return out;
+}
+
+// C1 — one list per service and direction, in stop sequence. A route whose stops changed loses its cached shape.
+async function refreshRoutes(redis, { http = axios, force = false } = {}) {
+  if (!process.env.LTA_ACCOUNT_KEY) return { imported: 0, skipped: 'no-key' };
+  if (!redis.isOpen) await redis.connect();
+  if (!force) {
+    const ts = await redis.get(ROUTES_TS_KEY);
+    const ageMs = ts ? Date.now() - Number(ts) : Infinity;
+    if (Number.isFinite(ageMs) && ageMs < REFRESH_TTL_MS) return { imported: 0, skipped: 'fresh' };
+  }
+  const rows = await fetchAllRoutes(http);
+  const byRoute = new Map();
+  for (const r of rows) {
+    const svc = String(r.ServiceNo || '').trim();
+    const dir = Number(r.Direction) === 2 ? 2 : 1;
+    const code = String(r.BusStopCode || '').trim();
+    if (!svc || !code) continue;
+    const k = `${svc}:${dir}`;
+    if (!byRoute.has(k)) byRoute.set(k, []);
+    byRoute.get(k).push({ seq: Number(r.StopSequence) || 0, code, distance: Number.isFinite(Number(r.Distance)) ? Number(r.Distance) : null });
+  }
+  let imported = 0;
+  for (const [k, list] of byRoute) {
+    list.sort((a, b) => a.seq - b.seq);
+    const json = JSON.stringify(list);
+    const prev = await redis.get(`${ROUTE_PREFIX}${k}`).catch(() => null);
+    if (prev && prev !== json) await redis.del(`${SHAPE_PREFIX}${k}`).catch(() => {});
+    await redis.set(`${ROUTE_PREFIX}${k}`, json);
+    imported++;
+  }
+  await redis.set(ROUTES_TS_KEY, String(Date.now()));
+  return { imported, skipped: null };
+}
+
+async function stopMeta(redis, code) {
+  const meta = await redis.hGetAll(`${STOPS_HASH_PREFIX}${code}`).catch(() => ({}));
+  let lat = Number(meta?.lat);
+  let lng = Number(meta?.lng);
+  if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && typeof redis.sendCommand === 'function') {
+    try {
+      const pos = await redis.sendCommand(['GEOPOS', STOPS_GEO, String(code)]);
+      const p = Array.isArray(pos) ? pos[0] : null;
+      if (Array.isArray(p)) { lng = Number(p[0]); lat = Number(p[1]); }
+    } catch { /* no position */ }
+  }
+  return {
+    name: expandSgAbbrev(meta?.description || '') || String(code),
+    road: expandSgAbbrev(meta?.roadName || ''),
+    lat: Number.isFinite(lat) ? lat : null,
+    lng: Number.isFinite(lng) ? lng : null
+  };
+}
+
+// C2 — the stops of one direction, named, with coordinates; null when the route is not cached.
+async function busRoute(redis, service, direction) {
+  if (!redis.isOpen) await redis.connect();
+  const raw = await redis.get(`${ROUTE_PREFIX}${String(service)}:${Number(direction) === 2 ? 2 : 1}`).catch(() => null);
+  if (!raw) return null;
+  let list;
+  try { list = JSON.parse(raw); } catch { return null; }
+  if (!Array.isArray(list)) return null;
+  const out = [];
+  for (const s of list) {
+    const m = await stopMeta(redis, s.code);
+    out.push({ seq: s.seq, code: s.code, name: m.name, road: m.road, lat: m.lat, lng: m.lng, distance: s.distance });
+  }
+  return out;
+}
+
+// C2 — the buses on one direction now: the arrival feed at every fifth stop and the last, this service only, first
+// visit only, with a position, each bus once.
+async function busRouteBuses(redis, service, direction, { http = axios, now = Date.now } = {}) {
+  const route = await busRoute(redis, service, direction);
+  if (!route) return { buses: [], readAt: now() };
+  const { sampleStops, dedupeBuses } = await busRouteLib();
+  const picked = sampleStops(route);
+  const results = await Promise.all(picked.map((s) => busArrivals(s.code, { http }).catch(() => [])));
+  const buses = [];
+  picked.forEach((s, i) => {
+    for (const svc of (results[i] || [])) {
+      if (String(svc.service) !== String(service)) continue;
+      for (const b of [svc.next, svc.next2, svc.next3]) {
+        if (!b || b.visit !== 1 || !Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
+        buses.push({ lat: b.lat, lng: b.lng, minutes: b.minutes, load: b.load, type: b.type, nextStopCode: s.code, nextStopSeq: s.seq, nextStop: s.name });
+      }
+    }
+  });
+  const deduped = dedupeBuses(buses).sort((a, b) => (a.nextStopSeq - b.nextStopSeq) || (a.minutes - b.minutes));
+  return { buses: deduped, readAt: now() };
+}
+
+// Google's encoded polyline, both ways (the decoder is what the shape route needs; the encoder is what proves it).
+function encodeValue(v) {
+  let n = v < 0 ? ~(v << 1) : (v << 1);
+  let s = '';
+  while (n >= 0x20) { s += String.fromCharCode((0x20 | (n & 0x1f)) + 63); n >>= 5; }
+  return s + String.fromCharCode(n + 63);
+}
+function encodePolyline(points) {
+  let out = '';
+  let lastLat = 0;
+  let lastLng = 0;
+  for (const [lat, lng] of points) {
+    const la = Math.round(lat * 1e5);
+    const ln = Math.round(lng * 1e5);
+    out += encodeValue(la - lastLat) + encodeValue(ln - lastLng);
+    lastLat = la; lastLng = ln;
+  }
+  return out;
+}
+function decodePolyline(str) {
+  const pts = [];
+  let i = 0;
+  let lat = 0;
+  let lng = 0;
+  const s = String(str || '');
+  while (i < s.length) {
+    let b; let shift = 0; let result = 0;
+    do { b = s.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20 && i <= s.length);
+    lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+    shift = 0; result = 0;
+    do { b = s.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20 && i <= s.length);
+    lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+    pts.push([lat / 1e5, lng / 1e5]);
+  }
+  return pts;
+}
+
+function shapeCapKey(d = new Date()) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${SHAPE_CAP_PREFIX}${y}${m}${day}`;
+}
+
+// C5 / C5a / I8 — the road shape along the route's stops, from Google Directions (driving, `via:` waypoints, at most
+// 25 points a request, legs joined end to end), cached 30 days per service and direction under a signature of the
+// stop codes, never more than SHAPE_DAILY_CAP fetches a day, never without a key. Null means "draw stop to stop".
+async function routeShape(redis, service, direction, stops, { http = axios, key = process.env.GOOGLE_MAPS_API_KEY, now = Date.now } = {}) {
+  if (!key) return null;
+  const pts = (Array.isArray(stops) ? stops : []).filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+  if (pts.length < 2) return null;
+  const sig = pts.map((s) => String(s.code)).join(',');
+  const ck = `${SHAPE_PREFIX}${String(service)}:${Number(direction) === 2 ? 2 : 1}`;
+  if (!redis.isOpen) await redis.connect();
+  try {
+    const raw = await redis.get(ck);
+    if (raw) {
+      const c = JSON.parse(raw);
+      if (c && c.sig === sig && Array.isArray(c.points) && c.points.length) return c.points;
+    }
+  } catch { /* refetch */ }
+  const capKey = shapeCapKey(new Date(now()));
+  const n = await redis.incr(capKey).catch(() => SHAPE_DAILY_CAP + 1);
+  await redis.expire(capKey, 2 * 24 * 60 * 60).catch(() => {});
+  if (n > SHAPE_DAILY_CAP) return null;
+  const points = [];
+  try {
+    for (let i = 0; i < pts.length - 1; i += 24) {
+      const chunk = pts.slice(i, Math.min(i + 25, pts.length));
+      const first = chunk[0];
+      const last = chunk[chunk.length - 1];
+      const params = { origin: `${first.lat},${first.lng}`, destination: `${last.lat},${last.lng}`, mode: 'driving', key };
+      const via = chunk.slice(1, -1).map((p) => `via:${p.lat},${p.lng}`).join('|');
+      if (via) params.waypoints = via;
+      const { data } = await http.get(DIRECTIONS_URL, { params, timeout: 8000 });
+      const enc = data?.routes?.[0]?.overview_polyline?.points;
+      if (data?.status !== 'OK' || !enc) return null;
+      const seg = decodePolyline(enc);
+      points.push(...(points.length ? seg.slice(1) : seg));
+    }
+  } catch (err) {
+    console.warn('[Transport] bus route shape failed:', err?.message);
+    return null;
+  }
+  if (!points.length) return null;
+  await redis.set(ck, JSON.stringify({ sig, points }), { EX: SHAPE_TTL_S }).catch(() => {});
+  return points;
+}
+
 module.exports = {
   refreshStops,
+  refreshRoutes,     // v0.62.967
+  busRoute,          // v0.62.967
+  busRouteBuses,     // v0.62.967
+  routeShape,        // v0.62.967
+  shapeCapKey,       // v0.62.967
+  encodePolyline,    // v0.62.967
+  decodePolyline,    // v0.62.967
+  arrivalToObject,   // v0.62.967 (exported for its test)
   nearestStops,
   nearestHawkerCentre,
   allStops,

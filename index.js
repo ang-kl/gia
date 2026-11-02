@@ -13003,6 +13003,15 @@ async function cacheBotUsername() {
       transport.refreshStops(redis)
         .catch((err) => console.error('[Warn] Bus stops cache refresh failed:', err.message));
     }, 24 * 60 * 60 * 1000); // 24 h
+    // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C1: LTA bus routes (~26,000 rows, 53 pages)
+    // cached the same way, so the Train app can draw a service's route. Refreshed on boot if stale, then daily.
+    transport.refreshRoutes(redis)
+      .then((res) => console.log(`[Transport] Bus routes cache: imported=${res.imported}, skipped=${res.skipped || '-'}`))
+      .catch((err) => console.error('[Warn] Bus routes cache refresh failed:', err.message));
+    setInterval(() => {
+      transport.refreshRoutes(redis)
+        .catch((err) => console.error('[Warn] Bus routes cache refresh failed:', err.message));
+    }, 24 * 60 * 60 * 1000); // 24 h
   }
 
   // v0.61.166 — Periodical scheduler. Every 6 h, walk the 14 items
@@ -19710,6 +19719,37 @@ async function cacheBotUsername() {
         res.json({ code, services: Array.isArray(services) ? services : [] });
       } catch (err) {
         res.json({ code: String(req.query.code || ''), services: [] });
+      }
+    });
+
+    // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C2: a service's route in one direction (the
+    // stops, in sequence, named, with coordinates) and its road shape when Google Directions gives one (C5; null
+    // means the client draws stop to stop and says so).
+    app.get('/api/transport/bus-route', async (req, res) => {
+      const service = String(req.query.service || '').trim();
+      const direction = Number(req.query.direction) === 2 ? 2 : 1;
+      if (!/^[0-9A-Za-z]{1,6}$/.test(service)) return res.status(400).json({ error: 'service required' });
+      try {
+        const stops = await transport.busRoute(redis, service, direction);
+        if (!stops) return res.status(404).json({ error: 'unknown route', service, direction });
+        const shape = await transport.routeShape(redis, service, direction, stops);
+        res.json({ service, direction, stops, shape, shapeSource: shape ? 'road' : 'straight' });
+      } catch (err) {
+        console.warn('[bus-route] failed:', err?.message);
+        res.status(500).json({ error: 'route unavailable', service, direction });
+      }
+    });
+    // C2 — the buses on that direction now, from the arrival feed sampled along the route.
+    app.get('/api/transport/bus-route-buses', async (req, res) => {
+      const service = String(req.query.service || '').trim();
+      const direction = Number(req.query.direction) === 2 ? 2 : 1;
+      if (!/^[0-9A-Za-z]{1,6}$/.test(service)) return res.status(400).json({ error: 'service required' });
+      try {
+        const r = await transport.busRouteBuses(redis, service, direction);
+        res.json({ service, direction, readAt: r.readAt, buses: Array.isArray(r.buses) ? r.buses : [] });
+      } catch (err) {
+        console.warn('[bus-route-buses] failed:', err?.message);
+        res.json({ service, direction, readAt: Date.now(), buses: [] });
       }
     });
 

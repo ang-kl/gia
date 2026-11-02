@@ -87,9 +87,9 @@ describe('what IS shared, measured and pinned', () => {
       const [a, b, c] = ['transport', 'hawker', 'cuisine'].map((k) => B[k].get(n));
       return a === b && b === c;
     });
-    expect(names.length, 'total top-level bindings').toBe(87);
+    expect(names.length, 'total top-level bindings').toBe(89);
     expect(inAll.length, 'present in all three').toBe(71);
-    expect(identical.length, 'byte-identical across all three').toBe(63);
+    expect(identical.length, 'byte-identical across all three').toBe(61);
   });
 
   it('the hawker overlay is in transport + cuisine and NOT in hawker — on purpose', () => {

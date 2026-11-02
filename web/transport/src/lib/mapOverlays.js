@@ -800,6 +800,8 @@ import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { stationDisplay } from '../../../_shared/lib/station-display.js';
 import { placeSecondLine } from '../../../_shared/lib/sg-place-text.js';
 import { policeSecondLine, hospitalSecondLine, localiseHoursLine, poiTerm, poiLabel } from '../../../_shared/lib/poi-i18n.js';
+// v0.62.967 — a bus service's route and the buses on it (spec 2026-11-02-bus-route-and-live-buses-train-tma).
+import { BUS_COLOUR, pickDirection, bt } from './bus-route.js';
 import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createPcnLayer, fetchPcn, parkMeta, parkVisible, mapBounds, PARK_FILL_OPACITY } from '../../../_shared/lib/pcn-layer.js';
 export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
@@ -1190,7 +1192,7 @@ function stationInfoCardHtml(rec, lang) {
 
 // v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min and
 // render each bucket as a service-number list.
-function busArrivalRows(services) {
+function busArrivalRows(services, stopCode) {
   const buckets = [
     { max: 5, label: poiLabel('minLe', _lang, { n: 5 }), svcs: [] },
     { max: 10, label: poiLabel('minLe', _lang, { n: 10 }), svcs: [] },
@@ -1206,8 +1208,10 @@ function busArrivalRows(services) {
   let h = '';
   for (const b of buckets) {
     if (!b.svcs.length) continue;
+    // The localised row is built with a placeholder for the services, then the placeholder is replaced by the tap
+    // targets, so the string table's wording and order hold in every locale.
     h += '<div style="margin-top:5px;color:#1c1c1f;font-weight:600;">- '
-      + escapeHtml(poiLabel('busRow', _lang, { label: b.label, svcs: b.svcs.join(', ') })) + '</div>';
+      + escapeHtml(poiLabel('busRow', _lang, { label: b.label, svcs: '\u0001' })).replace('\u0001', busServiceSpans(b.svcs, stopCode)) + '</div>';
   }
   return h;
 }
@@ -1238,7 +1242,7 @@ function busInfoHtml(b, services) {
   } else if (!services.length) {
     h += '<div style="color:' + c.fg + ';margin-top:5px;">' + escapeHtml(scLabel('arrivalsNone', _lang)) + '</div>';
   } else {
-    h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
+    h += '<div style="margin-top:3px;">' + busArrivalRows(services, b.code) + '</div>';
   }
   if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
     h += '<div style="margin-top:8px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
@@ -1263,12 +1267,141 @@ function openBusInfo(map, infoWindow, b, marker) {
     .catch(() => { infoWindow.setContent(busInfoHtml(b, [])); });
 }
 
+// v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma: each service number is a tap target that asks the
+// map panel's hook to draw that service's route and the buses on it (the hook is null-guarded → no-op).
+function busServiceSpans(svcs, stopCode) {
+  return svcs.map((svc) => '<span onclick="window.__giaBusRoute&&window.__giaBusRoute(\'' + escapeHtml(String(svc)) + '\',\''
+    + escapeHtml(String(stopCode || '')) + '\')" style="text-decoration:underline;cursor:pointer;">' + escapeHtml(String(svc)) + '</span>').join(', ');
+}
+
 // v0.61.20 — draw clickable amenity pins (station exits / bus stops /
 // taxi stands / carparks / nearest MRT station) around a point, from a
 // /api/transport/station-context payload. Shared by the Hawker and
 // Cuisine TMA maps. `limits` trims bus/carpark/taxi to the nearest few
 // (the endpoint returns them distance-sorted). Returns the marker array
 // for the caller to clear on the next tap / re-render.
+// v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C4-C7. One service's route on the map: the road
+// shape (or stop to stop), the stops as dots with the tapped one ringed and the ends named, and 🚌 markers for the
+// buses on it now, refreshed every 30 seconds while shown and paused while the page is hidden. One route at a time;
+// `show` replaces, `swap` draws the other direction, `stop` clears everything and the timer. `onState` feeds the
+// header strip in App.jsx. Nothing here is kept across a reopen.
+export function createBusRouteLayer(map, gmaps, { fetchJson = null, onState = null, now = () => Date.now(), lang = 'en' } = {}) {
+  const getJson = fetchJson || ((u) => fetch(u).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  const AME = gmaps && gmaps.marker && gmaps.marker.AdvancedMarkerElement;
+  const info = gmaps && gmaps.InfoWindow ? new gmaps.InfoWindow({ headerDisabled: true, disableAutoPan: true }) : null;
+  let cur = null;
+  let line = null;
+  let dots = [];
+  let labels = [];
+  let busMarkers = [];
+  let timer = null;
+  let lastRead = 0;
+  let lastCount = 0;
+  const emit = (patch = {}) => {
+    if (!onState) return;
+    const d = cur && cur.data ? cur.data[cur.direction] : null;
+    onState({
+      active: !!cur, service: cur ? cur.service : null, direction: cur ? cur.direction : null,
+      lastStop: d && d.stops && d.stops.length ? (d.stops[d.stops.length - 1].name || '') : '',
+      count: lastCount, readAt: lastRead, shapeSource: d ? d.shapeSource : null, error: false, ...patch,
+    });
+  };
+  const dropMarker = (m) => { if (!m) return; if (AME && m instanceof AME) m.map = null; else if (m.setMap) m.setMap(null); };
+  function clearDrawing() {
+    if (line) { line.setMap(null); line = null; }
+    for (const d of dots) dropMarker(d); dots = [];
+    for (const l of labels) dropMarker(l); labels = [];
+    for (const b of busMarkers) dropMarker(b); busMarkers = [];
+    if (info) info.close();
+    lastCount = 0;
+  }
+  function draw() {
+    const d = cur.data[cur.direction];
+    const stops = (d.stops || []).filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+    const path = (Array.isArray(d.shape) && d.shape.length)
+      ? d.shape.map(([lat, lng]) => ({ lat, lng }))
+      : stops.map((s) => ({ lat: s.lat, lng: s.lng }));
+    line = new gmaps.Polyline({ map, path, strokeColor: BUS_COLOUR, strokeOpacity: 0.9, strokeWeight: 3, clickable: false, zIndex: 3 });
+    dots = stops.map((s) => new gmaps.Marker({
+      map, position: { lat: s.lat, lng: s.lng }, clickable: false, zIndex: 4,
+      icon: { path: gmaps.SymbolPath.CIRCLE, scale: String(s.code) === String(cur.stopCode) ? 6 : 3, strokeColor: BUS_COLOUR, strokeWeight: String(s.code) === String(cur.stopCode) ? 3 : 1.5, fillColor: '#ffffff', fillOpacity: 1 },
+    }));
+    const ends = stops.length > 1 ? [stops[0], stops[stops.length - 1]] : stops;
+    labels = ends.map((s) => new gmaps.Marker({
+      map, position: { lat: s.lat, lng: s.lng }, clickable: false, zIndex: 4,
+      icon: { path: gmaps.SymbolPath.CIRCLE, scale: 0 },
+      label: { text: s.name || s.code, fontSize: '11px', fontWeight: '600', color: BUS_COLOUR },
+    }));
+  }
+  function makeBus(b) {
+    const onTap = () => {
+      if (!info) return;
+      info.setContent(infoCard('<strong>🚌 ' + escapeHtml(String(cur ? cur.service : '')) + '</strong><br/>' + escapeHtml(bt('route.next', lang, { stop: b.nextStop || b.nextStopCode, min: b.minutes }))));
+      info.setPosition({ lat: b.lat, lng: b.lng });
+      info.open({ map });
+    };
+    if (AME) {
+      const el = document.createElement('div');
+      Object.assign(el.style, { fontSize: '18px', lineHeight: '1', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.35))', cursor: 'pointer' });
+      el.textContent = '🚌';
+      el.setAttribute('data-bus-marker', String(cur.service));
+      el.addEventListener('click', onTap);
+      return new AME({ map, content: el, position: { lat: b.lat, lng: b.lng }, zIndex: 6 });
+    }
+    const m = new gmaps.Marker({ map, position: { lat: b.lat, lng: b.lng }, zIndex: 6, icon: { path: gmaps.SymbolPath.CIRCLE, scale: 7, strokeColor: BUS_COLOUR, strokeWeight: 2.5, fillColor: BUS_COLOUR, fillOpacity: 0.9 } });
+    m.addListener('click', onTap);
+    return m;
+  }
+  async function refresh() {
+    if (!cur || (typeof document !== 'undefined' && document.hidden)) return;
+    const mine = cur;
+    const r = await getJson('/api/transport/bus-route-buses?service=' + encodeURIComponent(mine.service) + '&direction=' + mine.direction);
+    if (cur !== mine || !r) return;
+    for (const b of busMarkers) dropMarker(b);
+    busMarkers = (Array.isArray(r.buses) ? r.buses : []).filter((b) => Number.isFinite(b.lat) && Number.isFinite(b.lng)).map(makeBus);
+    lastRead = Number.isFinite(r.readAt) ? r.readAt : now();
+    lastCount = busMarkers.length;
+    emit();
+  }
+  function onVis() { if (typeof document !== 'undefined' && !document.hidden) refresh(); }
+  async function show(service, stopCode) {
+    stop();
+    const [d1, d2] = await Promise.all([1, 2].map((dir) => getJson('/api/transport/bus-route?service=' + encodeURIComponent(service) + '&direction=' + dir)));
+    const byDir = {};
+    if (d1 && Array.isArray(d1.stops)) byDir[1] = d1.stops;
+    if (d2 && Array.isArray(d2.stops)) byDir[2] = d2.stops;
+    const dir = pickDirection(byDir, stopCode) || (byDir[1] ? 1 : byDir[2] ? 2 : null);
+    if (!dir) { cur = { service, direction: null, data: {}, stopCode }; emit({ error: true }); cur = null; return; }
+    cur = { service, stopCode, direction: dir, data: { 1: d1, 2: d2 } };
+    draw();
+    emit();
+    await refresh();
+    if (cur) {
+      timer = setInterval(refresh, 30000);
+      if (typeof document !== 'undefined') document.addEventListener('visibilitychange', onVis);
+    }
+  }
+  function swap() {
+    if (!cur) return;
+    const other = cur.direction === 1 ? 2 : 1;
+    if (!cur.data[other] || !Array.isArray(cur.data[other].stops)) return;
+    clearDrawing();
+    cur.direction = other;
+    draw();
+    emit();
+    refresh();
+  }
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVis);
+    clearDrawing();
+    const had = !!cur;
+    cur = null;
+    if (had) emit({ active: false });
+  }
+  return { show, swap, stop, refresh, active: () => !!cur };
+}
+
 export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
   const out = [];
   if (!maps || !map || !infoWindow || !ctx) return out;
