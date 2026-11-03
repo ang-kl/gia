@@ -22,7 +22,7 @@ const STRINGS = {
 
   // ── chrome: header + footer + hamburger (v0.62.417) ────────────────
   'chrome.brand':           { en: 'Sketchbook',         fr: 'Sketchbook',       id: 'Sketchbook',     ru: 'Sketchbook',     de: 'Sketchbook' , zh: 'Sketchbook', ja: 'Sketchbook', es: 'Sketchbook', ko: 'Sketchbook' },
-  'chrome.experimental':    { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour', id: 'Eksperimental · Singapura', ru: 'Экспериментально · Сингапур', de: 'Experimentell · Singapur' , zh: '实验版 · 新加坡', ja: '実験版 · シンガポール', es: 'Experimental · Singapur', ko: '실험 중 · 싱가포르' },
+  'chrome.experimental':    { en: 'Experimental', fr: 'Expérimental', id: 'Eksperimental', ru: 'Экспериментально', de: 'Experimentell' , zh: '实验版', ja: '実験版', es: 'Experimental', ko: '실험 중' },
   'chrome.setLocation':     { en: 'Set location is:',   fr: 'Lieu défini :',    id: 'Lokasi:',        ru: 'Местоположение:', de: 'Ort:' , zh: '设定位置为：', ja: '現在地の設定：', es: 'La ubicacion fijada es:', ko: '설정된 위치:' },
   'chrome.clickToChange':   { en: 'Click to change',    fr: 'Modifier',         id: 'Ubah',           ru: 'Изменить',       de: 'Ändern' , zh: '点击更改', ja: 'タップして変更', es: 'Pulsa para cambiar', ko: '눌러서 변경' },
   'chrome.cuisineFilters':  { en: '🍜 Cuisine & Filter', fr: '🍜 Cuisine & filtre', id: '🍜 Masakan & filter', ru: '🍜 Кухня и фильтр', de: '🍜 Küche & Filter' , zh: '🍜 菜系与筛选', ja: '🍜 料理＆フィルター', es: '🍜 Cocina y filtro', ko: '🍜 요리 & 필터' },

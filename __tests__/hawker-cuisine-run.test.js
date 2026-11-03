@@ -69,7 +69,12 @@ describe('I2 — a station tap adds that station\'s lines and draws each running
   it('City Hall: NSL and EWL, both running at Tuesday noon, one layer each, trains on the map', async () => {
     const h = harness();
     await h.c.addStation(ST('City Hall'));
-    expect(h.states.at(-1)).toEqual({ lines: [{ code: 'NSL', state: 'running' }, { code: 'EWL', state: 'running' }] });
+    // v0.62.971 (spec 2026-11-04, C1/C6): the state also names the stations and carries the resume lines (none at noon).
+    expect(h.states.at(-1)).toEqual({
+      stations: [{ key: 'City Hall', name: 'City Hall', lines: ['NSL', 'EWL'] }],
+      lines: [{ code: 'NSL', state: 'running' }, { code: 'EWL', state: 'running' }],
+      resume: [],
+    });
     expect(h.c.layerCount()).toBe(2);
     expect(h.live()).toBeGreaterThan(10);
   });
@@ -105,13 +110,16 @@ describe('I3 — the 30 s re-check, a ✕, Stop all', () => {
     await vi.advanceTimersByTimeAsync(30000);
     expect(h.calls.filter((u) => u === '/api/transport/status').length).toBe(n + 1);
   });
-  it('remove() drops one line and its trains; removing the last ends everything', async () => {
+  // v0.62.971 (spec 2026-11-04, C1): a ❌ removes a STATION; its lines go only where no remaining station covers them.
+  it('remove() drops one station and only the lines no other station covers; removing the last ends everything', async () => {
     const h = harness();
-    await h.c.addStation(ST('City Hall'));
-    h.c.remove('EWL');
-    expect(h.c.layerCount()).toBe(1);
-    expect(h.states.at(-1).lines.map((l) => l.code)).toEqual(['NSL']);
-    h.c.remove('NSL');
+    await h.c.addStation(ST('City Hall'));     // NSL, EWL
+    await h.c.addStation(ST('Dhoby Ghaut'));   // NSL, NEL, CCL
+    expect(h.c.layerCount()).toBe(4);
+    h.c.remove('City Hall');
+    expect(h.states.at(-1).lines.map((l) => l.code)).toEqual(['NSL', 'NEL', 'CCL']);
+    expect(h.c.layerCount()).toBe(3);
+    h.c.remove('Dhoby Ghaut');
     expect(h.states.at(-1)).toBeNull();
     expect(h.c.active()).toBe(false);
   });
@@ -153,20 +161,25 @@ describe('I2-I4 — the wiring in Hawker and Cuisine (source pins)', () => {
       expect(src).toMatch(/onTrainsChangeRef\.current\?\.\(/);
       expect(src).toMatch(/onStopBusesChangeRef\.current\?\.\(/);
     });
-    it(`${app}: the header labels the trains as simulated and the footer carries the run chips`, () => {
+    // v0.62.971 (spec 2026-11-04, C4/C8): the chip row became the 🚇 / 🚍 footer buttons, and the header gained the
+    // resume strip.
+    it(`${app}: the header labels the trains as simulated and the footer carries the run buttons`, () => {
       const src = code(APPS[app]);
       expect(src).toMatch(/import SimCaptionStrip from '[./]*_shared\/components\/SimCaptionStrip\.jsx'/);
-      expect(src).toMatch(/import FooterRunChips from '[./]*_shared\/components\/FooterRunChips\.jsx'/);
+      expect(src).toMatch(/import FooterRunButtons from '[./]*_shared\/components\/FooterRunButtons\.jsx'/);
+      expect(src).toMatch(/import ResumeStrip from '[./]*_shared\/components\/ResumeStrip\.jsx'/);
       expect(src).toMatch(/<SimCaptionStrip /);
-      expect(src).toMatch(/<FooterRunChips /);
+      expect(src).toMatch(/<FooterRunButtons /);
+      expect(src).toMatch(/<ResumeStrip /);
       expect(src).toMatch(/onTrainsChange=\{setTrains\}/);
       expect(src).toMatch(/onStopBusesChange=\{setStopBuses\}/);
     });
   }
   it('the shared components exist and use the shared models', () => {
     expect(code('web/_shared/components/SimCaptionStrip.jsx')).toMatch(/simStripModel\(/);
-    expect(code('web/_shared/components/FooterRunChips.jsx')).toMatch(/simFooterModel\(/);
-    expect(code('web/_shared/components/FooterRunChips.jsx')).toMatch(/stopFooterModel\(/);
+    // v0.62.971 (spec 2026-11-04, C4): FooterRunChips is gone; the buttons read the drawer model.
+    expect(code('web/_shared/components/FooterRunButtons.jsx')).toMatch(/runButtonsModel\(/);
+    expect(code('web/_shared/components/FooterRunButtons.jsx')).toMatch(/<RunDrawer /);
   });
 });
 

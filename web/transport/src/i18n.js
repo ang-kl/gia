@@ -185,7 +185,7 @@ const STRINGS = {
   'locale.language':           { en: 'Language', fr: 'Langue' },
 
   // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
-  'footer.tag':                { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' },
+  'footer.tag':                { en: 'Experimental', fr: 'Expérimental' },
 
   // P1-e — accessible name for the station-list drawer's drag handle
   // (shared BottomSheet has no i18n dep, so the caller localises it).
@@ -270,7 +270,7 @@ const ID_STRINGS = {
   'mrt.err.nokey': 'Peta tidak tersedia (kunci belum dikonfigurasi).',
   'mrt.err.mapfail': '⚠ Peta gagal dimuat.',
   'mrt.aria.map': 'Peta stasiun MRT dan LRT di Singapura',
-  'footer.tag': 'Eksperimental · Singapura',
+  'footer.tag': 'Eksperimental',
 
   "status.popupTitle": "Status Layanan",
   "pickline.title": "Pilih Jalur",
@@ -401,7 +401,7 @@ const RU_STRINGS = {
   'mrt.err.nokey': 'Карта недоступна (ключ не настроен).',
   'mrt.err.mapfail': '⚠ Не удалось загрузить карту.',
   'mrt.aria.map': 'Карта станций MRT и LRT в Сингапуре',
-  'footer.tag': 'Экспериментально · Сингапур',
+  'footer.tag': 'Экспериментально',
 
   "status.popupTitle": "Статус обслуживания",
   "pickline.title": "Выберите линию",
@@ -529,7 +529,7 @@ const DE_STRINGS = {
   'mrt.err.nokey': 'Karte nicht verfügbar (Schlüssel fehlt).',
   'mrt.err.mapfail': '⚠ Karte konnte nicht geladen werden.',
   'mrt.aria.map': 'Karte der MRT- und LRT-Stationen in Singapur',
-  'footer.tag': 'Experimentell · Singapur',
+  'footer.tag': 'Experimentell',
 
   "status.popupTitle": "Servicestatus",
   "pickline.title": "Linie auswählen",
@@ -658,7 +658,7 @@ const ZH_STRINGS = {
   'mrt.err.nokey': '地图不可用（密钥未配置）。',
   'mrt.err.mapfail': '⚠ 地图加载失败。',
   'mrt.aria.map': '新加坡 MRT 和 LRT 车站地图',
-  'footer.tag': '试验版 · 新加坡',
+  'footer.tag': '试验版',
 
   "status.popupTitle": "服务状态",
   "pickline.title": "选择线路",
@@ -785,7 +785,7 @@ const JA_STRINGS = {
   'mrt.err.nokey': '地図を利用できません（キーが未設定です）。',
   'mrt.err.mapfail': '⚠ 地図の読み込みに失敗しました。',
   'mrt.aria.map': 'シンガポールのMRT・LRT駅の地図',
-  'footer.tag': '試験運用版 · シンガポール',
+  'footer.tag': '試験運用版',
 
   "status.popupTitle": "運行状況",
   "pickline.title": "路線を選択",
@@ -912,7 +912,7 @@ const ES_STRINGS = {
   'mrt.err.nokey': 'Mapa no disponible (clave no configurada).',
   'mrt.err.mapfail': '⚠ No se pudo cargar el mapa.',
   'mrt.aria.map': 'Mapa de estaciones MRT y LRT en Singapur',
-  'footer.tag': 'Experimental · Singapur',
+  'footer.tag': 'Experimental',
 
   "status.popupTitle": "Estado del servicio",
   "pickline.title": "Selecciona una línea",
@@ -1093,7 +1093,7 @@ const KO_STRINGS = {
   "mrt.aria.map": "싱가포르 MRT·LRT 역 지도",
   "mrt.close": "닫기",
   "locale.language": "언어",
-  "footer.tag": "실험 중 · 싱가포르",
+  "footer.tag": "실험 중",
   "sheet.dragHandle": "끌어서 목록 크기 조절",
 };
 for (const k in KO_STRINGS) { if (STRINGS[k] && STRINGS[k].ko == null) STRINGS[k].ko = KO_STRINGS[k]; }

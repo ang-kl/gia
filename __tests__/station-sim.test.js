@@ -84,24 +84,28 @@ describe('I6 — the footer 🚆 chip and its list, in nine locales', () => {
 describe('the wiring (source pins)', () => {
   it('the station marker tap adds the station\'s lines and turns the simulation on; the card close does not stop it', () => {
     const c = code('web/transport/src/components/MrtMapPanel.jsx');
-    expect(c).toMatch(/onStationSelect\?\.\(s\);\s*setSimLines\(\(cur\) => addStationLines\(cur, s\)\);\s*setSimOn\(true\);/);
+    // v0.62.971 (spec 2026-11-04, C1-C2): the tap adds the STATION (up to five, oldest out); its lines are derived.
+    expect(c).toMatch(/onStationSelect\?\.\(s\);\s*setSimStations\(\(cur\) => addRunItem\(cur, \{ key: s\.name, name: s\.name, lines: s\.lines \|\| \[\] \}\)\);\s*setSimOn\(true\);/);
+    expect(c).toMatch(/const simLines = stationsToLines\(simStations\)/);
     expect(c).toMatch(/effectiveSimLines\(\{ simOn, simLines, focusedCode \}\)/);
     expect(c).not.toMatch(/closeclick[^\n]*setSimOn\(false\)/);
   });
   it('the toggle off clears the added lines; the panel reports the lines upward with remove and stop-all', () => {
     const c = code('web/transport/src/components/MrtMapPanel.jsx');
-    expect(c).toMatch(/setSimLines\(\[\]\)/);
+    // v0.62.971 (spec 2026-11-04, C1): the panel keeps stations, not lines.
+    expect(c).toMatch(/const stopAllTrains = \(\) => \{ setSimStations\(\[\]\); setSimOn\(false\); \}/);
     expect(c).toMatch(/onTrainsChange\?\.\(/);
-    expect(c).toMatch(/const \[simLines, setSimLines\] = useState\(\[\]\)/);
+    expect(c).toMatch(/const \[simStations, setSimStations\] = useState\(\[\]\)/);
     expect(code('web/_shared/lib/kept-settings.js')).not.toMatch(/simLines|stopBuses/);
   });
-  it('App.jsx puts the run chips in the footer bar and wires both callbacks', () => {
+  // v0.62.971 (spec 2026-11-04, C4): the local chip component is gone; the shared 🚇 / 🚍 buttons sit in the footer bar.
+  it('App.jsx puts the run buttons in the footer bar and wires both callbacks', () => {
     const app = code('web/transport/src/App.jsx');
-    expect(app).toMatch(/function FooterRunChips\(/);
+    expect(app).not.toMatch(/function FooterRunChips\(/);
     expect(app).toMatch(/onTrainsChange=\{setTrains\}/);
     expect(app).toMatch(/onStopBusesChange=\{setStopBuses\}/);
     const footer = app.slice(app.indexOf('const footerBar = ('));
-    expect(footer.slice(0, 4000)).toMatch(/<FooterRunChips/);
+    expect(footer.slice(0, 4000)).toMatch(/<FooterRunButtons/);
   });
   it('the Train string table is untouched', () => {
     expect(code('web/transport/src/i18n.js')).not.toMatch(/footer\.stopAll|footer\.trains/);

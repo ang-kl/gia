@@ -189,7 +189,7 @@ const STRINGS = {
   'stalls.status.proposed':              { en: 'Proposed',           fr: 'Proposé' },
 
   // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
-  'footer.tag':                          { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' },
+  'footer.tag':                          { en: 'Experimental', fr: 'Expérimental' },
 
   // P1-e — accessible names: bottom-sheet drag handle, the footer NEA ↗ link,
   // and the LocaleToggle menu. EN+FR here; id/ru/de/zh/ja/es in the overlays.
@@ -286,7 +286,7 @@ const ID_STRINGS = {
   'stalls.status.interim_centre': 'Sementara',
   'stalls.status.under_construction': 'Dalam pembangunan',
   'stalls.status.proposed': 'Diusulkan',
-  'footer.tag': 'Eksperimental · Singapura',
+  'footer.tag': 'Eksperimental',
 
   "btn.showMap": "Peta",
   "btn.showList": "Kartu",
@@ -385,7 +385,7 @@ const RU_STRINGS = {
   'stalls.status.interim_centre': 'Временный',
   'stalls.status.under_construction': 'Строится',
   'stalls.status.proposed': 'Планируется',
-  'footer.tag': 'Экспериментально · Сингапур',
+  'footer.tag': 'Экспериментально',
 
   "btn.showMap": "Карта",
   "btn.showList": "Карточки",
@@ -481,7 +481,7 @@ const DE_STRINGS = {
   'stalls.status.interim_centre': 'Vorläufig',
   'stalls.status.under_construction': 'Im Bau',
   'stalls.status.proposed': 'Geplant',
-  'footer.tag': 'Experimentell · Singapur',
+  'footer.tag': 'Experimentell',
 
   "btn.showMap": "Karte",
   "btn.showList": "Karten",
@@ -579,7 +579,7 @@ const ZH_STRINGS = {
   'stalls.status.interim_centre': '临时',
   'stalls.status.under_construction': '建设中',
   'stalls.status.proposed': '拟建',
-  'footer.tag': '试验版 · 新加坡',
+  'footer.tag': '试验版',
 
   "btn.showMap": "地图",
   "btn.showList": "卡片",
@@ -676,7 +676,7 @@ const JA_STRINGS = {
   'stalls.status.interim_centre': '仮設',
   'stalls.status.under_construction': '建設中',
   'stalls.status.proposed': '計画中',
-  'footer.tag': '試験運用版 · シンガポール',
+  'footer.tag': '試験運用版',
 
   "btn.showMap": "地図",
   "btn.showList": "カード",
@@ -773,7 +773,7 @@ const ES_STRINGS = {
   'stalls.status.interim_centre': 'Provisional',
   'stalls.status.under_construction': 'En construcción',
   'stalls.status.proposed': 'Propuesto',
-  'footer.tag': 'Experimental · Singapur',
+  'footer.tag': 'Experimental',
 
   "btn.showMap": "Mapa",
   "btn.showList": "Tarjetas",
@@ -876,7 +876,7 @@ const KO_STRINGS = {
   "stalls.status.interim_centre": "임시",
   "stalls.status.under_construction": "공사 중",
   "stalls.status.proposed": "예정",
-  "footer.tag": "실험 중 · 싱가포르",
+  "footer.tag": "실험 중",
   "sheet.dragHandle": "끌어서 목록 크기 조절",
   "link.neaAria": "NEA 웹사이트 열기",
   "localeToggle.language": "언어",

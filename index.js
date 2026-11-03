@@ -19184,6 +19184,17 @@ async function cacheBotUsername() {
           statusByLine,
           affectedCodes,
           engineering,
+          // v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C6: the next 14 days' public holidays, so the
+          // Mini Apps can say the weekend first train applies.
+          publicHolidays: (() => {
+            const holidaysForTransport = require('./holidays');
+            const out = [];
+            for (let i = 0; i < 14; i++) {
+              const d = new Date(Date.now() + i * 86400000);
+              if (holidaysForTransport.isPublicHoliday(d)) out.push(new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10));
+            }
+            return out;
+          })(),
           // address + nearestMrt are filled in by the chat-side caller
           // when it embeds the user's coords; the TMA-only fetch leaves
           // them null (TMA can offer a "share location" button later).
@@ -19763,6 +19774,18 @@ async function cacheBotUsername() {
       } catch (err) {
         console.warn('[stop-buses] failed:', err?.message);
         res.json({ code: stopCode, readAt: Date.now(), services: [] });
+      }
+    });
+    // v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C7: for each bus operator at a stop that is not running
+    // now, when it resumes. One LTA call, shared for 60 s.
+    app.get('/api/transport/stop-resume', async (req, res) => {
+      const stopCode = String(req.query.code || '').trim();
+      if (!/^\d{5}$/.test(stopCode)) return res.status(400).json({ error: 'code required' });
+      try {
+        res.json(await transport.stopResume(redis, stopCode));
+      } catch (err) {
+        console.warn('[stop-resume] failed:', err?.message);
+        res.json({ code: stopCode, readAt: Date.now(), operators: [] });
       }
     });
 

@@ -7,7 +7,8 @@
 // paths and the line status (nothing is fetched before that); it keeps the lines that taps have added; it runs one
 // train layer per line whose own state is running; it re-reads the status every 30 s; and it reports
 // { lines: [{ code, state }] } upward, or null when nothing is listed. Nothing is kept across a reopen.
-import { createTrainSimLayer, simState, lineGeometry, simT, addStationLines, removeSimLine } from './train-sim.js';
+import { createTrainSimLayer, simState, lineGeometry, simT } from './train-sim.js';
+import { addRunItem, removeRunItem, stationsToLines, trainResumeAt, trainResumeText } from './run-state.js';
 import trainSim from '../../transport/src/data/train-sim.json';
 import { LINES_BY_CODE } from '../../transport/src/data/lines.js';
 
@@ -21,6 +22,10 @@ export function createStationSimController(map, gmaps, { fetchJson = null, onSta
   let data = null;          // { stations, coords, paths }
   let loading = null;
   let status = {};
+  let holidays = [];
+  // v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C1-C2: the stations tapped (up to five, oldest out);
+  // the lines drawn are the union of their timetabled lines.
+  let stations = [];
   let lines = [];
   const layers = new Map(); // code -> layer
   const geom = {};
@@ -42,6 +47,7 @@ export function createStationSimController(map, gmaps, { fetchJson = null, onSta
   async function readStatus() {
     const r = await getJson('/api/transport/status');
     status = (r && r.statusByLine) || {};
+    holidays = (r && Array.isArray(r.publicHolidays)) ? r.publicHolidays : [];
   }
   const nameOf = (c) => {
     const s = data && data.stations.find((x) => (x.codes || []).includes(c));
@@ -71,7 +77,12 @@ export function createStationSimController(map, gmaps, { fetchJson = null, onSta
       layer.start();
       layers.set(code, layer);
     }
-    if (onState) onState(list.length ? { lines: list } : null);
+    const resume = list.map((l) => trainResumeText({
+      code: l.code, state: l.state, raw: status?.[l.code]?.raw || '',
+      resumeAt: l.state === 'outOfHours' && trainSim.lines[l.code] ? trainResumeAt(trainSim.lines[l.code].window, now(), holidays) : null,
+      nowMs: now(), lang,
+    })).filter(Boolean);
+    if (onState) onState(list.length ? { stations: stations.slice(), lines: list, resume } : null);
   }
   async function tick() {
     if (!lines.length) return;
@@ -84,23 +95,28 @@ export function createStationSimController(map, gmaps, { fetchJson = null, onSta
     layers.clear();
     const had = lines.length > 0;
     lines = [];
+    stations = [];
     if (info) info.close();
     if (had && onState) onState(null);
   }
   async function addStation(station) {
-    const next = addStationLines(lines, station);
-    if (next.length === lines.length) return;
+    if (!station || !station.name) return;
+    const item = { key: station.name, name: station.name, lines: Array.isArray(station.lines) ? station.lines : [] };
+    if (!stationsToLines([item]).length) return;
     await load();
     if (!lines.length) await readStatus();
-    lines = addStationLines(lines, station);
+    stations = addRunItem(stations, item);
+    lines = stationsToLines(stations);
     draw();
     if (!timer) timer = setInterval(tick, STATION_SIM_RECHECK_MS);
   }
-  function remove(code) {
-    const next = removeSimLine(lines, code);
+  // A ❌ takes one station out; its lines go only if no remaining station covers them.
+  function remove(key) {
+    const next = removeRunItem(stations, key);
     if (!next.length) { stopAll(); return; }
-    lines = next;
+    stations = next;
+    lines = stationsToLines(stations);
     draw();
   }
-  return { addStation, remove, stopAll, active: () => lines.length > 0, layerCount: () => layers.size, lines: () => lines.slice() };
+  return { addStation, remove, stopAll, active: () => lines.length > 0, layerCount: () => layers.size, lines: () => lines.slice(), stations: () => stations.slice() };
 }

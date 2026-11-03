@@ -8,6 +8,7 @@
 // with a dynamic import(), as it does bus-route.js); the map layer below it runs only in the browser. Nothing here is
 // kept across a reopen.
 import { BUS_COLOUR, bt } from './bus-route.js';
+import { addRunItem, removeRunItem } from './run-state.js';
 
 export const STOP_REFRESH_MS = 30000;
 
@@ -56,23 +57,51 @@ export function stopFooterModel({ active, name = '', services = [], hidden = [],
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-// C4-C6 — the map layer. `show` replaces any stop already shown; `remove` hides one service (the last one removed
-// ends the view); `stopAll` clears everything and the timer. `onState` feeds the footer chip in App.jsx.
+// C4-C6 — the map layer. v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C2-C3: up to five stops, oldest
+// out. The newest shows every service's 2 coming and 2 going buses (stop-buses); the older ones only their 2 coming
+// (bus-arrival, 1 LTA call each). Every listed stop also asks when its stopped operators resume (stop-resume).
+// `show` adds a stop (a repeat moves it to newest), `remove` takes one out (the last ends the view), `stopAll` clears.
 export function createStopBusesLayer(map, gmaps, { fetchJson = null, onState = null, lang = 'en' } = {}) {
   const getJson = fetchJson || ((u) => fetch(u).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   const AME = gmaps && gmaps.marker && gmaps.marker.AdvancedMarkerElement;
   const info = gmaps && gmaps.InfoWindow ? new gmaps.InfoWindow({ headerDisabled: true, disableAutoPan: true }) : null;
-  let cur = null;          // { code, name, data, hidden: Set }
+  let stops = [];           // oldest → newest: { key, code, name, data, resume }
   let markers = [];
   let timer = null;
+  let gen = 0;
+  const keyOf = (x) => x.code;
+  const newest = () => stops[stops.length - 1] || null;
   const emit = () => {
     if (!onState) return;
-    onState(cur
-      ? { active: true, code: cur.code, name: cur.name, services: (cur.data?.services || []).map((s) => ({ service: String(s.service), direction: s.direction })), hidden: [...cur.hidden], readAt: cur.data?.readAt ?? null }
-      : { active: false });
+    if (!stops.length) { onState({ active: false }); return; }
+    const byOp = new Map();
+    for (const st of stops) for (const o of (st.resume || [])) {
+      const prev = byOp.get(o.operator);
+      if (!prev || o.resumeAt < prev.resumeAt) byOp.set(o.operator, o);
+    }
+    onState({
+      active: true,
+      stops: stops.map((st) => ({ key: st.code, code: st.code, name: st.name, newest: st === newest(), count: busesOf(st).length })),
+      resume: [...byOp.values()].sort((a, b) => a.resumeAt - b.resumeAt),
+      readAt: newest()?.data?.readAt ?? null,
+    });
   };
   const drop = (m) => { if (AME && m instanceof AME) m.map = null; else if (m && m.setMap) m.setMap(null); };
   function clearMarkers() { for (const m of markers) drop(m); markers = []; if (info) info.close(); }
+  // The buses one stop draws: the newest its coming and going, an older one its coming only.
+  function busesOf(st) {
+    const out = [];
+    if (!st.data) return out;
+    if (st === newest()) {
+      for (const s of (st.data.services || [])) {
+        for (const b of (s.coming || [])) out.push({ svc: String(s.service), b, kind: 'coming' });
+        for (const b of (s.going || [])) out.push({ svc: String(s.service), b, kind: 'going' });
+      }
+    } else {
+      for (const s of (st.data.services || [])) for (const b of pickComing(s)) out.push({ svc: String(s.service), b, kind: 'coming' });
+    }
+    return out.filter((x) => Number.isFinite(x.b.lat) && Number.isFinite(x.b.lng));
+  }
   function makeBus(svc, b, kind, stopPos) {
     const pos = { lat: b.lat, lng: b.lng };
     const deg = stopPos ? (kind === 'coming' ? bearingDeg(pos, stopPos) : bearingDeg(stopPos, pos)) : 0;
@@ -96,21 +125,24 @@ export function createStopBusesLayer(map, gmaps, { fetchJson = null, onState = n
   }
   function draw() {
     clearMarkers();
-    if (!cur || !cur.data) return;
-    const stopPos = Number.isFinite(cur.data.lat) && Number.isFinite(cur.data.lng) ? { lat: cur.data.lat, lng: cur.data.lng } : null;
-    for (const s of (cur.data.services || [])) {
-      const svc = String(s.service);
-      if (cur.hidden.has(svc)) continue;
-      for (const b of (s.coming || [])) if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) markers.push(makeBus(svc, b, 'coming', stopPos));
-      for (const b of (s.going || [])) if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) markers.push(makeBus(svc, b, 'going', stopPos));
+    for (const st of stops) {
+      const stopPos = st.data && Number.isFinite(st.data.lat) && Number.isFinite(st.data.lng) ? { lat: st.data.lat, lng: st.data.lng } : null;
+      for (const x of busesOf(st)) markers.push(makeBus(x.svc, x.b, x.kind, stopPos));
     }
   }
   async function refresh() {
-    if (!cur || (typeof document !== 'undefined' && document.hidden)) return;
-    const mine = cur;
-    const r = await getJson('/api/transport/stop-buses?code=' + encodeURIComponent(mine.code));
-    if (cur !== mine || !r) return;
-    mine.data = r;
+    if (!stops.length || (typeof document !== 'undefined' && document.hidden)) return;
+    const mine = ++gen;
+    const top = newest();
+    await Promise.all(stops.map(async (st) => {
+      const url = st === top
+        ? '/api/transport/stop-buses?code=' + encodeURIComponent(st.code)
+        : '/api/transport/bus-arrival?code=' + encodeURIComponent(st.code);
+      const [d, r] = await Promise.all([getJson(url), getJson('/api/transport/stop-resume?code=' + encodeURIComponent(st.code))]);
+      if (d) st.data = d;
+      st.resume = (r && Array.isArray(r.operators)) ? r.operators : [];
+    }));
+    if (mine !== gen || !stops.length) return;
     draw();
     emit();
   }
@@ -119,26 +151,27 @@ export function createStopBusesLayer(map, gmaps, { fetchJson = null, onState = n
     if (timer) { clearInterval(timer); timer = null; }
     if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVis);
     clearMarkers();
-    const had = !!cur;
-    cur = null;
+    const had = stops.length > 0;
+    stops = [];
+    gen++;
     if (had) emit();
   }
   async function show(code, name = '') {
-    stopAll();
-    cur = { code: String(code), name: String(name || code), data: null, hidden: new Set() };
-    await refresh();
-    if (cur) {
+    const c = String(code);
+    const prev = stops.find((x) => x.code === c);
+    stops = addRunItem(stops, prev || { key: c, code: c, name: String(name || c), data: null, resume: [] }, keyOf);
+    if (!timer) {
       timer = setInterval(refresh, STOP_REFRESH_MS);
       if (typeof document !== 'undefined') document.addEventListener('visibilitychange', onVis);
     }
+    emit();
+    await refresh();
   }
-  function remove(service) {
-    if (!cur) return;
-    cur.hidden.add(String(service));
-    const left = (cur.data?.services || []).filter((s) => !cur.hidden.has(String(s.service)));
-    if (!left.length) { stopAll(); return; }
+  function remove(code) {
+    stops = removeRunItem(stops, String(code), keyOf);
+    if (!stops.length) { stopAll(); if (onState) onState({ active: false }); return; }
     draw();
     emit();
   }
-  return { show, remove, stopAll, refresh, active: () => !!cur, count: () => markers.length };
+  return { show, remove, stopAll, refresh, active: () => stops.length > 0, count: () => markers.length, stops: () => stops.map((x) => x.code) };
 }
