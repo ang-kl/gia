@@ -1175,6 +1175,9 @@ function ensureInfoVisible(map, marker) {
 function openBusInfo(map, infoWindow, b, marker) {
   infoWindow.setContent(busInfoHtml(b, null));
   infoWindow.open(map, marker);
+  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C3: the stop tap also starts the stop
+  // view (every service's coming and going buses) through the map panel's hook; null-guarded.
+  if (typeof window !== 'undefined') window.__giaStopBuses&&window.__giaStopBuses(String(b.code), String(b.description || b.code));
   ensureInfoVisible(map, marker);
   fetch('/api/transport/bus-arrival?code=' + encodeURIComponent(b.code))
     .then((r) => (r.ok ? r.json() : null))
@@ -1543,6 +1546,9 @@ export function createOverlayController(map, googleMaps, opts) {
   // (openStationCard) — this replaces the old neighbour-detail view.
   function handleStationTap(item) {
     const s = item.station;
+    // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C3: a station tap also starts the
+    // simulated trains on its lines through the map panel's hook; null-guarded, so a no-op where none is installed.
+    if (typeof window !== 'undefined') window.__giaStationSim&&window.__giaStationSim(s);
     if (detailStation && detailStation.name === s.name) {
       exitStationDetail();
       return;

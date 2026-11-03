@@ -266,10 +266,10 @@ describe('the wiring (source pins)', () => {
     expect(src).toMatch(/app\.get\('\/api\/transport\/stop-buses', async \(req, res\)/);
     expect(src).toMatch(/transport\.stopBuses\(redis, stopCode\)/);
   });
-  it('the Train bubble starts the stop view on a stop tap; Hawker and Cuisine are untouched (A4)', () => {
+  it('the Train bubble starts the stop view on a stop tap; Hawker and Cuisine call it too (v0.62.970)', () => {
     expect(code('web/transport/src/lib/mapOverlays.js')).toMatch(/window\.__giaStopBuses&&window\.__giaStopBuses\(/);
-    expect(code('web/hawker/src/lib/mapOverlays.js')).not.toMatch(/__giaStopBuses/);
-    expect(code('web/cuisine/src/v2/lib/mapOverlays.js')).not.toMatch(/__giaStopBuses/);
+    expect(code('web/hawker/src/lib/mapOverlays.js')).toMatch(/window\.__giaStopBuses&&window\.__giaStopBuses\(/);
+    expect(code('web/cuisine/src/v2/lib/mapOverlays.js')).toMatch(/window\.__giaStopBuses&&window\.__giaStopBuses\(/);
   });
   it('the panel installs the hook, reports upward, and clears it on unmount', () => {
     const c = code('web/transport/src/components/MrtMapPanel.jsx');

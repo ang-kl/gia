@@ -10,6 +10,8 @@ import { pt } from '../../../../_shared/lib/pcn-i18n.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../../_shared/components/MapControls.jsx';
 import { mapsLanguageParam } from '../../../../_shared/lib/gmaps-language.js';
+import { createStationSimController } from '../../../../_shared/lib/station-sim-controller.js';
+import { createStopBusesLayer } from '../../../../_shared/lib/stop-buses.js';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
 // rank in the current search results / first load). Replaces the emoji-
@@ -168,7 +170,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, onPcnLockChange = null, restorePcnLock = null, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
+export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, onPcnLockChange = null, restorePcnLock = null, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, onTrainsChange = null, onStopBusesChange = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -183,6 +185,52 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
+  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C2-C3. The overlay controller's station
+  // tap calls window.__giaStationSim(station) and its bus stop bubble calls window.__giaStopBuses(code, name); the
+  // controller and the stop layer are made on the first tap, once the map exists, and report upward for the header
+  // caption and the footer chips. Both hooks go on unmount, and everything stops with them; nothing is kept.
+  const stationSimRef = useRef(null);
+  const stopBusesLayerRef = useRef(null);
+  const onTrainsChangeRef = useRef(onTrainsChange);
+  onTrainsChangeRef.current = onTrainsChange;
+  const onStopBusesChangeRef = useRef(onStopBusesChange);
+  onStopBusesChangeRef.current = onStopBusesChange;
+  const runLangRef = useRef(lang);
+  runLangRef.current = lang;
+  useEffect(() => {
+    window.__giaStationSim = (station) => {
+      const map = mapRef.current;
+      const gmaps = window.google && window.google.maps;
+      if (!map || !gmaps || !station) return;
+      if (!stationSimRef.current) {
+        stationSimRef.current = createStationSimController(map, gmaps, {
+          lang: runLangRef.current,
+          onState: (s) => onTrainsChangeRef.current?.(s ? { ...s, remove: (code) => stationSimRef.current?.remove(code), stopAll: () => stationSimRef.current?.stopAll() } : null),
+        });
+      }
+      stationSimRef.current.addStation(station);
+    };
+    window.__giaStopBuses = (code, name) => {
+      const map = mapRef.current;
+      const gmaps = window.google && window.google.maps;
+      if (!map || !gmaps) return;
+      if (!stopBusesLayerRef.current) {
+        stopBusesLayerRef.current = createStopBusesLayer(map, gmaps, {
+          lang: runLangRef.current,
+          onState: (s) => onStopBusesChangeRef.current?.(s.active ? { ...s, remove: (svc) => stopBusesLayerRef.current?.remove(svc), stopAll: () => stopBusesLayerRef.current?.stopAll() } : null),
+        });
+      }
+      stopBusesLayerRef.current.show(String(code), String(name || code));
+    };
+    return () => {
+      delete window.__giaStationSim;
+      delete window.__giaStopBuses;
+      stationSimRef.current?.stopAll();
+      stationSimRef.current = null;
+      stopBusesLayerRef.current?.stopAll();
+      stopBusesLayerRef.current = null;
+    };
+  }, []);
   // v0.61.0 — parks / attractions / taxi-stop overlay layers. The
   // controller is created once the Google Map exists; the chip strip
   // below the map drives layer visibility via overlayLayers.

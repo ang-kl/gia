@@ -36,6 +36,8 @@ import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/t
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../_shared/components/MapControls.jsx';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
+import { createStationSimController } from '../../../_shared/lib/station-sim-controller.js';
+import { createStopBusesLayer } from '../../../_shared/lib/stop-buses.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 12;   // v0.62.132 — default 11->12
@@ -138,10 +140,56 @@ function hawkerPinNode(isNew, number, hasBib, closureKind, upcomingKind) {
   return wrap;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null, onCentreTap = null }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null, onCentreTap = null, onTrainsChange = null, onStopBusesChange = null }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
+  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C2-C3. The overlay controller's station
+  // tap calls window.__giaStationSim(station) and its bus stop bubble calls window.__giaStopBuses(code, name); the
+  // controller and the stop layer are made on the first tap, once the map exists, and report upward for the header
+  // caption and the footer chips. Both hooks go on unmount, and everything stops with them; nothing is kept.
+  const stationSimRef = useRef(null);
+  const stopBusesLayerRef = useRef(null);
+  const onTrainsChangeRef = useRef(onTrainsChange);
+  onTrainsChangeRef.current = onTrainsChange;
+  const onStopBusesChangeRef = useRef(onStopBusesChange);
+  onStopBusesChangeRef.current = onStopBusesChange;
+  const runLangRef = useRef(lang);
+  runLangRef.current = lang;
+  useEffect(() => {
+    window.__giaStationSim = (station) => {
+      const map = mapRef.current;
+      const gmaps = window.google && window.google.maps;
+      if (!map || !gmaps || !station) return;
+      if (!stationSimRef.current) {
+        stationSimRef.current = createStationSimController(map, gmaps, {
+          lang: runLangRef.current,
+          onState: (s) => onTrainsChangeRef.current?.(s ? { ...s, remove: (code) => stationSimRef.current?.remove(code), stopAll: () => stationSimRef.current?.stopAll() } : null),
+        });
+      }
+      stationSimRef.current.addStation(station);
+    };
+    window.__giaStopBuses = (code, name) => {
+      const map = mapRef.current;
+      const gmaps = window.google && window.google.maps;
+      if (!map || !gmaps) return;
+      if (!stopBusesLayerRef.current) {
+        stopBusesLayerRef.current = createStopBusesLayer(map, gmaps, {
+          lang: runLangRef.current,
+          onState: (s) => onStopBusesChangeRef.current?.(s.active ? { ...s, remove: (svc) => stopBusesLayerRef.current?.remove(svc), stopAll: () => stopBusesLayerRef.current?.stopAll() } : null),
+        });
+      }
+      stopBusesLayerRef.current.show(String(code), String(name || code));
+    };
+    return () => {
+      delete window.__giaStationSim;
+      delete window.__giaStopBuses;
+      stationSimRef.current?.stopAll();
+      stationSimRef.current = null;
+      stopBusesLayerRef.current?.stopAll();
+      stopBusesLayerRef.current = null;
+    };
+  }, []);
   const markersRef = useRef([]);
   // v0.62.556 — centre markers keyed by name so a card tap (in the list/carousel)
   // can trigger the same behaviour as tapping the pin (__giaHawkerFocusCentre).

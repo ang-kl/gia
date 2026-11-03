@@ -20,6 +20,8 @@ scope:
   - "__tests__/hawker-cuisine-run.test.js"
   - "__tests__/map-overlays-copies.test.js"
   - "__tests__/station-card-labels.test.js"
+  - "__tests__/stop-buses.test.js"
+  - "web/cuisine/src/v2/lib/state.js"
   - "package.json"
   - "doc/Feature/2026-11-03-station-and-stop-tap-animations-hawker-cuisine.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -124,3 +126,37 @@ Version: 0.1. Date: 3 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 ## Evidence
 Filled at the end: INVARIANTS REPORT (Passed / Failed / Not Verifiable, each with evidence), verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 — the Train release's "Hawker and Cuisine untouched" pin (03-11 '26)
+
+Raised as FLOW ALERT [F3 + F7] at № 4,542, after the build was in place (tests first and red; the new file 19/19; the
+Hawker, Cuisine and Train apps building; 80 of 81 neighbouring tests green). Nothing above is rewritten.
+
+- **Operator, 03-11 '26, choosing between three stated options: *"(a) write Amendment 1 and flip the pins"*.**
+- **The spec did not name one existing guard.** `__tests__/stop-buses.test.js:269-272`, written for v0.62.969, pins
+  *"the Train bubble starts the stop view on a stop tap; Hawker and Cuisine are untouched (A4)"*:
+  `expect(code('web/hawker/src/lib/mapOverlays.js')).not.toMatch(/__giaStopBuses/);` and the same for the Cuisine
+  copy. It was true for the Train-only release; this release wires exactly that hook into both copies (C3), so it is
+  now out of date.
+- **Scope** gains `__tests__/stop-buses.test.js`. The edit (F7, quoted in the journal): the two `.not.toMatch` lines
+  become `.toMatch(/window\.__giaStopBuses&&window\.__giaStopBuses\(/)`, and the test is renamed to *"the Train
+  bubble starts the stop view on a stop tap; Hawker and Cuisine call it too (v0.62.970)"*. Every other check in the
+  file is unchanged.
+- Invariants, assumptions and the rest of scope are unchanged. The copies pins (`map-overlays-copies`,
+  `station-card-labels`) did not move and are not edited.
+
+## Amendment 2 — the Cuisine state census (03-11 '26)
+
+Raised as FLOW ALERT [F3] at № 4,552, after the build was proved in the built Hawker, Cuisine and Train apps and 6 of
+6 mutations were caught. Nothing above is rewritten.
+
+- **Operator, 03-11 '26, choosing between three stated options: *"(a) write Amendment 2 and list them as transient"*.**
+- **The spec did not name one existing list.** `__tests__/locale-restore-coherence.test.js:63` requires every
+  `useState` in `web/cuisine/src/v2/App.jsx` to be carried, stashed, or listed as transient with a reason in
+  `LOCALE_STASH.transient` (`web/cuisine/src/v2/lib/state.js`). The two new states fail it: *"a useState that is
+  neither carried, stashed nor listed as transient: expected [ 'trains', 'stopBuses' ] to deeply equal []"*.
+  v0.62.965 met the same guard with `backTo` (`state.js:185`).
+- **Scope** gains `web/cuisine/src/v2/lib/state.js`. Two entries are added to `LOCALE_STASH.transient`, both with the
+  reason *"what the map is animating now; a language reload is a reload, and nothing here is kept across one"*. This
+  matches C10 of the Train spec and the out-of-scope line here: nothing is kept across a reopen. No test is edited.
+- Invariants, assumptions and the rest of scope are unchanged.
