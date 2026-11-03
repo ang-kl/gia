@@ -13,6 +13,9 @@ import { codeHex } from './lib/mapOverlays.js';
 import { nearestByDistance, shortDist } from '../../_shared/lib/temp-pin.js';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import OutsideNowStrip from '../../_shared/components/OutsideNowStrip.jsx';
+import SimCaptionStrip from '../../_shared/components/SimCaptionStrip.jsx';
+import FooterRunChips from '../../_shared/components/FooterRunChips.jsx';
+import { aggregateSimStatus } from '../../_shared/lib/train-sim.js';
 import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../_shared/lib/use-weather-abroad.js';
@@ -99,7 +102,7 @@ function MapToggleButton({ isHidden, onToggle, lang }) {
 // (right, Cuisine glyphs) and a tiny integrated version line, instead of the old
 // floating FooterNav pill + a separate centred version <footer>. `scrollEl` scrolls
 // an inner container (the two-panel list); omit it → window.
-function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, scrollEl = null, zoneInfo = null }) {
+function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, scrollEl = null, zoneInfo = null, runChips = null }) {
   const resolveScroller = () => {
     const el = scrollEl && (scrollEl.current !== undefined ? scrollEl.current : scrollEl);
     return el || null;
@@ -126,6 +129,8 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
       className="fixed bottom-0 inset-x-0 z-40 px-3 pt-1 bg-tg-bg/75 liquid-glass-dock border-t border-tg-border flex flex-col gap-0.5"
       style={{ paddingBottom: 'calc(0.25rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}
     >
+      {/* v0.62.970 — C5: the run chips get their own row while trains or a stop view run. */}
+      {runChips && <div className="pt-0.5">{runChips}</div>}
       <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
         <div className="flex items-center gap-0.5 min-w-0">
           {leading}
@@ -316,6 +321,12 @@ export default function App() {
   // strip and the dot come from MET Norway (and JMA in Japan); the dot follows badgeDot, so none abroad but JMA's.
   const abroad = useWeatherAbroad({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null, enabled: outside?.inSg === false });
   const [outsideOpen, setOutsideOpen] = useState(false);
+  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C4-C5: what the map panel reports
+  // about the simulated trains and the stop view, for the header caption and the footer chips.
+  const [trains, setTrains] = useState(null);
+  const [stopBuses, setStopBuses] = useState(null);
+  const trainsStatus = aggregateSimStatus(trains ? trains.lines : []);
+  const runChips = (trains || stopBuses) ? <FooterRunChips trains={trains} stopBuses={stopBuses} lang={lang} /> : null;
   const openOutside = useCallback(() => setOutsideOpen(true), []);
   const closeOutside = useCallback(() => setOutsideOpen(false), []);
   const [data, setData] = useState(null);
@@ -934,7 +945,7 @@ export default function App() {
   const carouselLayout = (collapsible) => (
       <div className="fixed inset-0 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
         {active && (
-          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill
+          <HawkerMapPanel onTrainsChange={setTrains} onStopBusesChange={setStopBuses} centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill
             onCentreTap={onCentreTap}
             expanded={collapsible ? mapExpanded : null}
             onToggleExpand={collapsible ? () => withViewTransition(() => setMapExpanded(false)) : null} />
@@ -990,6 +1001,8 @@ export default function App() {
             </div>
           </div>
           <OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} />
+      <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} />
+          <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} />
         </div>
         {busy && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-tg-hint bg-tg-bg/90 rounded-full px-3 py-1 z-20">{t('status.loading', lang)}</p>}
         {err && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-red-500 bg-tg-bg/90 rounded-full px-3 py-1 z-20">⚠ {err}</p>}
@@ -1009,7 +1022,7 @@ export default function App() {
             />
           </div>
         )}
-        <FooterDock
+        <FooterDock runChips={runChips}
           lang={lang}
           footerTag={footerTag}
           atBottom={atBottom}
@@ -1059,6 +1072,7 @@ export default function App() {
         </div>
       </div>
       <OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} />
+      <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} />
       {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. On a
           PHONE lay them out as a tidy 3+2 TWO-ROW grid (segmented-control feel).
           v0.62.591 — operator (iPad Pro portrait): on a WIDE tablet squeeze all 5
@@ -1083,7 +1097,7 @@ export default function App() {
           scrolling list beneath doesn't butt against it / read as an afterthought. */}
       {active && (
         <div className="px-2 pb-1.5 shrink-0">
-          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
+          <HawkerMapPanel onTrainsChange={setTrains} onStopBusesChange={setStopBuses} centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
             onCentreTap={onCentreTap}
             expanded={mapExpanded} onToggleExpand={() => withViewTransition(() => setMapExpanded(true))} />
         </div>
@@ -1107,7 +1121,7 @@ export default function App() {
       </div>
       {/* v0.62.605 — the Cuisine-style dock replaces the floating pill + the
           separate centred version footer; the version line lives inside it. */}
-      <FooterDock
+      <FooterDock runChips={runChips}
         lang={lang}
         footerTag={footerTag}
         atBottom={panelAtBottom}
@@ -1134,7 +1148,7 @@ export default function App() {
           do nothing (the map DID expand, behind the z-30 drawer). */}
       {active && (
         <div className="absolute inset-0">
-          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
+          <HawkerMapPanel onTrainsChange={setTrains} onStopBusesChange={setStopBuses} centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
             fill onCentreTap={onCentreTap} />
         </div>
       )}
@@ -1157,6 +1171,7 @@ export default function App() {
           <StationLocationField lang={lang} onSelectStation={inspectStation} />
         </div>
         <div className="pointer-events-auto"><OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} /></div>
+        <div className="pointer-events-auto"><SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} /></div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
             the title card) so they read cleanly, matching the two-panel styling. */}
@@ -1201,7 +1216,7 @@ export default function App() {
           )}
         </BottomSheet>
       )}
-      <FooterDock lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} zoneInfo={zoneInfo}
+      <FooterDock runChips={runChips} lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} zoneInfo={zoneInfo}
         leading={<ViewToggleButton viewMode={viewMode} lang={lang}
           onToggle={() => withViewTransition(() => setViewMode('carousel'))} />} />
     </div>
