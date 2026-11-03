@@ -1,8 +1,8 @@
 counters:
-  commit: 1633
+  commit: 1634
   build: 873
   documents:
-    journal: 1323
+    journal: 1324
     builder: 4
     persona: 5
     feature: 70
@@ -14,7 +14,8 @@ sessions:
   current_chat_counter: 126  # per §3.2 the CHAT counter resets per session and starts at 1;
                             # replies 1-4 of this session mistakenly carried commit-counter
                             # values (1,236-1,239) in their headers. See chat-0_62_723 turn 5.
-last_anchor_time: 03-11 '26 17:04 SGT
+last_anchor_time: 03-11 '26 18:50 SGT
+last_anchor_time_prior23: 03-11 '26 17:04 SGT
 last_anchor_time_prior24: 03-11 '26 08:24 SGT
 last_anchor_time_prior25: 03-11 '26 07:56 SGT
 last_anchor_time_prior26: 03-11 '26 06:50 SGT
@@ -176,7 +177,8 @@ last_anchor_time_prior181: 01-09 '26 10:30 SGT
 last_anchor_time_prior182: 01-09 '26 09:44 SGT
 last_anchor_time_prior183: 01-09 '26 09:29 SGT
 last_anchor_time_prior184: 01-09 '26 08:24 SGT
-last_anchor_source: system_clock_d203_max_sensor_1704_16_wins_over_spec_approval_1652_19_by_717_seconds_build_v0_62_969
+last_anchor_source: system_clock_d203_max_sensor_1850_06_wins_over_pr_1911_squash_merge_1849_23_by_43_seconds_merge_1911
+last_anchor_source_prior23: system_clock_d203_max_sensor_1704_16_wins_over_spec_approval_1652_19_by_717_seconds_build_v0_62_969
 last_anchor_source_prior24: system_clock_d203_max_sensor_0824_07_wins_over_pr_1910_squash_merge_0823_46_by_21_seconds_merge_1910
 last_anchor_source_prior25: system_clock_d203_max_sensor_0756_04_wins_over_spec_approval_0752_23_by_221_seconds_build_v0_62_968
 last_anchor_source_prior26: system_clock_d203_max_sensor_0650_40_wins_over_pr_1909_squash_merge_0650_05_by_35_seconds_merge_1909
@@ -369,7 +371,8 @@ last_anchor_source_prior212: system_clock_d203_max_sensor_2039_wins_over_pr_1797
 last_anchor_source_prior213: system_clock_d203_max_sensor_2033_wins_over_pr_1796_merge_2017
 last_anchor_source_prior214: system_clock_d203_max_sensor_2018_wins_over_pr_1796_merge_2017_and_corrects_amd87s_future_dated_2030
 last_anchor_source_prior215: system_clock_d203_max_sensor_wins_over_pr_1795_merge   # future-dated by 45 min; kept per AU-1, superseded 30-08 '26 20:18 SGT
-last_anchor_note: d203_build_v0_62_969_station_and_stop_tap_animations
+last_anchor_note: d203_merge_record_1911_v0_62_969_held_per_d210
+last_anchor_note_prior23: d203_build_v0_62_969_station_and_stop_tap_animations
 last_anchor_note_prior24: d203_merge_record_1910_v0_62_968_held_per_d210
 last_anchor_note_prior25: d203_build_v0_62_968_bus_route_shape_and_buses_cache
 last_anchor_note_prior26: d203_merge_record_1909_v0_62_967_held_per_d210
@@ -846,7 +849,8 @@ last_anchor_source_prior: strips_no_overlap_optionB_2026-07-03_1217
 # on which representation a reader trusted. Flagged by review on #1735. The durable fix is not
 # this edit but the gate in __tests__/serial-state-anchor.test.js, which fails when the three
 # representations disagree — a comment asking to keep them in sync has now failed twice.
-last_anchor_iso8601_current: 2026-11-03T17:04:16+08:00
+last_anchor_iso8601_current: 2026-11-03T18:50:06+08:00
+last_anchor_iso8601_current_prior23: 2026-11-03T17:04:16+08:00
 last_anchor_iso8601_current_prior24: 2026-11-03T08:24:07+08:00
 last_anchor_iso8601_current_prior25: 2026-11-03T07:56:04+08:00
 last_anchor_iso8601_current_prior26: 2026-11-03T06:50:40+08:00
@@ -1061,7 +1065,8 @@ last_anchor_iso8601: 2026-08-26T15:03:00+08:00   # superseded 26-08 '26 15:12 SG
 last_anchor_iso8601: 2026-08-26T14:01:00+08:00   # superseded 26-08 '26 15:03 SGT; was _current
 last_anchor_iso8601: 2026-08-26T13:42:00+08:00   # superseded 26-08 '26 14:01 SGT; was _current
 last_anchor_iso8601: 2026-08-26T13:19:00+08:00   # superseded 26-08 '26 13:42 SGT; was _current
-last_anchor_utc_current: 2026-11-03T09:04:16Z
+last_anchor_utc_current: 2026-11-03T10:50:06Z
+last_anchor_utc_current_prior23: 2026-11-03T09:04:16Z
 last_anchor_utc_current_prior24: 2026-11-03T00:24:07Z
 last_anchor_utc_current_prior25: 2026-11-02T23:56:04Z
 last_anchor_utc_current_prior26: 2026-11-02T22:50:40Z
