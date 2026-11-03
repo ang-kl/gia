@@ -28,7 +28,8 @@ import useWeatherAbroad from '../../_shared/lib/use-weather-abroad.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { ot, badgeDot } from '../../_shared/lib/outside-now-i18n.js';
 // v0.62.966 — spec 2026-11-02-train-sim-caption-in-header-band: the simulation caption as a header strip.
-import { simStripModel } from './lib/train-sim.js';
+import { simStripModel, simFooterModel } from './lib/train-sim.js';
+import { stopFooterModel } from './lib/stop-buses.js';
 // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma: the bus route strip.
 import { routeStripModel } from './lib/bus-route.js';
 import { loadKept, saveKept } from '../../_shared/lib/kept-settings.js';
@@ -282,6 +283,44 @@ function BusRouteStrip({ state, lang = 'en', className = '' }) {
   );
 }
 
+// v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C8 (operator, 03-11 '26: "Bottom status
+// bar"). While simulated trains or a stop view run, a chip for each sits in the footer bar in place of the tag line.
+// Tapping a chip opens a short list above the footer: each line or service with a ✕, and Stop all.
+function FooterRunChips({ trains, stopBuses, lang = 'en' }) {
+  const [open, setOpen] = useState(null);
+  const tm = trains ? simFooterModel({ lines: trains.lines, lang }) : null;
+  const bm = stopBuses ? stopFooterModel({ ...stopBuses, lang }) : null;
+  useEffect(() => { if ((open === 'trains' && !tm) || (open === 'buses' && !bm)) setOpen(null); }, [open, !!tm, !!bm]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!tm && !bm) return null;
+  const chip = { all: 'unset', cursor: 'pointer', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 999, background: 'var(--tg-theme-secondary-bg-color, #eef1f5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, maxWidth: '60%' };
+  const x = { all: 'unset', cursor: 'pointer', padding: '0 4px', fontSize: 14, opacity: 0.7 };
+  const list = open === 'trains' && tm
+    ? { items: tm.items.map((i) => ({ key: i.code, label: i.label, sub: i.reason, remove: () => trains.remove?.(i.code) })), stopAll: () => { trains.stopAll?.(); setOpen(null); }, stopAllText: tm.stopAll }
+    : open === 'buses' && bm
+      ? { items: bm.items.map((i) => ({ key: i.service, label: `🚌 ${i.label}`, sub: '', remove: () => stopBuses.remove?.(i.service) })), stopAll: () => { stopBuses.stopAll?.(); setOpen(null); }, stopAllText: bm.stopAll }
+      : null;
+  return (
+    <div data-run-chips="" style={{ position: 'relative', display: 'flex', gap: 6, minWidth: 0 }}>
+      {tm && <button type="button" data-run-chip="trains" aria-expanded={open === 'trains'} onClick={() => setOpen((o) => (o === 'trains' ? null : 'trains'))} style={chip}>{tm.chip}</button>}
+      {bm && <button type="button" data-run-chip="buses" aria-expanded={open === 'buses'} onClick={() => setOpen((o) => (o === 'buses' ? null : 'buses'))} style={chip}>{bm.chip}</button>}
+      {list && (
+        <div data-run-list={open} role="dialog" style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, minWidth: 190, maxHeight: 260, overflowY: 'auto', background: 'var(--tg-theme-bg-color, #fff)', color: 'var(--tg-theme-text-color, #111)', border: '1px solid rgba(0,0,0,.12)', borderRadius: 10, boxShadow: '0 4px 14px rgba(0,0,0,.18)', padding: 6, fontSize: 12 }}>
+          {list.items.map((i) => (
+            <div key={i.key} data-run-item={i.key} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 4px' }}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontWeight: 600 }}>{i.label}</span>
+                {i.sub && <span style={{ display: 'block', fontSize: 10, opacity: 0.7 }}>{i.sub}</span>}
+              </span>
+              <button type="button" aria-label={`${ot('ui.dismiss', lang)} ${i.key}`} onClick={i.remove} style={x}>✕</button>
+            </div>
+          ))}
+          <button type="button" data-run-stop-all="" onClick={list.stopAll} style={{ all: 'unset', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'center', marginTop: 4, padding: '5px 0', borderTop: '1px solid rgba(0,0,0,.08)', fontWeight: 600, color: '#c0392b' }}>{list.stopAllText}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const lang = useLocale();
   // v0.62.952 — "Outside now" (spec doc/Feature/2026-10-29-outside-now-alerts.spec.md): the chip's dot, the
@@ -294,6 +333,9 @@ export default function App() {
   const [sim, setSim] = useState({ on: false, status: null });
   // v0.62.967 — what the map panel reports about a drawn bus route (onBusRouteChange): the route strip reads it.
   const [busRoute, setBusRoute] = useState(null);
+  // v0.62.969 — C8: what the footer's run chips show; the panel reports both.
+  const [trains, setTrains] = useState(null);
+  const [stopBuses, setStopBuses] = useState(null);
   const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
   // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3/C7: outside Singapore the sheet, the
   // strip and the dot come from MET Norway (and JMA in Japan); the dot follows badgeDot, so none abroad but JMA's.
@@ -710,6 +752,8 @@ export default function App() {
             onOverlayChange={setOverlayLayers}
             onSimChange={setSim}
             onBusRouteChange={setBusRoute}
+            onTrainsChange={setTrains}
+            onStopBusesChange={setStopBuses}
           />
         </div>
   );
@@ -910,11 +954,20 @@ export default function App() {
       className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/75 liquid-glass-dock border-t border-tg-border"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
+      {/* v0.62.969 — C8: the run chips get their own row above the buttons, so a chip is never squeezed to "N…"
+          beside List / Schematic on a narrow phone (seen in the headless render); the tag line gives way to them. */}
+      {(trains || stopBuses) && (
+        <div className="px-3 pt-1.5">
+          <FooterRunChips trains={trains} stopBuses={stopBuses} lang={lang} />
+        </div>
+      )}
       <div className="flex items-center justify-between gap-2 px-3 py-1.5">
         <div className="flex items-center gap-2 min-w-0">
+          {!(trains || stopBuses) && (
           <span className="text-[9px] text-tg-hint leading-tight truncate">
             {t('footer.tag', lang)} · v{BUILD_VERSION}
           </span>
+          )}
           {/* v0.62.606 — layout toggle: carousel (map-first) ⇄ list (two-panel).
               The label names the view you'll switch TO. */}
           <button

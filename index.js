@@ -19753,6 +19753,18 @@ async function cacheBotUsername() {
         res.json({ service, direction, readAt: Date.now(), buses: [] });
       }
     });
+    // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C6: every service at one stop, 2 buses
+    // coming and 2 going each, positions only. The phone calls this once per 30 s while the stop view runs.
+    app.get('/api/transport/stop-buses', async (req, res) => {
+      const stopCode = String(req.query.code || '').trim();
+      if (!/^\d{5}$/.test(stopCode)) return res.status(400).json({ error: 'code required' });
+      try {
+        res.json(await transport.stopBuses(redis, stopCode));
+      } catch (err) {
+        console.warn('[stop-buses] failed:', err?.message);
+        res.json({ code: stopCode, readAt: Date.now(), services: [] });
+      }
+    });
 
     // unregistered placeholder. The placeholder ID will cause Google
     // Maps JS to render a default-styled map (no vector mapType) — not
