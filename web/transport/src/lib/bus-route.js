@@ -62,6 +62,8 @@ export const BUS_STRINGS = {
   'route.read': { en: 'LTA DataMall {time}', fr: 'LTA DataMall {time}', id: 'LTA DataMall {time}', ru: 'LTA DataMall {time}', de: 'LTA DataMall {time}', zh: 'LTA DataMall {time}', ja: 'LTA DataMall {time}', es: 'LTA DataMall {time}', ko: 'LTA DataMall {time}' },
   'route.swap': { en: '↔ Other direction', fr: '↔ Autre sens', id: '↔ Arah lain', ru: '↔ Другое направление', de: '↔ Andere Richtung', zh: '↔ 另一方向', ja: '↔ 逆方向', es: '↔ Otro sentido', ko: '↔ 반대 방향' },
   'route.straight': { en: 'straight lines', fr: 'lignes droites', id: 'garis lurus', ru: 'прямые линии', de: 'gerade Linien', zh: '直线', ja: '直線', es: 'líneas rectas', ko: '직선' },
+  // v0.62.968 — spec 2026-11-03-bus-route-shape-and-buses-cache, C5: some stretches follow the road, some do not.
+  'route.partial': { en: 'partly straight lines', fr: 'lignes partiellement droites', id: 'sebagian garis lurus', ru: 'частично прямые линии', de: 'teilweise gerade Linien', zh: '部分为直线', ja: '一部直線', es: 'líneas en parte rectas', ko: '일부 직선' },
   'route.unavailable': { en: 'Route unavailable', fr: 'Itinéraire indisponible', id: 'Rute tidak tersedia', ru: 'Маршрут недоступен', de: 'Route nicht verfügbar', zh: '路线不可用', ja: 'ルートを取得できません', es: 'Ruta no disponible', ko: '노선을 불러올 수 없음' },
   'route.next': { en: 'Next: {stop} in ≈ {min} min', fr: 'Prochain arrêt : {stop} dans ≈ {min} min', id: 'Berikutnya: {stop} dalam ≈ {min} mnt', ru: 'Следующая: {stop} через ≈ {min} мин', de: 'Nächster Halt: {stop} in ≈ {min} Min.', zh: '下一站：{stop}，约 {min} 分钟', ja: '次：{stop}（約 {min} 分）', es: 'Siguiente: {stop} en ≈ {min} min', ko: '다음: {stop}, 약 {min}분 후' },
 };
@@ -84,5 +86,6 @@ export function routeStripModel({ service, lastStop = '', count = 0, readAt = 0,
   const n = count === 0 ? bt('route.none', lang) : count === 1 ? bt('route.bus', lang) : bt('route.buses', lang, { n: count });
   let sub = `${n} · ${bt('route.read', lang, { time: hhmm(readAt) })}`;
   if (shapeSource === 'straight') sub += ` · ${bt('route.straight', lang)}`;
+  else if (shapeSource === 'partial') sub += ` · ${bt('route.partial', lang)}`;
   return { ...base, title: bt('route.title', lang, { svc: service, dest: lastStop }), sub };
 }

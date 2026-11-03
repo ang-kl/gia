@@ -19724,7 +19724,8 @@ async function cacheBotUsername() {
 
     // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C2: a service's route in one direction (the
     // stops, in sequence, named, with coordinates) and its road shape when Google Directions gives one (C5; null
-    // means the client draws stop to stop and says so).
+    // means the client draws stop to stop and says so). v0.62.968: a shape with some chunks drawn stop to stop is
+    // reported as 'partial' (spec 2026-11-03-bus-route-shape-and-buses-cache, C4).
     app.get('/api/transport/bus-route', async (req, res) => {
       const service = String(req.query.service || '').trim();
       const direction = Number(req.query.direction) === 2 ? 2 : 1;
@@ -19733,7 +19734,7 @@ async function cacheBotUsername() {
         const stops = await transport.busRoute(redis, service, direction);
         if (!stops) return res.status(404).json({ error: 'unknown route', service, direction });
         const shape = await transport.routeShape(redis, service, direction, stops);
-        res.json({ service, direction, stops, shape, shapeSource: shape ? 'road' : 'straight' });
+        res.json({ service, direction, stops, shape, shapeSource: shape ? (shape.partial ? 'partial' : 'road') : 'straight' });
       } catch (err) {
         console.warn('[bus-route] failed:', err?.message);
         res.status(500).json({ error: 'route unavailable', service, direction });
