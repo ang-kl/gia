@@ -806,9 +806,22 @@ async function busRoute(redis, service, direction) {
 
 // C2 — the buses on one direction now: the arrival feed at every fifth stop and the last, this service only, first
 // visit only, with a position, each bus once.
+// v0.62.968 — spec 2026-11-03-bus-route-shape-and-buses-cache, C6: one reading per service and direction is shared
+// for 20 seconds, with readAt kept as the time LTA was read (never the time of the cache hit).
+const BUSES_PREFIX = 'lta:busroute:buses:';
+const BUSES_TTL_S = 20;
+
 async function busRouteBuses(redis, service, direction, { http = axios, now = Date.now } = {}) {
   const route = await busRoute(redis, service, direction);
   if (!route) return { buses: [], readAt: now() };
+  const bk = `${BUSES_PREFIX}${String(service)}:${Number(direction) === 2 ? 2 : 1}`;
+  try {
+    const raw = await redis.get(bk);
+    if (raw) {
+      const c = JSON.parse(raw);
+      if (c && Array.isArray(c.buses) && Number.isFinite(c.readAt)) return { buses: c.buses, readAt: c.readAt };
+    }
+  } catch { /* read LTA */ }
   const { sampleStops, dedupeBuses } = await busRouteLib();
   const picked = sampleStops(route);
   const results = await Promise.all(picked.map((s) => busArrivals(s.code, { http }).catch(() => [])));
@@ -823,7 +836,9 @@ async function busRouteBuses(redis, service, direction, { http = axios, now = Da
     }
   });
   const deduped = dedupeBuses(buses).sort((a, b) => (a.nextStopSeq - b.nextStopSeq) || (a.minutes - b.minutes));
-  return { buses: deduped, readAt: now() };
+  const out = { buses: deduped, readAt: now() };
+  await redis.set(bk, JSON.stringify(out), { EX: BUSES_TTL_S }).catch(() => {});
+  return out;
 }
 
 // Google's encoded polyline, both ways (the decoder is what the shape route needs; the encoder is what proves it).
@@ -873,27 +888,53 @@ function shapeCapKey(d = new Date()) {
 // C5 / C5a / I8 — the road shape along the route's stops, from Google Directions (driving, `via:` waypoints, at most
 // 25 points a request, legs joined end to end), cached 30 days per service and direction under a signature of the
 // stop codes, never more than SHAPE_DAILY_CAP fetches a day, never without a key. Null means "draw stop to stop".
+// v0.62.968 — spec 2026-11-03-bus-route-shape-and-buses-cache. Statuses that mean "this stretch cannot be driven as
+// asked" (C1): the chunk is drawn stop to stop and the rest keeps the road. Any other status, or a thrown error, is an
+// account-level or passing failure (C2): nothing is cached for 30 days, and the direction waits an hour.
+const SHAPE_ROUTE_STATUSES = new Set(['ZERO_RESULTS', 'NOT_FOUND']);
+const SHAPE_WAIT_PREFIX = 'lta:busroute:shapewait:';
+const SHAPE_WAIT_S = 60 * 60;
+
 async function routeShape(redis, service, direction, stops, { http = axios, key = process.env.GOOGLE_MAPS_API_KEY, now = Date.now } = {}) {
   if (!key) return null;
   const pts = (Array.isArray(stops) ? stops : []).filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng));
   if (pts.length < 2) return null;
   const sig = pts.map((s) => String(s.code)).join(',');
-  const ck = `${SHAPE_PREFIX}${String(service)}:${Number(direction) === 2 ? 2 : 1}`;
+  const dir = Number(direction) === 2 ? 2 : 1;
+  const ck = `${SHAPE_PREFIX}${String(service)}:${dir}`;
+  const wk = `${SHAPE_WAIT_PREFIX}${String(service)}:${dir}`;
   if (!redis.isOpen) await redis.connect();
   try {
     const raw = await redis.get(ck);
     if (raw) {
       const c = JSON.parse(raw);
-      if (c && c.sig === sig && Array.isArray(c.points) && c.points.length) return c.points;
+      if (c && c.sig === sig && c.straight) return null;
+      if (c && c.sig === sig && Array.isArray(c.points) && c.points.length) {
+        const out = c.points;
+        if (c.partial) out.partial = true;
+        return out;
+      }
     }
   } catch { /* refetch */ }
+  if (await redis.get(wk).catch(() => null)) return null;
   const capKey = shapeCapKey(new Date(now()));
   const n = await redis.incr(capKey).catch(() => SHAPE_DAILY_CAP + 1);
   await redis.expire(capKey, 2 * 24 * 60 * 60).catch(() => {});
   if (n > SHAPE_DAILY_CAP) return null;
+  const tag = `${String(service)}/${dir}`;
+  const wait = async (why) => {
+    console.warn(`[Transport] bus route shape ${tag}: ${why}; waiting an hour before trying again`);
+    await redis.set(wk, '1', { EX: SHAPE_WAIT_S }).catch(() => {});
+    return null;
+  };
+  const starts = [];
+  for (let i = 0; i < pts.length - 1; i += 24) starts.push(i);
   const points = [];
+  let road = 0;
+  let straight = 0;
   try {
-    for (let i = 0; i < pts.length - 1; i += 24) {
+    for (let k = 0; k < starts.length; k++) {
+      const i = starts[k];
       const chunk = pts.slice(i, Math.min(i + 25, pts.length));
       const first = chunk[0];
       const last = chunk[chunk.length - 1];
@@ -901,17 +942,32 @@ async function routeShape(redis, service, direction, stops, { http = axios, key 
       const via = chunk.slice(1, -1).map((p) => `via:${p.lat},${p.lng}`).join('|');
       if (via) params.waypoints = via;
       const { data } = await http.get(DIRECTIONS_URL, { params, timeout: 8000 });
-      const enc = data?.routes?.[0]?.overview_polyline?.points;
-      if (data?.status !== 'OK' || !enc) return null;
-      const seg = decodePolyline(enc);
+      const status = String(data?.status || 'NO_STATUS');
+      const enc = status === 'OK' ? data?.routes?.[0]?.overview_polyline?.points : null;
+      let seg;
+      if (enc) {
+        seg = decodePolyline(enc);
+        road++;
+      } else if (SHAPE_ROUTE_STATUSES.has(status)) {
+        console.warn(`[Transport] bus route shape ${tag} chunk ${k + 1} of ${starts.length}: ${status}; drawn stop to stop`);
+        seg = chunk.map((p) => [p.lat, p.lng]);
+        straight++;
+      } else {
+        return await wait(`chunk ${k + 1} of ${starts.length}: ${status === 'OK' ? 'OK without a route' : status}`);
+      }
       points.push(...(points.length ? seg.slice(1) : seg));
     }
   } catch (err) {
-    console.warn('[Transport] bus route shape failed:', err?.message);
-    return null;
+    return await wait(`request failed (${err?.message || 'error'})`);
   }
   if (!points.length) return null;
-  await redis.set(ck, JSON.stringify({ sig, points }), { EX: SHAPE_TTL_S }).catch(() => {});
+  if (!road) {
+    await redis.set(ck, JSON.stringify({ sig, straight: true }), { EX: SHAPE_TTL_S }).catch(() => {});
+    return null;
+  }
+  const partial = straight > 0;
+  await redis.set(ck, JSON.stringify(partial ? { sig, points, partial: true } : { sig, points }), { EX: SHAPE_TTL_S }).catch(() => {});
+  if (partial) points.partial = true;
   return points;
 }
 
