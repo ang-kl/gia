@@ -62,7 +62,8 @@ import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
 import trainSim from '../data/train-sim.json';
 // v0.62.967 — a bus service's route and the buses on it, drawn when a service number in a stop's bubble is tapped.
 import { createBusRouteLayer } from '../lib/mapOverlays.js';
-import { createTrainSimLayer, simState, lineGeometry, simT } from '../lib/train-sim.js';
+import { createTrainSimLayer, simState, lineGeometry, simT, addStationLines, removeSimLine, effectiveSimLines, aggregateSimStatus } from '../lib/train-sim.js';
+import { createStopBusesLayer } from '../lib/stop-buses.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -151,7 +152,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, onSimChange = null, onBusRouteChange = null }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -276,11 +277,21 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // (C2); it is never written to the kept settings. Trains run on the SELECTED line only, from the published timetable,
   // and the caption under the toggle row says so whenever the toggle is on (C6).
   const [simOn, setSimOn] = useState(false);
+  // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C1-C3. A station tap adds its lines here;
+  // the toggle off empties it; with nothing added the toggle runs the focused line, as before. Panel state only:
+  // closing a station card does not touch it, and it is gone when the Mini App closes (C10).
+  const [simLines, setSimLines] = useState([]);
+  const simLinesRef = useRef(simLines);
+  simLinesRef.current = simLines;
   const [simNow, setSimNow] = useState(() => Date.now());
   const simLayerRef = useRef(null);
-  const simGeomRef = useRef({ key: null, geometry: null });
-  const simCtxRef = useRef(null);
-  const simStatus = simState({ lineCode: focusedCode, status: statusByLine?.[focusedCode]?.status ?? null, sim: trainSim, nowMs: simNow });
+  const simGeomRef = useRef({});
+  const runLines = effectiveSimLines({ simOn, simLines, focusedCode });
+  const lineStates = runLines.map((code) => ({ code, state: simState({ lineCode: code, status: statusByLine?.[code]?.status ?? null, sim: trainSim, nowMs: simNow }) }));
+  const lineStatesKey = lineStates.map((l) => `${l.code}:${l.state}`).join(',');
+  const simStatus = lineStates.length
+    ? aggregateSimStatus(lineStates)
+    : simState({ lineCode: focusedCode, status: statusByLine?.[focusedCode]?.status ?? null, sim: trainSim, nowMs: simNow });
   useEffect(() => {
     if (!simOn) return undefined;
     const id = setInterval(() => setSimNow(Date.now()), 30000);
@@ -292,6 +303,19 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   useEffect(() => {
     onSimChange?.({ on: simOn, status: simStatus });
   }, [simOn, simStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+  // v0.62.969 — C8: the footer's 🚆 chip. A ✕ removes one line (the last one stops the simulation); Stop all ends it.
+  const stopAllTrains = () => { setSimLines([]); setSimOn(false); };
+  useEffect(() => {
+    if (!simOn || !lineStates.length) { onTrainsChange?.(null); return; }
+    onTrainsChange?.({
+      lines: lineStates,
+      remove: (code) => {
+        const next = removeSimLine(simLinesRef.current, code);
+        if (!next.length) stopAllTrains(); else setSimLines(next);
+      },
+      stopAll: stopAllTrains,
+    });
+  }, [simOn, lineStatesKey]); // eslint-disable-line react-hooks/exhaustive-deps
   // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C4-C7. The bubble's service numbers call
   // window.__giaBusRoute(service, stopCode); the layer is created on the first tap, once the map exists, and reports
   // its state (plus swap / clear) upward so App.jsx can draw the header strip. Cleared on unmount; never kept.
@@ -320,42 +344,70 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     };
   }, []);
   useEffect(() => {
-    const state = simStatus;
     const map = mapRef.current;
     const gmaps = window.google?.maps;
-    const draw = simOn && state === 'running';
-    if (!draw || !map || !gmaps || !stations) {
-      simLayerRef.current?.stop();
+    // v0.62.969 — C3: one layer per line, each drawn only while its own state === 'running'.
+    const drawn = lineStates.filter((l) => l.state === 'running' && trainSim.lines[l.code]);
+    if (!simOn || !drawn.length || !map || !gmaps || !stations) {
+      simLayerRef.current?.forEach((l) => l.stop());
       simLayerRef.current = null;
       return undefined;
     }
-    const line = trainSim.lines[focusedCode];
-    const key = `${focusedCode}:${stations.length}:${linePathsRef.current ? 1 : 0}`;
-    if (simGeomRef.current.key !== key) {
-      const coords = {};
-      for (const s of stations) for (const c of (s.codes || [])) if (Number.isFinite(s.lat) && Number.isFinite(s.lng)) coords[c] = { lat: s.lat, lng: s.lng };
-      simGeomRef.current = { key, geometry: lineGeometry(line.stations, coords, linePathsRef.current?.[focusedCode] || []) };
-    }
+    const coords = {};
+    for (const s of stations) for (const c of (s.codes || [])) if (Number.isFinite(s.lat) && Number.isFinite(s.lng)) coords[c] = { lat: s.lat, lng: s.lng };
     const nameOf = (code) => {
       const s = stations.find((x) => (x.codes || []).includes(code));
       return s ? stationName(s.name, lang) : code;
     };
-    simCtxRef.current = { line, geometry: simGeomRef.current.geometry, hex: LINES_BY_CODE[focusedCode]?.hex || '#555' };
-    const layer = createTrainSimLayer(map, gmaps, () => simCtxRef.current, {
-      onTap: (tr, pos) => {
-        const iw = infoWindowRef.current;
-        if (!iw || !tr) return;
-        const towards = escapeHtml(simT('towards', lang, { stn: nameOf(tr.terminus) }));
-        const next = tr.next ? `<br>${escapeHtml(simT('next', lang, { stn: nameOf(tr.next), min: Math.max(1, Math.round(tr.nextInSec / 60)) }))}` : '';
-        iw.setContent(infoCard(`<strong>🚆 ${towards}</strong>${next}<br><em>${escapeHtml(simT('caption', lang))}</em>`));
-        iw.setPosition(pos);
-        iw.open({ map });
-      },
+    const layers = drawn.map(({ code }) => {
+      const line = trainSim.lines[code];
+      const key = `${code}:${stations.length}:${linePathsRef.current ? 1 : 0}`;
+      if (!simGeomRef.current[code] || simGeomRef.current[code].key !== key) {
+        simGeomRef.current[code] = { key, geometry: lineGeometry(line.stations, coords, linePathsRef.current?.[code] || []) };
+      }
+      const ctx = { line, geometry: simGeomRef.current[code].geometry, hex: LINES_BY_CODE[code]?.hex || '#555' };
+      const layer = createTrainSimLayer(map, gmaps, () => ctx, {
+        onTap: (tr, pos) => {
+          const iw = infoWindowRef.current;
+          if (!iw || !tr) return;
+          const towards = escapeHtml(simT('towards', lang, { stn: nameOf(tr.terminus) }));
+          const next = tr.next ? `<br>${escapeHtml(simT('next', lang, { stn: nameOf(tr.next), min: Math.max(1, Math.round(tr.nextInSec / 60)) }))}` : '';
+          iw.setContent(infoCard(`<strong>🚆 ${code} · ${towards}</strong>${next}<br><em>${escapeHtml(simT('caption', lang))}</em>`));
+          iw.setPosition(pos);
+          iw.open({ map });
+        },
+      });
+      layer.start();
+      return layer;
     });
-    layer.start();
-    simLayerRef.current = layer;
-    return () => { layer.stop(); if (simLayerRef.current === layer) simLayerRef.current = null; };
-  }, [simOn, simStatus, focusedCode, stations, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+    simLayerRef.current = layers;
+    return () => { layers.forEach((l) => l.stop()); if (simLayerRef.current === layers) simLayerRef.current = null; };
+  }, [simOn, lineStatesKey, stations, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C4-C8. The bubble's stop tap calls
+  // window.__giaStopBuses(code, name); the layer shows every service's coming and going buses and reports upward for
+  // the footer's 🚌 chip. Cleared on unmount; never kept.
+  const stopBusesRef = useRef(null);
+  const onStopBusesChangeRef = useRef(onStopBusesChange);
+  onStopBusesChangeRef.current = onStopBusesChange;
+  useEffect(() => {
+    window.__giaStopBuses = (code, name) => {
+      const map = mapRef.current;
+      const gmaps = window.google && window.google.maps;
+      if (!map || !gmaps) return;
+      if (!stopBusesRef.current) {
+        stopBusesRef.current = createStopBusesLayer(map, gmaps, {
+          lang: langRef.current,
+          onState: (s) => onStopBusesChangeRef.current?.(s.active ? { ...s, remove: (svc) => stopBusesRef.current?.remove(svc), stopAll: () => stopBusesRef.current?.stopAll() } : null),
+        });
+      }
+      stopBusesRef.current.show(String(code), String(name || code));
+    };
+    return () => {
+      delete window.__giaStopBuses;
+      stopBusesRef.current?.stopAll();
+      stopBusesRef.current = null;
+    };
+  }, []);
 
   // v0.61.10 — realtime platform-crowd levels ({ "<code>": "l|m|h" }).
   // Best-effort: an empty/failed fetch leaves every pin unblinking.
@@ -936,6 +988,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         // re-targeting the station-detail view) and leaves Overview.
         if (overview) setOverview(false);
         onStationSelect?.(s);
+        setSimLines((cur) => addStationLines(cur, s));
+        setSimOn(true);
         openStationInfo(s, marker, isFuture, crowdLevel);
       });
       markersRef.current.push(marker);
@@ -1164,7 +1218,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
         layers={{ ...(overlayLayers || {}), simTrains: simOn }}
-        onToggleLayer={(key) => (key === 'simTrains' ? setSimOn((v) => !v) : onOverlayChange?.({
+        onToggleLayer={(key) => (key === 'simTrains' ? (simOn ? stopAllTrains() : setSimOn(true)) : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
         }))}
         rowToggles={rowToggles}

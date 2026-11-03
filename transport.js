@@ -164,8 +164,24 @@ async function allStops(redis) {
 // both omit the load suffix entirely when no info is available.
 const LOAD_LABEL = { SEA: 'seats', SDA: 'standing', LSD: 'limited' };
 
+// v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C7: at most 12 LTA arrival requests in
+// flight across the process, so a stop with many services queues its route sampling instead of firing ~150 calls in
+// one burst. Every busArrivals call goes through it (the chat's arrivals too), which changes nothing for one call.
+const LTA_MAX_IN_FLIGHT = 12;
+let ltaInFlight = 0;
+const ltaQueue = [];
+function ltaSlot() {
+  if (ltaInFlight < LTA_MAX_IN_FLIGHT) { ltaInFlight++; return Promise.resolve(); }
+  return new Promise((resolve) => ltaQueue.push(resolve));
+}
+function ltaRelease() {
+  const next = ltaQueue.shift();
+  if (next) next(); else ltaInFlight--;
+}
+
 async function busArrivals(busStopCode, { http = axios } = {}) {
   if (!process.env.LTA_ACCOUNT_KEY) return [];
+  await ltaSlot();
   try {
     const { data } = await http.get(BUS_ARRIVAL_URL, {
       headers: authHeaders(),
@@ -201,6 +217,8 @@ async function busArrivals(busStopCode, { http = axios } = {}) {
   } catch (err) {
     console.error(`[Transport] BusArrivalv2 ${busStopCode} failed:`, err.message);
     return [];
+  } finally {
+    ltaRelease();
   }
 }
 
@@ -841,6 +859,41 @@ async function busRouteBuses(redis, service, direction, { http = axios, now = Da
   return out;
 }
 
+// v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C4-C7. Every service at one stop: the 2
+// buses coming, from the stop's own feed (one LTA call), and the 2 that most recently left it, from that service's
+// sampled route in the direction serving the stop (busRouteBuses, shared for 20 s). Positions only, no shapes, so
+// the phone's refresh stays small. Each refresh's LTA call count is logged; the limiter above bounds the burst.
+let _stopLib = null;
+function stopBusesLib() {
+  if (!_stopLib) _stopLib = import('./web/transport/src/lib/stop-buses.js');
+  return _stopLib;
+}
+async function stopBuses(redis, stopCode, { http = axios, now = Date.now } = {}) {
+  const { stopSeqOf, pickComing, pickGoing } = await stopBusesLib();
+  const { pickDirection } = await busRouteLib();
+  let calls = 0;
+  const counted = { get: (...a) => { calls++; return http.get(...a); } };
+  const code = String(stopCode);
+  const [arrivals, meta] = await Promise.all([busArrivals(code, { http: counted }), stopMeta(redis, code).catch(() => null)]);
+  const services = await Promise.all((arrivals || []).map(async (svc) => {
+    const service = String(svc.service);
+    const [d1, d2] = await Promise.all([busRoute(redis, service, 1), busRoute(redis, service, 2)]);
+    const byDir = {};
+    if (d1) byDir[1] = d1;
+    if (d2) byDir[2] = d2;
+    const direction = pickDirection(byDir, code);
+    let going = [];
+    if (direction) {
+      const r = await busRouteBuses(redis, service, direction, { http: counted, now });
+      going = pickGoing(r.buses, stopSeqOf(byDir[direction], code));
+    }
+    const coming = pickComing(svc).map((b) => ({ lat: b.lat, lng: b.lng, minutes: b.minutes, load: b.load, type: b.type }));
+    return { service, direction: direction || null, coming, going: going.map((b) => ({ lat: b.lat, lng: b.lng, minutes: b.minutes, load: b.load, type: b.type, nextStopCode: b.nextStopCode, nextStop: b.nextStop })) };
+  }));
+  console.log(`[Transport] stop-buses ${code}: ${services.length} services, ${calls} LTA calls`);
+  return { code, name: meta?.name || code, lat: meta?.lat ?? null, lng: meta?.lng ?? null, readAt: now(), services };
+}
+
 // Google's encoded polyline, both ways (the decoder is what the shape route needs; the encoder is what proves it).
 function encodeValue(v) {
   let n = v < 0 ? ~(v << 1) : (v << 1);
@@ -976,6 +1029,7 @@ module.exports = {
   refreshRoutes,     // v0.62.967
   busRoute,          // v0.62.967
   busRouteBuses,     // v0.62.967
+  stopBuses,         // v0.62.969
   routeShape,        // v0.62.967
   shapeCapKey,       // v0.62.967
   encodePolyline,    // v0.62.967

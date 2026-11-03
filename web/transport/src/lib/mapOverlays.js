@@ -1258,6 +1258,9 @@ function busInfoHtml(b, services) {
 function openBusInfo(map, infoWindow, b, marker) {
   infoWindow.setContent(busInfoHtml(b, null));
   infoWindow.open(map, marker);
+  // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C4: the stop tap also starts the stop view
+  // (every service's coming and going buses) through the map panel's hook; null-guarded, so a no-op elsewhere.
+  if (typeof window !== 'undefined') window.__giaStopBuses&&window.__giaStopBuses(String(b.code), String(b.description || b.code));
   fetch('/api/transport/bus-arrival?code=' + encodeURIComponent(b.code))
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => {

@@ -47,6 +47,9 @@ export const SIM_STRINGS = {
   noLine: { en: 'Pick a line to see simulated trains', fr: 'Choisissez une ligne pour voir les trains simulés', id: 'Pilih jalur untuk melihat kereta simulasi', ru: 'Выберите линию, чтобы увидеть смоделированные поезда', de: 'Linie wählen, um simulierte Züge zu sehen', zh: '选择线路以查看模拟列车', ja: '路線を選ぶとシミュレーションの列車が表示されます', es: 'Elige una línea para ver los trenes simulados', ko: '노선을 선택하면 시뮬레이션 열차가 보입니다' },
   towards: { en: 'Towards {stn}', fr: 'Direction {stn}', id: 'Menuju {stn}', ru: 'В сторону {stn}', de: 'Richtung {stn}', zh: '开往 {stn}', ja: '{stn} 方面', es: 'Hacia {stn}', ko: '{stn} 방면' },
   next: { en: 'Next: {stn} in ≈ {min} min', fr: 'Prochain arrêt : {stn} dans ≈ {min} min', id: 'Berikutnya: {stn} dalam ≈ {min} mnt', ru: 'Следующая: {stn} через ≈ {min} мин', de: 'Nächster Halt: {stn} in ≈ {min} Min.', zh: '下一站：{stn}，约 {min} 分钟', ja: '次：{stn}（約 {min} 分）', es: 'Siguiente: {stn} en ≈ {min} min', ko: '다음: {stn}, 약 {min}분 후' },
+  // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C8: the footer 🚆 chip's list.
+  'footer.trains': { en: 'Simulated trains', fr: 'Trains simulés', id: 'Kereta simulasi', ru: 'Смоделированные поезда', de: 'Simulierte Züge', zh: '模拟列车', ja: 'シミュレーション列車', es: 'Trenes simulados', ko: '시뮬레이션 열차' },
+  'footer.stopAll': { en: 'Stop all', fr: 'Tout arrêter', id: 'Hentikan semua', ru: 'Остановить все', de: 'Alle stoppen', zh: '全部停止', ja: 'すべて停止', es: 'Detener todo', ko: '모두 중지' },
 };
 
 export function simT(key, lang, vars = {}) {
@@ -74,6 +77,41 @@ export function simStripModel({ status, lang = 'en' } = {}) {
   };
 }
 export const SIM_LINES = ['DTL', 'NEL', 'NSL', 'EWL', 'CCL', 'TEL', 'BPL'];
+
+// v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C1-C3 and C8. Pure: the panel keeps the
+// added lines as state, these decide what that state means. A station tap adds the station's lines that have a
+// timetable (C1); the toggle off empties them (C2); with nothing added the toggle runs the focused line, as before.
+export function addStationLines(current, station) {
+  const out = Array.isArray(current) ? current.slice() : [];
+  const lines = station && Array.isArray(station.lines) ? station.lines : [];
+  for (const l of lines) if (SIM_LINES.includes(l) && !out.includes(l)) out.push(l);
+  return out;
+}
+export function removeSimLine(current, code) {
+  return (Array.isArray(current) ? current : []).filter((l) => l !== code);
+}
+export function effectiveSimLines({ simOn, simLines, focusedCode }) {
+  if (!simOn) return [];
+  if (Array.isArray(simLines) && simLines.length) return simLines.slice();
+  return focusedCode && SIM_LINES.includes(focusedCode) ? [focusedCode] : [];
+}
+// The one status the header caption strip reports: running if any line runs, else the first line's reason.
+export function aggregateSimStatus(lines) {
+  const list = Array.isArray(lines) ? lines : [];
+  if (!list.length) return 'noLine';
+  return list.some((l) => l.state === 'running') ? 'running' : list[0].state;
+}
+const SIM_REASON = { disrupted: 'paused', outOfHours: 'outOfHours', noData: 'noData', noLine: 'noLine' };
+export function simFooterModel({ lines, lang = 'en' } = {}) {
+  const list = Array.isArray(lines) ? lines : [];
+  if (!list.length) return null;
+  return {
+    chip: `🚆 ${list.map((l) => l.code).join(' · ')}`,
+    title: simT('footer.trains', lang),
+    items: list.map((l) => ({ code: l.code, label: l.code, reason: l.state === 'running' ? '' : simT(SIM_REASON[l.state] || l.state, lang) })),
+    stopAll: simT('footer.stopAll', lang),
+  };
+}
 const PAUSED = new Set(['disrupted', 'closure']);
 const SGT_MS = 8 * 3600 * 1000;
 const DAY_MS = 86400000;
