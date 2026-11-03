@@ -14,8 +14,10 @@ import { nearestByDistance, shortDist } from '../../_shared/lib/temp-pin.js';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import OutsideNowStrip from '../../_shared/components/OutsideNowStrip.jsx';
 import SimCaptionStrip from '../../_shared/components/SimCaptionStrip.jsx';
-import FooterRunChips from '../../_shared/components/FooterRunChips.jsx';
+import FooterRunButtons from '../../_shared/components/FooterRunButtons.jsx';
+import ResumeStrip from '../../_shared/components/ResumeStrip.jsx';
 import { aggregateSimStatus } from '../../_shared/lib/train-sim.js';
+import { busResumeText } from '../../_shared/lib/run-state.js';
 import OutsideNowSheet from '../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../_shared/lib/use-weather-abroad.js';
@@ -102,7 +104,7 @@ function MapToggleButton({ isHidden, onToggle, lang }) {
 // (right, Cuisine glyphs) and a tiny integrated version line, instead of the old
 // floating FooterNav pill + a separate centred version <footer>. `scrollEl` scrolls
 // an inner container (the two-panel list); omit it → window.
-function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, scrollEl = null, zoneInfo = null, runChips = null }) {
+function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, scrollEl = null, zoneInfo = null, runButtons = null }) {
   const resolveScroller = () => {
     const el = scrollEl && (scrollEl.current !== undefined ? scrollEl.current : scrollEl);
     return el || null;
@@ -129,8 +131,7 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
       className="fixed bottom-0 inset-x-0 z-40 px-3 pt-1 bg-tg-bg/75 liquid-glass-dock border-t border-tg-border flex flex-col gap-0.5"
       style={{ paddingBottom: 'calc(0.25rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}
     >
-      {/* v0.62.970 — C5: the run chips get their own row while trains or a stop view run. */}
-      {runChips && <div className="pt-0.5">{runChips}</div>}
+      {/* v0.62.971 — the v0.62.970 run-chip row is gone (spec 2026-11-04, C4): the 🚇 / 🚍 buttons sit in this row. */}
       <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
         <div className="flex items-center gap-0.5 min-w-0">
           {leading}
@@ -154,6 +155,8 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
             aria-label={atBottom ? t('btn.fabTopAria', lang) : t('btn.fabDownAria', lang)}
             className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
           >{atBottom ? t('btn.fabTop', lang) : t('btn.fabDown', lang)}</button>
+          {/* v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C4: 🚇 and 🚍 just before back. */}
+          {runButtons}
           <button
             type="button"
             onClick={onBackEnd}
@@ -326,7 +329,8 @@ export default function App() {
   const [trains, setTrains] = useState(null);
   const [stopBuses, setStopBuses] = useState(null);
   const trainsStatus = aggregateSimStatus(trains ? trains.lines : []);
-  const runChips = (trains || stopBuses) ? <FooterRunChips trains={trains} stopBuses={stopBuses} lang={lang} /> : null;
+  const runButtons = (trains || stopBuses) ? <FooterRunButtons trains={trains} stopBuses={stopBuses} lang={lang} /> : null;
+  const resumeLines = [...(trains?.resume || []), ...((stopBuses?.resume || []).map((o) => busResumeText({ ...o, nowMs: Date.now(), lang })))];
   const openOutside = useCallback(() => setOutsideOpen(true), []);
   const closeOutside = useCallback(() => setOutsideOpen(false), []);
   const [data, setData] = useState(null);
@@ -1001,8 +1005,8 @@ export default function App() {
             </div>
           </div>
           <OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} />
-      <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} />
           <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} />
+          <ResumeStrip lines={resumeLines} lang={lang} />
         </div>
         {busy && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-tg-hint bg-tg-bg/90 rounded-full px-3 py-1 z-20">{t('status.loading', lang)}</p>}
         {err && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-red-500 bg-tg-bg/90 rounded-full px-3 py-1 z-20">⚠ {err}</p>}
@@ -1022,7 +1026,7 @@ export default function App() {
             />
           </div>
         )}
-        <FooterDock runChips={runChips}
+        <FooterDock runButtons={runButtons}
           lang={lang}
           footerTag={footerTag}
           atBottom={atBottom}
@@ -1073,6 +1077,7 @@ export default function App() {
       </div>
       <OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} />
       <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} />
+      <ResumeStrip lines={resumeLines} lang={lang} />
       {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. On a
           PHONE lay them out as a tidy 3+2 TWO-ROW grid (segmented-control feel).
           v0.62.591 — operator (iPad Pro portrait): on a WIDE tablet squeeze all 5
@@ -1121,7 +1126,7 @@ export default function App() {
       </div>
       {/* v0.62.605 — the Cuisine-style dock replaces the floating pill + the
           separate centred version footer; the version line lives inside it. */}
-      <FooterDock runChips={runChips}
+      <FooterDock runButtons={runButtons}
         lang={lang}
         footerTag={footerTag}
         atBottom={panelAtBottom}
@@ -1172,6 +1177,7 @@ export default function App() {
         </div>
         <div className="pointer-events-auto"><OutsideNowStrip data={outside} abroad={abroad} app="hawker" lang={lang} onOpen={openOutside} /></div>
         <div className="pointer-events-auto"><SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} /></div>
+        <div className="pointer-events-auto"><ResumeStrip lines={resumeLines} lang={lang} /></div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
             the title card) so they read cleanly, matching the two-panel styling. */}
@@ -1216,7 +1222,7 @@ export default function App() {
           )}
         </BottomSheet>
       )}
-      <FooterDock runChips={runChips} lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} zoneInfo={zoneInfo}
+      <FooterDock runButtons={runButtons} lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} zoneInfo={zoneInfo}
         leading={<ViewToggleButton viewMode={viewMode} lang={lang}
           onToggle={() => withViewTransition(() => setViewMode('carousel'))} />} />
     </div>

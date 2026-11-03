@@ -177,7 +177,7 @@ describe('I4 — at most 12 LTA requests in flight at once', () => {
 });
 
 // ── the phone layer ───────────────────────────────────────────────────────────────────────────────────────────────
-describe('I5 — the stop layer: 30-second refresh, ✕ hides a service, Stop all and a new stop end it', () => {
+describe('I5 — the stop layer: 30-second refresh, a ❌ removes a stop, Stop all ends it, a new stop is added', () => {
   function fakeGmaps() {
     class Obj { constructor(o) { Object.assign(this, o || {}); } setMap(m) { this.map = m; } setPosition(p) { this.position = p; } addListener() { return { remove() {} }; } close() {} open() {} setContent() {} }
     return { Marker: Obj, InfoWindow: Obj, SymbolPath: { CIRCLE: 0 }, marker: null };
@@ -199,25 +199,22 @@ describe('I5 — the stop layer: 30-second refresh, ✕ hides a service, Stop al
   beforeEach(() => { vi.useFakeTimers(); });
   afterEach(() => { vi.useRealTimers(); });
 
-  it('show() draws every service\'s buses, then refreshes every 30 s', async () => {
+  // v0.62.971 (spec 2026-11-04, C2-C5, C7): the layer holds up to five STOPS; each stop also reads its resume times;
+  // the drawer's ❌ removes a stop (the per-service ✕ of v0.62.969 is gone); a second stop is added, not swapped.
+  it('show() draws every service\'s buses, reads the stop\'s resume times, then refreshes every 30 s', async () => {
     const { calls, states, layer } = harness();
     await layer.show('60005', 'Opp Bugis');
-    expect(calls).toEqual(['/api/transport/stop-buses?code=60005']);
+    expect(calls).toEqual(['/api/transport/stop-buses?code=60005', '/api/transport/stop-resume?code=60005']);
     expect(layer.count()).toBe(5);
-    expect(states.at(-1)).toMatchObject({ active: true, code: '60005', name: 'Opp Bugis', hidden: [] });
-    expect(states.at(-1).services.map((s) => s.service)).toEqual(['10', '14']);
+    expect(states.at(-1)).toMatchObject({ active: true, stops: [{ code: '60005', name: 'Opp Bugis', newest: true, count: 5 }], resume: [] });
     await vi.advanceTimersByTimeAsync(30000);
-    expect(calls).toHaveLength(2);
+    expect(calls.filter((u) => u.startsWith('/api/transport/stop-buses'))).toHaveLength(2);
   });
-  it('remove(service) hides that service and keeps it hidden across refreshes; removing the last stops all', async () => {
+  it('remove(code) takes the stop out; removing the last stops all and no fetch follows', async () => {
     const { calls, states, layer } = harness();
     await layer.show('60005', 'Opp Bugis');
-    layer.remove('10');
-    expect(layer.count()).toBe(1);
-    expect(states.at(-1).hidden).toEqual(['10']);
-    await vi.advanceTimersByTimeAsync(30000);
-    expect(layer.count()).toBe(1);
-    layer.remove('14');
+    layer.remove('60005');
+    expect(layer.count()).toBe(0);
     expect(states.at(-1)).toMatchObject({ active: false });
     const n = calls.length;
     await vi.advanceTimersByTimeAsync(90000);
@@ -229,16 +226,20 @@ describe('I5 — the stop layer: 30-second refresh, ✕ hides a service, Stop al
     layer.stopAll();
     expect(layer.count()).toBe(0);
     expect(states.at(-1)).toMatchObject({ active: false });
+    expect(vi.getTimerCount()).toBe(0);
     await vi.advanceTimersByTimeAsync(90000);
-    expect(calls).toHaveLength(1);
+    expect(calls).toHaveLength(2);
   });
-  it('a second stop replaces the first: one timer, the new stop only', async () => {
+  it('a second stop is added, not swapped: one timer; the newest is sampled in full, the older by bus-arrival', async () => {
     const { calls, layer } = harness();
     await layer.show('60005', 'A');
     await layer.show('60009', 'B');
+    expect(layer.stops()).toEqual(['60005', '60009']);
+    expect(vi.getTimerCount()).toBe(1);
     await vi.advanceTimersByTimeAsync(30000);
-    expect(calls.filter((u) => u.endsWith('60005'))).toHaveLength(1);
-    expect(calls.filter((u) => u.endsWith('60009'))).toHaveLength(2);
+    expect(calls.filter((u) => u === '/api/transport/stop-buses?code=60005')).toHaveLength(1);
+    expect(calls.filter((u) => u === '/api/transport/bus-arrival?code=60005')).toHaveLength(2);
+    expect(calls.filter((u) => u === '/api/transport/stop-buses?code=60009')).toHaveLength(2);
   });
 });
 

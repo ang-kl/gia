@@ -58,8 +58,10 @@ import LocaleToggle from './components/LocaleToggle.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import OutsideNowStrip from '../../../_shared/components/OutsideNowStrip.jsx';
 import SimCaptionStrip from '../../../_shared/components/SimCaptionStrip.jsx';
-import FooterRunChips from '../../../_shared/components/FooterRunChips.jsx';
+import FooterRunButtons from '../../../_shared/components/FooterRunButtons.jsx';
+import ResumeStrip from '../../../_shared/components/ResumeStrip.jsx';
 import { aggregateSimStatus } from '../../../_shared/lib/train-sim.js';
+import { busResumeText } from '../../../_shared/lib/run-state.js';
 import OutsideNowSheet from '../../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../../_shared/lib/use-weather-abroad.js';
@@ -229,6 +231,7 @@ export default function App() {
   const [trains, setTrains] = useState(null);
   const [stopBuses, setStopBuses] = useState(null);
   const trainsStatus = aggregateSimStatus(trains ? trains.lines : []);
+  const resumeLines = [...(trains?.resume || []), ...((stopBuses?.resume || []).map((o) => busResumeText({ ...o, nowMs: Date.now(), lang })))];
   // v0.62.831 — O-345 (b), the operator's choice: the loading overlay paints before any
   // interaction, so it is the one surface that can show the PREVIOUS device locale's
   // sentence. Until the server's preference has settled it renders its shell and the
@@ -4911,6 +4914,7 @@ export default function App() {
         )}
         <OutsideNowStrip data={outside} abroad={abroad} app="cuisine" lang={lang} onOpen={openOutside} className="-mx-1" />
         <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} className="-mx-1" />
+        <ResumeStrip lines={resumeLines} lang={lang} className="-mx-1" />
       </header>
       <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} abroad={abroad} app="cuisine" lang={lang} />
 
@@ -6001,8 +6005,6 @@ export default function App() {
             the standard" (was /80). Hawker + Transport now carry the same
             `.liquid-glass-dock` at the same 75 %. */}
         <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 liquid-glass-dock bg-tg-bg/75 flex flex-col gap-1">
-          {/* v0.62.970 — C5: the run chips get their own row while trains or a stop view run. */}
-          {(trains || stopBuses) && <FooterRunChips trains={trains} stopBuses={stopBuses} lang={lang} />}
           {/* slim control row — results · layout · next  |  down · end. Inline icon
               chips (no bordered cards); aria-labels carry the full text. */}
           {/* v0.62.673 — row 1 converted from `flex justify-between` to an explicit
@@ -6194,6 +6196,8 @@ export default function App() {
                 aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
                 className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
               >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
+              {/* v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C4: 🚇 and 🚍 just before back / end. */}
+              <FooterRunButtons trains={trains} stopBuses={stopBuses} lang={lang} />
               <button
                 type="button"
                 onClick={() => {
@@ -6216,13 +6220,11 @@ export default function App() {
               <div className="text-[9px] text-tg-hint text-center leading-none pb-0.5 pointer-events-none">{t(flagKey, lang)}</div>
             ) : null;
           })()}
-          {/* tiny experimental / region / version tag (was 2 footer text lines). */}
+          {/* tiny experimental / version tag (was 2 footer text lines). v0.62.971 — spec 2026-11-04-run-drawer-and-
+              operating-hours, C11 (operator: "remove 'Singapore' keep 'Experimental' from all TMA"): the region word
+              (Singapore, Johor or Others) is gone. */}
           <div className="text-[9px] text-tg-hint text-center leading-none pb-0.5 pointer-events-none">
-            {t('footer.experimental', lang)} · {
-              state.region === 'JB' ? t('region.johor', lang)
-              : state.region === 'OTHER' ? t('region.others', lang)
-              : t('region.singapore', lang)
-            } · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
+            {t('footer.experimental', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
           </div>
         </div>
       </div>

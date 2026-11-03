@@ -729,6 +729,14 @@ function nearestHawkerCentre(coords, lat, lng) {
 // App (web/transport/src/lib/bus-route.js, ESM), loaded here with a dynamic import() because CI runs Node 20.
 const BUS_ROUTES_URL = `${LTA_BASE}/BusRoutes`;
 const ROUTES_TS_KEY = 'lta:busroutes:cachedAt';
+const STOP_SERVICES_PREFIX = 'lta:busroute:stop:';
+const RESUME_PREFIX = 'lta:busroute:resume:';
+const RESUME_TTL_S = 60;
+// "0530" → 330; "-", "" or anything else → null.
+function hhmm(v) {
+  const m = /^(\d{2})(\d{2})$/.exec(String(v || '').trim());
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
 const ROUTE_PREFIX = 'lta:busroute:';
 const SHAPE_PREFIX = 'lta:busroute:shape:';
 const SHAPE_CAP_PREFIX = 'lta:busroute:shapecap:';
@@ -772,17 +780,36 @@ async function refreshRoutes(redis, { http = axios, force = false } = {}) {
     if (!svc || !code) continue;
     const k = `${svc}:${dir}`;
     if (!byRoute.has(k)) byRoute.set(k, []);
-    byRoute.get(k).push({ seq: Number(r.StopSequence) || 0, code, distance: Number.isFinite(Number(r.Distance)) ? Number(r.Distance) : null });
+    // v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C7: each stop's first and last bus, [weekday,
+    // Saturday, Sunday] in minutes after midnight (null when the service does not run that day), and the operator.
+    byRoute.get(k).push({
+      seq: Number(r.StopSequence) || 0, code, distance: Number.isFinite(Number(r.Distance)) ? Number(r.Distance) : null,
+      fb: [hhmm(r.WD_FirstBus), hhmm(r.SAT_FirstBus), hhmm(r.SUN_FirstBus)],
+      lb: [hhmm(r.WD_LastBus), hhmm(r.SAT_LastBus), hhmm(r.SUN_LastBus)],
+      op: String(r.Operator || '').trim() || null,
+    });
   }
   let imported = 0;
+  const byStop = new Map();
   for (const [k, list] of byRoute) {
     list.sort((a, b) => a.seq - b.seq);
     const json = JSON.stringify(list);
     const prev = await redis.get(`${ROUTE_PREFIX}${k}`).catch(() => null);
-    if (prev && prev !== json) await redis.del(`${SHAPE_PREFIX}${k}`).catch(() => {});
+    // v0.62.971 — only a change in the stop codes invalidates the road shape; first and last bus times changing (or
+    // being added, as on the first refresh after this release) must not throw away every paid-for shape.
+    let prevCodes = null;
+    try { prevCodes = prev ? JSON.parse(prev).map((x) => x.code).join(',') : null; } catch { prevCodes = null; }
+    if (prev && prevCodes !== list.map((x) => x.code).join(',')) await redis.del(`${SHAPE_PREFIX}${k}`).catch(() => {});
     await redis.set(`${ROUTE_PREFIX}${k}`, json);
+    const [svc, dir] = k.split(':');
+    for (const st of list) {
+      if (!byStop.has(st.code)) byStop.set(st.code, []);
+      byStop.get(st.code).push({ svc, dir: Number(dir), seq: st.seq, fb: st.fb, lb: st.lb, op: st.op });
+    }
     imported++;
   }
+  // v0.62.971 — the stop's own index, so "when does each operator resume here" is one read.
+  for (const [code, list] of byStop) await redis.set(`${STOP_SERVICES_PREFIX}${code}`, JSON.stringify(list)).catch(() => {});
   await redis.set(ROUTES_TS_KEY, String(Date.now()));
   return { imported, skipped: null };
 }
@@ -892,6 +919,53 @@ async function stopBuses(redis, stopCode, { http = axios, now = Date.now } = {})
   }));
   console.log(`[Transport] stop-buses ${code}: ${services.length} services, ${calls} LTA calls`);
   return { code, name: meta?.name || code, lat: meta?.lat ?? null, lng: meta?.lng ?? null, readAt: now(), services };
+}
+
+// v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C7. For each operator at the stop whose services all
+// have no bus on the feed now and are outside their hours, the earliest next first bus. Public holidays take Sunday
+// times. One LTA call (the stop's own feed), and the answer is shared for 60 s.
+let _runLib = null;
+function runStateLib() {
+  if (!_runLib) _runLib = import('./web/transport/src/lib/run-state.js');
+  return _runLib;
+}
+async function stopResume(redis, stopCode, { http = axios, now = Date.now, isHoliday = null } = {}) {
+  const code = String(stopCode);
+  const nowMs = now();
+  const ck = `${RESUME_PREFIX}${code}`;
+  if (!isHoliday) {
+    try {
+      const raw = await redis.get(ck);
+      if (raw) return JSON.parse(raw);
+    } catch { /* recompute */ }
+  }
+  const { busHours, OPERATOR_NAMES } = await runStateLib();
+  const hol = isHoliday || ((iso) => !!holidaysLib().isPublicHoliday(new Date(Date.parse(iso + 'T04:00:00Z'))));
+  let services = [];
+  try { services = JSON.parse((await redis.get(`${STOP_SERVICES_PREFIX}${code}`)) || '[]'); } catch { services = []; }
+  const arrivals = await busArrivals(code, { http });
+  const running = new Set((arrivals || []).filter((s) => [s.next, s.next2, s.next3].some((b) => b && Number.isFinite(b.minutes))).map((s) => String(s.service)));
+  const byOp = new Map();
+  for (const s of services) {
+    const op = s.op || 'OTHER';
+    if (!byOp.has(op)) byOp.set(op, { anyRunning: false, resumeAt: null });
+    const e = byOp.get(op);
+    const h = busHours(s.fb, s.lb, nowMs, hol);
+    if (running.has(String(s.svc)) || h.inHours) { e.anyRunning = true; continue; }
+    if (Number.isFinite(h.resumeAt) && (e.resumeAt == null || h.resumeAt < e.resumeAt)) e.resumeAt = h.resumeAt;
+  }
+  const operators = [...byOp.entries()]
+    .filter(([, e]) => !e.anyRunning && Number.isFinite(e.resumeAt))
+    .map(([operator, e]) => ({ operator, name: OPERATOR_NAMES[operator] || operator, resumeAt: e.resumeAt }))
+    .sort((a, b) => (a.resumeAt - b.resumeAt) || a.operator.localeCompare(b.operator));
+  const out = { code, readAt: nowMs, operators };
+  if (!isHoliday) await redis.set(ck, JSON.stringify(out), { EX: RESUME_TTL_S }).catch(() => {});
+  return out;
+}
+let _holidays = null;
+function holidaysLib() {
+  if (!_holidays) _holidays = require('./holidays.js');
+  return _holidays;
 }
 
 // Google's encoded polyline, both ways (the decoder is what the shape route needs; the encoder is what proves it).
@@ -1030,6 +1104,7 @@ module.exports = {
   busRoute,          // v0.62.967
   busRouteBuses,     // v0.62.967
   stopBuses,         // v0.62.969
+  stopResume,        // v0.62.971
   routeShape,        // v0.62.967
   shapeCapKey,       // v0.62.967
   encodePolyline,    // v0.62.967
