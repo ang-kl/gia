@@ -66,6 +66,8 @@ import { createBusRouteLayer } from '../lib/mapOverlays.js';
 import { createTrainSimLayer, simState, lineGeometry, simT, effectiveSimLines, aggregateSimStatus } from '../lib/train-sim.js';
 import { addRunItem, removeRunItem, stationsToLines, trainResumeAt, trainResumeText } from '../lib/run-state.js';
 import { createStopBusesLayer } from '../lib/stop-buses.js';
+import { createFr24Layer, ft as fr24T } from '../lib/fr24-layer.js';
+import { initData } from '../tg.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -198,6 +200,12 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const [expanded, setExpanded] = useState(false);
   // v0.62.956 — the locked Park Connector loop, pushed from the overlay controller for the lock chip (C8).
   const [pcnLocked, setPcnLocked] = useState(null);
+  // v0.62.975 — Flightradar24 at Changi and Seletar (spec doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md).
+  // The layer asks /api/fr24/access once, after the map exists, and draws its two ✈️ pins only when the server says
+  // this reader may see them (owner-only until FR24_PUBLIC=1, C12). `fr24State` is the caption while planes are shown.
+  const fr24Ref = useRef(null);
+  const [fr24State, setFr24State] = useState(null);
+  const fr24StationsRef = useRef(null);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !window.google?.maps?.event) return undefined;
@@ -666,7 +674,23 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     };
     window.__giaMapInfoClose = closeInfo;
     mapRef.current.addListener('click', closeInfo);
+    mapRef.current.addListener('click', () => fr24Ref.current?.closeInfo());
     if (stations) renderPins(stations);
+    // v0.62.975 — the Flightradar24 layer: every request goes to our own /api/fr24/* routes with this reader's
+    // Telegram initData, which the server verifies before its owner-only gate. Nothing is fetched until init().
+    if (!fr24Ref.current) {
+      fr24Ref.current = createFr24Layer(mapRef.current, window.google.maps, {
+        lang: langRef.current,
+        fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() } }).then((r) => r.json()).catch(() => null),
+        onState: (s) => setFr24State(s && s.planes ? s : null),
+        // C9: "Getting there" focuses the Changi Airport MRT station (CG2) on this same map.
+        onGetThere: () => {
+          const s = (fr24StationsRef.current || []).find((x) => (x.codes || []).includes('CG2'));
+          if (s) onStationSelect?.(s);
+        },
+      });
+      fr24Ref.current.init();
+    }
   }
 
   // Push the current layer-toggle state into the overlay controller.
@@ -697,7 +721,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   useEffect(() => {
     const ctrl = overlayControllerRef.current;
     if (ctrl && typeof ctrl.setLang === 'function') ctrl.setLang(lang);
+    fr24Ref.current?.setLang(lang);
   }, [lang]);
+  fr24StationsRef.current = stations;
+  useEffect(() => () => { fr24Ref.current?.destroy(); fr24Ref.current = null; }, []);
   useEffect(() => () => {
     overlayControllerRef.current?.destroy?.();
     ringLayerRef.current?.destroy?.();
@@ -1177,6 +1204,26 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           : { height: expanded ? '90vh' : '70vh', minHeight: '420px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
+      {/* v0.62.975 — spec 2026-11-01-fr24-changi-flights-train-tma, C4/C5 (I6): while Flightradar24 planes are on the
+          map, the source and the reading time are on screen, with "moved by estimate" for the 2 minutes the planes
+          are dead-reckoned. ↻ fetches again; there is no polling. Top-right, below the layer row: at the bottom the
+          station carousel (z-30) covered it in the first headless render. */}
+      {fr24State?.caption && (
+        <div
+          className="absolute right-2 z-10 max-w-[70%] rounded-md px-2 py-1 text-[10px] leading-tight shadow-md flex items-center gap-1"
+          style={{ top: controlTops.clusterTop ? `calc(${controlTops.clusterTop} + 44px)` : '92px', background: 'rgba(17,24,39,0.85)', color: '#FDE68A' }}
+          role="status"
+          data-fr24-caption>
+          <span>{fr24State.caption}</span>
+          <button
+            type="button"
+            onClick={() => fr24State.refresh?.()}
+            className="ml-1 px-1 rounded border border-amber-300"
+            aria-label={fr24T('caption.refresh', lang)}
+            title={fr24T('caption.refresh', lang)}
+          >↻</button>
+        </div>
+      )}
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
           expand toggle. v0.61.16 — fixed white styling: the Google map
           tiles are always light, so the prior theme-adaptive tg-card

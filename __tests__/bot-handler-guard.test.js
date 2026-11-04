@@ -54,7 +54,9 @@ describe('no command handler can go silent', () => {
     // change here, not slip in under a >= .
     expect((SRC.match(/guarded\('/g) || []).length).toBe(16);
     // v0.62.944 — 33 → 34: /external_update (owner-only; its handler carries its own try/catch).
-    expect(registrations().length).toBe(34);
+    // v0.62.975 — 34 → 35: /fr24usage (owner-only; its handler carries its own try/catch). Spec
+    // doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md, amendment 2.
+    expect(registrations().length).toBe(35);
   });
 
   it('the commands the operator actually uses are among them', () => {
