@@ -4,7 +4,6 @@ import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, r
 import { IATA_CITIES, nearestIataCity } from '../../../_shared/lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
 import { shouldFoldOnComposerOpen, RESULTS_BLINK_MS } from './lib/composer-fold.js';
-import { resultsFlagKey, RESULTS_ORIGIN } from './lib/results-origin.js';
 import { cuisineName } from './lib/cuisine-i18n.js';
 import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash, initialState } from './lib/state.js';
@@ -760,10 +759,8 @@ export default function App() {
   const lastResultsAtRef = useRef(null);
   const blinkTimerRef = useRef(null);
   const [resultsBlink, setResultsBlink] = useState(false);
-  // v0.62.943 — where the cards on screen came from: RESULTS_ORIGIN.SEARCH (normal search) or
-  // .AI (the AI route); null until a search answers. The footer flags non-AI results
-  // (spec doc/Feature/2026-10-26-lever-inside-bar-and-results-origin-flag.spec.md).
-  const [resultsOrigin, setResultsOrigin] = useState(null);
+  // v0.62.973 — the v0.62.943 origin state (normal search or AI) is gone with the footer line it fed:
+  // spec doc/Feature/2026-11-04-remove-non-ai-results-line.spec.md (operator: "Remove it").
   useEffect(() => {
     if (Array.isArray(venues) && venues.length) lastResultsAtRef.current = Date.now();
   }, [venues]);
@@ -944,8 +941,6 @@ export default function App() {
     setLoading(false);
     setBootOverlayHold(false);
     if (Array.isArray(restored.venues)) setVenues(restored.venues);
-    // v0.62.943 — restored results keep the origin they had; an older stash without it stays unknown.
-    setResultsOrigin(restored.resultsOrigin || null);
     if (restored.searchCenter) setSearchCenter(restored.searchCenter);
     if (restored.userLoc) setUserLoc(restored.userLoc);
     if (restored.selectedCityLocation) setSelectedCityLocation(restored.selectedCityLocation);
@@ -1467,7 +1462,6 @@ export default function App() {
         : (locationAnchor && Number.isFinite(locationAnchor.lat) ? locationAnchor : searchCenter);
       const payload = {
         venues, searchCenter, userLoc, selectedCityLocation,
-        resultsOrigin,
         locationAnchor, searchLocName,
         explicitPick: explicitPickRef.current,
         camera: (cam && Number.isFinite(cam.lat) && Number.isFinite(cam.lng))
@@ -1494,9 +1488,6 @@ export default function App() {
     // listener that closed over an older `locationAnchor` would stash the pin the
     // reader had BEFORE their last change, which is a subtler version of the bug
     // this commit fixes.
-    // v0.62.943 — `resultsOrigin` is stashed but deliberately NOT a dependency: it is only ever set
-    // in the same update as `venues` (runSearch, its streamed base, handleNLSubmit), so the
-    // re-subscription on `venues` already carries the matching origin.
   }, [venues, searchCenter, userLoc, selectedCityLocation, locationAnchor, searchLocName, mapViewLocation]);
   // v0.62.173 — PR B2. When results are showing, the region pills collapse to a
   // one-line "Set location is: <X>. Click to change" to give the map more room;
@@ -3257,7 +3248,6 @@ export default function App() {
         onBase: (ev) => {
           if (Array.isArray(ev?.venues)) {
             setVenues(ev.venues);
-            setResultsOrigin(RESULTS_ORIGIN.SEARCH);   // v0.62.943
             setFirstLoadPending(false);
             // v0.62.78 — surface the first found name in the wait card.
             setStreamFirstName((ev.venues[0] && ev.venues[0].name) || null);
@@ -3368,7 +3358,6 @@ export default function App() {
         setZeroReasonKey(null);
       }
       setVenues(r.venues || []);
-      setResultsOrigin(RESULTS_ORIGIN.SEARCH);   // v0.62.943 — the footer flags non-AI results
       setNoProvenNew(!!r.noProvenNew);   // v0.62.205 — "no new nearby" banner flag
       // v0.62.88 — "all N within X km" recycle note (null unless the server
       // re-served an exhausted in-range pool at the tight cap).
@@ -3612,7 +3601,6 @@ export default function App() {
         countryCode: (state.region === 'OTHER' || state.region === 'MY-PUT') ? state.countryPref : undefined
       });
       setVenues(r.venues || []);
-      setResultsOrigin(RESULTS_ORIGIN.AI);   // v0.62.943 — AI results carry no footer flag
       // v0.62.945 — the AI route's honest empty for a named building/road.
       if (r.zeroReason === 'nothing-in-place' && r.placeEmpty) { setZeroPlace(r.placeEmpty); setZeroReasonKey('zero.nothingInPlace'); }
       else { setZeroPlace(null); setZeroReasonKey(null); }
@@ -6213,13 +6201,6 @@ export default function App() {
               >{cursor > 0 ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
             </div>
           </div>
-          {/* v0.62.943 — operator: non-AI results are flagged, centred, just above the tag below. */}
-          {(() => {
-            const flagKey = resultsFlagKey({ hasCards: Array.isArray(venues) && venues.length > 0, origin: resultsOrigin });
-            return flagKey ? (
-              <div className="text-[9px] text-tg-hint text-center leading-none pb-0.5 pointer-events-none">{t(flagKey, lang)}</div>
-            ) : null;
-          })()}
           {/* tiny experimental / version tag (was 2 footer text lines). v0.62.971 — spec 2026-11-04-run-drawer-and-
               operating-hours, C11 (operator: "remove 'Singapore' keep 'Experimental' from all TMA"): the region word
               (Singapore, Johor or Others) is gone. */}

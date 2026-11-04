@@ -188,13 +188,10 @@ describe('Icon.jsx — the robot', () => {
 });
 
 describe('strings — present in all nine locales, never falling back to English', () => {
-  // v0.62.943 — footer.nonAi, the "Traditional / Non-AI results" footer line (spec doc/Feature/
-  // 2026-10-26-lever-inside-bar-and-results-origin-flag.spec.md, I4).
-  const KEYS = ['tellme.placeholderAi', 'tell.askAiCta', 'tell.leverAria', 'footer.nonAi'];
+  // v0.62.973 — footer.nonAi left this list with the "Traditional / Non-AI results" line it labelled (spec doc/Feature/
+  // 2026-11-04-remove-non-ai-results-line.spec.md, operator: "Remove it"); results-origin-removed.test.js guards it.
+  const KEYS = ['tellme.placeholderAi', 'tell.askAiCta', 'tell.leverAria'];
   it('nine locales', () => { expect(mod.SUPPORTED_LOCALES).toHaveLength(9); });
-  it('footer.nonAi in English is the operator\'s wording', () => {
-    expect(mod.t('footer.nonAi', 'en')).toBe('Traditional / Non-AI results');
-  });
   for (const key of KEYS) {
     it(`${key}`, () => {
       const en = mod.t(key, 'en');
