@@ -42,6 +42,7 @@ import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
 import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, stationPillNode, stationCodeNode, trainTier, demoteByOverlap, makeTrainColourOverlay } from '../lib/mapOverlays.js';
 import MapControls from '../../../_shared/components/MapControls.jsx';
+import { mapControlTops } from '../lib/map-control-tops.js';
 // v0.62.689 — station-pick inspection overlay. The ring layer was the ONE piece
 // Transport lacked (Cuisine + Hawker already draw rings); the hawker-centre fetch
 // it pairs with was already here as mapOverlays' private `fetchHawkerCentres`, so
@@ -153,7 +154,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null, publicHolidays = null }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, headerPx = null, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null, publicHolidays = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -1150,6 +1151,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // v0.62.626 — in fill mode, "expand" promotes the panel to a full-viewport
   // overlay (the 90vh/70vh height toggle only applies to the non-fill block).
   const expandedOverlay = expanded && fill;
+  const controlTops = mapControlTops({ inset: navInset, headerPx, expanded: expandedOverlay });
   return (
     <div className={expandedOverlay
       // v0.62.628 — z-[35]: the floating station carousel + the phone bottom-sheet
@@ -1187,9 +1189,12 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           OVER the full-bleed map, hiding the top of this cluster (Reset/"default" +
           zoom-in). `navInset` drops the cluster below that header so all buttons
           are reachable. */}
+      {/* v0.62.972 — spec 2026-11-04-train-map-controls-below-header: the fixed 7.5rem inset was outgrown by the
+          header's strips (a 193 px header covered Reset and Zoom in), and the layer row was never inset at all. Both
+          now follow the header height App.jsx measures (mapControlTops). */}
       <div
-        className={`absolute left-2 flex flex-col gap-1 z-10 ${navInset ? '' : 'top-12'}`}
-        style={navInset ? { top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 7.5rem)' } : undefined}>
+        className={`absolute left-2 flex flex-col gap-1 z-10 ${controlTops.clusterTop ? '' : 'top-12'}`}
+        style={controlTops.clusterTop ? { top: controlTops.clusterTop } : undefined}>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
@@ -1231,6 +1236,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
+        top={controlTops.rowTop}
         layers={{ ...(overlayLayers || {}), simTrains: simOn }}
         onToggleLayer={(key) => (key === 'simTrains' ? (simOn ? stopAllTrains() : setSimOn(true)) : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]

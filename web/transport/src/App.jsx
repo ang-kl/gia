@@ -363,6 +363,21 @@ export default function App() {
   // v0.62.606 — the list-mode scroller (for the footer ⇡/⇣ button + atBottom).
   const listScrollRef = useRef(null);
   const [listAtBottom, setListAtBottom] = useState(false);
+  // v0.62.972 — spec 2026-11-04-train-map-controls-below-header, C1: in the List layout the header floats over the
+  // map and grows with every strip it shows, so its height is MEASURED (a ResizeObserver on its wrapper) and handed to
+  // the map, which puts its layer row and zoom buttons below it. A callback ref, because the wrapper exists only in
+  // the List layout.
+  const [floatHeaderPx, setFloatHeaderPx] = useState(null);
+  const floatHeaderObsRef = useRef(null);
+  const floatHeaderRef = useCallback((el) => {
+    if (floatHeaderObsRef.current) { floatHeaderObsRef.current.disconnect(); floatHeaderObsRef.current = null; }
+    if (!el || typeof ResizeObserver === 'undefined') { setFloatHeaderPx(null); return; }
+    const measure = () => setFloatHeaderPx(Math.round(el.getBoundingClientRect().height));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    floatHeaderObsRef.current = ro;
+  }, []);
   // v0.62.636 (C2) — AutoAnimate the LIST-mode station grid: cards fade / slide
   // as the focused line (and so the station set) changes. Honours
   // prefers-reduced-motion on its own. Hook stays above the early returns.
@@ -708,6 +723,7 @@ export default function App() {
           <MrtMapPanel
             fill={fillMode}
             navInset={navInset}
+            headerPx={navInset ? floatHeaderPx : null}
             focusedCode={focusedCode}
             focusedStation={focusedStation}
             onStationSelect={handleSelectStation}
@@ -1045,7 +1061,7 @@ export default function App() {
               same paint order for the normal state and lets the overlay out. */}
           <div className="absolute inset-0">{mapBlock(true, true)}</div>
           {/* floating header over the map (only the card catches taps) */}
-          <div className="absolute top-0 inset-x-0 z-20 px-3 pointer-events-none"
+          <div ref={floatHeaderRef} data-float-header="" className="absolute top-0 inset-x-0 z-20 px-3 pointer-events-none"
             style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
             <div className="pointer-events-auto">{headerEl}</div>
           </div>
