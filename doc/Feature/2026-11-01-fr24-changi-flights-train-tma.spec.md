@@ -34,6 +34,9 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
   - Tapping a plane, or a board row, shows its flight: number, airline, from, to, aircraft, take-off time, and for
     arrivals an estimated landing time.
   - Nothing is fetched until a pin is tapped.
+  - **Owner-only at first (C12).** Only the operator's own Telegram account sees the pins and can call the routes,
+    until the operator has read FR24's Explorer terms and sets `FR24_PUBLIC=1` on Railway. Everyone else sees the
+    Train map exactly as today.
 - Force: MUST.
   - Operator, 01-11 '26: *"write the FR24 spec, with FLIGHTRADER24_API_TOKEN. I just paid $9 basic plan. I don't
     need to know the plane in and out, unless I click on the plan[e]. tell me what information you can show and
@@ -182,16 +185,30 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     - Stated plainly, because the operator asked for "superior": **FR24's own app shows far more aviation data**
       than this, including schedules, gates, history and playback, much of it from sources outside the API. What
       Soleat can do better is put the airport in Singapore context: weather, getting there and language.
-  - Ships as **v0.62.962**, or the next free version.
-- GAPS: A1 and A3 below are the operator's to confirm.
+  - C12 — **Owner-only until the operator opens it** (operator, 05-11 '26: *"owner-only first"*).
+    - Every FR24 route (`board`, `airport`, `flight`) and a new `GET /api/fr24/access` require verified Telegram
+      `initData` (`requireInitDataFromBodyOrHeader`, the `x-telegram-init-data` header). The verified user id is
+      checked with `owner-gate.js`'s `isOwnerChat` (a private chat's id is the user's id).
+    - Access is granted when the user is the owner, **or** when the env `FR24_PUBLIC` is exactly `'1'`. It is closed
+      by default: with `TELEGRAM_OWNER_CHAT_ID` unset, with `SKIP_INIT_DATA_AUTH` set (no user), or with any other
+      value of `FR24_PUBLIC`.
+    - A caller without access gets `403 { ok: false, reason: 'owner-only' }`, and **no FR24 request and no credit
+      count happen** for it.
+    - The client asks `/api/fr24/access` once when the map loads (a Soleat call, not an FR24 one; it costs no
+      credits) and draws the two ✈️ pins only when `enabled` is true. A non-owner sees no pin, no button and no
+      string from this feature.
+    - Opening it to everyone later is one Railway variable, `FR24_PUBLIC=1`, set by the operator after reading FR24's
+      terms; no code change. The spending guards (C7) apply either way.
+  - Ships as **v0.62.975**, or the next free version.
+- GAPS: none open. A3 and A4 are settled below.
 
 ## Assumptions
 | ID | Assumption | Status | Note |
 |----|------------|--------|------|
 | A1 | Nothing is fetched until a pin is tapped; a pin opens the movements board; planes show only on "Show planes"; details on tapping a plane or row | corrected | First read as "no arrivals/departures list". The operator then asked for a board "like the attached" and, told Changi's site cannot be used, chose *"FR24 movements board"* (01-11 '26) |
 | A2 | The code reads `FLIGHTRADER24_API_TOKEN` | confirmed | Operator, 01-11 '26: *"i change from FLIGHTRADER24_API_KEY to FLIGHTRADER24_API_TOKEN"*. Re-read in Railway the same day: only `_TOKEN` is present (value redacted) |
-| A3 | Explorer's terms allow showing this data to Soleat's users | pending | FR24's terms page is behind a Cloudflare check the headless browser could not pass, and its "prohibited use cases" were not read. The operator should confirm on their account |
-| A4 | The key is active on Explorer | pending | Proved by the `/fr24usage` reply after deploy |
+| A3 | Explorer's terms allow showing this data to Soleat's users | corrected | Still unread: on 04-11 '26 FR24's terms URL answered 404, flightradar24.com's terms 403, and the API pages rendered no text. Operator, 05-11 '26, chose *"owner-only first"*: the feature is gated to the owner (C12) until the operator reads the terms and sets `FR24_PUBLIC=1` |
+| A4 | The key is active on Explorer | corrected | Operator, 05-11 '26: *"Cannot click on the pin, therefore cannot confirm"*, and only production holds the key. Treated as unknown until deploy: Railway shows exactly one FR24 variable, `FLIGHTRADER24_API_TOKEN` (names only, read 05-11 '26; no Sandbox token, which the spec never uses). Proved after deploy by the owner's `/fr24usage` reply; if the key fails, the routes answer "Flight data unavailable" |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
@@ -208,10 +225,11 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 | I11 | The board request is well-formed: `flight-summary/light`, `airports=outbound:` or `inbound:` the tapped code, a 3-hour `first_seen` window, `sort=desc`, `limit=20` | `fr24.js` | Explorer limits | the wrong direction, or an unbounded query | `fr24.test.js` |
 | I12 | The board never claims what FR24 lacks: it says "actual times, not the schedule"; it shows no terminal, gate or check-in column; it uses no airport or airline logo | `fr24-layer.js` | none | a board read as Changi's official one | `fr24-layer.test.js` |
 | I13 | Airport names come only from the OurAirports table: `_meta` names the source and its sha256; the builder's filter, called on sample rows, keeps scheduled-service airports with an ICAO code only; WSSS and WSSL resolve; an unknown code shows as itself; `fr24.js` never calls FR24's airport endpoint | `build-airport-names.js`, `airport-names.json`, `fr24.js` | English names | a guessed city, or a credit spent on a name | `fr24.test.js` |
+| I14 | Only the owner reaches FR24 unless `FR24_PUBLIC` is exactly `'1'`: a non-owner, an unverified caller, or a missing owner id gets `403 owner-only` with no FR24 request and no credit counted; the client draws no pin when `/api/fr24/access` says `enabled: false` | `fr24.js`, `index.js`, `fr24-layer.js`, `MrtMapPanel.jsx` | closed by default | FR24 data shown to users before its terms are read | `fr24.test.js`: the access decision called for owner / non-owner / no owner id / no user / `FR24_PUBLIC` values, and a non-owner route call makes zero fake-fetch calls; `fr24-layer.test.js`: no pin when disabled |
 | I10 | The suite passes; the Train app builds; Cuisine and Hawker are unchanged | suite, build | none | a broken Train map | `npm test`; `vite build` for transport; `git diff --stat` within scope |
 
 ## Acceptance criteria
-- [ ] Tests written first and red → I1-I9, I11-I13
+- [ ] Tests written first and red → I1-I9, I11-I14
 - [ ] `fr24.js` and the routes, `/fr24usage`, `fr24-layer.js`, and the pins, board, planes, card and caption → I1-I9,
       I11, I12
 - [ ] Mutations, each proved applied and restored, all caught:
@@ -225,9 +243,13 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
   - the ETA "estimate" label dropped;
   - `/fr24usage` answering a non-owner;
   - the board asking `outbound:` for Arrivals;
-  - the "actual times, not the schedule" label removed.
+  - the "actual times, not the schedule" label removed;
+  - the owner check removed from the routes;
+  - `FR24_PUBLIC` accepted as any truthy value instead of exactly `'1'`;
+  - the pins drawn when `/api/fr24/access` says `enabled: false`.
 - [ ] Headless render of the built Train app with stubbed routes: both pins, the board with both tabs, the planes
-      after "Show planes", and the card after a plane tap
+      after "Show planes", and the card after a plane tap; and, with `/api/fr24/access` stubbed to `enabled: false`,
+      no pin at all
 - [ ] Full suite green; Train build; `package.json` bumped
 - [ ] After deploy, with the operator's word: one real tap, and `/fr24usage`, read back
 
@@ -238,6 +260,13 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
 - Other airports, the Cuisine and Hawker maps, and the bot's chat.
 - Flight tracks (40 credits a flight), history, and live positions "full" (8 a flight).
 - Storing any FR24 data longer than its caches above.
+
+## Amendments (before approval)
+- **05-11 '26, amendment 1.** The operator's answers to A3 and A4: *"owner-only first"* added C12, I14, three
+  mutations and a disabled-state render; A3 and A4 set to `corrected`; the version moved from v0.62.962 (long since
+  used) to v0.62.975. Before that, the operator tapped Google's own terminal labels on the Train map and found them
+  dead: they are base-map POIs, ignored on purpose since v0.60.85 (`MrtMapPanel.jsx`, `clickableIcons: false`), and
+  this feature's ✈️ pins do not exist until it is built.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
