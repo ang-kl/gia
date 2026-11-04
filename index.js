@@ -109,6 +109,8 @@ const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE, DESCRIPTOR_R
 const weather = require('./weather');
 const carpark = require('./carpark');
 const transport = require('./transport');
+// v0.62.974 — when a station counts as open (TEL5/DTL3e from 00:00 SGT 26 Dec 2026), worked out per request.
+const { applyStationStatus, sgtDate } = require('./station-open.js');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -19233,7 +19235,9 @@ async function cacheBotUsername() {
             // Cantonment / Prince Edward Road, 12 July 2026). When
             // absent the TMA popup falls back to the bare opensYear.
             opensDate: typeof v.opensDate === 'string' ? v.opensDate : null,
-            opensDateFr: typeof v.opensDateFr === 'string' ? v.opensDateFr : null
+            opensDateFr: typeof v.opensDateFr === 'string' ? v.opensDateFr : null,
+            // v0.62.974 — the Singapore date a future station opens by itself (TEL5/DTL3e: 2026-12-26).
+            opensOn: typeof v.opensOn === 'string' ? v.opensOn : null
           }))
           .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng));
       } catch (err) {
@@ -19241,6 +19245,12 @@ async function cacheBotUsername() {
         mrtCoordsCache = [];
       }
       return mrtCoordsCache;
+    }
+    // v0.62.974 — spec doc/Feature/2026-11-04-tel5-dtl3e-auto-open-26-dec.spec.md, C3. The FILE is cached at boot, but
+    // whether a station is open is worked out on every call: TEL5/DTL3e open at 00:00 SGT on 26 Dec 2026 with no
+    // deploy, and a status fixed at boot would wait for a restart. Every reader below goes through this.
+    function mrtStationsNow() {
+      return applyStationStatus(loadMrtCoords(), Date.now());
     }
     // v0.61.65 — name → exit_centroid map from data/stations.json. The
     // exit_centroid is the mean of a station's LTA-GeoJSON exit coords —
@@ -19271,7 +19281,7 @@ async function cacheBotUsername() {
     app.get('/api/transport/stations', (_req, res) => {
       try {
         const centroids = loadStationCentroids();
-        const stations = loadMrtCoords().map((s) => {
+        const stations = mrtStationsNow().map((s) => {
           const c = centroids[s.name];
           return c ? { ...s, exit_centroid: c } : s;
         });
@@ -19319,12 +19329,16 @@ async function cacheBotUsername() {
     // consistent with the map pins. The stored data is untouched.
     function mrtCoordsForGeometry() {
       const centroids = loadStationCentroids();
-      return loadMrtCoords().map((s) => {
+      return mrtStationsNow().map((s) => {
         const c = centroids[s.name];
         return c ? { ...s, lat: c.lat, lng: c.lng } : s;
       });
     }
+    // v0.62.974 — the derived paths mark future segments, so the cache is kept per Singapore date: on 26 Dec 2026 the
+    // first request builds the network with TEL5/DTL3e open instead of serving the pre-opening one until a restart.
+    let _derivedLinePathsDay = null;
     async function deriveLinePaths() {
+      if (_derivedLinePathsCache && _derivedLinePathsDay !== sgtDate(Date.now())) _derivedLinePathsCache = null;
       if (_derivedLinePathsCache) return _derivedLinePathsCache;
       if (!_linePathsMod) {
         _linePathsMod = await import('./web/transport/src/data/line-paths.js');
@@ -19332,6 +19346,7 @@ async function cacheBotUsername() {
       _derivedLinePathsCache = _linePathsMod.smoothLinePaths(
         _linePathsMod.buildLinePaths(mrtCoordsForGeometry())
       );
+      _derivedLinePathsDay = sgtDate(Date.now());
       return _derivedLinePathsCache;
     }
     app.get('/api/transport/line-paths', async (_req, res) => {
@@ -20242,7 +20257,7 @@ async function cacheBotUsername() {
       let best = null;
       let bestD = Infinity;
       const cosLat = Math.cos(lat * Math.PI / 180);
-      for (const s of loadMrtCoords()) {
+      for (const s of mrtStationsNow()) {   // v0.62.974 — status per request (TEL5/DTL3e open 26 Dec)
         if (s.status !== 'operational') continue;
         const dx = (s.lng - lng) * cosLat;
         const dy = s.lat - lat;
@@ -20257,7 +20272,7 @@ async function cacheBotUsername() {
     function nearestStationsTo(lat, lng, n = 2) {
       const cosLat = Math.cos(lat * Math.PI / 180);
       const scored = [];
-      for (const s of loadMrtCoords()) {
+      for (const s of mrtStationsNow()) {   // v0.62.974 — status per request (TEL5/DTL3e open 26 Dec)
         if (s.status !== 'operational') continue;
         const dx = (s.lng - lng) * cosLat;
         const dy = s.lat - lat;

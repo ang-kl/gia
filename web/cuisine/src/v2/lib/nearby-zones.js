@@ -9,6 +9,8 @@
 import { t } from './i18n.js';
 
 import { SG_STATIONS } from './mrt-stations.generated.js';
+// v0.62.974 — the list now holds stations opening on a date (TEL5/DTL3e, 26 Dec 2026); read it through openAt.
+import { openAt } from '../../../../_shared/lib/station-open.js';
 
 const ZONE_MAX_M = 1200; // a venue further than this from any station → "Nearby"
 
@@ -25,7 +27,7 @@ function haversineM(aLat, aLng, bLat, bLng) {
 function nearestStation(lat, lng) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   let best = null;
-  for (const s of SG_STATIONS) {
+  for (const s of openAt(SG_STATIONS, Date.now())) {
     const d = haversineM(lat, lng, s.lat, s.lng);
     if (!best || d < best.distM) best = { name: s.n, codes: s.c, distM: d };
   }

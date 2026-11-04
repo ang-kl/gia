@@ -2,7 +2,8 @@
 //
 // Operational SG MRT/LRT stations (name, lat, lng, line codes) for the Cuisine
 // TMA's nearby-zone grouping. Regenerate: node scripts/gen-cuisine-stations.mjs
-// Keys: n=name, c=codes[]. 183 stations.
+// Keys: n=name, c=codes[], o=opening date (Singapore; read through _shared/lib/station-open.js openAt).
+// 186 stations, 3 of them opening on a date.
 
 export const SG_STATIONS = [
   { n: "Admiralty", lat: 1.4407, lng: 103.8009, c: ["NS10"] },
@@ -17,6 +18,7 @@ export const SG_STATIONS = [
   { n: "Bedok", lat: 1.324, lng: 103.9301, c: ["EW5"] },
   { n: "Bedok North", lat: 1.3349, lng: 103.9181, c: ["DT29"] },
   { n: "Bedok Reservoir", lat: 1.3367, lng: 103.9326, c: ["DT30"] },
+  { n: "Bedok South", lat: 1.3167, lng: 103.9483, c: ["TE30"], o: "2026-12-26" },
   { n: "Bencoolen", lat: 1.2987, lng: 103.8499, c: ["DT21"] },
   { n: "Bendemeer", lat: 1.3138, lng: 103.8634, c: ["DT23"] },
   { n: "Bishan", lat: 1.3509, lng: 103.8485, c: ["NS17","CC15"] },
@@ -158,6 +160,7 @@ export const SG_STATIONS = [
   { n: "Stadium", lat: 1.3028, lng: 103.8753, c: ["CC6"] },
   { n: "Stevens", lat: 1.3201, lng: 103.8262, c: ["DT10","TE11"] },
   { n: "Sumang", lat: 1.4084, lng: 103.8985, c: ["PW6"] },
+  { n: "Sungei Bedok", lat: 1.3203, lng: 103.9569, c: ["TE31","DT37"], o: "2026-12-26" },
   { n: "Tai Seng", lat: 1.3358, lng: 103.8881, c: ["CC11"] },
   { n: "Tampines", lat: 1.3534, lng: 103.9454, c: ["EW2","DT32"] },
   { n: "Tampines East", lat: 1.3563, lng: 103.9543, c: ["DT33"] },
@@ -185,6 +188,7 @@ export const SG_STATIONS = [
   { n: "Woodlands North", lat: 1.4476, lng: 103.7858, c: ["TE1"] },
   { n: "Woodlands South", lat: 1.4271, lng: 103.7935, c: ["TE3"] },
   { n: "Woodleigh", lat: 1.3392, lng: 103.8709, c: ["NE11"] },
+  { n: "Xilin", lat: 1.3303, lng: 103.9576, c: ["DT36"], o: "2026-12-26" },
   { n: "Yew Tee", lat: 1.3974, lng: 103.7474, c: ["NS5"] },
   { n: "Yio Chu Kang", lat: 1.3819, lng: 103.8449, c: ["NS15"] },
   { n: "Yishun", lat: 1.4294, lng: 103.835, c: ["NS13"] },

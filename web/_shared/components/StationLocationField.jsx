@@ -217,7 +217,7 @@ export default function StationLocationField({ lang = 'en', onSelectStation = nu
                     <span className="font-medium text-tg-text">{s.name}</span>{' '}
                     <span className="text-tg-hint">{(s.codes || []).join(' · ')}</span>
                     {s.status === 'future' && (
-                      <span className="text-tg-hint"> · {tr('opens', lang)} {s.opensYear || ''}</span>
+                      <span className="text-tg-hint"> · {tr('opens', lang)} {(lang === 'fr' && s.opensDateFr) || s.opensDate || s.opensYear || ''}</span>
                     )}
                   </button>
                 ))}
