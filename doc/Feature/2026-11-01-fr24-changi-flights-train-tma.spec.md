@@ -12,6 +12,7 @@ scope:
   - "web/transport/src/components/MrtMapPanel.jsx"
   - "__tests__/fr24.test.js"
   - "__tests__/fr24-layer.test.js"
+  - "__tests__/bot-handler-guard.test.js"
   - "package.json"
   - "doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -267,6 +268,24 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
   used) to v0.62.975. Before that, the operator tapped Google's own terminal labels on the Train map and found them
   dead: they are base-map POIs, ignored on purpose since v0.60.85 (`MrtMapPanel.jsx`, `clickableIcons: false`), and
   this feature's ✈️ pins do not exist until it is built.
+- **05-11 '26, amendment 2** (FLOW ALERT F3 during Execution; operator chose *"Amend + re-approve (Recommended)"*).
+  Approved at sha 1401ba25; this amendment voids that approval and asks for it again.
+  - **Scope + `__tests__/bot-handler-guard.test.js`.** Its line 57 pins the count of top-level `bot.onText`
+    registrations at 34; `/fr24usage` (C8) is the 35th. The pin moves 34 → 35 with a comment, and the edit is quoted
+    in the journal as an existing-test edit (F7). The new handler carries its own try/catch, which the same file
+    requires.
+  - **C8 corrected.** FR24's `GET /usage?period=30d` returns, per endpoint, `request_count` and `credits` used (the
+    OpenAPI file's `UsageLogSummary`). It reports no credits LEFT. The reply therefore shows FR24's 30-day credits
+    used (total and per endpoint) and our own calendar-month count against `FR24_MONTHLY_CREDIT_BUDGET`, with what
+    is left of that budget, labelled as our count.
+  - **C3 corrected.** The airline is shown as its ICAO code (`operating_as`, else `painted_as`). FR24's airline
+    lookup is one request and one credit per airline, so it is not called, for the reason C11 gives for airports.
+  - **C12 corrected.** `isOwnerChat` opens to every user when `TELEGRAM_OWNER_CHAT_ID` is unset and
+    `GIA_ALLOW_UNOWNED_ADMIN=1`, which C12 forbids. The check uses the same module's `decideOwner` with no opt-in, so
+    an unset owner id is always closed. The same strict check gates `/fr24usage` (I9).
+  - **Where I14 is tested.** The gate and the dispatch live in `fr24.js` (`handle()`), so the test calls it with a
+    fake fetch and counts calls; the `index.js` routes only verify `initData`, call `handle()` and send its status
+    and body.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
