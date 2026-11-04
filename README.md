@@ -224,4 +224,4 @@ This is a side hobby — built in spare moments out of genuine curiosity about h
 
 ## License
 
-Internal study project. Proprietary to the soleat Development Team.
+Copyright (c) 2026 Adrian Ang Kheng Leng. All rights reserved. No licence is granted; see [LICENSE](LICENSE).

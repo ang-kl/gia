@@ -1,21 +1,21 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-10-29 from a snapshot of all 1862 pull requests (#1–#1890).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-11-04 from a snapshot of all 1888 pull requests (#1–#1916).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1862 total — 1851 merged, 11 closed without merge.
+- **PRs:** 1888 total — 1877 merged, 11 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1890 · 2026-10-28 09:58:07+00:00 · _v0.62.948 - refresh the hawker closure dates from NEA (28-10 '26)_
+- **Latest:** #1916 · 2026-11-04 10:01:15+00:00 · _v0.62.974 TEL5/DTL3e: Bedok South, Sungei Bedok and Xilin open by themselves at 00:00 SGT on 26 Dec 2026_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1273 |
-| fix | 253 |
-| docs | 120 |
+| feature | 1296 |
+| fix | 255 |
+| docs | 121 |
 | copy | 72 |
 | refactor | 50 |
 | prompt-tune | 47 |
@@ -26,22 +26,22 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 671 |
-| Docs / vault | 316 |
-| Hawker NEA | 133 |
-| Language / i18n | 90 |
-| Transport / carpark | 84 |
+| Cuisine Picker | 676 |
+| Docs / vault | 317 |
+| Hawker NEA | 136 |
+| Language / i18n | 92 |
+| Transport / carpark | 86 |
 | Recognised lists | 79 |
 | Core / misc | 74 |
-| Search / free-text | 61 |
+| Search / free-text | 62 |
 | Infra / setup | 59 |
+| Weather | 55 |
 | Buddy / sharing | 53 |
 | Menu hub | 48 |
 | /hidden surprise | 47 |
-| Weather | 45 |
 | Pipeline / discovery | 27 |
-| Maps / geo / location | 22 |
-| Privacy / legal | 20 |
+| Maps / geo / location | 23 |
+| Privacy / legal | 21 |
 | /eat /drink flow | 15 |
 | Commands / chat UX | 13 |
 | Oversight / usage stats | 5 |
@@ -1914,6 +1914,32 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1888 | merged | 2026-10-26 13:48:40+00:00 | 0.62.946 | copy | Docs / vault | Reword: cap review translation at 5 s per call and 6 s per search | ## Why On 26-10 Railway's D707 timing line showed `reviewLocalise=62028ms` (and 13,750 ms two minutes later, which tripped the D706 deadline). | 6 files — cuisine-enrich.js, translate-review.js, tests, doc, package | — | tests; doc/vault |
 | 1889 | merged | 2026-10-28 03:31:07+00:00 | 0.62.947 | refactor | Docs / vault | Refactor: read public holidays from MOM's consolidated dataset | ## Why The dataset ID that `holidays.js` uses (`d_4e19214c1a6202f87b8a0bfd0ad1b2db`) is no longer on data.gov.sg. | 6 files — holidays.js, tests, doc, package | — | Redis/state; tests; doc/vault |
 | 1890 | merged | 2026-10-28 09:58:07+00:00 | 0.62.948 | feature | Hawker NEA | Add: refresh the hawker closure dates from NEA (28-10 '26) | ## Why NEA's "Dates of Hawker Centres Closure" (`d_bda4baa634dd1cc7a6c7cad5f19e2d68`, updated 19-10) changed 11 of its 123 rows after our 18-07 snapshot. | 8 files — tests, doc, data, package, scripts/ | — | privacy; tests; doc/vault |
+| 1891 | merged | 2026-10-29 01:47:14+00:00 | 0.62.948 | docs | Docs / vault | Docs current to v0.62.948 + vault snapshot v0.62.948 | ## Why Operator, 29-10: *"Do the documentation updates and the vault first. | 2525 files — tests, doc, vault, ci, public/, scripts/ | — | legal; tests; doc/vault |
+| 1892 | merged | 2026-10-29 04:10:48+00:00 | 0.62.949 | feature | Privacy / legal | Add: halal only when certified; plus the documentation pass | ## What **v0.62.949: halal only when certified** - Operator, 29-10: *"Don't default halal for JB and eateries. | 13 files — external-eateries.js, tests, doc, package, root-docs | — | legal; tests; doc/vault |
+| 1893 | merged | 2026-10-29 05:39:23+00:00 | 0.62.950 | feature | Transport / carpark | Add: refresh MRT station exits and LTA bus stops | ## What LTA's MRT Station Exit (18-10 '26) and Bus Stop (06-10 '26) datasets, downloaded from data.gov.sg on 29-10 and committed unedited. | 16 files — tests, doc, data, package, geoloc/, scripts/ | — | privacy; tests; doc/vault |
+| 1894 | merged | 2026-10-29 06:47:45+00:00 | 0.62.951 | feature | Maps / geo / location | Add: refresh NParks parks and SPF police overlays | ## What Refreshes the map's parks and police layers from the current data.gov.sg datasets. | 10 files — tests, doc, data, package, geoloc/ | — | tests; doc/vault |
+| 1895 | merged | 2026-10-29 10:40:26+00:00 | 0.62.952 | feature | Weather | Add: "Outside now": weather-chip dot, sheet and warning strip | ## What This adds layouts B and A from the "Outside now" design to the Cuisine, Train and Hawker Mini Apps. | 17 files — index.js, outside-now.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package | cuisine+hawker+transport | tests; doc/vault |
+| 1896 | merged | 2026-10-29 11:41:18+00:00 | 0.62.953 | fix | Language / i18n | Fix: Codex fixes that missed #1895, plus "Outside now" Amendment 1 | ## What **1. | 11 files — outside-now.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1897 | merged | 2026-10-29 20:30:16+00:00 | 0.62.954 | feature | Language / i18n | Add: UV pill reads "—" after sunset | ## What Operator, 29-10 '26: *"Change the UV pill to "—" after sunset"*. | 5 files — tests, doc, package | — | tests; doc/vault |
+| 1898 | merged | 2026-10-29 22:44:36+00:00 | 0.62.955 | feature | Cuisine Picker | Add: Cuisine result cards take their natural height | ## What Operator, 30-10 '26: *"Go with natural height for the cards"*. | 7 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1899 | merged | 2026-10-29 23:53:26+00:00 | 0.62.956 | feature | Hawker NEA | Add: Park Connector layer in the Cuisine, Train and Hawker maps; parks for the visible map | ## What Operator, 30-10 '26: the rules for a Park Connector layer, the MVP, *"Write the Park Connector spec"*, then *"APPROVE doc/Feature/2026-10-30-park-connector-layer.spec.md"*. | 20 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, data, package, geoloc/, scripts/ | cuisine+hawker+transport | tests; doc/vault |
+| 1900 | merged | 2026-10-30 07:40:37+00:00 | 0.62.957 | feature | Cuisine Picker | Add: 959 - Park connector loops at every zoom; map popups in your language; settings kept | ## What Three releases built on two approved specs. | 22 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package | cuisine+hawker+transport | tests; doc/vault |
+| 1901 | merged | 2026-10-31 00:48:16+00:00 |  | fix | Weather | Fix: Specs only: weather fixes + 4-day forecast, simulated trains, keyboard toggle + history (no code) | ## What This PR holds three specs and no code. | 5 files — doc | — | doc/vault |
+| 1902 | merged | 2026-10-31 14:39:06+00:00 | 0.62.960 | feature | Weather | Add: Weather badge follows the reader, abroad card with Open-Meteo credit, licence notice, NEA 4-day outlook | ## What Built from `doc/Feature/2026-10-30-weather-fixes-and-4-day-forecast.spec.md`, which the operator approved on 31-10 '26 at 09:59. | 14 files — index.js, weather-outlook.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package | cuisine+hawker+transport | Redis/state; tests; doc/vault |
+| 1903 | merged | 2026-11-01 04:46:19+00:00 | 0.62.961 | feature | Weather | Add: Simulated moving trains (Train Mini App) + Feature/Technical snapshots to v0.62.960 | ## What Two parts on one branch: the simulated-trains feature (v0.62.961) and the documentation pass that was already on this PR. | 10 files — TMA:transport, tests, doc, package, scripts/ | transport | tests; doc/vault |
+| 1904 | merged | 2026-11-01 12:56:59+00:00 | 0.62.962 | feature | Weather | Add: local weather for every city (MET Norway) + JMA warnings; FR24 spec awaiting APPROVE | ## What ### 1. | 23 files — index.js, jma-warnings.js, weather.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, data, package, scripts/ | cuisine+hawker+transport | tests; doc/vault |
+| 1905 | merged | 2026-11-01 20:59:34+00:00 | 0.62.963 | feature | Weather | Add: JMA long feed seeds quiet offices, Snow/Sleet labels, accurate stale line, dated JMA times | ## What v0.62.963, built under Amendment 2 of `doc/Feature/2026-11-01-local-weather-every-city.spec.md` (approved with the bare APPROVE line at `e1db6f4a`). | 11 files — jma-warnings.js, weather.js, tests, doc, package | — | tests; doc/vault |
+| 1906 | merged | 2026-11-02 01:24:39+00:00 | 0.62.964 | feature | Search / free-text | Add: Cuisine free-text box - 💬 opens with the keyboard, ⌨️ hides/shows it, last 30 entries remembered | ## What Built under the approved spec `doc/Feature/2026-10-31-tellme-keyboard-toggle-and-history.spec.md` (approved at `492a32c1`, after Amendment 1). | 10 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1907 | merged | 2026-11-02 09:06:04+00:00 | 0.62.965 | feature | Cuisine Picker | Add: a saved place locks for 6 h, then the phone wins past 50 km with "↩ Back to " (Cuisine, Menu, chat /cuisine) | ## What Built under `doc/Feature/2026-11-02-saved-place-expires-after-six-hours.spec.md` (approved at `c50bcdc2`, `df596d4a` after Amendment 1, `a8349f86` after Amendment 2). | 19 files — index.js, i18n.js, location-cache.js, TMA:cuisine, TMA:menu, tests, doc, package | cuisine+menu | tests; doc/vault |
+| 1908 | merged | 2026-11-02 09:56:03+00:00 | 0.62.966 | feature | Weather | Add: Train simulation caption moves from a pill over the map into the header band, beside the weather strip | ## What Built under `doc/Feature/2026-11-02-train-sim-caption-in-header-band.spec.md` (approved at `92c96982`). | 9 files — TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1909 | merged | 2026-11-02 22:50:05+00:00 | 0.62.967 | feature | Weather | Add: Train bus route and live buses, tap a service in a stop's bubble | ## What Operator, 02-11: *"each bus stop, if I click on the bus number, can you show the bus route and current bus # running on the route?"* Spec `doc/Feature/2026-11-02-bus-route-and-live-buses-train-tma.spec.md`, approved, then… | 12 files — index.js, transport.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1910 | merged | 2026-11-03 00:23:46+00:00 | 0.62.968 | feature | Transport / carpark | Add: bus route shape fallback and buses cache | ## What After v0.62.967 went live, service 10 direction 2 drew straight lines on every call, logged nothing, and paid for its Directions requests again each time. | 8 files — index.js, transport.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1911 | merged | 2026-11-03 10:49:24+00:00 | 0.62.969 | feature | Weather | Add: Train station tap trains, stop tap buses, footer controls | ## What Operator, 03-11: a station tap should start the train movements and keep them running after the card closes; a stop tap should show up to 4 buses per service, 2 coming and 2 going; both stop when the app closes; controls in the… | 14 files — index.js, transport.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1912 | merged | 2026-11-03 12:45:06+00:00 | 0.62.970 | feature | Hawker NEA | Add: Hawker and Cuisine station tap trains, stop tap buses, footer chips | ## What The second release of the station and stop tap work: v0.62.969's behaviours in the Hawker and Cuisine Mini Apps. | 20 files — TMA:cuisine, TMA:hawker, tests, doc, package | cuisine+hawker | tests; doc/vault |
+| 1913 | merged | 2026-11-03 23:21:13+00:00 | 0.62.971 | feature | Hawker NEA | Add: v0.62.971 run drawer and operating hours (Train, Hawker, Cuisine); footer tag drops Singapore | ## What Spec `doc/Feature/2026-11-04-run-drawer-and-operating-hours.spec.md`, approved 04-11 06:34 SGT, built as **v0.62.971** in the Train, Hawker and Cuisine Mini Apps. | 26 files — index.js, transport.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package | cuisine+menu+hawker+transport | tests; doc/vault |
+| 1914 | merged | 2026-11-04 06:12:54+00:00 | 0.62.972 | feature | Weather | Add: v0.62.972 Train map: layer row and zoom buttons below the floating header | ## What Spec `doc/Feature/2026-11-04-train-map-controls-below-header.spec.md`, approved 04-11 08:11 SGT, built as **v0.62.972** in the Train Mini App. | 10 files — TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1915 | merged | 2026-11-04 08:46:37+00:00 | 0.62.973 | feature | Cuisine Picker | Add: v0.62.973 Cuisine: remove the "Traditional / Non-AI results" footer line; spec for TEL5/DTL3e auto-open on 26 Dec | ## What Spec `doc/Feature/2026-11-04-remove-non-ai-results-line.spec.md` (merged with #1914 as a document; approved 04-11 14:48 SGT). | 13 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1916 | merged | 2026-11-04 10:01:15+00:00 | 0.62.974 | feature | Cuisine Picker | Add: v0.62.974 TEL5/DTL3e: Bedok South, Sungei Bedok and Xilin open by themselves at 00:00 SGT on 26 Dec 2026 | ## What Spec `doc/Feature/2026-11-04-tel5-dtl3e-auto-open-26-dec.spec.md` (merged with #1915 as a document; approved 04-11 16:51 SGT). | 14 files — index.js, station-open.js, TMA:cuisine, tests, doc, data, package, scripts/ | cuisine | tests; doc/vault |
 
 ---
 
