@@ -1,6 +1,6 @@
 {
-  "generated": "2026-10-29",
-  "count": 1862,
+  "generated": "2026-11-04",
+  "count": 1888,
   "records": [
     {
       "pr": 1,
@@ -53415,6 +53415,864 @@
         "doc/vault"
       ],
       "title": "v0.62.948 - refresh the hawker closure dates from NEA (28-10 '26)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1891,
+      "status": "merged",
+      "merged": "2026-10-29 01:47:14+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.948",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Docs current to v0.62.948 + vault snapshot v0.62.948",
+      "approach": "## Why Operator, 29-10: *\"Do the documentation updates and the vault first.",
+      "codeImpact": "2525 files — tests, doc, vault, ci, public/, scripts/",
+      "modules": [
+        "ci",
+        "tests",
+        "doc",
+        "public/",
+        "scripts/",
+        "vault"
+      ],
+      "nFiles": 2525,
+      "tmas": [],
+      "impactTags": [
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "Docs current to v0.62.948 + vault snapshot v0.62.948",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1892,
+      "status": "merged",
+      "merged": "2026-10-29 04:10:48+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.949",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Privacy / legal",
+      "intent": "Add: halal only when certified; plus the documentation pass",
+      "approach": "## What **v0.62.949: halal only when certified** - Operator, 29-10: *\"Don't default halal for JB and eateries.",
+      "codeImpact": "13 files — external-eateries.js, tests, doc, package, root-docs",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "external-eateries.js",
+        "package"
+      ],
+      "nFiles": 13,
+      "tmas": [],
+      "impactTags": [
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.949 - halal only when certified; plus the documentation pass",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1893,
+      "status": "merged",
+      "merged": "2026-10-29 05:39:23+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.950",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: refresh MRT station exits and LTA bus stops",
+      "approach": "## What LTA's MRT Station Exit (18-10 '26) and Bus Stop (06-10 '26) datasets, downloaded from data.gov.sg on 29-10 and committed unedited.",
+      "codeImpact": "16 files — tests, doc, data, package, geoloc/, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "geoloc/",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 16,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.950 - refresh MRT station exits and LTA bus stops",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1894,
+      "status": "merged",
+      "merged": "2026-10-29 06:47:45+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.951",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: refresh NParks parks and SPF police overlays",
+      "approach": "## What Refreshes the map's parks and police layers from the current data.gov.sg datasets.",
+      "codeImpact": "10 files — tests, doc, data, package, geoloc/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "geoloc/",
+        "package"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.951 - refresh NParks parks and SPF police overlays",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1895,
+      "status": "merged",
+      "merged": "2026-10-29 10:40:26+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.952",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: \"Outside now\": weather-chip dot, sheet and warning strip",
+      "approach": "## What This adds layouts B and A from the \"Outside now\" design to the Cuisine, Train and Hawker Mini Apps.",
+      "codeImpact": "17 files — index.js, outside-now.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "outside-now.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 17,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.952 - \"Outside now\": weather-chip dot, sheet and warning strip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1896,
+      "status": "merged",
+      "merged": "2026-10-29 11:41:18+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.953",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Language / i18n",
+      "intent": "Fix: Codex fixes that missed #1895, plus \"Outside now\" Amendment 1",
+      "approach": "## What **1.",
+      "codeImpact": "11 files — outside-now.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "outside-now.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 11,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.953 - Codex fixes that missed #1895, plus \"Outside now\" Amendment 1",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1897,
+      "status": "merged",
+      "merged": "2026-10-29 20:30:16+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.954",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: UV pill reads \"—\" after sunset",
+      "approach": "## What Operator, 29-10 '26: *\"Change the UV pill to \"—\" after sunset\"*.",
+      "codeImpact": "5 files — tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.954 - UV pill reads \"—\" after sunset",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1898,
+      "status": "merged",
+      "merged": "2026-10-29 22:44:36+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.955",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine result cards take their natural height",
+      "approach": "## What Operator, 30-10 '26: *\"Go with natural height for the cards\"*.",
+      "codeImpact": "7 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.955 - Cuisine result cards take their natural height",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1899,
+      "status": "merged",
+      "merged": "2026-10-29 23:53:26+00:00",
+      "day": "2026-10-29",
+      "version": "0.62.956",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Park Connector layer in the Cuisine, Train and Hawker maps; parks for the visible map",
+      "approach": "## What Operator, 30-10 '26: the rules for a Park Connector layer, the MVP, *\"Write the Park Connector spec\"*, then *\"APPROVE doc/Feature/2026-10-30-park-connector-layer.spec.md\"*.",
+      "codeImpact": "20 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, data, package, geoloc/, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "geoloc/",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 20,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.956 - Park Connector layer in the Cuisine, Train and Hawker maps; parks for the visible map",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1900,
+      "status": "merged",
+      "merged": "2026-10-30 07:40:37+00:00",
+      "day": "2026-10-30",
+      "version": "0.62.957",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: 959 - Park connector loops at every zoom; map popups in your language; settings kept",
+      "approach": "## What Three releases built on two approved specs.",
+      "codeImpact": "22 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 22,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.957-959 - Park connector loops at every zoom; map popups in your language; settings kept",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1901,
+      "status": "merged",
+      "merged": "2026-10-31 00:48:16+00:00",
+      "day": "2026-10-31",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Weather",
+      "intent": "Fix: Specs only: weather fixes + 4-day forecast, simulated trains, keyboard toggle + history (no code)",
+      "approach": "## What This PR holds three specs and no code.",
+      "codeImpact": "5 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Specs only: weather fixes + 4-day forecast, simulated trains, keyboard toggle + history (no code)",
+      "reworkCue": false,
+      "reworkOf": 1895,
+      "burst": false
+    },
+    {
+      "pr": 1902,
+      "status": "merged",
+      "merged": "2026-10-31 14:39:06+00:00",
+      "day": "2026-10-31",
+      "version": "0.62.960",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: Weather badge follows the reader, abroad card with Open-Meteo credit, licence notice, NEA 4-day outlook",
+      "approach": "## What Built from `doc/Feature/2026-10-30-weather-fixes-and-4-day-forecast.spec.md`, which the operator approved on 31-10 '26 at 09:59.",
+      "codeImpact": "14 files — index.js, weather-outlook.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "weather-outlook.js",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.960 - Weather badge follows the reader, abroad card with Open-Meteo credit, licence notice, NEA 4-day outlook",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1903,
+      "status": "merged",
+      "merged": "2026-11-01 04:46:19+00:00",
+      "day": "2026-11-01",
+      "version": "0.62.961",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: Simulated moving trains (Train Mini App) + Feature/Technical snapshots to v0.62.960",
+      "approach": "## What Two parts on one branch: the simulated-trains feature (v0.62.961) and the documentation pass that was already on this PR.",
+      "codeImpact": "10 files — TMA:transport, tests, doc, package, scripts/",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "scripts/",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.961 - Simulated moving trains (Train Mini App) + Feature/Technical snapshots to v0.62.960",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1904,
+      "status": "merged",
+      "merged": "2026-11-01 12:56:59+00:00",
+      "day": "2026-11-01",
+      "version": "0.62.962",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: local weather for every city (MET Norway) + JMA warnings; FR24 spec awaiting APPROVE",
+      "approach": "## What ### 1.",
+      "codeImpact": "23 files — index.js, jma-warnings.js, weather.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, data, package, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "index.js",
+        "jma-warnings.js",
+        "package",
+        "scripts/",
+        "weather.js",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 23,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.962: local weather for every city (MET Norway) + JMA warnings; FR24 spec awaiting APPROVE",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1905,
+      "status": "merged",
+      "merged": "2026-11-01 20:59:34+00:00",
+      "day": "2026-11-01",
+      "version": "0.62.963",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: JMA long feed seeds quiet offices, Snow/Sleet labels, accurate stale line, dated JMA times",
+      "approach": "## What v0.62.963, built under Amendment 2 of `doc/Feature/2026-11-01-local-weather-every-city.spec.md` (approved with the bare APPROVE line at `e1db6f4a`).",
+      "codeImpact": "11 files — jma-warnings.js, weather.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "jma-warnings.js",
+        "package",
+        "weather.js"
+      ],
+      "nFiles": 11,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.963: JMA long feed seeds quiet offices, Snow/Sleet labels, accurate stale line, dated JMA times",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1906,
+      "status": "merged",
+      "merged": "2026-11-02 01:24:39+00:00",
+      "day": "2026-11-02",
+      "version": "0.62.964",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: Cuisine free-text box - 💬 opens with the keyboard, ⌨️ hides/shows it, last 30 entries remembered",
+      "approach": "## What Built under the approved spec `doc/Feature/2026-10-31-tellme-keyboard-toggle-and-history.spec.md` (approved at `492a32c1`, after Amendment 1).",
+      "codeImpact": "10 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.964: Cuisine free-text box - 💬 opens with the keyboard, ⌨️ hides/shows it, last 30 entries remembered",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1907,
+      "status": "merged",
+      "merged": "2026-11-02 09:06:04+00:00",
+      "day": "2026-11-02",
+      "version": "0.62.965",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: a saved place locks for 6 h, then the phone wins past 50 km with \"↩ Back to \" (Cuisine, Menu, chat /cuisine)",
+      "approach": "## What Built under `doc/Feature/2026-11-02-saved-place-expires-after-six-hours.spec.md` (approved at `c50bcdc2`, `df596d4a` after Amendment 1, `a8349f86` after Amendment 2).",
+      "codeImpact": "19 files — index.js, i18n.js, location-cache.js, TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "location-cache.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 19,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.965: a saved place locks for 6 h, then the phone wins past 50 km with \"↩ Back to \" (Cuisine, Menu, chat /cuisine)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1908,
+      "status": "merged",
+      "merged": "2026-11-02 09:56:03+00:00",
+      "day": "2026-11-02",
+      "version": "0.62.966",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: Train simulation caption moves from a pill over the map into the header band, beside the weather strip",
+      "approach": "## What Built under `doc/Feature/2026-11-02-train-sim-caption-in-header-band.spec.md` (approved at `92c96982`).",
+      "codeImpact": "9 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.966: Train simulation caption moves from a pill over the map into the header band, beside the weather strip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1909,
+      "status": "merged",
+      "merged": "2026-11-02 22:50:05+00:00",
+      "day": "2026-11-02",
+      "version": "0.62.967",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: Train bus route and live buses, tap a service in a stop's bubble",
+      "approach": "## What Operator, 02-11: *\"each bus stop, if I click on the bus number, can you show the bus route and current bus # running on the route?\"* Spec `doc/Feature/2026-11-02-bus-route-and-live-buses-train-tma.spec.md`, approved, then…",
+      "codeImpact": "12 files — index.js, transport.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "transport.js",
+        "TMA:transport"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.967: Train bus route and live buses, tap a service in a stop's bubble",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1910,
+      "status": "merged",
+      "merged": "2026-11-03 00:23:46+00:00",
+      "day": "2026-11-03",
+      "version": "0.62.968",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: bus route shape fallback and buses cache",
+      "approach": "## What After v0.62.967 went live, service 10 direction 2 drew straight lines on every call, logged nothing, and paid for its Directions requests again each time.",
+      "codeImpact": "8 files — index.js, transport.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "transport.js",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.968: bus route shape fallback and buses cache",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1911,
+      "status": "merged",
+      "merged": "2026-11-03 10:49:24+00:00",
+      "day": "2026-11-03",
+      "version": "0.62.969",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: Train station tap trains, stop tap buses, footer controls",
+      "approach": "## What Operator, 03-11: a station tap should start the train movements and keep them running after the card closes; a stop tap should show up to 4 buses per service, 2 coming and 2 going; both stop when the app closes; controls in the…",
+      "codeImpact": "14 files — index.js, transport.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "transport.js",
+        "TMA:transport"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.969: Train station tap trains, stop tap buses, footer controls",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1912,
+      "status": "merged",
+      "merged": "2026-11-03 12:45:06+00:00",
+      "day": "2026-11-03",
+      "version": "0.62.970",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker and Cuisine station tap trains, stop tap buses, footer chips",
+      "approach": "## What The second release of the station and stop tap work: v0.62.969's behaviours in the Hawker and Cuisine Mini Apps.",
+      "codeImpact": "20 files — TMA:cuisine, TMA:hawker, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker"
+      ],
+      "nFiles": 20,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.970: Hawker and Cuisine station tap trains, stop tap buses, footer chips",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1913,
+      "status": "merged",
+      "merged": "2026-11-03 23:21:13+00:00",
+      "day": "2026-11-03",
+      "version": "0.62.971",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: v0.62.971 run drawer and operating hours (Train, Hawker, Cuisine); footer tag drops Singapore",
+      "approach": "## What Spec `doc/Feature/2026-11-04-run-drawer-and-operating-hours.spec.md`, approved 04-11 06:34 SGT, built as **v0.62.971** in the Train, Hawker and Cuisine Mini Apps.",
+      "codeImpact": "26 files — index.js, transport.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "transport.js",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 26,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.971 run drawer and operating hours (Train, Hawker, Cuisine); footer tag drops Singapore",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1914,
+      "status": "merged",
+      "merged": "2026-11-04 06:12:54+00:00",
+      "day": "2026-11-04",
+      "version": "0.62.972",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: v0.62.972 Train map: layer row and zoom buttons below the floating header",
+      "approach": "## What Spec `doc/Feature/2026-11-04-train-map-controls-below-header.spec.md`, approved 04-11 08:11 SGT, built as **v0.62.972** in the Train Mini App.",
+      "codeImpact": "10 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.972 Train map: layer row and zoom buttons below the floating header",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1915,
+      "status": "merged",
+      "merged": "2026-11-04 08:46:37+00:00",
+      "day": "2026-11-04",
+      "version": "0.62.973",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: v0.62.973 Cuisine: remove the \"Traditional / Non-AI results\" footer line; spec for TEL5/DTL3e auto-open on 26 Dec",
+      "approach": "## What Spec `doc/Feature/2026-11-04-remove-non-ai-results-line.spec.md` (merged with #1914 as a document; approved 04-11 14:48 SGT).",
+      "codeImpact": "13 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.973 Cuisine: remove the \"Traditional / Non-AI results\" footer line; spec for TEL5/DTL3e auto-open on 26 Dec",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1916,
+      "status": "merged",
+      "merged": "2026-11-04 10:01:15+00:00",
+      "day": "2026-11-04",
+      "version": "0.62.974",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: v0.62.974 TEL5/DTL3e: Bedok South, Sungei Bedok and Xilin open by themselves at 00:00 SGT on 26 Dec 2026",
+      "approach": "## What Spec `doc/Feature/2026-11-04-tel5-dtl3e-auto-open-26-dec.spec.md` (merged with #1915 as a document; approved 04-11 16:51 SGT).",
+      "codeImpact": "14 files — index.js, station-open.js, TMA:cuisine, tests, doc, data, package, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "index.js",
+        "package",
+        "scripts/",
+        "station-open.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.974 TEL5/DTL3e: Bedok South, Sungei Bedok and Xilin open by themselves at 00:00 SGT on 26 Dec 2026",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
