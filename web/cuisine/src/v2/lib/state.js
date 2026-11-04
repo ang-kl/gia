@@ -162,7 +162,7 @@ export function initialState(hash, kept) {
 //   stashed   — travel in the payload's `view` object and are set back on the restored mount.
 //   transient — deliberately not carried, each with the reason.
 export const LOCALE_STASH = {
-  carried: ['venues', 'searchCenter', 'userLoc', 'selectedCityLocation', 'resultsOrigin', 'locationAnchor',
+  carried: ['venues', 'searchCenter', 'userLoc', 'selectedCityLocation', 'locationAnchor',
     'searchLocName'],
   stashed: [
     'state', 'overlayLayers', 'pcnLock', 'drawerMode', 'drawerDismissed', 'focusedPlaceId', 'nlText', 'tellMeAi',
