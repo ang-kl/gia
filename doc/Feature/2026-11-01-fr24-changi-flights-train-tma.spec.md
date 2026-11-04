@@ -13,6 +13,11 @@ scope:
   - "__tests__/fr24.test.js"
   - "__tests__/fr24-layer.test.js"
   - "__tests__/bot-handler-guard.test.js"
+  - "web/transport/src/components/Fr24Board.jsx"
+  - "web/transport/src/App.jsx"
+  - "web/transport/src/lib/train-sim.js"
+  - "web/_shared/components/SimCaptionStrip.jsx"
+  - "__tests__/train-sim.test.js"
   - "package.json"
   - "doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -286,6 +291,46 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
   - **Where I14 is tested.** The gate and the dispatch live in `fr24.js` (`handle()`), so the test calls it with a
     fake fetch and counts calls; the `index.js` routes only verify `initData`, call `handle()` and send its status
     and body.
+- **05-11 '26, amendment 3** (operator, 05-11 '26, on the first build's screenshots: *"Is this the best layout for the
+  Arrival/Departure dashboard? can it be another overlay of liquid glass cards strip (w scrollbar) and list (w
+  scrollbar), like the Cuisine.TMA . If there click on the flight, it will show more on the pin where is it flying now
+  or landed now. The NEA for lighting keep it short"*; then, asked, *"Strip + list toggle"*, *"In-air only"*,
+  *"Into #1918 before merge"*, and for the side note *"Reason only when idle"*). Approved at sha 3b819c13; this
+  amendment voids that approval and asks for it again.
+  - **C10 revised: the board is a glass overlay, not a map popup.** A pin tap opens `Fr24Board.jsx` in the bottom
+    dock where the station carousel sits (`App.jsx`, the fixed `z-[38]` dock); while it is open the carousel is not
+    rendered, and its ✕ brings the carousel back. Its header row: the airport, Departures / Arrivals, a Strip / List
+    toggle, "Show planes", ✕. **Strip** (the default): a horizontal snap row of glass cards, one flight each (time,
+    place, flight, aircraft, status), with a visible scrollbar. **List**: a vertical glass list, at most about 40 % of
+    the screen high, with a visible scrollbar. Both read the same data, so switching costs nothing. The "actual
+    times, not the schedule" label and the "no terminals or gates" line stay, each one short line. The InfoWindow
+    board (`boardHtml`) is removed; the pins, planes, caption and flight card on the map stay.
+  - **C3 revised, flight tap ("In-air only").** Tapping a flight that is still in the air asks a new route,
+    `GET /api/fr24/locate/:callsign`: `live/flight-positions/light?callsigns=<cs>&limit=1` (6 credits, 1 if empty),
+    behind the same gate, cache (60 s), rate and budget guards. The map pans to the plane, draws it, and opens its
+    card there. A flight that has landed opens its card only, with no request and no map move. A flight with no
+    callsign, or not found live, says so in one line.
+  - **C9 revised.** NEA lightning is one short line: "⚡ ≤ 5 km · 13:57" (in nine locales).
+  - **Side note, the simulated-trains strip (all three apps, one model).** `simStripModel` returns nothing while
+    trains run (the "Simulated" button already says what they are), and while none run only the reason, one line:
+    "No trains running now", "Paused: service disruption", "No timetable for this line", "Pick a line to see its
+    trains", none mentioning "simulated". A tapped train's bubble still says it is simulated. `App.jsx` and the
+    shared `SimCaptionStrip.jsx` render nothing when the model is empty. This reverses part of
+    `2026-11-02-train-sim-caption-in-header-band.spec.md` C2 ("the caption always"); `train-sim.test.js` is edited
+    to match and quoted in the journal (F7).
+  - **New invariants.**
+    - I15: the board renders in the bottom dock and the carousel does not while it is open; ✕ restores it; Strip
+      and List read the same rows and switching makes no request. Check: `fr24-layer.test.js` (the board model and
+      the layer's board state) and a source check of `App.jsx` and `Fr24Board.jsx` (`overflow-x-auto` with snap for
+      the strip, `overflow-y-auto` for the list).
+    - I16: locate is well-formed and guarded: `callsigns=<cs>&limit=1`, a callsign must match `[A-Z0-9]{2,8}`,
+      cached 60 s, 403 for a non-owner with no request. Check: `fr24.test.js`.
+    - I17: an in-air row tap makes exactly one locate request and moves the map; a landed row tap makes none.
+      Check: `fr24-layer.test.js`.
+    - I18: the sim strip model is empty while running and one reason line otherwise, in nine locales, with no
+      "simulat" in any reason. Check: `train-sim.test.js`.
+  - **New mutations:** the carousel left rendered under the board; a landed tap fetching; locate without the owner
+    gate; the strip model returning the caption while running.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
