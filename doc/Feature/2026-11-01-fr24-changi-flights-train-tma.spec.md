@@ -331,6 +331,25 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
       "simulat" in any reason. Check: `train-sim.test.js`.
   - **New mutations:** the carousel left rendered under the board; a landed tap fetching; locate without the owner
     gate; the strip model returning the caption while running.
+- **05-11 '26, amendment 4** (operator, 05-11 '26, on the List view: *"can this card as shown in attachment be two
+  columns, use the emoji ✈️ "air" "🛬 landed " " 🛫departed""*; asked which layout, *"Each row in three columns -
+  left time + place, right flight, centre aircraft and status. allow user to sort by time or flight code or airline
+  code"*; on terminals, after Wikipedia was checked live and found to carry no airline-to-terminal table, *"okay keep
+  with FR24 as it is but Singapore Changi Airport (SIN)'s terminal and gate assignments are managed dynamically by
+  Changi Airport's ground operations and are usually only confirmed about two hours before arrival (or right at the
+  gate upon landing)"*). Approved at sha d657307d; this amendment voids that approval and asks for it again.
+  - **No terminals.** The board stays one list per airport. The footer keeps saying Flightradar24 does not publish
+    terminals or gates; the operator's note is why a guessed terminal would mislead.
+  - **List rows in three columns:** left, the time over the place; centre, the aircraft over the status; right, the
+    flight number. The Cards view shows the same three facts.
+  - **Emoji:** 🛫 before a take-off time (a departure's time; an arrival still in the air shows its take-off from the
+    origin), 🛬 before a landing time, and the status reads "✈️ In the air" or "🛬 Landed 13:31", in nine locales.
+  - **Sort:** Time (newest first, as now), Flight (A to Z by flight number) or Airline (A to Z by airline code, then
+    time), as chips on the board. Sorting is on the rows already held and makes no request.
+  - **Invariant I19:** the three sorts order the rows as stated, keep every row, and make no request; the row model
+    carries the emoji in `time` and `status`; the list row has three columns. Check: `fr24-layer.test.js`.
+  - **Mutations:** a sort that drops a row; the airline sort ignoring the airline; the emoji dropped from the
+    status.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
