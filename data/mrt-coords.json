@@ -12,7 +12,9 @@
       "codes": "array of LTA codes (e.g. ['NS24','NE6','CC1'])",
       "lines": "array of line codes (NSL/EWL/NEL/CCL/DTL/TEL/CGL/BPL/SLRT/PLRT/JRL/CRL)",
       "status": "operational|future",
-      "opensYear": "number (future only)"
+      "opensYear": "number (future only)",
+      "opensOn": "YYYY-MM-DD (future only, optional; v0.62.974): the Singapore date from which station-open.js treats the station as operational with no data change. TEL5/DTL3e: 2026-12-26 (LTA release, 04 Nov 2026)",
+      "opensDate": "display text of the opening date (future only, optional), with opensDateFr for French"
     }
   },
   "Jurong East": {
@@ -2104,7 +2106,10 @@
       "TEL"
     ],
     "status": "future",
-    "opensYear": 2026
+    "opensYear": 2026,
+    "opensOn": "2026-12-26",
+    "opensDate": "26 December 2026",
+    "opensDateFr": "26 décembre 2026"
   },
   "Sungei Bedok": {
     "lat": 1.3203,
@@ -2118,7 +2123,10 @@
       "DTL"
     ],
     "status": "future",
-    "opensYear": 2026
+    "opensYear": 2026,
+    "opensOn": "2026-12-26",
+    "opensDate": "26 December 2026",
+    "opensDateFr": "26 décembre 2026"
   },
   "Xilin": {
     "lat": 1.3303,
@@ -2130,7 +2138,10 @@
       "DTL"
     ],
     "status": "future",
-    "opensYear": 2026
+    "opensYear": 2026,
+    "opensOn": "2026-12-26",
+    "opensDate": "26 December 2026",
+    "opensDateFr": "26 décembre 2026"
   },
   "Choa Chu Kang West": {
     "lat": 1.3866,

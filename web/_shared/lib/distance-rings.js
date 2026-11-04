@@ -25,6 +25,8 @@
 // generator (scripts/gen-cuisine-stations.mjs) emits alongside the Cuisine one.
 
 import { SG_STATIONS } from './mrt-stations.generated.js';
+// v0.62.974 — the list holds stations opening on a date (TEL5/DTL3e, 26 Dec 2026); read it through openAt.
+import { openAt, sgtDate } from './station-open.js';
 
 const WALK_RADIUS_M = 750;        // operator: 750 m walkable ring
 const MRT_STOPS = 2;              // "2 MRT stops away"
@@ -99,13 +101,17 @@ function parseCode(code) {
   return m ? { line: m[1].toUpperCase(), num: Number(m[2]) } : null;
 }
 
-// Per-line operational-station order, built once. Map line → array of
-// { st, num } sorted ascending by sequence number.
+// Per-line operational-station order. Map line → array of { st, num } sorted
+// ascending by sequence number. v0.62.974 — built once PER SINGAPORE DATE, not
+// once: TEL5/DTL3e (26 Dec 2026) join the walk by themselves at midnight.
 let _lineOrder = null;
+let _lineOrderDay = null;
 function lineOrder() {
-  if (_lineOrder) return _lineOrder;
+  const now = Date.now();
+  const day = sgtDate(now);
+  if (_lineOrder && _lineOrderDay === day) return _lineOrder;
   const byLine = new Map();
-  for (const st of SG_STATIONS) {
+  for (const st of openAt(SG_STATIONS, now)) {
     for (const code of (Array.isArray(st.c) ? st.c : [])) {
       const p = parseCode(code);
       if (!p) continue;
@@ -115,6 +121,7 @@ function lineOrder() {
   }
   for (const arr of byLine.values()) arr.sort((a, b) => a.num - b.num);
   _lineOrder = byLine;
+  _lineOrderDay = day;
   return _lineOrder;
 }
 
@@ -122,7 +129,7 @@ function lineOrder() {
 function nearestStation(lat, lng) {
   let best = null;
   let bestD = Infinity;
-  for (const st of SG_STATIONS) {
+  for (const st of openAt(SG_STATIONS, Date.now())) {
     const d = metresBetween(lat, lng, st.lat, st.lng);
     if (d < bestD) { bestD = d; best = st; }
   }
