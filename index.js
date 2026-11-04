@@ -19326,6 +19326,8 @@ async function cacheBotUsername() {
     app.get('/api/fr24/board/:icao', requireInitDataFromBodyOrHeader, fr24Route('board', (req) => ({ icao: req.params.icao, dir: req.query.dir })));
     app.get('/api/fr24/airport/:icao', requireInitDataFromBodyOrHeader, fr24Route('airport', (req) => ({ icao: req.params.icao })));
     app.get('/api/fr24/flight/:id', requireInitDataFromBodyOrHeader, fr24Route('flight', (req) => ({ id: req.params.id })));
+    // v0.62.975 amendment 3 — where one board flight is now, by callsign (6 credits, cached 60 s, same gate).
+    app.get('/api/fr24/locate/:callsign', requireInitDataFromBodyOrHeader, fr24Route('locate', (req) => ({ callsign: req.params.callsign })));
 
     app.get('/api/transport/stations', (_req, res) => {
       try {

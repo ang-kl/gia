@@ -29,6 +29,7 @@ import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { ot, badgeDot } from '../../_shared/lib/outside-now-i18n.js';
 // v0.62.966 — spec 2026-11-02-train-sim-caption-in-header-band: the simulation caption as a header strip.
 import { simStripModel } from './lib/train-sim.js';
+import Fr24Board from './components/Fr24Board.jsx';
 import { busResumeText } from './lib/run-state.js';
 import FooterRunButtons from '../../_shared/components/FooterRunButtons.jsx';
 import ResumeStrip from '../../_shared/components/ResumeStrip.jsx';
@@ -252,12 +253,13 @@ function SimCaptionStrip({ on, status, lang = 'en', className = '' }) {
   useEffect(() => { if (on) setHidden(false); }, [on]);
   if (!on || hidden) return null;
   const m = simStripModel({ status, lang });
+  // v0.62.975 — nothing while trains run; one reason line while none do (FR24 spec, amendment 3).
+  if (!m) return null;
   return (
     <div role={m.role} data-sim-strip={m['data-sim-strip']} className={className} style={m.style}>
       <span aria-hidden="true">{m.icon}</span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block' }}>{m.lines[0]}</span>
-        {m.lines[1] && <span style={{ display: 'block', fontWeight: 600 }}>{m.lines[1]}</span>}
       </span>
       <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={() => setHidden(true)} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
     </div>
@@ -300,6 +302,8 @@ export default function App() {
   // v0.62.969 — C8: what the footer's run chips show; the panel reports both.
   const [trains, setTrains] = useState(null);
   const [stopBuses, setStopBuses] = useState(null);
+  // v0.62.975 — FR24 spec amendment 3: the flight board the map panel hands up ({ model, actions }), or null.
+  const [fr24Board, setFr24Board] = useState(null);
   const outside = useOutsideNow({ lat: outsideLoc?.lat ?? null, lng: outsideLoc?.lng ?? null });
   // v0.62.962 — spec doc/Feature/2026-11-01-local-weather-every-city.spec.md, C3/C7: outside Singapore the sheet, the
   // strip and the dot come from MET Norway (and JMA in Japan); the dot follows badgeDot, so none abroad but JMA's.
@@ -736,6 +740,7 @@ export default function App() {
             onBusRouteChange={setBusRoute}
             onTrainsChange={setTrains}
             onStopBusesChange={setStopBuses}
+            onFr24BoardChange={setFr24Board}
             publicHolidays={data?.publicHolidays || []}
           />
         </div>
@@ -1129,10 +1134,17 @@ export default function App() {
           sat at a fixed bottom-14, which on an iPad with a bottom safe-area inset
           let the fixed footer dock overlap the cards' last row. Offset by the REAL
           footer height + the safe-area inset so a card always clears the dock. */}
-      {(lineStations.length > 0 || singleFocusedCard) && (
+      {/* v0.62.975 — FR24 spec amendment 3 (C10 revised, I15): while a flight board is open it takes this dock and the
+          station carousel is not rendered; its ✕ brings the carousel back. */}
+      {(fr24Board || lineStations.length > 0 || singleFocusedCard) && (
         <div className="fixed inset-x-0 z-[38] pointer-events-none"
           style={{ bottom: 'calc(3.25rem + env(safe-area-inset-bottom, 0px))' }}>
-          {lineStations.length > 0
+          {fr24Board ? (
+            <div className="px-3">
+              <Fr24Board model={fr24Board.model} onTab={fr24Board.onTab} onView={fr24Board.onView} onPlanes={fr24Board.onPlanes}
+                onClose={fr24Board.onClose} onSelect={fr24Board.onSelect} onGetThere={fr24Board.onGetThere} />
+            </div>
+          ) : lineStations.length > 0
             ? <StationCarousel items={lineStations} activeIndex={activeStationIndex} isWide={vp.isWide}
                 render={(st, i, glass) => renderStationCard(st, i, glass, true, true)} />
             : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}

@@ -33,18 +33,11 @@ export const SIM_STRINGS = {
   },
   paused: { en: 'Paused: service disruption', fr: 'En pause : perturbation du service', id: 'Dijeda: gangguan layanan', ru: 'Пауза: сбой в движении', de: 'Pausiert: Betriebsstörung', zh: '已暂停：服务中断', ja: '一時停止：運行障害', es: 'En pausa: interrupción del servicio', ko: '일시 중지: 운행 장애' },
   outOfHours: { en: 'No trains running now', fr: 'Aucun train en circulation maintenant', id: 'Tidak ada kereta yang beroperasi sekarang', ru: 'Сейчас поезда не ходят', de: 'Derzeit fahren keine Züge', zh: '目前没有列车运行', ja: '現在運行中の列車はありません', es: 'No hay trenes circulando ahora', ko: '지금은 운행 중인 열차가 없습니다' },
-  noData: {
-    en: 'No timetable for this line, so no simulated trains',
-    fr: 'Pas d’horaires pour cette ligne, donc pas de trains simulés',
-    id: 'Tidak ada jadwal untuk jalur ini, jadi tidak ada kereta simulasi',
-    ru: 'Для этой линии нет расписания, поэтому симуляции нет',
-    de: 'Kein Fahrplan für diese Linie, daher keine simulierten Züge',
-    zh: '此线路没有时刻表，因此没有模拟列车',
-    ja: 'この路線は時刻表がないため、シミュレーションはありません',
-    es: 'No hay horario para esta línea, así que no hay trenes simulados',
-    ko: '이 노선은 시간표가 없어 시뮬레이션 열차가 없습니다',
-  },
-  noLine: { en: 'Pick a line to see simulated trains', fr: 'Choisissez une ligne pour voir les trains simulés', id: 'Pilih jalur untuk melihat kereta simulasi', ru: 'Выберите линию, чтобы увидеть смоделированные поезда', de: 'Linie wählen, um simulierte Züge zu sehen', zh: '选择线路以查看模拟列车', ja: '路線を選ぶとシミュレーションの列車が表示されます', es: 'Elige una línea para ver los trenes simulados', ko: '노선을 선택하면 시뮬레이션 열차가 보입니다' },
+  // v0.62.975 — spec 2026-11-01-fr24-changi-flights-train-tma, amendment 3 (operator, 05-11 '26: "if the train line
+  // isn't operating, just state that, don't have to mention about stimulated line. use only one line"). The two
+  // reasons that named "simulated" now state the fact only; the 🚆 Simulated button already says what the trains are.
+  noData: { en: 'No timetable for this line', fr: 'Pas d’horaires pour cette ligne', id: 'Tidak ada jadwal untuk jalur ini', ru: 'Для этой линии нет расписания', de: 'Kein Fahrplan für diese Linie', zh: '此线路没有时刻表', ja: 'この路線の時刻表はありません', es: 'No hay horario para esta línea', ko: '이 노선은 시간표가 없습니다' },
+  noLine: { en: 'Pick a line to see its trains', fr: 'Choisissez une ligne pour voir ses trains', id: 'Pilih jalur untuk melihat keretanya', ru: 'Выберите линию, чтобы увидеть её поезда', de: 'Linie wählen, um ihre Züge zu sehen', zh: '选择线路以查看其列车', ja: '路線を選ぶと列車が表示されます', es: 'Elige una línea para ver sus trenes', ko: '노선을 선택하면 열차가 보입니다' },
   towards: { en: 'Towards {stn}', fr: 'Direction {stn}', id: 'Menuju {stn}', ru: 'В сторону {stn}', de: 'Richtung {stn}', zh: '开往 {stn}', ja: '{stn} 方面', es: 'Hacia {stn}', ko: '{stn} 방면' },
   next: { en: 'Next: {stn} in ≈ {min} min', fr: 'Prochain arrêt : {stn} dans ≈ {min} min', id: 'Berikutnya: {stn} dalam ≈ {min} mnt', ru: 'Следующая: {stn} через ≈ {min} мин', de: 'Nächster Halt: {stn} in ≈ {min} Min.', zh: '下一站：{stn}，约 {min} 分钟', ja: '次：{stn}（約 {min} 分）', es: 'Siguiente: {stn} en ≈ {min} min', ko: '다음: {stn}, 약 {min}분 후' },
   // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C8: the footer 🚆 chip's list.
@@ -65,9 +58,11 @@ export function simT(key, lang, vars = {}) {
 // radius, font size), in its own neutral blue-grey rather than one of the five warning tints (operator, 02-11 '26:
 // "Neutral blue-grey"). Pure, React-free: App.jsx renders it, this file has no React to import.
 export const SIM_STRIP_TONE = { background: '#e8eef7', color: '#2b4a6f' };
+// v0.62.975 — amendment 3 of the FR24 spec ("Reason only when idle", operator 05-11 '26): nothing while trains run,
+// and only the reason, one line, while none do. The caption string stays for the tapped train's bubble.
 export function simStripModel({ status, lang = 'en' } = {}) {
-  const lines = [simT('caption', lang)];
-  if (status && status !== 'running') lines.push(simT(status === 'disrupted' ? 'paused' : status, lang));
+  if (!status || status === 'running') return null;
+  const lines = [simT(status === 'disrupted' ? 'paused' : status, lang)];
   return {
     role: 'status',
     'data-sim-strip': status || 'running',

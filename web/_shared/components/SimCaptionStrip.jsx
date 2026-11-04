@@ -11,12 +11,13 @@ export default function SimCaptionStrip({ on, status, lang = 'en', className = '
   useEffect(() => { if (on) setHidden(false); }, [on]);
   if (!on || hidden) return null;
   const m = simStripModel({ status, lang });
+  // v0.62.975 — nothing while trains run; one reason line while none do (FR24 spec, amendment 3).
+  if (!m) return null;
   return (
     <div role={m.role} data-sim-strip={m['data-sim-strip']} className={className} style={m.style}>
       <span aria-hidden="true">{m.icon}</span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block' }}>{m.lines[0]}</span>
-        {m.lines[1] && <span style={{ display: 'block', fontWeight: 600 }}>{m.lines[1]}</span>}
       </span>
       <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={() => setHidden(true)} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
     </div>

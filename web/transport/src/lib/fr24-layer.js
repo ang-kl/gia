@@ -123,7 +123,12 @@ export const FR24_STRINGS = {
   'err.unavailable': { en: 'Flight data unavailable', fr: 'Données de vol indisponibles', id: 'Data penerbangan tidak tersedia', ru: 'Данные о рейсах недоступны', de: 'Flugdaten nicht verfügbar', zh: '航班数据不可用', ja: 'フライトデータを取得できません', es: 'Datos de vuelos no disponibles', ko: '항공편 데이터를 사용할 수 없습니다' },
   'err.busy': { en: 'Flight data is busy. Try again in a minute.', fr: 'Données de vol saturées. Réessayez dans une minute.', id: 'Data penerbangan sedang sibuk. Coba lagi sebentar lagi.', ru: 'Данные о рейсах перегружены. Попробуйте через минуту.', de: 'Flugdaten ausgelastet. In einer Minute erneut versuchen.', zh: '航班数据繁忙，请一分钟后再试。', ja: 'フライトデータが混み合っています。1 分後にもう一度お試しください。', es: 'Datos de vuelos ocupados. Inténtalo en un minuto.', ko: '항공편 데이터가 혼잡합니다. 1분 후 다시 시도하세요.' },
   'err.budget': { en: 'This month’s flight-data limit is reached.', fr: 'La limite mensuelle de données de vol est atteinte.', id: 'Batas data penerbangan bulan ini sudah tercapai.', ru: 'Месячный лимит данных о рейсах исчерпан.', de: 'Das Monatslimit für Flugdaten ist erreicht.', zh: '本月航班数据额度已用完。', ja: '今月のフライトデータの上限に達しました。', es: 'Se alcanzó el límite mensual de datos de vuelos.', ko: '이번 달 항공편 데이터 한도에 도달했습니다.' },
-  'wx.lightning': { en: '⚡ Lightning within {km} km of the airport (NEA)', fr: '⚡ Foudre à moins de {km} km de l’aéroport (NEA)', id: '⚡ Petir dalam radius {km} km dari bandara (NEA)', ru: '⚡ Молнии в пределах {km} км от аэропорта (NEA)', de: '⚡ Blitze im Umkreis von {km} km um den Flughafen (NEA)', zh: '⚡ 机场 {km} 公里内有闪电（NEA）', ja: '⚡ 空港から {km} km 以内で落雷（NEA）', es: '⚡ Rayos a menos de {km} km del aeropuerto (NEA)', ko: '⚡ 공항 {km}km 이내 낙뢰 (NEA)' },
+  // Amendment 3 (C9 revised): one short line (operator, 05-11 '26: "The NEA for lighting keep it short").
+  'wx.lightning': { en: '⚡ Lightning ≤ 5 km · {time}', fr: '⚡ Foudre ≤ 5 km · {time}', id: '⚡ Petir ≤ 5 km · {time}', ru: '⚡ Молнии ≤ 5 км · {time}', de: '⚡ Blitze ≤ 5 km · {time}', zh: '⚡ 5 公里内闪电 · {time}', ja: '⚡ 5 km 以内で落雷 · {time}', es: '⚡ Rayos ≤ 5 km · {time}', ko: '⚡ 5km 이내 낙뢰 · {time}' },
+  'view.strip': { en: 'Cards', fr: 'Cartes', id: 'Kartu', ru: 'Карточки', de: 'Karten', zh: '卡片', ja: 'カード', es: 'Tarjetas', ko: '카드' },
+  'view.list': { en: 'List', fr: 'Liste', id: 'Daftar', ru: 'Список', de: 'Liste', zh: '列表', ja: 'リスト', es: 'Lista', ko: '목록' },
+  'btn.close': { en: 'Close', fr: 'Fermer', id: 'Tutup', ru: 'Закрыть', de: 'Schließen', zh: '关闭', ja: '閉じる', es: 'Cerrar', ko: '닫기' },
+  'locate.none': { en: 'No live position for this flight right now', fr: 'Pas de position en direct pour ce vol', id: 'Belum ada posisi langsung untuk penerbangan ini', ru: 'Сейчас нет текущей позиции этого рейса', de: 'Gerade keine Live-Position für diesen Flug', zh: '目前没有该航班的实时位置', ja: 'この便の現在位置は今ありません', es: 'Ahora no hay posición en directo de este vuelo', ko: '지금은 이 항공편의 실시간 위치가 없습니다' },
   'link.mrt': { en: 'Getting there: Changi Airport MRT (CG2)', fr: 'Pour y aller : MRT Changi Airport (CG2)', id: 'Cara ke sana: MRT Changi Airport (CG2)', ru: 'Как добраться: станция MRT Changi Airport (CG2)', de: 'Anreise: MRT Changi Airport (CG2)', zh: '交通：樟宜机场地铁站（CG2）', ja: 'アクセス：MRT チャンギ空港駅（CG2）', es: 'Cómo llegar: MRT Changi Airport (CG2)', ko: '가는 길: MRT 창이 공항역 (CG2)' },
 };
 
@@ -189,64 +194,80 @@ function errKey(data) {
   if (r === 'budget') return 'err.budget';
   return 'err.unavailable';
 }
-const act = (fn, arg = '') => `window.__giaFr24&&window.__giaFr24.${fn}(${arg});return false;`;
-
-// C10 / I12: the movements board. A dark card with amber monospace text; never a terminal, gate or check-in column,
-// never a logo; the header says these are actual times, and the footer says what FR24 does not publish.
-export function boardHtml({ icao, dir = 'dep', data = null, lang = 'en', planesOn = false, wx = null, loading = false } = {}) {
-  const tabBtn = (d) => `<a href="#" onclick="${act('tab', `'${d}'`)}" style="padding:2px 8px;border-radius:4px;text-decoration:none;color:${d === dir ? '#111' : '#FBBF24'};background:${d === dir ? '#FBBF24' : 'transparent'};border:1px solid #FBBF24">${esc(ft(`tab.${d}`, lang))}</a>`;
-  let body;
-  if (loading) body = `<div style="padding:6px 0">${esc(ft('board.loading', lang))}</div>`;
-  else if (!data || !data.ok) body = `<div style="padding:6px 0">${esc(ft(errKey(data), lang))}</div>`;
-  else if (!Array.isArray(data.rows) || !data.rows.length) body = `<div style="padding:6px 0">${esc(ft('board.empty', lang))}</div>`;
+// C10 revised (amendment 3) / I12 / I15: the movements board as DATA for Fr24Board.jsx, a glass strip or list in the
+// bottom dock. It never carries a terminal, gate or check-in field; the header says these are actual times, and the
+// footer says what FR24 does not publish.
+const VIEWS = ['strip', 'list'];
+export function boardModel({ icao, dir = 'dep', view = 'strip', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null } = {}) {
+  const v = VIEWS.includes(view) ? view : 'strip';
+  const labels = {
+    time: ft(`col.time.${dir}`, lang), place: ft(dir === 'dep' ? 'col.dest' : 'col.orig', lang),
+    flight: ft('col.flight', lang), type: ft('col.type', lang), status: ft('col.status', lang),
+  };
+  let state = 'ok';
+  let message = null;
+  let rows = [];
+  if (loading) { state = 'loading'; message = ft('board.loading', lang); }
+  else if (!data || !data.ok) { state = 'error'; message = ft(errKey(data), lang); }
+  else if (!Array.isArray(data.rows) || !data.rows.length) { state = 'empty'; message = ft('board.empty', lang); }
   else {
-    const heads = dir === 'dep'
-      ? ['col.time.dep', 'col.dest', 'col.flight', 'col.type', 'col.status']
-      : ['col.time.arr', 'col.orig', 'col.flight', 'col.type'];
-    const th = heads.map((k) => `<th style="text-align:left;font-weight:600;padding:2px 4px;border-bottom:1px solid #78350F">${esc(ft(k, lang))}</th>`).join('');
-    const tr = data.rows.map((r) => {
-      const cells = dir === 'dep'
-        ? [sgtClock(r.takeoff), placeText(r.dest), r.flight || r.callsign || '', r.type || '', r.ended && r.landed ? ft('status.landed', lang, { time: sgtClock(r.landed) }) : ft('status.air', lang)]
-        : [r.ended && r.landed ? sgtClock(r.landed) : ft('status.air', lang), placeText(r.orig), r.flight || r.callsign || '', r.type || ''];
-      return `<tr onclick="${act('flight', `'${esc(r.id)}'`)}" style="cursor:pointer">${cells.map((c) => `<td style="padding:2px 4px;white-space:nowrap">${esc(c)}</td>`).join('')}</tr>`;
-    }).join('');
-    body = `<table style="border-collapse:collapse;width:100%;font-size:11px">${'<tr>' + th + '</tr>'}${tr}</table>`;
+    rows = data.rows.map((r) => {
+      const inAir = !(r.ended && r.landed);
+      const landedAt = inAir ? '' : sgtClock(r.landed);
+      return {
+        id: String(r.id), callsign: r.callsign || null, inAir,
+        time: dir === 'dep' ? sgtClock(r.takeoff) : landedAt,
+        place: placeText(dir === 'dep' ? r.dest : r.orig),
+        flight: r.flight || r.callsign || '', type: r.type || '',
+        status: inAir ? ft('status.air', lang) : ft('status.landed', lang, { time: landedAt }),
+      };
+    });
   }
-  const wxLine = wx ? `<div style="margin-top:4px;color:#FDE68A">${esc(wx)}</div>` : '';
-  const mrt = icao === 'WSSS' ? `<div style="margin-top:4px"><a href="#" onclick="${act('getThere')}" style="color:#FDE68A">${esc(ft('link.mrt', lang))}</a></div>` : '';
-  const planesBtn = `<a href="#" onclick="${act('planes')}" style="display:inline-block;margin-top:6px;padding:3px 10px;border-radius:4px;background:#FBBF24;color:#111;text-decoration:none;font-weight:600">✈ ${esc(ft(planesOn ? 'btn.hide' : 'btn.show', lang))}</a>`;
-  return `<div data-fr24-board="${esc(icao)}" style="background:#111827;color:#FBBF24;font-family:ui-monospace,Menlo,Consolas,monospace;padding:8px;border-radius:6px;max-width:340px;font-size:12px">`
-    + `<div style="font-weight:700;font-size:13px">✈️ ${esc(ft(`pin.${icao}`, lang))}</div>`
-    + `<div style="margin:2px 0 6px;font-size:10px;color:#FDE68A">${esc(ft(`board.header.${dir}`, lang))}</div>`
-    + `<div style="display:flex;gap:6px;margin-bottom:6px">${tabBtn('dep')}${tabBtn('arr')}</div>`
-    + body + wxLine + mrt + planesBtn
-    + `<div style="margin-top:6px;font-size:10px;color:#D1D5DB">${esc(ft('board.footer', lang))}</div>`
-    + '</div>';
+  return {
+    icao, dir, view: v, state, message, rows, labels,
+    title: ft(`pin.${icao}`, lang),
+    header: ft(`board.header.${dir}`, lang),
+    footer: ft('board.footer', lang),
+    tabs: ['dep', 'arr'].map((d) => ({ dir: d, label: ft(`tab.${d}`, lang), active: d === dir })),
+    views: VIEWS.map((x) => ({ view: x, label: ft(`view.${x}`, lang), active: x === v })),
+    planesLabel: ft(planesOn ? 'btn.hide' : 'btn.show', lang),
+    closeLabel: ft('btn.close', lang),
+    getThere: icao === 'WSSS' ? ft('link.mrt', lang) : null,
+    wx: wx || null,
+    selectedId: selectedId || null,
+    detail: Array.isArray(detail) ? detail : null,
+  };
 }
 
-// C3: one flight's card. The landing estimate is ours, labelled, and only for a plane inbound to the tapped airport.
-export function flightCardHtml({ flight = null, plane = null, icao = null, lang = 'en' } = {}) {
+// C3: one flight's card, as lines (the board's detail) and as HTML (the card on the map). The landing estimate is
+// ours, labelled, and only for a plane inbound to the tapped airport.
+export function flightCardLines({ flight = null, plane = null, icao = null, lang = 'en' } = {}) {
   const f = flight || {};
-  const title = [f.flight, f.callsign || (plane && plane.callsign)].filter(Boolean).join(' · ') || '✈';
   const lines = [];
   if (f.airline) lines.push(ft('card.airline', lang, { code: f.airline }));
   if (f.orig || f.dest) lines.push(`${placeText(f.orig) || '?'} → ${placeText(f.dest) || '?'}`);
   const kit = [f.type ? ft('card.aircraft', lang, { type: f.type }) : '', f.reg ? ft('card.reg', lang, { reg: f.reg }) : ''].filter(Boolean).join(' · ');
   if (kit) lines.push(kit);
   if (f.takeoff) lines.push(ft('card.takeoff', lang, { time: sgtClock(f.takeoff) }));
+  if (f.ended && f.landed) lines.push(ft('status.landed', lang, { time: sgtClock(f.landed) }));
   if (plane && Number.isFinite(plane.alt) && Number.isFinite(plane.gspeed)) {
     lines.push(ft('card.alt', lang, { ft: Math.round(plane.alt).toLocaleString('en-US'), kt: Math.round(plane.gspeed) }));
   }
   const inbound = f.dest && f.dest.code && f.dest.code === icao && !f.ended;
   const eta = inbound && plane ? etaMinutes(plane, icao) : null;
   if (eta != null) lines.push(`${ft('card.eta', lang, { min: eta })} ${ft('card.estimate', lang)}`);
+  return lines;
+}
+export function flightCardHtml({ flight = null, plane = null, icao = null, lang = 'en' } = {}) {
+  const f = flight || {};
+  const title = [f.flight, f.callsign || (plane && plane.callsign)].filter(Boolean).join(' · ') || '✈';
   return '<div data-fr24-card style="font-size:12px;line-height:1.45">'
     + `<strong>✈ ${esc(title)}</strong>`
-    + lines.map((l) => `<br>${esc(l)}`).join('')
+    + flightCardLines({ flight, plane, icao, lang }).map((l) => `<br>${esc(l)}`).join('')
     + '<br><em style="color:#9CA3AF;font-size:10px">Flightradar24</em></div>';
 }
 
-export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'en', now = () => Date.now(), onState = null, onGetThere = null } = {}) {
+export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'en', now = () => Date.now(), onState = null, onBoard = null } = {}) {
   const getJson = fetchJson || ((u) => fetch(u).then((r) => r.json()).catch(() => null));
   const AME = gmaps && gmaps.marker && gmaps.marker.AdvancedMarkerElement;
   let lang = lang0;
@@ -260,7 +281,10 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   let timer = null;
   let boardIcao = null;
   let tab = 'dep';
-  let lastHtml = '';
+  let view = 'strip';
+  let selectedId = null;
+  let detail = null;
+  let focus = null;           // the marker drawn for a located flight
   const boards = new Map();   // `${icao}:${dir}` → { at, data }
   const wx = new Map();       // icao → { at, text }
   let info = null;
@@ -303,19 +327,20 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     pins = enabled ? ['WSSS', 'WSSL'].map(makePin) : [];
   }
 
-  function makePlane(p) {
+  function makePlane(p, highlight = false) {
     const pos = { lat: p.lat, lng: p.lng };
+    const colour = highlight ? '#D97706' : PLANE_COLOUR;   // amber for the flight picked on the board
     const onTap = () => openFlight(p.id, p);
     let m;
     if (AME && typeof document !== 'undefined') {
       const el = document.createElement('div');
-      Object.assign(el.style, { fontSize: '16px', lineHeight: '1', color: PLANE_COLOUR, cursor: 'pointer', transform: `rotate(${Math.round((p.track || 0) - 90)}deg)`, filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.3))' });
+      Object.assign(el.style, { fontSize: highlight ? '22px' : '16px', lineHeight: '1', color: colour, cursor: 'pointer', transform: `rotate(${Math.round((p.track || 0) - 90)}deg)`, filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.3))' });
       el.textContent = '✈';
       el.setAttribute('data-fr24-plane', p.id);
       el.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); onTap(); });
       m = new AME({ map, content: el, position: pos, zIndex: 8, title: p.callsign || '' });
     } else {
-      m = new gmaps.Marker({ map, position: pos, zIndex: 8, title: p.callsign || '', icon: { path: gmaps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4, rotation: p.track || 0, fillColor: PLANE_COLOUR, fillOpacity: 0.9, strokeColor: PLANE_COLOUR, strokeWeight: 1 } });
+      m = new gmaps.Marker({ map, position: pos, zIndex: 8, title: p.callsign || '', icon: { path: gmaps.SymbolPath.FORWARD_CLOSED_ARROW, scale: highlight ? 6 : 4, rotation: p.track || 0, fillColor: colour, fillOpacity: 0.9, strokeColor: colour, strokeWeight: 1 } });
       m.addListener('click', onTap);
     }
     m.fr24Plane = p.id;
@@ -341,14 +366,15 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (planeMarkers.length && offsetSec < DR_MAX_SEC) timer = setInterval(tick, 1000);
   }
 
-  function render() {
-    if (!boardIcao) return;
-    const key = `${boardIcao}:${tab}`;
-    const b = boards.get(key);
+  // The board goes UP to the app (Fr24Board.jsx in the bottom dock), never into a map popup (amendment 3).
+  function currentModel() {
+    if (!boardIcao) return null;
+    const b = boards.get(`${boardIcao}:${tab}`);
     const w = wx.get(boardIcao);
-    lastHtml = boardHtml({ icao: boardIcao, dir: tab, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null });
-    const iw = infoWin();
-    if (iw) { iw.setContent(lastHtml); iw.setPosition(FR24_AIRPORTS[boardIcao]); iw.open({ map }); }
+    return boardModel({ icao: boardIcao, dir: tab, view, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail });
+  }
+  function render() {
+    if (onBoard) onBoard(currentModel());
   }
   async function loadTab(icao, dir) {
     const key = `${icao}:${dir}`;
@@ -363,8 +389,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const a = FR24_AIRPORTS[icao];
     const r = await getJson(`/api/weather/outside?lat=${a.lat}&lng=${a.lng}`);
     const l = r && r.ok && r.rows && r.rows.lightning;
-    const text = l && l.status === 'ok' && l.level === 'warn'
-      ? `${ft('wx.lightning', lang, { km: 5 })}${l.at ? ` · ${sgtClock(l.at)}` : ''}` : null;
+    const text = l && l.status === 'ok' && l.level === 'warn' ? ft('wx.lightning', lang, { time: sgtClock(l.at) }) : null;
     wx.set(icao, { at: now(), text });
   }
 
@@ -372,6 +397,8 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!enabled || !FR24_AIRPORTS[icao]) return;
     boardIcao = icao;
     tab = dir;
+    selectedId = null;
+    detail = null;
     render();
     const mine = ++gen;
     await Promise.all([loadTab(icao, dir), loadWx(icao).catch(() => {})]);
@@ -380,8 +407,47 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   async function setTab(dir) {
     if (!enabled || !boardIcao || (dir !== 'dep' && dir !== 'arr')) return;
     tab = dir;
+    selectedId = null;
+    detail = null;
     render();
     await loadTab(boardIcao, dir);
+    render();
+  }
+  function setView(v) {
+    if (!boardIcao) return;
+    view = VIEWS.includes(v) ? v : 'strip';
+    render();
+  }
+  function closeBoard() {
+    boardIcao = null;
+    selectedId = null;
+    detail = null;
+    if (focus) { drop(focus); focus = null; }
+    if (onBoard) onBoard(null);
+  }
+  // I17: a row still in the air asks where the plane is now (one locate), pans there and opens its card on the map; a
+  // landed row shows its details in the board only, with no request and no map move.
+  async function selectFlight(id) {
+    if (!enabled || !boardIcao) return;
+    const b = boards.get(`${boardIcao}:${tab}`);
+    const row = b && b.data && b.data.ok ? (b.data.rows || []).find((r) => String(r.id) === String(id)) : null;
+    if (!row) return;
+    selectedId = String(id);
+    const inAir = !(row.ended && row.landed);
+    detail = flightCardLines({ flight: row, icao: boardIcao, lang });
+    if (!inAir) { render(); return; }
+    if (!row.callsign) { detail = [...detail, ft('locate.none', lang)]; render(); return; }
+    render();
+    const r = await getJson(`/api/fr24/locate/${encodeURIComponent(row.callsign)}`);
+    const p = r && r.ok && r.plane && Number.isFinite(r.plane.lat) && Number.isFinite(r.plane.lng) ? r.plane : null;
+    if (!p) { detail = [...detail, ft(r && r.ok ? 'locate.none' : errKey(r), lang)]; render(); return; }
+    detail = flightCardLines({ flight: row, plane: p, icao: boardIcao, lang });
+    if (focus) drop(focus);
+    focus = makePlane({ ...p, id: p.id || row.id }, true);
+    const pos = { lat: p.lat, lng: p.lng };
+    if (map && typeof map.panTo === 'function') map.panTo(pos);
+    const iw = infoWin();
+    if (iw) { iw.setContent(flightCardHtml({ flight: row, plane: p, icao: boardIcao, lang })); iw.setPosition(pos); iw.open({ map }); }
     render();
   }
   async function fetchPlanes(icao) {
@@ -417,15 +483,6 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     }
   }
 
-  const handlers = {
-    tab: (d) => setTab(d),
-    planes: () => togglePlanes(boardIcao),
-    flight: (id) => openFlight(id),
-    refresh: () => refresh(),
-    getThere: () => { if (onGetThere) onGetThere(boardIcao); },
-  };
-  if (typeof window !== 'undefined') window.__giaFr24 = handlers;
-
   async function init() {
     const r = await getJson('/api/fr24/access');
     enabled = !!(r && r.ok && r.enabled === true);
@@ -441,22 +498,22 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   // The map's own click (on empty map) closes every popup; the board closes with them.
   function closeInfo() {
     if (info) info.close();
-    boardIcao = null;
   }
   function destroy() {
     clearPlanes();
+    if (focus) { drop(focus); focus = null; }
+    boardIcao = null;
     for (const m of pins) drop(m);
     pins = [];
     planesIcao = null;
     planesData = null;
     if (info) info.close();
     enabled = false;
-    if (typeof window !== 'undefined' && window.__giaFr24 === handlers) delete window.__giaFr24;
   }
 
   return {
-    init, openBoard, setTab, togglePlanes, refresh, openFlight, setLang, closeInfo, destroy,
-    pinCount: () => pins.length, planeCount: () => planeMarkers.length, lastBoardHtml: () => lastHtml,
+    init, openBoard, setTab, setView, closeBoard, selectFlight, togglePlanes, refresh, openFlight, setLang, closeInfo, destroy,
+    pinCount: () => pins.length, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
     enabled: () => enabled,
   };
 }

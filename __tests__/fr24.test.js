@@ -437,16 +437,65 @@ describe('I13 — airport names come only from the OurAirports table', () => {
   });
 });
 
+// ── I16 — locate one flight by callsign (amendment 3) ─────────────────────────────────────────────────────────
+describe('I16 — locate is well-formed and guarded', () => {
+  it('live/flight-positions/light with callsigns=<cs> and limit=1', async () => {
+    const { svc, calls } = svcWith({ planes: [pos(7, { callsign: 'SIA322' })] });
+    const r = await svc.locate('SIA322');
+    expect(r).toMatchObject({ ok: true, callsign: 'SIA322' });
+    expect(r.plane).toMatchObject({ id: '3a000007', lng: 103.99, track: 90, gspeed: 180 });
+    expect(r.plane.lat).toBeCloseTo(1.42, 6);         // 1.35 + 7 x 0.01 in floating point
+    const u = new URL(calls[0].url);
+    expect(u.origin + u.pathname).toBe('https://fr24api.flightradar24.com/api/live/flight-positions/light');
+    expect(u.searchParams.get('callsigns')).toBe('SIA322');
+    expect(u.searchParams.get('limit')).toBe('1');
+    expect(u.searchParams.get('bounds')).toBeNull();
+    expect(await svc.spent()).toBe(6);
+  });
+  it('a callsign must be 2-8 upper-case letters or digits; anything else is refused before any request', async () => {
+    const { svc, calls } = svcWith();
+    for (const bad of ['', 'S', 'sia322', 'SIA 322', 'SIA322,SIA11', 'ABCDEFGHI', null, '../usage']) {
+      expect(await svc.locate(bad)).toMatchObject({ ok: false, reason: 'badcallsign' });
+    }
+    expect(calls).toHaveLength(0);
+  });
+  it('not found live is ok with no plane, and costs 1 credit', async () => {
+    const { svc } = svcWith({ planes: [] });
+    expect(await svc.locate('SIA322')).toMatchObject({ ok: true, plane: null });
+    expect(await svc.spent()).toBe(1);
+  });
+  it('cached for 60 seconds', async () => {
+    const { svc, calls, clock } = svcWith();
+    await svc.locate('SIA1');
+    clock.advance(59 * 1000);
+    await svc.locate('SIA1');
+    expect(calls).toHaveLength(1);
+    clock.advance(2 * 1000);
+    await svc.locate('SIA1');
+    expect(calls).toHaveLength(2);
+  });
+  it('behind the owner gate: a non-owner gets 403 with no request; the owner gets the plane', async () => {
+    const env = { TELEGRAM_OWNER_CHAT_ID: OWNER };
+    const { svc, calls } = svcWith();
+    expect(await fr24.handle(svc, { kind: 'locate', callsign: 'SIA1', userId: '999', env })).toEqual({ status: 403, body: { ok: false, reason: 'owner-only' } });
+    expect(calls).toHaveLength(0);
+    const r = await fr24.handle(svc, { kind: 'locate', callsign: 'SIA1', userId: OWNER, env });
+    expect(r.status).toBe(200);
+    expect(r.body.ok).toBe(true);
+    expect((await fr24.handle(svc, { kind: 'locate', callsign: 'bad one', userId: OWNER, env })).status).toBe(400);
+  });
+});
+
 // ── I14 at the routes: index.js verifies initData and hands handle() the VERIFIED user ─────────────────────────
 describe('I14 — the routes in index.js', () => {
   const src = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8')
     .split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
-  it('the four FR24 routes each verify Telegram initData before fr24Route', () => {
-    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id']) {
+  it('the five FR24 routes each verify Telegram initData before fr24Route', () => {
+    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign']) {
       const rx = new RegExp(`app\\.get\\('/api/fr24/${r.replace('/', '\\/')}', requireInitDataFromBodyOrHeader, fr24Route\\(`);
       expect(src, r).toMatch(rx);
     }
-    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(4);
+    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(5);
   });
   it('the user id handed to handle() is the verified one, req.tg.user.id, and nothing from the query', () => {
     expect(src).toMatch(/handle\(fr24Service\(\), \{ kind, \.\.\.pick\(req\), userId: req\.tg\?\.user\?\.id \}\)/);

@@ -156,7 +156,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, headerPx = null, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null, publicHolidays = null }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, headerPx = null, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null, publicHolidays = null, onFr24BoardChange = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -206,6 +206,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const fr24Ref = useRef(null);
   const [fr24State, setFr24State] = useState(null);
   const fr24StationsRef = useRef(null);
+  // Amendment 3: the board is App's (the bottom dock); the layer hands it up with the actions that drive it.
+  const onFr24BoardChangeRef = useRef(onFr24BoardChange);
+  onFr24BoardChangeRef.current = onFr24BoardChange;
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !window.google?.maps?.event) return undefined;
@@ -683,11 +686,20 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         lang: langRef.current,
         fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() } }).then((r) => r.json()).catch(() => null),
         onState: (s) => setFr24State(s && s.planes ? s : null),
-        // C9: "Getting there" focuses the Changi Airport MRT station (CG2) on this same map.
-        onGetThere: () => {
-          const s = (fr24StationsRef.current || []).find((x) => (x.codes || []).includes('CG2'));
-          if (s) onStationSelect?.(s);
-        },
+        onBoard: (m) => onFr24BoardChangeRef.current?.(m ? {
+          model: m,
+          onTab: (d) => fr24Ref.current?.setTab(d),
+          onView: (v) => fr24Ref.current?.setView(v),
+          onPlanes: () => fr24Ref.current?.togglePlanes(),
+          onClose: () => fr24Ref.current?.closeBoard(),
+          onSelect: (id) => fr24Ref.current?.selectFlight(id),
+          // C9: "Getting there" focuses the Changi Airport MRT station (CG2) on this same map.
+          onGetThere: () => {
+            const s = (fr24StationsRef.current || []).find((x) => (x.codes || []).includes('CG2'));
+            fr24Ref.current?.closeBoard();
+            if (s) onStationSelect?.(s);
+          },
+        } : null),
       });
       fr24Ref.current.init();
     }

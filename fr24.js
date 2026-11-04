@@ -38,6 +38,7 @@ const RATE_PER_MIN = 8;
 const DEFAULT_BUDGET = 25000;
 const STALE_MAX_MS = 30 * 24 * 3600 * 1000; // never serve FR24 data older than its 30-day storage rule
 const FLIGHT_ID = /^[0-9a-f]{6,12}$/;
+const CALLSIGN = /^[A-Z0-9]{2,8}$/;
 const SGT_MS = 8 * 3600 * 1000;
 const KM_PER_DEG = 111.195;
 
@@ -222,6 +223,19 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       (d) => { const r = listOf(d)[0]; return { flight: r ? rowOf(r) : null }; });
   }
 
+  // Amendment 3 (C3 revised): where one flight is now, by callsign, for a board row still in the air.
+  async function locate(callsign) {
+    const cs = typeof callsign === 'string' ? callsign : '';
+    if (!CALLSIGN.test(cs)) return { ok: false, reason: 'badcallsign' };
+    const url = `${BASE}/live/flight-positions/light?callsigns=${cs}&limit=1`;
+    return call(`fr24:locate:${cs}`, TTL_S.planes, url,
+      (d) => creditsForPlanes(listOf(d).length),
+      (d) => {
+        const p = listOf(d).map(planeOf).find((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng));
+        return { callsign: cs, plane: p || null };
+      });
+  }
+
   // The owner's usage: not cached, not budget-guarded (FR24 charges nothing for it), but rate-guarded.
   async function usage() {
     if (!token) return { ok: false, reason: 'nokey' };
@@ -240,19 +254,20 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     return { ok: true, period: '30d', endpoints, total: endpoints.reduce((s, e) => s + e.credits, 0) };
   }
 
-  return { planes, board, flight, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
+  return { planes, board, flight, locate, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
 }
 
 // The routes' one entry point: the access gate, then the call. Returns { status, body } for index.js to send.
-async function handle(svc, { kind, icao, dir, id, userId, env = process.env } = {}) {
+async function handle(svc, { kind, icao, dir, id, callsign, userId, env = process.env } = {}) {
   if (kind === 'access') return { status: 200, body: { ok: true, enabled: hasAccess(userId, env) } };
-  if (!['board', 'airport', 'flight'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
+  if (!['board', 'airport', 'flight', 'locate'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
   if (!hasAccess(userId, env)) return { status: 403, body: { ok: false, reason: 'owner-only' } };
   let body;
   if (kind === 'board') body = await svc.board(icao, dir);
   else if (kind === 'airport') body = await svc.planes(icao);
+  else if (kind === 'locate') body = await svc.locate(callsign);
   else body = await svc.flight(id);
-  const bad = body && (body.reason === 'badcode' || body.reason === 'baddir' || body.reason === 'badid');
+  const bad = body && ['badcode', 'baddir', 'badid', 'badcallsign'].includes(body.reason);
   return { status: bad ? 400 : 200, body };
 }
 
