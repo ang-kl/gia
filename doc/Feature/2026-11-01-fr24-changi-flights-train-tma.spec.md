@@ -479,6 +479,41 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     both; no pin without access. Check: `fr24-layer.test.js` with the fake map; render of the built Train app.
   - **Mutations:** pins left after the board closes; pins drawn with no board open; a pin tap opening the wrong
     airport; first-seen shown when a take-off exists; first-seen shown without its mark.
+  - **Revision, 05-11 '26 18:40, before approval** (operator, on production v0.62.977 at 18:38 with a screenshot of the
+    Changi map and the Departures cards all `--:--`: *"i still cannot click on changi airport, is the google pin for
+    airports always there"* and *"the timing still have --:-- these are meaningless to users"*; then, asked,
+    **"Always, tap opens board"** and **"Real ETA, 8 credits each"**). This revision replaces two decisions above:
+    - *"while an airport board is open (the ✈️ Airports row ticked), a small Google pin is drawn"* → the two pins are
+      drawn **always** for a reader with access (from the moment `init` says so), and tapping one opens that board.
+      The T2 / T3 icons in the screenshot are Google's own base-map icons, which the Train map makes untappable
+      (`clickableIcons: false`, `MrtMapPanel.jsx:617`); that setting is not changed.
+    - *"A row in the air with no take-off time shows when FR24 first saw it"* → a row in the air shows FR24's
+      **estimated arrival**:
+      - new server call `etas(icao, dir)` → `GET /api/live/flight-positions/full?airports=<inbound|outbound>:<icao>
+        &limit=20`, read for each flight's `eta`; cached 5 minutes per airport and direction; 8 credits per returned
+        flight (1 for an empty answer), so at most 160 credits per tab load; owner-only; a 403 is `unavailable`.
+        New route `/api/fr24/eta/:icao?dir=` behind the same initData check.
+      - the phone asks for it once a tab has loaded and has at least one row in the air, at most once per 5 minutes
+        per tab, and never while no board is open.
+      - row time, in order of what exists: **Arrivals** in the air → `🛬 ≈HH:MM` (ETA at Singapore), else `🛫` take-off,
+        else `seen HH:MM` (first seen, free, already in the answer), else `--:--`. **Departures** in the air → `🛫`
+        take-off, else `🛬 ≈HH:MM` (ETA at the destination), else `seen HH:MM`, else `--:--`. Landed rows unchanged.
+        The `≈` marks every estimate.
+    - **Added, from the same screenshot:** a plane tapped with no flight details showed a card titled `✈️✈️` with only
+      "Altitude 0 ft · 1 kt" and drew an orange dotted line. Now the card is titled with the plane's callsign, or "No
+      flight details" in the reader's language, with one ✈; and no route is drawn for a plane on the ground (altitude
+      ≤ 0 ft or ground speed < 50 kt).
+    - **Scope + `__tests__/fr24.test.js` and `index.js` already listed; no new path.**
+    - **Invariants:** I27 now reads "the row time follows the order above, every estimate marked `≈`; the server row
+      carries `firstSeen`". I28 now reads "two pins (WSSS, WSSL) for a reader with access from `init`, each with ✈
+      and its name; a tap opens that board; destroy removes both; no pin without access". **I29:** the ETA call is
+      one request per airport and direction per 5 minutes, counted at 8 a flight, owner-only, made only with a board
+      open and an in-air row on it. **I30:** a plane with no details gets a single-✈ card with its callsign or "No
+      flight details"; a plane on the ground draws no route.
+    - **Mutations, added:** ETA fetched with no in-air row; ETA fetched twice inside 5 minutes; ETA preferred over a
+      known take-off on Departures; a route drawn for a plane on the ground; the doubled ✈ title.
+    - **Cost, stated before approval:** up to 160 credits per tab load with 20 flights in the air, typically 40-120;
+      the monthly budget of 25,000 covers roughly 150-600 tab loads before the ETA call starts answering `budget`.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
