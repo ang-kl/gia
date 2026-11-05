@@ -205,6 +205,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // this reader may see them (owner-only until FR24_PUBLIC=1, C12). `fr24State` is the caption while planes are shown.
   const fr24Ref = useRef(null);
   const [fr24State, setFr24State] = useState(null);
+  // Amendment 5: whether this reader may see the ✈️ Airports menu row, and which airport's board is open (or null).
+  const [fr24Enabled, setFr24Enabled] = useState(false);
+  const [fr24Open, setFr24Open] = useState(null);
   const fr24StationsRef = useRef(null);
   // Amendment 3: the board is App's (the bottom dock); the layer hands it up with the actions that drive it.
   const onFr24BoardChangeRef = useRef(onFr24BoardChange);
@@ -686,7 +689,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         lang: langRef.current,
         fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() } }).then((r) => r.json()).catch(() => null),
         onState: (s) => setFr24State(s && s.planes ? s : null),
-        onBoard: (m) => onFr24BoardChangeRef.current?.(m ? {
+        onBoard: (m) => { setFr24Open(m ? m.icao : null); onFr24BoardChangeRef.current?.(m ? {
           model: m,
           onTab: (d) => fr24Ref.current?.setTab(d),
           onView: (v) => fr24Ref.current?.setView(v),
@@ -700,9 +703,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
             fr24Ref.current?.closeBoard();
             if (s) onStationSelect?.(s);
           },
-        } : null),
+        } : null); },
       });
-      fr24Ref.current.init();
+      // Amendment 5: the ⋮ menu's Airports row appears only once the server says this reader has access.
+      fr24Ref.current.init().then((on) => setFr24Enabled(!!on));
     }
   }
 
@@ -1185,7 +1189,15 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     { key: 'parks',       icon: '🌳', label: t('layer.parks', lang), submenu: pcnSubmenu },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
-    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) }
+    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
+    // v0.62.975 — FR24 spec amendment 5 (I20): "✈️ Airports", like the 🌳 Park row: the row opens Changi's board
+    // (☑️ while a board is open) and its ▾ lists Changi and Seletar. Only for a reader with access (C12).
+    ...(fr24Enabled ? [{ key: 'airports', icon: '✈️', label: fr24T('menu.airports', lang), submenu: {
+      label: fr24T('menu.pick', lang),
+      heading: fr24T('menu.airports', lang),
+      items: () => ['WSSS', 'WSSL'].map((c) => ({ key: c, label: fr24T(`pin.${c}`, lang), active: fr24Open === c })),
+      onPick: (c) => fr24Ref.current?.openBoard(c),
+    } }] : []),
   ];
 
   // v0.62.626 — in fill mode, "expand" promotes the panel to a full-viewport
@@ -1297,8 +1309,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
         top={controlTops.rowTop}
-        layers={{ ...(overlayLayers || {}), simTrains: simOn }}
-        onToggleLayer={(key) => (key === 'simTrains' ? (simOn ? stopAllTrains() : setSimOn(true)) : onOverlayChange?.({
+        layers={{ ...(overlayLayers || {}), simTrains: simOn, airports: !!fr24Open }}
+        onToggleLayer={(key) => (key === 'airports'
+          ? (fr24Open ? fr24Ref.current?.closeBoard() : fr24Ref.current?.openBoard('WSSS'))
+          : key === 'simTrains' ? (simOn ? stopAllTrains() : setSimOn(true)) : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
         }))}
         rowToggles={rowToggles}

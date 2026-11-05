@@ -17,7 +17,7 @@ const require = createRequire(import.meta.url);
 const server = require('../fr24.js');
 
 const T0 = Date.parse('2026-11-05T06:00:00Z'); // 14:00 SGT
-const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8})$|^\/api\/weather\/outside\?/;
+const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8}|gates\/(WSSS|WSSL)\?ids=[0-9a-f,]+)$|^\/api\/weather\/outside\?/;
 
 function fakeGmaps() {
   const made = [];
@@ -50,11 +50,12 @@ const boardPayload = (dir) => ({
       orig: { code: 'VTBS', iata: 'BKK', city: 'Bangkok', name: 'Suvarnabhumi Airport' }, dest: { code: 'ZZZZ' } },
   ],
 });
-function harness({ enabled = true } = {}) {
+function harness({ enabled = true, gates = null } = {}) {
   const calls = [];
   const states = [];
   const fetchJson = async (u) => {
     calls.push(u);
+    if (u.startsWith('/api/fr24/gates/')) return typeof gates === 'function' ? gates(u) : (gates || { ok: true, gates: {} });
     if (u === '/api/fr24/access') return { ok: true, enabled };
     if (u.startsWith('/api/fr24/board/')) return boardPayload(new URL(u, 'http://x').searchParams.get('dir'));
     if (u.startsWith('/api/fr24/airport/')) return planesPayload();
@@ -83,11 +84,13 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     expect(made).toHaveLength(0);
     expect(layer.pinCount()).toBe(0);
   });
-  it('init asks the server once whether this reader has access, then draws the two pins', async () => {
-    const { calls, layer } = harness();
+  // Amendment 5 (I20): no airport marker on the map, ever; the ⋮ menu's Airports row is the way in.
+  it('init asks the server once whether this reader has access, and draws no airport marker either way', async () => {
+    const { calls, layer, made } = harness();
     expect(await layer.init()).toBe(true);
     expect(calls).toEqual(['/api/fr24/access']);
-    expect(layer.pinCount()).toBe(2);
+    expect(layer.pinCount()).toBe(0);
+    expect(made).toHaveLength(0);
   });
   it('without access no pin, no marker, and no further request, whatever is tapped', async () => {
     const { calls, layer, made } = harness({ enabled: false });
@@ -109,7 +112,7 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     const { calls, layer } = harness();
     await layer.init();
     await layer.openBoard('WSSS');
-    const fr = () => calls.filter((u) => u.startsWith('/api/fr24/'));
+    const fr = () => calls.filter((u) => u.startsWith('/api/fr24/') && !u.startsWith('/api/fr24/gates/'));
     expect(fr()).toEqual(['/api/fr24/access', '/api/fr24/board/WSSS?dir=dep']);
     await layer.setTab('arr');
     expect(fr().at(-1)).toBe('/api/fr24/board/WSSS?dir=arr');
@@ -117,13 +120,24 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     await layer.setTab('arr');
     expect(fr()).toHaveLength(3);
   });
-  it('the pins themselves start the board: tapping the Changi pin fetches its board', async () => {
-    const { calls, layer, made } = harness();
+  it('picking an airport opens that airport\'s board with exactly one board request, and draws no marker (I20)', async () => {
+    const { calls, layer, made, boards } = harness();
     await layer.init();
-    const pin = made.find((m) => m.fr24Pin === 'WSSS');
-    expect(pin).toBeTruthy();
-    await pin.listeners.click();
-    expect(calls).toContain('/api/fr24/board/WSSS?dir=dep');
+    await layer.openBoard('WSSL');
+    expect(calls.filter((u) => u.startsWith('/api/fr24/board/'))).toEqual(['/api/fr24/board/WSSL?dir=dep']);
+    expect(boards.at(-1).icao).toBe('WSSL');
+    expect(layer.openIcao()).toBe('WSSL');
+    expect(made).toHaveLength(0);
+    layer.closeBoard();
+    expect(layer.openIcao()).toBeNull();
+  });
+  it('the ⋮ menu carries an Airports row with a Changi / Seletar list, only once access is granted (I20)', () => {
+    const src = fs.readFileSync(path.join(process.cwd(), 'web/transport/src/components/MrtMapPanel.jsx'), 'utf8');
+    expect(src).toMatch(/fr24Enabled\s*\?\s*\[\{\s*key: 'airports'/);
+    const i = src.indexOf("key: 'airports'");
+    expect(src.slice(i, i + 600)).toMatch(/submenu:/);
+    expect(src).toMatch(/key === 'airports'/);
+    expect(src).not.toMatch(/drawPins|fr24Pin/);
   });
   it('planes are fetched only on Show planes, and a second tap hides them with no fetch', async () => {
     const { calls, layer } = harness();
@@ -306,7 +320,7 @@ describe('I12 — the board is not Changi\'s board', () => {
       for (const dir of ['dep', 'arr']) {
         const m = boardModel({ icao: 'WSSS', dir, data: boardPayload(dir), lang });
         for (const v of Object.values(m.labels)) expect(v).not.toMatch(/terminal|gate|check-in|boarding/i);
-        for (const r of m.rows) expect(Object.keys(r).sort()).toEqual(['airline', 'callsign', 'flight', 'id', 'inAir', 'place', 'status', 'time', 'type']);
+        for (const r of m.rows) expect(Object.keys(r).sort()).toEqual(['airline', 'callsign', 'flight', 'gate', 'id', 'inAir', 'place', 'status', 'time', 'type']);
         expect(m.header).toBe(ft(`board.header.${dir}`, lang));
         expect(m.footer).toBe(ft('board.footer', lang));
       }
@@ -461,6 +475,104 @@ describe('I19 — sort by time, flight or airline; three-column rows; emoji stat
     const src = fs.readFileSync(path.join(process.cwd(), 'web/transport/src/components/Fr24Board.jsx'), 'utf8');
     for (const c of ['left', 'centre', 'right']) expect(src).toContain(`data-fr24-col="${c}"`);
     expect(src).toMatch(/model\.sorts\.map/);
+  });
+});
+
+// ── I21 — gate polling while a board is open (amendment 6) ─────────────────────────────────────────────────────
+describe('I21 — gate polling: only while a board is open, every 7 minutes, until found', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+  const gatesCalls = (calls) => calls.filter((u) => u.startsWith('/api/fr24/gates/'));
+  const ids = (u) => new URL(u, 'http://x').searchParams.get('ids').split(',');
+  it('the Departures tab polls nothing; the Arrivals tab polls once, in one request, for in-air and recently landed rows', async () => {
+    const { layer, calls } = harness();
+    await layer.init();
+    await layer.openBoard('WSSS');
+    expect(gatesCalls(calls)).toEqual([]);
+    await layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(gatesCalls(calls)).toHaveLength(1);
+    expect(ids(gatesCalls(calls)[0])).toEqual(['3b000001', '3b000002']);
+  });
+  it('a found gate shows on its row as "Gate G12 · T4", and is not polled again; the next poll is 7 minutes later', async () => {
+    let n = 0;
+    const { layer, calls, boards } = harness({ gates: () => (++n === 1 ? { ok: true, gates: { '3b000002': { gate: 'G12', terminal: 'T4' } } } : { ok: true, gates: {} }) });
+    await layer.init();
+    await layer.openBoard('WSSS');
+    await layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(0);
+    const row = boards.at(-1).rows.find((r) => r.id === '3b000002');
+    expect(row.gate).toBe(ft('gate.label', 'en', { gate: 'G12' }) + ' · T4');
+    await vi.advanceTimersByTimeAsync(6 * 60 * 1000);
+    expect(gatesCalls(calls)).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(60 * 1000);
+    expect(gatesCalls(calls)).toHaveLength(2);
+    expect(ids(gatesCalls(calls)[1])).toEqual(['3b000001']);
+  });
+  it('a gate with no sourced letter shows the gate alone', async () => {
+    const { layer, boards } = harness({ gates: { ok: true, gates: { '3b000002': { gate: 'C21', terminal: null } } } });
+    await layer.init();
+    await layer.openBoard('WSSS');
+    await layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(boards.at(-1).rows.find((r) => r.id === '3b000002').gate).toBe(ft('gate.label', 'en', { gate: 'C21' }));
+  });
+  it('polling stops once every flight has its gate', async () => {
+    const { layer, calls } = harness({ gates: { ok: true, gates: { '3b000001': { gate: 'G1', terminal: 'T4' }, '3b000002': { gate: 'G2', terminal: 'T4' } } } });
+    await layer.init();
+    await layer.openBoard('WSSS');
+    await layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    expect(gatesCalls(calls)).toHaveLength(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it('closing the board stops polling', async () => {
+    const { layer, calls } = harness();
+    await layer.init();
+    await layer.openBoard('WSSS');
+    await layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(0);
+    layer.closeBoard();
+    expect(vi.getTimerCount(), 'the poll timer stops the moment the board closes, not at its next tick').toBe(0);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    expect(gatesCalls(calls)).toHaveLength(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it('an "unavailable" answer stops polling for good; a busy one does not', async () => {
+    const a = harness({ gates: { ok: false, reason: 'unavailable' } });
+    await a.layer.init();
+    await a.layer.openBoard('WSSS');
+    await a.layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    expect(gatesCalls(a.calls)).toHaveLength(1);
+    const b = harness({ gates: { ok: false, reason: 'busy' } });
+    await b.layer.init();
+    await b.layer.openBoard('WSSS');
+    await b.layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(15 * 60 * 1000);
+    expect(gatesCalls(b.calls)).toHaveLength(3);
+  });
+  it('a flight that landed more than 60 minutes ago is not polled', async () => {
+    const h = harness();
+    h.advance(31 * 60 * 1000);                       // TGW2 landed at 05:30Z; now 06:31Z
+    await h.layer.init();
+    await h.layer.openBoard('WSSS');
+    await h.layer.setTab('arr');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(ids(gatesCalls(h.calls)[0])).toEqual(['3b000001']);
+  });
+  it('no more than 15 ids in one request', async () => {
+    const { gmaps } = fakeGmaps();
+    const calls = [];
+    const rows = Array.from({ length: 20 }, (_, i) => ({ id: `3c${String(i).padStart(6, '0')}`, flight: `SQ${i}`, callsign: `SIA${i}`, airline: 'SIA', type: 'A359', takeoff: '2026-11-05T04:00:00Z', landed: null, ended: false, orig: { code: 'EGLL' }, dest: { code: 'WSSS' } }));
+    const layer = createFr24Layer({}, gmaps, {
+      now: () => T0,
+      fetchJson: async (u) => { calls.push(u); if (u === '/api/fr24/access') return { ok: true, enabled: true }; if (u.startsWith('/api/fr24/board/')) return { ok: true, dir: 'arr', rows }; if (u.startsWith('/api/fr24/gates/')) return { ok: true, gates: {} }; return null; },
+    });
+    await layer.init();
+    await layer.openBoard('WSSS', 'arr');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(ids(gatesCalls(calls)[0])).toHaveLength(15);
   });
 });
 

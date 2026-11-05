@@ -1,11 +1,14 @@
 // fr24-layer.js — v0.62.975. Spec: doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md (C1-C5, C9, C10,
-// C12; amendments 1 and 2).
+// C12; amendments 1 to 6).
 //
 // The Train map's Flightradar24 layer. Nothing here talks to FR24: every request goes to our own /api/fr24/* routes,
 // which hold the token and enforce the owner-only gate, the caches and the credit budget (fr24.js).
 //
-//   init()           asks /api/fr24/access ONCE; only when it says enabled are the two ✈️ pins drawn (C12, I14).
-//   pin tap          opens that airport's board on Departures; Arrivals is fetched when its tab opens (C10, I2).
+//   init()           asks /api/fr24/access ONCE; the panel shows the ⋮ menu's ✈️ Airports row only when it says
+//                    enabled (C12, I14). No airport marker is ever drawn (amendment 5, I20).
+//   openBoard(icao)  from that row or its ▾ list: the board on Departures; Arrivals is fetched when its tab opens
+//                    (C10, I2), and from then, while the board stays open, the arrivals' gates are polled every 7
+//                    minutes until each is found (amendment 6, I21).
 //   "Show planes"    fetches the planes flying to or from that airport; a second tap hides them (C2).
 //   plane / row tap  fetches that one flight for its card (C3).
 //   between readings each plane is moved once a second from its speed and heading, for at most 2 minutes, and the
@@ -23,8 +26,12 @@ export const FR24_AIRPORTS = Object.freeze({
 });
 export const DR_MAX_SEC = 120;
 const BOARD_CLIENT_TTL_MS = 5 * 60 * 1000;
+// Amendment 6 (I21): gate polling, only while an airport board is open.
+const GATE_POLL_MS = 7 * 60 * 1000;            // inside the operator's "every 5-10 minutes"
+const GATE_AFTER_LANDING_MS = 60 * 60 * 1000;  // a landed flight without a gate is dropped after 60 minutes
+const GATES_MAX = 15;                           // FR24's flight-events limit per request
+const FLIGHT_ID_RE = /^[0-9a-f]{6,12}$/;
 const WX_CLIENT_TTL_MS = 10 * 60 * 1000;
-const PIN_COLOUR = '#475569';      // slate: neither airport's brand colour (C1)
 const PLANE_COLOUR = '#6B7280';    // grey (C5)
 const SGT_MS = 8 * 3600 * 1000;
 const KM_PER_DEG = 111.195;
@@ -56,16 +63,18 @@ export const FR24_STRINGS = {
     es: 'Llegadas recientes · Flightradar24 · horas reales, no el horario previsto',
     ko: '최근 도착 · Flightradar24 · 실제 시각이며 운항 시간표가 아닙니다',
   },
+  // Amendment 6: the footer used to say no gates were published; a gate now shows once a plane reaches it, so the
+  // footer says exactly that, and still that there are no check-in rows or schedule.
   'board.footer': {
-    en: 'No terminals, gates or check-in rows: Flightradar24 does not publish them.',
-    fr: 'Ni terminaux, ni portes, ni rangées d’enregistrement : Flightradar24 ne les publie pas.',
-    id: 'Tanpa terminal, gerbang, atau baris check-in: Flightradar24 tidak menerbitkannya.',
-    ru: 'Без терминалов, выходов и стоек регистрации: Flightradar24 их не публикует.',
-    de: 'Keine Terminals, Gates oder Check-in-Reihen: Flightradar24 veröffentlicht sie nicht.',
-    zh: '不显示航站楼、登机口或值机柜台：Flightradar24 不发布这些信息。',
-    ja: 'ターミナル、ゲート、チェックインカウンターは表示しません。Flightradar24 が公開していないためです。',
-    es: 'Sin terminales, puertas ni filas de facturación: Flightradar24 no los publica.',
-    ko: '터미널, 게이트, 체크인 카운터는 없습니다. Flightradar24가 공개하지 않습니다.',
+    en: 'A gate shows once the plane reaches it; a terminal only where known. No check-in rows.',
+    fr: 'La porte s’affiche une fois l’avion arrivé ; le terminal seulement s’il est connu. Pas de rangées d’enregistrement.',
+    id: 'Gerbang tampil setelah pesawat tiba di sana; terminal hanya jika diketahui. Tanpa baris check-in.',
+    ru: 'Выход появляется, когда самолёт к нему подъехал; терминал только если известен. Без стоек регистрации.',
+    de: 'Der Flugsteig erscheint, sobald das Flugzeug ihn erreicht; das Terminal nur, wenn bekannt. Keine Check-in-Reihen.',
+    zh: '飞机抵达登机口后才显示登机口；航站楼仅在已知时显示。不显示值机柜台。',
+    ja: 'ゲートは機体が到着してから表示されます。ターミナルは分かる場合のみ。チェックインカウンターは表示しません。',
+    es: 'La puerta se muestra cuando el avión llega a ella; la terminal solo si se conoce. Sin filas de facturación.',
+    ko: '게이트는 비행기가 도착한 뒤 표시됩니다. 터미널은 알 수 있을 때만. 체크인 카운터는 없습니다.',
   },
   'board.empty': {
     en: 'No movements in the last 3 hours.',
@@ -130,6 +139,9 @@ export const FR24_STRINGS = {
   'sort.time': { en: 'Time', fr: 'Heure', id: 'Waktu', ru: 'Время', de: 'Zeit', zh: '时间', ja: '時刻', es: 'Hora', ko: '시간' },
   'sort.flight': { en: 'Flight', fr: 'Vol', id: 'Penerbangan', ru: 'Рейс', de: 'Flug', zh: '航班', ja: '便名', es: 'Vuelo', ko: '항공편' },
   'sort.airline': { en: 'Airline', fr: 'Compagnie', id: 'Maskapai', ru: 'Авиакомпания', de: 'Fluglinie', zh: '航空公司', ja: '航空会社', es: 'Aerolínea', ko: '항공사' },
+  'gate.label': { en: 'Gate {gate}', fr: 'Porte {gate}', id: 'Gerbang {gate}', ru: 'Выход {gate}', de: 'Flugsteig {gate}', zh: '登机口 {gate}', ja: 'ゲート {gate}', es: 'Puerta {gate}', ko: '게이트 {gate}' },
+  'menu.airports': { en: 'Airports', fr: 'Aéroports', id: 'Bandara', ru: 'Аэропорты', de: 'Flughäfen', zh: '机场', ja: '空港', es: 'Aeropuertos', ko: '공항' },
+  'menu.pick': { en: 'Pick an airport', fr: 'Choisir un aéroport', id: 'Pilih bandara', ru: 'Выбрать аэропорт', de: 'Flughafen wählen', zh: '选择机场', ja: '空港を選ぶ', es: 'Elegir un aeropuerto', ko: '공항 선택' },
   'btn.close': { en: 'Close', fr: 'Fermer', id: 'Tutup', ru: 'Закрыть', de: 'Schließen', zh: '关闭', ja: '閉じる', es: 'Cerrar', ko: '닫기' },
   'locate.none': { en: 'No live position for this flight right now', fr: 'Pas de position en direct pour ce vol', id: 'Belum ada posisi langsung untuk penerbangan ini', ru: 'Сейчас нет текущей позиции этого рейса', de: 'Gerade keine Live-Position für diesen Flug', zh: '目前没有该航班的实时位置', ja: 'この便の現在位置は今ありません', es: 'Ahora no hay posición en directo de este vuelo', ko: '지금은 이 항공편의 실시간 위치가 없습니다' },
   'link.mrt': { en: 'Getting there: Changi Airport MRT (CG2)', fr: 'Pour y aller : MRT Changi Airport (CG2)', id: 'Cara ke sana: MRT Changi Airport (CG2)', ru: 'Как добраться: станция MRT Changi Airport (CG2)', de: 'Anreise: MRT Changi Airport (CG2)', zh: '交通：樟宜机场地铁站（CG2）', ja: 'アクセス：MRT チャンギ空港駅（CG2）', es: 'Cómo llegar: MRT Changi Airport (CG2)', ko: '가는 길: MRT 창이 공항역 (CG2)' },
@@ -212,7 +224,13 @@ function sortRows(rows, sort) {
   else if (sort === 'airline') indexed.sort((x, y) => byText(x.r.airline || '\uffff', y.r.airline || '\uffff') || x.i - y.i);
   return indexed.map((x) => x.r);
 }
-export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null } = {}) {
+// "Gate B5", and " · T4" only where fr24.js's sourced letter table gave a terminal (amendment 6).
+export function gateText(g, lang = 'en') {
+  if (!g || !g.gate) return null;
+  return ft('gate.label', lang, { gate: g.gate }) + (g.terminal ? ` · ${g.terminal}` : '');
+}
+export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null, gates = null } = {}) {
+  const gateFor = (id) => (gates && typeof gates.get === 'function' ? gates.get(id) : gates && gates[id]) || null;
   const v = VIEWS.includes(view) ? view : 'strip';
   const s = SORTS.includes(sort) ? sort : 'time';
   const labels = {
@@ -234,6 +252,7 @@ export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', d
       const landedAt = inAir ? '' : sgtClock(r.landed);
       return {
         id: String(r.id), callsign: r.callsign || null, airline: r.airline || null, inAir,
+        gate: gateText(gateFor(String(r.id)), lang),
         time: dir === 'dep' || inAir ? stamp('🛫', sgtClock(r.takeoff)) : stamp('🛬', landedAt),
         place: placeText(dir === 'dep' ? r.dest : r.orig),
         flight: r.flight || r.callsign || '', type: r.type || '',
@@ -291,7 +310,6 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   const AME = gmaps && gmaps.marker && gmaps.marker.AdvancedMarkerElement;
   let lang = lang0;
   let enabled = false;
-  let pins = [];
   let planeMarkers = [];
   let planesData = null;
   let planesIcao = null;
@@ -305,6 +323,9 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   let selectedId = null;
   let detail = null;
   let focus = null;           // the marker drawn for a located flight
+  const gateOf = new Map();   // fr24_id → { gate, terminal }: once found, never polled again
+  let gateTimer = null;
+  let gatesOff = false;       // an "unavailable" answer: the plan lacks the endpoint, so stop for good
   const boards = new Map();   // `${icao}:${dir}` → { at, data }
   const wx = new Map();       // icao → { at, text }
   let info = null;
@@ -322,30 +343,6 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const moving = offsetSec + ticks < DR_MAX_SEC && timer != null;
     onState({ planes: true, icao: planesIcao, readAt: planesData.readAt, moving, caption: captionText({ readAt: planesData.readAt, lang, moving }), refresh: () => refresh() });
   };
-
-  function makePin(icao) {
-    const pos = FR24_AIRPORTS[icao];
-    const label = ft(`pin.${icao}`, lang);
-    let m;
-    if (AME && typeof document !== 'undefined') {
-      const el = document.createElement('div');
-      Object.assign(el.style, { display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' });
-      el.innerHTML = `<div style="width:26px;height:26px;border-radius:50%;background:${PIN_COLOUR};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.4)"><span style="filter:brightness(0) invert(1)">✈️</span></div>`
-        + `<div style="margin-top:1px;font-size:10px;font-weight:700;color:${PIN_COLOUR};text-shadow:0 0 2px #fff,0 0 2px #fff">${esc(label)}</div>`;
-      el.setAttribute('data-fr24-pin', icao);
-      el.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); openBoard(icao); });
-      m = new AME({ map, content: el, position: pos, zIndex: 9, title: label });
-    } else {
-      m = new gmaps.Marker({ map, position: pos, zIndex: 9, title: label, label: { text: label, fontSize: '10px', fontWeight: '700' }, icon: { path: gmaps.SymbolPath.CIRCLE, scale: 9, fillColor: PIN_COLOUR, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 } });
-      m.addListener('click', () => openBoard(icao));
-    }
-    m.fr24Pin = icao;
-    return m;
-  }
-  function drawPins() {
-    for (const m of pins) drop(m);
-    pins = enabled ? ['WSSS', 'WSSL'].map(makePin) : [];
-  }
 
   function makePlane(p, highlight = false) {
     const pos = { lat: p.lat, lng: p.lng };
@@ -391,7 +388,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!boardIcao) return null;
     const b = boards.get(`${boardIcao}:${tab}`);
     const w = wx.get(boardIcao);
-    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail });
+    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf });
   }
   function render() {
     if (onBoard) onBoard(currentModel());
@@ -413,6 +410,43 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     wx.set(icao, { at: now(), text });
   }
 
+  // I21: the Arrivals rows still in the air, or landed within 60 minutes, that have no gate yet; at most 15.
+  function gateCandidates() {
+    if (!boardIcao) return [];
+    const b = boards.get(`${boardIcao}:arr`);
+    const rows = b && b.data && b.data.ok ? (b.data.rows || []) : [];
+    const t = now();
+    return rows
+      .filter((r) => FLIGHT_ID_RE.test(String(r.id)) && !gateOf.has(String(r.id))
+        && (!(r.ended && r.landed) || t - Date.parse(r.landed) <= GATE_AFTER_LANDING_MS))
+      .slice(0, GATES_MAX)
+      .map((r) => String(r.id));
+  }
+  function stopGates() {
+    if (gateTimer) { clearInterval(gateTimer); gateTimer = null; }
+  }
+  async function pollGates() {
+    if (gatesOff || !boardIcao) { stopGates(); return; }
+    if (typeof document !== 'undefined' && document.hidden) return;
+    const ids = gateCandidates();
+    if (!ids.length) { stopGates(); return; }
+    const r = await getJson(`/api/fr24/gates/${boardIcao}?ids=${ids.join(',')}`);
+    if (r && r.ok && r.gates) {
+      for (const [id, g] of Object.entries(r.gates)) {
+        if (g && g.gate) gateOf.set(String(id), { gate: String(g.gate), terminal: g.terminal || null });
+      }
+    } else if (r && r.reason === 'unavailable') {
+      gatesOff = true;
+    }
+    if (gatesOff || !gateCandidates().length) stopGates();
+    render();
+  }
+  function startGates() {
+    if (gatesOff || gateTimer || !boardIcao || !gateCandidates().length) return;
+    gateTimer = setInterval(pollGates, GATE_POLL_MS);
+    pollGates();
+  }
+
   async function openBoard(icao, dir = 'dep') {
     if (!enabled || !FR24_AIRPORTS[icao]) return;
     boardIcao = icao;
@@ -421,8 +455,9 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     detail = null;
     render();
     const mine = ++gen;
+    if (boardIcao !== icao) stopGates();
     await Promise.all([loadTab(icao, dir), loadWx(icao).catch(() => {})]);
-    if (mine === gen) render();
+    if (mine === gen) { render(); if (dir === 'arr') startGates(); }
   }
   async function setTab(dir) {
     if (!enabled || !boardIcao || (dir !== 'dep' && dir !== 'arr')) return;
@@ -432,6 +467,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     render();
     await loadTab(boardIcao, dir);
     render();
+    if (dir === 'arr') startGates();
   }
   function setSort(x) {
     if (!boardIcao) return;
@@ -444,6 +480,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     render();
   }
   function closeBoard() {
+    stopGates();
     boardIcao = null;
     selectedId = null;
     detail = null;
@@ -459,14 +496,16 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!row) return;
     selectedId = String(id);
     const inAir = !(row.ended && row.landed);
-    detail = flightCardLines({ flight: row, icao: boardIcao, lang });
+    const g = gateOf.get(String(id));
+    const gateLine = g ? [gateText(g, lang)] : [];
+    detail = [...flightCardLines({ flight: row, icao: boardIcao, lang }), ...gateLine];
     if (!inAir) { render(); return; }
     if (!row.callsign) { detail = [...detail, ft('locate.none', lang)]; render(); return; }
     render();
     const r = await getJson(`/api/fr24/locate/${encodeURIComponent(row.callsign)}`);
     const p = r && r.ok && r.plane && Number.isFinite(r.plane.lat) && Number.isFinite(r.plane.lng) ? r.plane : null;
     if (!p) { detail = [...detail, ft(r && r.ok ? 'locate.none' : errKey(r), lang)]; render(); return; }
-    detail = flightCardLines({ flight: row, plane: p, icao: boardIcao, lang });
+    detail = [...flightCardLines({ flight: row, plane: p, icao: boardIcao, lang }), ...gateLine];
     if (focus) drop(focus);
     focus = makePlane({ ...p, id: p.id || row.id }, true);
     const pos = { lat: p.lat, lng: p.lng };
@@ -511,12 +550,11 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   async function init() {
     const r = await getJson('/api/fr24/access');
     enabled = !!(r && r.ok && r.enabled === true);
-    drawPins();
+    // Amendment 5 (I20): no airport marker is drawn; the ⋮ menu's ✈️ Airports row opens a board.
     return enabled;
   }
   function setLang(l) {
     lang = l;
-    if (enabled) drawPins();
     render();
     emit();
   }
@@ -528,8 +566,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     clearPlanes();
     if (focus) { drop(focus); focus = null; }
     boardIcao = null;
-    for (const m of pins) drop(m);
-    pins = [];
+    stopGates();
     planesIcao = null;
     planesData = null;
     if (info) info.close();
@@ -538,7 +575,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
 
   return {
     init, openBoard, setTab, setView, setSort, closeBoard, selectFlight, togglePlanes, refresh, openFlight, setLang, closeInfo, destroy,
-    pinCount: () => pins.length, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
+    pinCount: () => 0, openIcao: () => boardIcao, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
     enabled: () => enabled,
   };
 }

@@ -31,7 +31,7 @@ const summary = (i, ended, extra = {}) => ({
 });
 
 // A fake FR24: records every request and answers by path.
-function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary(2, false)], status = 200, usage = null } = {}) {
+function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary(2, false)], status = 200, usage = null, events = [] } = {}) {
   const calls = [];
   const request = async (url, headers) => {
     calls.push({ url, headers });
@@ -40,6 +40,7 @@ function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary
     const u = new URL(url);
     if (u.pathname.endsWith('/live/flight-positions/light')) return { status: 200, data: { data: planes } };
     if (u.pathname.endsWith('/flight-summary/light')) return { status: 200, data: { data: rows } };
+    if (u.pathname.endsWith('/historic/flight-events/light')) return { status: 200, data: { data: events } };
     if (u.pathname.endsWith('/usage')) return { status: 200, data: usage || { data: [{ endpoint: 'live/flight-positions/light', request_count: 3, credits: 36 }, { endpoint: 'flight-summary/light', request_count: 2, credits: 6 }] } };
     return { status: 404, data: { message: 'Not found' } };
   };
@@ -486,16 +487,85 @@ describe('I16 — locate is well-formed and guarded', () => {
   });
 });
 
+// ── I21 — gates from FR24's flight events (amendment 6) ────────────────────────────────────────────────────────
+describe('I21 — gate_arrival events: one request, at most 15 ids, terminals only from a sourced letter', () => {
+  const ev = (id, gate, extra = {}) => ({ fr24_id: id, callsign: 'X', hex: 'Y', events: [{ type: 'gate_arrival', timestamp: '2026-11-05T05:40:00Z', lat: 1.35, lon: 103.99, details: { gate_ident: gate, gate_lat: 1.351, gate_lon: 103.98 } }], ...extra });
+  it('historic/flight-events/light with flight_ids and event_types=gate_arrival', async () => {
+    const { svc, calls } = svcWith({ events: [ev('3b000001', 'G12'), ev('3b000002', 'B5')] });
+    const r = await svc.gates('WSSS', ['3b000001', '3b000002']);
+    expect(r).toMatchObject({ ok: true, icao: 'WSSS' });
+    const u = new URL(calls[0].url);
+    expect(u.origin + u.pathname).toBe('https://fr24api.flightradar24.com/api/historic/flight-events/light');
+    expect(u.searchParams.get('flight_ids')).toBe('3b000001,3b000002');
+    expect(u.searchParams.get('event_types')).toBe('gate_arrival');
+    expect(r.gates).toEqual({ '3b000001': { gate: 'G12', terminal: 'T4' }, '3b000002': { gate: 'B5', terminal: null } });
+  });
+  it('a flight with no gate, or a null gate, is left out', async () => {
+    const { svc } = svcWith({ events: [ev('3b000001', null), { fr24_id: '3b000002', events: [] }] });
+    expect((await svc.gates('WSSS', ['3b000001', '3b000002'])).gates).toEqual({});
+  });
+  it('credits: 2 per event returned, 1 for an empty answer', async () => {
+    const a = svcWith({ events: [ev('3b000001', 'G1'), ev('3b000002', 'G2')] });
+    await a.svc.gates('WSSS', ['3b000001', '3b000002']);
+    expect(await a.svc.spent()).toBe(4);
+    const b = svcWith({ events: [] });
+    await b.svc.gates('WSSS', ['3b000001']);
+    expect(await b.svc.spent()).toBe(1);
+  });
+  it('more than 15 ids, none, or a bad one is refused before any request; duplicates collapse', async () => {
+    const { svc, calls } = svcWith();
+    const sixteen = Array.from({ length: 16 }, (_, i) => `3c${String(i).padStart(6, '0')}`);
+    expect(await svc.gates('WSSS', sixteen)).toMatchObject({ ok: false, reason: 'badids' });
+    expect(await svc.gates('WSSS', [])).toMatchObject({ ok: false, reason: 'badids' });
+    expect(await svc.gates('WSSS', ['../usage'])).toMatchObject({ ok: false, reason: 'badids' });
+    expect(await svc.gates('EGLL', ['3b000001'])).toMatchObject({ ok: false, reason: 'badcode' });
+    expect(calls).toHaveLength(0);
+    await svc.gates('WSSS', ['3b000001', '3b000001']);
+    expect(qs(calls[0].url).get('flight_ids')).toBe('3b000001');
+  });
+  it('cached 5 minutes for the same set of ids, in any order', async () => {
+    const { svc, calls, clock } = svcWith();
+    await svc.gates('WSSS', ['3b000001', '3b000002']);
+    await svc.gates('WSSS', ['3b000002', '3b000001']);
+    expect(calls).toHaveLength(1);
+    clock.advance(301 * 1000);
+    await svc.gates('WSSS', ['3b000001', '3b000002']);
+    expect(calls).toHaveLength(2);
+  });
+  it('a 403 means the plan does not include the endpoint: "unavailable", not cached', async () => {
+    const { svc, calls } = svcWith({ status: 403 });
+    expect(await svc.gates('WSSS', ['3b000001'])).toMatchObject({ ok: false, reason: 'unavailable' });
+    expect(await svc.gates('WSSS', ['3b000001'])).toMatchObject({ ok: false, reason: 'unavailable' });
+    expect(calls).toHaveLength(2);
+  });
+  it('terminalForGate: G and H are Terminal 4 (sourced); every other letter has no terminal', () => {
+    expect(fr24.terminalForGate('G12')).toBe('T4');
+    expect(fr24.terminalForGate('G18L')).toBe('T4');
+    expect(fr24.terminalForGate('H3')).toBe('T4');
+    for (const g of ['A1', 'B5', 'C21', 'D40', 'E8', 'F50', '12', '', null, undefined, 'g12']) expect(fr24.terminalForGate(g)).toBeNull();
+    expect(Object.keys(fr24.GATE_TERMINALS).sort()).toEqual(['G', 'H']);
+  });
+  it('behind the owner gate', async () => {
+    const env = { TELEGRAM_OWNER_CHAT_ID: OWNER };
+    const { svc, calls } = svcWith();
+    expect(await fr24.handle(svc, { kind: 'gates', icao: 'WSSS', ids: '3b000001', userId: '999', env })).toEqual({ status: 403, body: { ok: false, reason: 'owner-only' } });
+    expect(calls).toHaveLength(0);
+    const r = await fr24.handle(svc, { kind: 'gates', icao: 'WSSS', ids: '3b000001,3b000002', userId: OWNER, env });
+    expect(r.status).toBe(200);
+    expect(qs(calls[0].url).get('flight_ids')).toBe('3b000001,3b000002');
+  });
+});
+
 // ── I14 at the routes: index.js verifies initData and hands handle() the VERIFIED user ─────────────────────────
 describe('I14 — the routes in index.js', () => {
   const src = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8')
     .split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
-  it('the five FR24 routes each verify Telegram initData before fr24Route', () => {
-    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign']) {
+  it('the six FR24 routes each verify Telegram initData before fr24Route', () => {
+    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign', 'gates/:icao']) {
       const rx = new RegExp(`app\\.get\\('/api/fr24/${r.replace('/', '\\/')}', requireInitDataFromBodyOrHeader, fr24Route\\(`);
       expect(src, r).toMatch(rx);
     }
-    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(5);
+    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(6);
   });
   it('the user id handed to handle() is the verified one, req.tg.user.id, and nothing from the query', () => {
     expect(src).toMatch(/handle\(fr24Service\(\), \{ kind, \.\.\.pick\(req\), userId: req\.tg\?\.user\?\.id \}\)/);

@@ -39,6 +39,7 @@ function FlightCard({ r, labels, selected, onSelect }) {
         <span className="font-mono">{r.type}</span>
         <span className={r.inAir ? 'text-amber-600 font-semibold' : ''}>{r.status}</span>
       </div>
+      {r.gate && <div className="text-[10px] font-semibold" data-fr24-gate>{r.gate}</div>}
     </button>
   );
 }
@@ -60,6 +61,8 @@ function FlightRow({ r, labels, selected, onSelect }) {
       <span className="min-w-0" data-fr24-col="centre">
         <span className="block font-mono text-[11px] text-tg-hint">{r.type}</span>
         <span className={`block text-[10px] truncate ${r.inAir ? 'text-amber-600 font-semibold' : 'text-tg-hint'}`}>{r.status}</span>
+        {/* Amendment 6: the gate, once FR24 reports the plane reached it; "· T4" only for a sourced letter. */}
+        {r.gate && <span className="block text-[10px] font-semibold truncate" data-fr24-gate>{r.gate}</span>}
       </span>
       <span className="font-mono text-[12px] font-bold text-right" data-fr24-col="right">{r.flight}</span>
     </button>

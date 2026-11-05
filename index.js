@@ -19328,6 +19328,9 @@ async function cacheBotUsername() {
     app.get('/api/fr24/flight/:id', requireInitDataFromBodyOrHeader, fr24Route('flight', (req) => ({ id: req.params.id })));
     // v0.62.975 amendment 3 — where one board flight is now, by callsign (6 credits, cached 60 s, same gate).
     app.get('/api/fr24/locate/:callsign', requireInitDataFromBodyOrHeader, fr24Route('locate', (req) => ({ callsign: req.params.callsign })));
+    // v0.62.975 amendment 6 — the gates of up to 15 board flights, from FR24's flight events (2 credits per gate
+    // found, 1 for an empty answer, cached 5 min, same gate). The phone asks only while an airport board is open.
+    app.get('/api/fr24/gates/:icao', requireInitDataFromBodyOrHeader, fr24Route('gates', (req) => ({ icao: req.params.icao, ids: String(req.query.ids || '') })));
 
     app.get('/api/transport/stations', (_req, res) => {
       try {

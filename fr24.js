@@ -39,6 +39,20 @@ const DEFAULT_BUDGET = 25000;
 const STALE_MAX_MS = 30 * 24 * 3600 * 1000; // never serve FR24 data older than its 30-day storage rule
 const FLIGHT_ID = /^[0-9a-f]{6,12}$/;
 const CALLSIGN = /^[A-Z0-9]{2,8}$/;
+const GATES_MAX = 15;                   // flight-events takes at most 15 fr24_ids per request
+const GATES_TTL_S = 300;
+
+// Amendment 6: a gate's terminal, from its letter, ONLY where a source says so. Nothing is guessed: a letter that is
+// not here shows the gate code alone.
+//   G, H → Terminal 4: Wikipedia, "Infrastructure of Changi Airport", Terminal 4 section, read 05-11 '26: "There are
+//          a total of 21 contact gates and 8 bus gates in Terminal 4, numbered Gates G1 to G21 and Gates H1 to H8."
+// Letters A to F: no source was reachable from the build (Wikipedia's text names no other terminal's gates; the
+// OpenStreetMap Overpass API refused the connection twice on 05-11 '26). Add a row only with its source.
+const GATE_TERMINALS = Object.freeze({ G: 'T4', H: 'T4' });
+function terminalForGate(gate) {
+  const m = typeof gate === 'string' ? gate.match(/^([A-Z])\d/) : null;
+  return m && Object.prototype.hasOwnProperty.call(GATE_TERMINALS, m[1]) ? GATE_TERMINALS[m[1]] : null;
+}
 const SGT_MS = 8 * 3600 * 1000;
 const KM_PER_DEG = 111.195;
 
@@ -160,7 +174,7 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
   };
 
   // One FR24 request, behind every guard. `cost(data)` is what the answer cost; `shape(data)` is our answer.
-  async function call(key, ttl, url, cost, shape) {
+  async function call(key, ttl, url, cost, shape, { on403 = 'nokey' } = {}) {
     if (!token) return { ok: false, reason: 'nokey' };
     const hit = await cacheGet(key);
     if (hit) return hit;
@@ -181,7 +195,8 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       const status = res && res.status;
       if (status === 402) { blockedMonth = monthKeySgt(now()); return { ok: false, reason: 'budget' }; }
       if (status === 429) return staleOf(key) || { ok: false, reason: 'busy' };
-      if (status !== 200 || !res.data) return { ok: false, reason: status === 401 || status === 403 ? 'nokey' : 'error' };
+      if (status === 403) return { ok: false, reason: on403 };
+      if (status !== 200 || !res.data) return { ok: false, reason: status === 401 ? 'nokey' : 'error' };
       await addSpent(cost(res.data));
       const out = { ok: true, source: 'Flightradar24', readAt: isoSec(t), ...shape(res.data) };
       await cachePut(key, ttl, out);
@@ -223,6 +238,28 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       (d) => { const r = listOf(d)[0]; return { flight: r ? rowOf(r) : null }; });
   }
 
+  // Amendment 6 (I21): the gate each flight reached, from FR24's flight events. One request for up to 15 flights,
+  // filtered to gate_arrival; cached 5 minutes per SET of ids (sorted, so the order does not matter). A 403 is read as
+  // "this plan does not include the endpoint" (`unavailable`), which tells the phone to stop polling.
+  async function gates(icao, ids) {
+    if (!Object.prototype.hasOwnProperty.call(AIRPORTS, icao)) return { ok: false, reason: 'badcode' };
+    const list = [...new Set(Array.isArray(ids) ? ids.map(String) : [])];
+    if (!list.length || list.length > GATES_MAX || !list.every((x) => FLIGHT_ID.test(x))) return { ok: false, reason: 'badids' };
+    const url = `${BASE}/historic/flight-events/light?flight_ids=${list.join(',')}&event_types=gate_arrival`;
+    const events = (d) => listOf(d).flatMap((f) => (Array.isArray(f && f.events) ? f.events : []));
+    return call(`fr24:gates:${[...list].sort().join(',')}`, GATES_TTL_S, url,
+      (d) => { const n = events(d).length; return n > 0 ? 2 * n : 1; },
+      (d) => {
+        const out = {};
+        for (const f of listOf(d)) {
+          const e = (Array.isArray(f && f.events) ? f.events : []).find((x) => x && x.type === 'gate_arrival' && x.details && x.details.gate_ident);
+          if (e) out[String(f.fr24_id)] = { gate: String(e.details.gate_ident), terminal: terminalForGate(String(e.details.gate_ident)) };
+        }
+        return { icao, gates: out };
+      },
+      { on403: 'unavailable' });
+  }
+
   // Amendment 3 (C3 revised): where one flight is now, by callsign, for a board row still in the air.
   async function locate(callsign) {
     const cs = typeof callsign === 'string' ? callsign : '';
@@ -254,20 +291,21 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     return { ok: true, period: '30d', endpoints, total: endpoints.reduce((s, e) => s + e.credits, 0) };
   }
 
-  return { planes, board, flight, locate, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
+  return { planes, board, flight, locate, gates, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
 }
 
 // The routes' one entry point: the access gate, then the call. Returns { status, body } for index.js to send.
-async function handle(svc, { kind, icao, dir, id, callsign, userId, env = process.env } = {}) {
+async function handle(svc, { kind, icao, dir, id, callsign, ids, userId, env = process.env } = {}) {
   if (kind === 'access') return { status: 200, body: { ok: true, enabled: hasAccess(userId, env) } };
-  if (!['board', 'airport', 'flight', 'locate'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
+  if (!['board', 'airport', 'flight', 'locate', 'gates'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
   if (!hasAccess(userId, env)) return { status: 403, body: { ok: false, reason: 'owner-only' } };
   let body;
   if (kind === 'board') body = await svc.board(icao, dir);
   else if (kind === 'airport') body = await svc.planes(icao);
   else if (kind === 'locate') body = await svc.locate(callsign);
+  else if (kind === 'gates') body = await svc.gates(icao, String(ids || '').split(',').filter(Boolean));
   else body = await svc.flight(id);
-  const bad = body && ['badcode', 'baddir', 'badid', 'badcallsign'].includes(body.reason);
+  const bad = body && ['badcode', 'baddir', 'badid', 'badcallsign', 'badids'].includes(body.reason);
   return { status: bad ? 400 : 200, body };
 }
 
@@ -307,5 +345,5 @@ function forServer(cache, env = process.env) {
 module.exports = {
   BASE, AIRPORTS, LIMIT, TTL_S, RATE_PER_MIN, DEFAULT_BUDGET, BOX_HALF_KM,
   airportName, tokenFrom, budgetFrom, monthKeySgt, boundsFor, creditsForPlanes, creditsForSummary,
-  hasAccess, createFr24, handle, usageReply, forServer,
+  hasAccess, createFr24, handle, usageReply, forServer, GATE_TERMINALS, terminalForGate,
 };
