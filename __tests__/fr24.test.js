@@ -33,13 +33,14 @@ const summary = (i, ended, extra = {}) => ({
 const trk = (i) => ({ timestamp: new Date(Date.parse('2026-11-05T05:10:00Z') + i * 10000).toISOString().replace(/\.\d{3}Z$/, 'Z'), lat: 1.4 + i * 0.001, lon: 103.9 + i * 0.002, alt: 1000 * i, gspeed: 300, vspeed: 0, track: 45, squawk: '1234', callsign: 'RPC9968', source: 'ADSB' });
 
 // A fake FR24: records every request and answers by path.
-function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary(2, false)], status = 200, usage = null, events = [], tracks = null } = {}) {
+function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary(2, false)], status = 200, usage = null, events = [], tracks = null, full = null } = {}) {
   const calls = [];
   const request = async (url, headers) => {
     calls.push({ url, headers });
     if (typeof status === 'function') { const s = status(calls.length); if (s !== 200) return { status: s, data: { message: 'x' } }; }
     else if (status !== 200) return { status, data: { message: 'Forbidden', details: 'Credit limit reached.' } };
     const u = new URL(url);
+    if (u.pathname.endsWith('/live/flight-positions/full')) return { status: 200, data: { data: full ?? [{ ...pos(1), fr24_id: '3b000002', eta: '2026-11-05T07:40:00Z' }, { ...pos(2), fr24_id: '3b000003', eta: null }] } };
     if (u.pathname.endsWith('/live/flight-positions/light')) return { status: 200, data: { data: planes } };
     if (u.pathname.endsWith('/flight-summary/light')) return { status: 200, data: { data: rows } };
     if (u.pathname.endsWith('/historic/flight-events/light')) return { status: 200, data: { data: events } };
@@ -137,6 +138,12 @@ describe('I11 — the board request', () => {
     expect(r.rows[0].dest).toEqual({ code: 'EGLL', iata: 'LHR', city: 'London', name: 'London Heathrow Airport' });
     expect(r.rows[0].orig).toMatchObject({ code: 'WSSS', iata: 'SIN' });
     expect(r.rows[1]).toMatchObject({ ended: false, landed: null });
+  });
+  it('I27: each row carries firstSeen from FR24 first_seen (free: already in the answer), or null', async () => {
+    const { svc } = svcWith({ rows: [summary(1, false), summary(2, false, { first_seen: null })] });
+    const r = await svc.board('WSSS', 'arr');
+    expect(r.rows[0].firstSeen).toBe('2026-11-05T04:50:00Z');
+    expect(r.rows[1].firstSeen).toBeNull();
   });
 });
 
@@ -563,12 +570,12 @@ describe('I21 — gate_arrival events: one request, at most 15 ids, terminals on
 describe('I14 — the routes in index.js', () => {
   const src = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8')
     .split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
-  it('the seven FR24 routes each verify Telegram initData before fr24Route', () => {
-    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign', 'gates/:icao', 'track/:id']) {
+  it('the eight FR24 routes each verify Telegram initData before fr24Route', () => {
+    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign', 'gates/:icao', 'track/:id', 'eta/:icao']) {
       const rx = new RegExp(`app\\.get\\('/api/fr24/${r.replace('/', '\\/')}', requireInitDataFromBodyOrHeader, fr24Route\\(`);
       expect(src, r).toMatch(rx);
     }
-    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(7);
+    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(8);
   });
   it('the user id handed to handle() is the verified one, req.tg.user.id, and nothing from the query', () => {
     expect(src).toMatch(/handle\(fr24Service\(\), \{ kind, \.\.\.pick\(req\), userId: req\.tg\?\.user\?\.id \}\)/);
@@ -682,6 +689,64 @@ describe('I26 — airport coordinates from the same OurAirports table; destPos o
     expect((await u.svc.flight('3b000002')).destPos).toBeNull();
     const z = svcWith({ rows: [summary(2, false, { dest_icao: 'ZZZZ', dest_icao_actual: 'ZZZZ' })] });
     expect((await z.svc.flight('3b000002')).destPos).toBeNull();
+  });
+});
+
+describe('I29 — the ETA call: one request per airport and direction per 5 minutes, 8 credits a flight, owner-only', () => {
+  it('live/flight-positions/full with inbound:<code> for Arrivals and outbound:<code> for Departures, limit 20', async () => {
+    const { svc, calls } = svcWith();
+    const a = await svc.etas('WSSS', 'arr');
+    expect(a.ok).toBe(true);
+    expect(calls[0].url).toBe('https://fr24api.flightradar24.com/api/live/flight-positions/full?airports=inbound:WSSS&limit=20');
+    expect(calls[0].headers).toMatchObject({ Authorization: `Bearer ${TOKEN}`, 'Accept-Version': 'v1' });
+    await svc.etas('WSSL', 'dep');
+    expect(calls[1].url).toBe('https://fr24api.flightradar24.com/api/live/flight-positions/full?airports=outbound:WSSL&limit=20');
+  });
+  it('answers id → eta, only for flights that have one', async () => {
+    const { svc } = svcWith();
+    const r = await svc.etas('WSSS', 'arr');
+    expect(r.etas).toEqual({ '3b000002': '2026-11-05T07:40:00Z' });
+    expect(r).toMatchObject({ icao: 'WSSS', dir: 'arr' });
+  });
+  it('8 credits per returned flight; 1 for an empty answer', async () => {
+    const a = svcWith();
+    await a.svc.etas('WSSS', 'arr');
+    expect(await a.svc.spent()).toBe(16);
+    const b = svcWith({ full: [] });
+    await b.svc.etas('WSSS', 'arr');
+    expect(await b.svc.spent()).toBe(1);
+  });
+  it('cached 5 minutes per airport and direction', async () => {
+    const { svc, calls, clock } = svcWith();
+    await svc.etas('WSSS', 'arr');
+    clock.advance(299 * 1000);
+    await svc.etas('WSSS', 'arr');
+    expect(calls).toHaveLength(1);
+    await svc.etas('WSSS', 'dep');
+    expect(calls).toHaveLength(2);
+    clock.advance(2 * 1000);
+    await svc.etas('WSSS', 'arr');
+    expect(calls).toHaveLength(3);
+  });
+  it('a bad airport or direction is refused before any request; a 403 is unavailable and not cached', async () => {
+    const { svc, calls } = svcWith();
+    expect((await svc.etas('EGLL', 'arr')).reason).toBe('badcode');
+    expect((await svc.etas('WSSS', 'x')).reason).toBe('baddir');
+    expect(calls).toHaveLength(0);
+    const f = svcWith({ status: 403 });
+    expect(await f.svc.etas('WSSS', 'arr')).toEqual({ ok: false, reason: 'unavailable' });
+    await f.svc.etas('WSSS', 'arr');
+    expect(f.calls).toHaveLength(2);
+  });
+  it('behind the owner gate; bad input is a 400', async () => {
+    const env = { TELEGRAM_OWNER_CHAT_ID: OWNER };
+    const { svc, calls } = svcWith();
+    expect(await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'arr', userId: '999', env })).toEqual({ status: 403, body: { ok: false, reason: 'owner-only' } });
+    expect(calls).toHaveLength(0);
+    const r = await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'arr', userId: OWNER, env });
+    expect(r.status).toBe(200);
+    expect(r.body.etas['3b000002']).toBe('2026-11-05T07:40:00Z');
+    expect((await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'up', userId: OWNER, env })).status).toBe(400);
   });
 });
 

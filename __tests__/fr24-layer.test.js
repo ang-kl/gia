@@ -17,7 +17,7 @@ const require = createRequire(import.meta.url);
 const server = require('../fr24.js');
 
 const T0 = Date.parse('2026-11-05T06:00:00Z'); // 14:00 SGT
-const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8}|gates\/(WSSS|WSSL)\?ids=[0-9a-f,]+|track\/[0-9a-f]+)$|^\/api\/weather\/outside\?/;
+const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8}|gates\/(WSSS|WSSL)\?ids=[0-9a-f,]+|track\/[0-9a-f]+|eta\/(WSSS|WSSL)\?dir=(dep|arr))$|^\/api\/weather\/outside\?/;
 
 function fakeGmaps() {
   const made = [];
@@ -56,7 +56,7 @@ const boardPayload = (dir) => ({
       orig: { code: 'VTBS', iata: 'BKK', city: 'Bangkok', name: 'Suvarnabhumi Airport' }, dest: { code: 'ZZZZ' } },
   ],
 });
-function harness({ enabled = true, gates = null, track = null, flightExtra = {} } = {}) {
+function harness({ enabled = true, gates = null, track = null, flightExtra = {}, eta = null } = {}) {
   const calls = [];
   const states = [];
   const fetchJson = async (u) => {
@@ -66,6 +66,7 @@ function harness({ enabled = true, gates = null, track = null, flightExtra = {} 
     if (u.startsWith('/api/fr24/board/')) return boardPayload(new URL(u, 'http://x').searchParams.get('dir'));
     if (u.startsWith('/api/fr24/airport/')) return planesPayload();
     if (u.startsWith('/api/fr24/track/')) return typeof track === 'function' ? track(u) : track;
+    if (u.startsWith('/api/fr24/eta/')) return typeof eta === 'function' ? eta(u) : eta;
     if (u.startsWith('/api/fr24/flight/')) return { ok: true, flight: boardPayload('dep').rows[0], ...flightExtra };
     if (u.startsWith('/api/fr24/locate/')) return { ok: true, callsign: u.split('/').pop(), plane: { id: '3b000001', callsign: 'SIA1', lat: 1.31, lng: 104.12, track: 300, gspeed: 250, alt: 6000 } };
     if (u.startsWith('/api/weather/outside')) return { ok: true, inSg: true, rows: { lightning: { status: 'ok', level: 'warn', count: 3, nearestKm: 2.1, at: '2026-11-05T05:58:00Z' } } };
@@ -92,12 +93,14 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     expect(layer.pinCount()).toBe(0);
   });
   // Amendment 5 (I20): no airport marker on the map, ever; the ⋮ menu's Airports row is the way in.
-  it('init asks the server once whether this reader has access, and draws no airport marker either way', async () => {
+  // Amendment 9 revised (I28) replaces I20's "no airport marker ever": with access, init draws the two airport pins and
+  // fetches nothing else.
+  it('init asks the server once whether this reader has access, and with access draws the two airport pins only', async () => {
     const { calls, layer, made } = harness();
     expect(await layer.init()).toBe(true);
     expect(calls).toEqual(['/api/fr24/access']);
-    expect(layer.pinCount()).toBe(0);
-    expect(made).toHaveLength(0);
+    expect(layer.pinCount()).toBe(2);
+    expect(made.map((m) => m.fr24Pin).sort()).toEqual(['WSSL', 'WSSS']);
   });
   it('without access no pin, no marker, and no further request, whatever is tapped', async () => {
     const { calls, layer, made } = harness({ enabled: false });
@@ -119,7 +122,7 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     const { calls, layer } = harness();
     await layer.init();
     await layer.openBoard('WSSS');
-    const fr = () => calls.filter((u) => u.startsWith('/api/fr24/') && !u.startsWith('/api/fr24/gates/'));
+    const fr = () => calls.filter((u) => u.startsWith('/api/fr24/') && !u.startsWith('/api/fr24/gates/') && !u.startsWith('/api/fr24/eta/'));
     expect(fr()).toEqual(['/api/fr24/access', '/api/fr24/board/WSSS?dir=dep']);
     await layer.setTab('arr');
     expect(fr().at(-1)).toBe('/api/fr24/board/WSSS?dir=arr');
@@ -134,7 +137,7 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     expect(calls.filter((u) => u.startsWith('/api/fr24/board/'))).toEqual(['/api/fr24/board/WSSL?dir=dep']);
     expect(boards.at(-1).icao).toBe('WSSL');
     expect(layer.openIcao()).toBe('WSSL');
-    expect(made).toHaveLength(0);
+    expect(made.filter((m) => !m.fr24Pin)).toHaveLength(0);   // I28: only the two pins; no other marker
     layer.closeBoard();
     expect(layer.openIcao()).toBeNull();
   });
@@ -217,6 +220,7 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     const { layer } = harness();
     await layer.init();
     await layer.togglePlanes('WSSS');
+    expect(layer.pinCount()).toBe(2);
     layer.destroy();
     expect(layer.pinCount()).toBe(0);
     expect(layer.planeCount()).toBe(0);
@@ -796,6 +800,183 @@ describe('I24 — a route only for the in-air flight whose card is open, removed
     await b.made.find((m) => m.fr24Plane === '3a000001').listeners.click();
     expect(b.calls.some((u) => u.startsWith('/api/fr24/track/'))).toBe(false);
     expect(b.made.lines).toHaveLength(0);
+  });
+});
+
+// ── I27 / I28 / I29 / I30 — amendment 9 revised ─────────────────────────────────────────────────────────────────────
+const airRow = (extra = {}) => ({ id: '3b000009', flight: 'SQ9', callsign: 'SIA9', airline: 'SIA', type: 'A359', takeoff: null, landed: null, ended: false,
+  orig: { code: 'VVDN', iata: 'DAD', city: 'Da Nang' }, dest: { code: 'WSSS', iata: 'SIN', city: 'Singapore' }, firstSeen: null, ...extra });
+const one = (dir, row, etas = null) => boardModel({ icao: 'WSSS', dir, data: { ok: true, rows: [row] }, lang: 'en', etas }).rows[0].time;
+
+describe('I27 — the row time follows what exists; every estimate is marked ≈', () => {
+  it('Arrivals in the air: ETA, else take-off, else first seen, else nothing (the board draws --:--)', () => {
+    const eta = { '3b000009': '2026-11-05T07:40:00Z' };
+    expect(one('arr', airRow({ takeoff: '2026-11-05T05:10:00Z', firstSeen: '2026-11-05T04:50:00Z' }), eta)).toBe('🛬 ≈15:40');
+    expect(one('arr', airRow({ takeoff: '2026-11-05T05:10:00Z', firstSeen: '2026-11-05T04:50:00Z' }))).toBe('🛫 13:10');
+    expect(one('arr', airRow({ firstSeen: '2026-11-05T04:50:00Z' }))).toBe('seen 12:50');
+    expect(one('arr', airRow())).toBe('');
+  });
+  it('Departures in the air: take-off, else ETA at the destination, else first seen', () => {
+    const eta = { '3b000009': '2026-11-05T10:05:00Z' };
+    expect(one('dep', airRow({ takeoff: '2026-11-05T05:10:00Z' }), eta)).toBe('🛫 13:10');
+    expect(one('dep', airRow({ firstSeen: '2026-11-05T04:50:00Z' }), eta)).toBe('🛬 ≈18:05');
+    expect(one('dep', airRow({ firstSeen: '2026-11-05T04:50:00Z' }))).toBe('seen 12:50');
+  });
+  it('landed rows are unchanged, ETA or not', () => {
+    const landed = airRow({ ended: true, landed: '2026-11-05T05:31:00Z', takeoff: '2026-11-05T03:20:00Z' });
+    expect(one('arr', landed, { '3b000009': '2026-11-05T07:40:00Z' })).toBe('🛬 13:31');
+    expect(one('dep', landed, { '3b000009': '2026-11-05T07:40:00Z' })).toBe('🛫 11:20');
+  });
+  it('"seen" and "No flight details" exist in all nine locales', () => {
+    for (const k of ['time.seen', 'card.nodetails']) for (const l of FR24_LOCALES) expect(FR24_STRINGS[k][l], `${k}.${l}`).toBeTruthy();
+    for (const l of FR24_LOCALES) expect(FR24_STRINGS['time.seen'][l]).toContain('{time}');
+  });
+});
+
+describe('I28 — Changi and Seletar pins, always for a reader with access; a tap opens that board', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+  it('classic markers: one at each airport with ✈ and the name; none without access', async () => {
+    const { layer, made } = harness();
+    await layer.init();
+    const pins = made.filter((m) => m.fr24Pin);
+    expect(pins).toHaveLength(2);
+    const ch = pins.find((m) => m.fr24Pin === 'WSSS');
+    expect(ch.position).toEqual(FR24_AIRPORTS.WSSS);
+    expect(ch.label.text).toBe('✈');
+    expect(ch.title).toBe('Changi');
+    const off = harness({ enabled: false });
+    await off.layer.init();
+    expect(off.made).toHaveLength(0);
+    expect(off.layer.pinCount()).toBe(0);
+  });
+  it('a pin tap opens that airport\'s board, and a second pin switches to the other', async () => {
+    const { layer, made, calls, boards } = harness();
+    await layer.init();
+    await made.find((m) => m.fr24Pin === 'WSSL').listeners.click();
+    expect(layer.openIcao()).toBe('WSSL');
+    expect(calls).toContain('/api/fr24/board/WSSL?dir=dep');
+    await made.find((m) => m.fr24Pin === 'WSSS').listeners.click();
+    expect(layer.openIcao()).toBe('WSSS');
+    expect(boards.at(-1).icao).toBe('WSSS');
+  });
+  it('closing the board keeps the pins; destroy removes both', async () => {
+    const { layer, made } = harness();
+    await layer.init();
+    await layer.openBoard('WSSS');
+    layer.closeBoard();
+    expect(made.filter((m) => m.fr24Pin && m.map)).toHaveLength(2);
+    layer.destroy();
+    expect(made.filter((m) => m.fr24Pin && m.map)).toHaveLength(0);
+  });
+  it('Advanced Markers: Google\'s pin with a ✈ glyph, and the name in a label below it', async () => {
+    const prev = globalThis.document;
+    const mk = () => { const e = { style: {}, attrs: {}, kids: [], text: '', setAttribute(k, v) { this.attrs[k] = v; }, getAttribute(k) { return this.attrs[k]; }, appendChild(c) { this.kids.push(c); return c; }, addEventListener(ev, fn) { this.on = fn; } }; Object.defineProperty(e, 'textContent', { set(v) { e.text = v; }, get() { return e.text; } }); Object.defineProperty(e, 'innerHTML', { set(v) { e.html = v; }, get() { return e.html; } }); return e; };
+    globalThis.document = { createElement: mk };
+    try {
+      const { gmaps } = fakeGmaps();
+      const ames = [];
+      class AME { constructor(o) { Object.assign(this, o); ames.push(this); } }
+      const pes = [];
+      class PinElement { constructor(o) { Object.assign(this, o); this.element = mk(); this.element.pe = this; pes.push(this); } }
+      gmaps.marker = { AdvancedMarkerElement: AME, PinElement };
+      const calls = [];
+      const layer = createFr24Layer({}, gmaps, { now: () => T0, fetchJson: async (u) => { calls.push(u); return u === '/api/fr24/access' ? { ok: true, enabled: true } : u.startsWith('/api/fr24/board/') ? boardPayload('dep') : null; } });
+      await layer.init();
+      const pins = ames.filter((m) => m.content && m.content.attrs['data-fr24-pin']);
+      expect(pins).toHaveLength(2);
+      const ch = pins.find((m) => m.content.attrs['data-fr24-pin'] === 'WSSS');
+      expect(ch.content.kids[0].pe.glyph).toBe('✈');
+      expect(pes).toHaveLength(2);
+      expect(ch.content.kids[1].text).toBe('Changi');
+      await ch.content.on({ stopPropagation() {} });
+      expect(calls).toContain('/api/fr24/board/WSSS?dir=dep');
+      layer.destroy();
+      expect(pins.every((m) => m.map === null)).toBe(true);
+    } finally {
+      globalThis.document = prev;
+    }
+  });
+});
+
+describe('I29 — the phone asks for ETAs once a tab with a flight in the air has loaded, at most every 5 minutes', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+  const etaCalls = (calls) => calls.filter((u) => u.startsWith('/api/fr24/eta/'));
+  it('one ETA request per tab; a return to the tab inside 5 minutes asks nothing; after 5 minutes it asks again', async () => {
+    const { layer, calls, boards, advance } = harness({ eta: (u) => ({ ok: true, etas: { '3b000001': '2026-11-05T07:40:00Z' } }) });
+    await layer.init();
+    expect(etaCalls(calls)).toHaveLength(0);
+    await layer.openBoard('WSSS');
+    expect(etaCalls(calls)).toEqual(['/api/fr24/eta/WSSS?dir=dep']);
+    await layer.setTab('arr');
+    expect(etaCalls(calls)).toEqual(['/api/fr24/eta/WSSS?dir=dep', '/api/fr24/eta/WSSS?dir=arr']);
+    await layer.setTab('arr');
+    expect(boards.at(-1).rows.find((r) => r.id === '3b000001').time).toBe('🛬 ≈15:40');
+    await layer.setTab('dep');
+    expect(etaCalls(calls)).toHaveLength(2);
+    advance(5 * 60 * 1000 + 1000);
+    await layer.setTab('arr');
+    expect(etaCalls(calls)).toHaveLength(3);
+  });
+  it('no ETA request for a tab with no flight in the air', async () => {
+    const { gmaps } = fakeGmaps();
+    const calls = [];
+    const data = boardPayload('dep');
+    data.rows = data.rows.filter((r) => r.ended);
+    const layer = createFr24Layer({ panTo() {} }, gmaps, { now: () => T0, fetchJson: async (u) => { calls.push(u); return u === '/api/fr24/access' ? { ok: true, enabled: true } : u.startsWith('/api/fr24/board/') ? data : null; } });
+    await layer.init();
+    await layer.openBoard('WSSS');
+    expect(etaCalls(calls)).toHaveLength(0);
+  });
+  it('an "unavailable" answer stops further ETA requests', async () => {
+    const { layer, calls, advance } = harness({ eta: { ok: false, reason: 'unavailable' } });
+    await layer.init();
+    await layer.openBoard('WSSS');
+    await layer.setTab('arr');
+    advance(10 * 60 * 1000);
+    await layer.openBoard('WSSL');
+    expect(etaCalls(calls)).toHaveLength(1);
+  });
+});
+
+describe('I30 — a plane with no details gets a single-✈ card; a plane on the ground draws no route', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+  it('the card title: callsign when that is all there is, else "No flight details"; one ✈ either way', () => {
+    const a = flightCardHtml({ flight: null, plane: { callsign: null, alt: 0, gspeed: 1 }, lang: 'en' });
+    expect(a).toContain('<strong>✈ No flight details</strong>');
+    expect((a.match(/✈/g) || []).length).toBe(1);
+    const b = flightCardHtml({ flight: null, plane: { callsign: 'RPC9968', alt: 39000, gspeed: 475 }, lang: 'en' });
+    expect(b).toContain('<strong>✈ RPC9968</strong>');
+  });
+  it('a plane tapped on the ground: its card, but no track request and no line', async () => {
+    const { layer, made, calls } = harness({ track: TRACK, flightExtra: { origPos: SG, destPos: LHR } });
+    await layer.init();
+    await layer.togglePlanes('WSSS');
+    const p = made.find((m) => m.fr24Plane === '3a000001');
+    p.fr24Data = { ...p.fr24Data, alt: 0, gspeed: 1 };
+    await layer.openFlight('3a000001', p.fr24Data);
+    expect(calls.some((u) => u.startsWith('/api/fr24/track/'))).toBe(false);
+    expect(made.lines).toHaveLength(0);
+  });
+  it('a board row located on the ground draws no route either', async () => {
+    const h = harness({ track: TRACK, flightExtra: { origPos: SG, destPos: LHR } });
+    await h.layer.init();
+    await h.layer.openBoard('WSSS');
+    const orig = h.calls.length;
+    // The fake locate answers a flying plane; make this one taxiing.
+    const layer2 = createFr24Layer({ panTo() {} }, fakeGmaps().gmaps, { now: () => T0, fetchJson: async (u) => {
+      h.calls.push(u);
+      if (u === '/api/fr24/access') return { ok: true, enabled: true };
+      if (u.startsWith('/api/fr24/board/')) return boardPayload('dep');
+      if (u.startsWith('/api/fr24/locate/')) return { ok: true, plane: { id: '3b000001', callsign: 'SIA1', lat: 1.35, lng: 103.99, track: 0, gspeed: 12, alt: 0 } };
+      return TRACK;
+    } });
+    await layer2.init();
+    await layer2.openBoard('WSSS');
+    await layer2.selectFlight('3b000001');
+    expect(h.calls.slice(orig).some((u) => u.startsWith('/api/fr24/track/'))).toBe(false);
   });
 });
 
