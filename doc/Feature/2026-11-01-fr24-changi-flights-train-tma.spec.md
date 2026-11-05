@@ -455,6 +455,30 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     Check: `fr24.test.js`.
   - **Mutations:** a line left behind after the card closes; a route drawn for a landed flight; the track fetched
     twice inside the cache window; more than 300 points sent; the plane drawn unrotated; the fallback skipped on 403.
+- **05-11 '26, amendment 9** (operator, 05-11 '26 17:49, on production with screenshots of the Arrivals list showing
+  `--:--` on every in-air row, and the map near Changi: *"missing timings for arrival, or should they be show yet. and
+  the changi and seletar airports, place, using small google pin with airplane inside and word "Changi" below it"*;
+  then, asked, **"First-seen time, free"** and pins **"Only with Airports on"**). Approved at sha 306f76c0; this
+  amendment voids that approval and asks for it again.
+  - **Why `--:--`:** a row in the air shows its take-off time, and FR24's flight summary returned no
+    `datetime_takeoff` for those flights (it can first see a plane already airborne); a landing time exists only after
+    landing. Nothing was lost by the board.
+  - **The time, free:** the server keeps `first_seen` on each row (`firstSeen`). A row in the air with no take-off
+    time shows when FR24 first saw it, marked as such ("seen 16:20" in the nine locales), instead of `--:--`. With
+    neither, `--:--` stays. No new request and no credit: `first_seen` is already in the answer.
+  - **The pins (this revises amendment 5's "no pins" for the open board only):** while an airport board is open (the
+    ✈️ Airports row ticked), a small Google pin is drawn at Changi and at Seletar: Google's standard pin
+    (`PinElement`, or a classic marker where Advanced Markers are missing) with a plain ✈ glyph inside and the
+    airport's name in the reader's language below it. No logo. Tapping a pin opens that airport's board (or switches
+    to it). Both pins go when the board closes, and on teardown. A reader without access sees no pin, as before.
+  - **Invariant I27:** a row in the air with no take-off shows its first-seen time with the "seen" mark; one with a
+    take-off shows the take-off; one with neither shows `--:--`; the server row carries `firstSeen`. Check:
+    `fr24-layer.test.js` on `boardModel`, `fr24.test.js` on the row shape.
+  - **Invariant I28 (replaces I20's "no airport marker is ever drawn"):** no pin while no board is open; two pins (WSSS,
+    WSSL) while one is, each with ✈ and its name; a pin tap opens that board; closing the board and destroy remove
+    both; no pin without access. Check: `fr24-layer.test.js` with the fake map; render of the built Train app.
+  - **Mutations:** pins left after the board closes; pins drawn with no board open; a pin tap opening the wrong
+    airport; first-seen shown when a take-off exists; first-seen shown without its mark.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
