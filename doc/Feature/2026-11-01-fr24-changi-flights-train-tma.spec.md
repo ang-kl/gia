@@ -367,6 +367,41 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     Check: `fr24-layer.test.js` (the layer draws no marker before or after init; `openBoard` from the pick) and a
     source check of `MrtMapPanel.jsx` (the `airports` row is added only when `fr24Enabled`, with a submenu).
   - **Mutations:** a pin drawn again; the row shown without access; the pick opening the wrong airport.
+- **05-11 '26, amendment 6** (operator, 05-11 '26: *"include … FR24's API file has a "flight events" endpoint. if
+  about to land 100 minutes before, poll for flight events endpoint once, if doesnt have poll every 5-10 minutes until
+  is confirmed then dont poll to save cost. let me know the cost. note that airport card show poll only if user click
+  on the airport to see"*; told that FR24 records a gate only once the plane reaches it, they chose *"100 min before,
+  as asked"* and *"Gate + terminal by letter"*). Amendments 5 and 6 are approved together.
+  - **Gate polling, only while an airport board is open** (closing it, or leaving the app, stops it). The flights
+    polled are the open airport's Arrivals rows that are still in the air, plus rows that landed in the last 60
+    minutes, without a gate yet: at most 15, one request,
+    `historic/flight-events/light?flight_ids=<up to 15>&event_types=gate_arrival` (new route
+    `GET /api/fr24/gates/:icao?ids=…`, behind the same owner gate, rate and budget guards; cached 5 minutes). The
+    first poll is when the Arrivals tab first shows such rows; then **every 7 minutes** (inside the operator's 5-10);
+    a flight leaves the set once its gate is found, or 60 minutes after landing without one, and polling stops when
+    the set is empty. FR24's light flight summaries carry no ETA, so "100 minutes before landing" is applied as
+    "every Arrivals row still in the air": the board only lists flights first seen in the last 3 hours.
+  - **Cost** (FR24's credit table: 1 credit for an empty answer, 2 per event returned): about 14 polls per 100
+    minutes the board stays open, about 1 credit each while no gate has arrived, plus 2 credits per gate found. **About
+    35 credits per 100 minutes of an open board**; an hour a day is about 600 credits a month, against the
+    25,000-credit budget. Counted by the same monthly guard.
+  - **Shown:** an Arrivals row and its detail gain "Gate B5"; and "T3" when the gate's letter is in a **sourced**
+    table. Only rows with a source are filled: **G and H → Terminal 4** (Wikipedia, "Infrastructure of Changi
+    Airport", Terminal 4 section: "Gates G1 to G21 and Gates H1 to H8", read 05-11 '26). Letters A to F have no source
+    reachable from the build (Wikipedia's text names no other terminal's gates, and OpenStreetMap's Overpass API
+    refused the connection twice); until a source is added, those gates show the gate code without a terminal. No
+    letter is guessed.
+  - **Not verifiable before deploy:** whether Explorer includes `historic/flight-events`, and how often a Changi
+    arrival carries a gate (FR24: "can be null"). If the route answers 402/403 or never returns a gate, the board
+    shows no gate and polling stops after the first answer that says the endpoint is unavailable.
+  - **Invariant I21:** gate polling runs only while a board is open; one request per poll with at most 15 ids and
+    `event_types=gate_arrival`; every 7 minutes; a flight leaves the set when its gate is found or 60 minutes after
+    landing; polling stops when the set is empty, when the board closes, and after an "unavailable" answer; a
+    terminal is shown only for a sourced letter. Check: `fr24.test.js` (the request, the cache, the gate parsing,
+    the letter table) and `fr24-layer.test.js` (fake timers: the schedule, the stops, no poll with the board
+    closed).
+  - **Mutations:** polling with the board closed; a found gate polled again; more than 15 ids in one request; an
+    unsourced letter given a terminal; polling continuing after an "unavailable" answer.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
