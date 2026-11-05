@@ -235,20 +235,31 @@ describe('I4 — never presented as live', () => {
     expect(app.slice(sim, sim + 400)).toMatch(/on=\{sim\.on\}/);
     expect(app).toMatch(/onSimChange=\{/);
   });
-  it('the strip model: the caption always, the reason only when nothing is drawn, the neutral tone, no warning tint', () => {
-    const m = simStripModel({ status: 'running', lang: 'en' });
-    expect(m.lines).toEqual(['Simulated from the published timetable, not live train positions']);
-    expect(m['data-sim-strip']).toBe('running');
-    expect(m.role).toBe('status');
-    expect(m.style.background).toBe('#e8eef7');
-    expect(m.style.color).toBe('#2b4a6f');
-    expect(m.icon).toBe('🚆');
+  // v0.62.975 — spec 2026-11-01-fr24-changi-flights-train-tma, amendment 3 (operator, 05-11 '26: "if the train line
+  // isn't operating, just state that, don't have to mention about stimulated line. use only one line"; then "Reason
+  // only when idle"). This test used to pin "the caption always, the reason only when nothing is drawn"; it now pins
+  // nothing while trains run and one reason line otherwise. The tapped train's bubble still says "simulated".
+  it('the strip model: nothing while trains run, one reason line otherwise, the neutral tone, no warning tint (I18)', () => {
+    expect(simStripModel({ status: 'running', lang: 'en' })).toBeNull();
+    expect(simStripModel({ lang: 'en' })).toBeNull();
     for (const s of ['disrupted', 'outOfHours', 'noData', 'noLine']) {
       const r = simStripModel({ status: s, lang: 'en' });
-      expect(r.lines, s).toHaveLength(2);
-      expect(r.lines[1], s).toBe(simT(s === 'disrupted' ? 'paused' : s, 'en'));
+      expect(r.lines, s).toEqual([simT(s === 'disrupted' ? 'paused' : s, 'en')]);
+      expect(r['data-sim-strip']).toBe(s);
+      expect(r.role).toBe('status');
+      expect(r.style.background).toBe('#e8eef7');
+      expect(r.style.color).toBe('#2b4a6f');
+      expect(r.icon).toBe('🚆');
     }
-    expect(simStripModel({ status: 'running', lang: 'ko' }).lines[0]).toBe(SIM_STRINGS.caption.ko);
+    expect(simT('noData', 'en')).toBe('No timetable for this line');
+    expect(simT('noLine', 'en')).toBe('Pick a line to see its trains');
+    for (const key of ['paused', 'outOfHours', 'noData', 'noLine']) {
+      for (const [l, v] of Object.entries(SIM_STRINGS[key])) {
+        expect(v, `${key}.${l}`).not.toMatch(/simul|シミュレーション|模拟|симул|시뮬레이션/i);
+        expect(v.length, `${key}.${l} is one short line`).toBeLessThanOrEqual(60);
+      }
+    }
+    expect(simT('caption', 'en')).toMatch(/Simulated/);   // still used by the tapped train's bubble
   });
   it('the strip is dismissable for the session and comes back when the toggle goes off and on (C3)', () => {
     const app = code('web/transport/src/App.jsx');

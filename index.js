@@ -5692,6 +5692,36 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   }
 });
 
+// v0.62.975 — Flightradar24 pilot (spec doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md). One shared
+// fr24.js service; its cache reads Redis only while the client is open, call by call, so a service created before
+// Redis is ready still uses Redis once it is (a cache captured at creation would stay null for the process's life).
+const fr24Cache = {
+  get: (k) => (redis.isOpen ? redis.get(k) : Promise.resolve(null)),
+  setEx: (k, ttl, v) => (redis.isOpen ? redis.setEx(k, ttl, v) : Promise.resolve()),
+  incrBy: (k, n) => (redis.isOpen ? redis.incrBy(k, n) : Promise.resolve()),
+  expire: (k, s) => (redis.isOpen ? redis.expire(k, s) : Promise.resolve()),
+};
+function fr24Service() {
+  return require('./fr24').forServer(fr24Cache);
+}
+
+// v0.62.975 — /fr24usage, owner-only (spec C8, amendment 2): FR24's credits used over 30 days, per endpoint, and our
+// own monthly count against FR24_MONTHLY_CREDIT_BUDGET. Silent for anyone else, like /ver, and never added to the
+// public command menu. FR24_PUBLIC opens the map feature, not this.
+bot.onText(/^\/fr24usage(?:@\w+)?$/, async (msg) => {
+  try {
+    const text = await require('./fr24').usageReply(fr24Service(), { chatId: msg.chat.id });
+    if (!text) {
+      console.log(`[/fr24usage] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+      return;
+    }
+    await bot.sendMessage(msg.chat.id, text);
+  } catch (err) {
+    console.error('[Error] /fr24usage handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I couldn't read the Flightradar24 usage.");
+  }
+});
+
 // v0.61.307 — /cost [days] — owner-only API-spend summary. Mirrors
 // the /ver gating (silent no-op for non-owners). Reads Redis counters
 // populated by api-cost.js's recordGeminiUsage + recordMapsCall and
@@ -19278,6 +19308,30 @@ async function cacheBotUsername() {
       }
       return stationCentroidsCache;
     }
+    // v0.62.975 — Flightradar24 at Changi and Seletar (spec doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md,
+    // C6, C12). Every route verifies Telegram initData (the x-telegram-init-data header), then fr24.handle() lets the
+    // request through only for the owner, or for anyone when FR24_PUBLIC is exactly '1'; anyone else gets 403
+    // owner-only and NO FR24 request is made. `access` costs no credits: the Train map asks it once to decide whether
+    // to draw the two ✈️ pins at all. The token stays in fr24.js.
+    const fr24Route = (kind, pick) => async (req, res) => {
+      try {
+        const out = await require('./fr24').handle(fr24Service(), { kind, ...pick(req), userId: req.tg?.user?.id });
+        res.status(out.status).json(out.body);
+      } catch (err) {
+        console.error(`[Error] /api/fr24/${kind} failed:`, err.message);
+        res.json({ ok: false, reason: 'error' });
+      }
+    };
+    app.get('/api/fr24/access', requireInitDataFromBodyOrHeader, fr24Route('access', () => ({})));
+    app.get('/api/fr24/board/:icao', requireInitDataFromBodyOrHeader, fr24Route('board', (req) => ({ icao: req.params.icao, dir: req.query.dir })));
+    app.get('/api/fr24/airport/:icao', requireInitDataFromBodyOrHeader, fr24Route('airport', (req) => ({ icao: req.params.icao })));
+    app.get('/api/fr24/flight/:id', requireInitDataFromBodyOrHeader, fr24Route('flight', (req) => ({ id: req.params.id })));
+    // v0.62.975 amendment 3 — where one board flight is now, by callsign (6 credits, cached 60 s, same gate).
+    app.get('/api/fr24/locate/:callsign', requireInitDataFromBodyOrHeader, fr24Route('locate', (req) => ({ callsign: req.params.callsign })));
+    // v0.62.975 amendment 6 — the gates of up to 15 board flights, from FR24's flight events (2 credits per gate
+    // found, 1 for an empty answer, cached 5 min, same gate). The phone asks only while an airport board is open.
+    app.get('/api/fr24/gates/:icao', requireInitDataFromBodyOrHeader, fr24Route('gates', (req) => ({ icao: req.params.icao, ids: String(req.query.ids || '') })));
+
     app.get('/api/transport/stations', (_req, res) => {
       try {
         const centroids = loadStationCentroids();
