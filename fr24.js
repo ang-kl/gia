@@ -41,6 +41,11 @@ const FLIGHT_ID = /^[0-9a-f]{6,12}$/;
 const CALLSIGN = /^[A-Z0-9]{2,8}$/;
 const GATES_MAX = 15;                   // flight-events takes at most 15 fr24_ids per request
 const GATES_TTL_S = 300;
+// Amendment 8 (I25): the flown path of the one flight whose card is open. 40 credits per returned flight, so one
+// request per id per 2 minutes, and at most TRACK_MAX points sent to the phone.
+const TRACK_TTL_S = 120;
+const TRACK_MAX = 300;
+const TRACK_CREDITS = 40;
 
 // Amendment 6: a gate's terminal, from its letter, ONLY where a source says so. Nothing is guessed: a letter that is
 // not here shows the gate code alone.
@@ -74,6 +79,22 @@ function airportName(code) {
   if (e.i) out.iata = e.i;
   if (e.c) out.city = e.c;
   if (e.n) out.name = e.n;
+  return out;
+}
+
+// Amendment 8 (I26): an airport's position from the same OurAirports table, or null; never guessed.
+function airportPos(code) {
+  if (!code) return null;
+  const e = table()[String(code)];
+  if (!e || !Array.isArray(e.p) || e.p.length !== 2 || !e.p.every(Number.isFinite)) return null;
+  return { lat: e.p[0], lng: e.p[1] };
+}
+
+// Keep the first and the last, and evenly spaced points between, so the line still starts at take-off.
+function downsample(points, max = TRACK_MAX) {
+  if (points.length <= max) return points;
+  const out = [];
+  for (let k = 0; k < max; k++) out.push(points[Math.round((k * (points.length - 1)) / (max - 1))]);
   return out;
 }
 
@@ -235,7 +256,32 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     const url = `${BASE}/flight-summary/light?flight_ids=${fid}`;
     return call(`fr24:flight:${fid}`, TTL_S.flight, url,
       (d) => creditsForSummary(listOf(d)),
-      (d) => { const r = listOf(d)[0]; return { flight: r ? rowOf(r) : null }; });
+      (d) => {
+        const r = listOf(d)[0];
+        if (!r) return { flight: null, origPos: null, destPos: null };
+        return { flight: rowOf(r), origPos: airportPos(r.orig_icao), destPos: airportPos(r.dest_icao_actual || r.dest_icao) };
+      });
+  }
+
+  // Amendment 8 (I25): the flown path, for the dotted line. The schema documents an object { fr24_id, tracks }; an
+  // array of those is read the same way. A 403 is "not on this plan" (`unavailable`): the phone then draws the line
+  // from the origin airport instead.
+  async function track(id) {
+    const fid = typeof id === 'string' ? id : '';
+    if (!FLIGHT_ID.test(fid)) return { ok: false, reason: 'badid' };
+    const url = `${BASE}/flight-tracks?flight_id=${fid}`;
+    const first = (d) => (Array.isArray(d) ? d[0] : Array.isArray(d && d.data) ? d.data[0] : d) || null;
+    return call(`fr24:track:${fid}`, TRACK_TTL_S, url,
+      (d) => { const f = first(d); return f && Array.isArray(f.tracks) && f.tracks.length ? TRACK_CREDITS : 1; },
+      (d) => {
+        const f = first(d);
+        const pts = (f && Array.isArray(f.tracks) ? f.tracks : [])
+          .filter((t) => t && Number.isFinite(t.lat) && Number.isFinite(t.lon))
+          .sort((a, b) => String(a.timestamp || '').localeCompare(String(b.timestamp || '')))
+          .map((t) => [Number(t.lat.toFixed(5)), Number(t.lon.toFixed(5))]);
+        return { id: fid, points: downsample(pts) };
+      },
+      { on403: 'unavailable' });
   }
 
   // Amendment 6 (I21): the gate each flight reached, from FR24's flight events. One request for up to 15 flights,
@@ -291,18 +337,19 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     return { ok: true, period: '30d', endpoints, total: endpoints.reduce((s, e) => s + e.credits, 0) };
   }
 
-  return { planes, board, flight, locate, gates, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
+  return { planes, board, flight, track, locate, gates, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
 }
 
 // The routes' one entry point: the access gate, then the call. Returns { status, body } for index.js to send.
 async function handle(svc, { kind, icao, dir, id, callsign, ids, userId, env = process.env } = {}) {
   if (kind === 'access') return { status: 200, body: { ok: true, enabled: hasAccess(userId, env) } };
-  if (!['board', 'airport', 'flight', 'locate', 'gates'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
+  if (!['board', 'airport', 'flight', 'locate', 'gates', 'track'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
   if (!hasAccess(userId, env)) return { status: 403, body: { ok: false, reason: 'owner-only' } };
   let body;
   if (kind === 'board') body = await svc.board(icao, dir);
   else if (kind === 'airport') body = await svc.planes(icao);
   else if (kind === 'locate') body = await svc.locate(callsign);
+  else if (kind === 'track') body = await svc.track(id);
   else if (kind === 'gates') body = await svc.gates(icao, String(ids || '').split(',').filter(Boolean));
   else body = await svc.flight(id);
   const bad = body && ['badcode', 'baddir', 'badid', 'badcallsign', 'badids'].includes(body.reason);
@@ -346,4 +393,5 @@ module.exports = {
   BASE, AIRPORTS, LIMIT, TTL_S, RATE_PER_MIN, DEFAULT_BUDGET, BOX_HALF_KM,
   airportName, tokenFrom, budgetFrom, monthKeySgt, boundsFor, creditsForPlanes, creditsForSummary,
   hasAccess, createFr24, handle, usageReply, forServer, GATE_TERMINALS, terminalForGate,
+  airportPos, downsample, TRACK_TTL_S, TRACK_MAX, TRACK_CREDITS,
 };

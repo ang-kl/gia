@@ -10,14 +10,14 @@ import fs from 'fs';
 import path from 'path';
 import {
   FR24_LOCALES, FR24_STRINGS, FR24_AIRPORTS, DR_MAX_SEC, ft, deadReckon, etaMinutes, sgtClock, captionText,
-  boardModel, flightCardHtml, flightCardLines, createFr24Layer,
+  boardModel, flightCardHtml, flightCardLines, createFr24Layer, planeSvg, PLANE_FILL, PLANE_PICKED,
 } from '../web/transport/src/lib/fr24-layer.js';
 
 const require = createRequire(import.meta.url);
 const server = require('../fr24.js');
 
 const T0 = Date.parse('2026-11-05T06:00:00Z'); // 14:00 SGT
-const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8}|gates\/(WSSS|WSSL)\?ids=[0-9a-f,]+)$|^\/api\/weather\/outside\?/;
+const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8}|gates\/(WSSS|WSSL)\?ids=[0-9a-f,]+|track\/[0-9a-f]+)$|^\/api\/weather\/outside\?/;
 
 function fakeGmaps() {
   const made = [];
@@ -27,12 +27,18 @@ function fakeGmaps() {
     setIcon(i) { this.icon = i; }
     addListener(ev, fn) { this.listeners[ev] = fn; return { remove() {} }; }
   }
+  made.lines = [];
+  class Polyline {
+    constructor(o) { Object.assign(this, o || {}); made.lines.push(this); }
+    setMap(m) { this.map = m; }
+  }
   class InfoWindow {
-    constructor(o) { Object.assign(this, o || {}); this.contents = []; this.isOpen = false; made.iws = (made.iws || []).concat(this); }
+    constructor(o) { Object.assign(this, o || {}); this.contents = []; this.isOpen = false; this.listeners = {}; made.iws = (made.iws || []).concat(this); }
+    addListener(ev, fn) { this.listeners[ev] = fn; return { remove() {} }; }
     setContent(c) { this.contents.push(c); } setPosition(p) { this.position = p; }
     open() { this.isOpen = true; } close() { this.isOpen = false; }
   }
-  return { gmaps: { Marker, InfoWindow, SymbolPath: { CIRCLE: 0, FORWARD_CLOSED_ARROW: 1 }, marker: null }, made };
+  return { gmaps: { Marker, InfoWindow, Polyline, SymbolPath: { CIRCLE: 0, FORWARD_CLOSED_ARROW: 1 }, marker: null }, made };
 }
 const planesPayload = () => ({
   ok: true, source: 'Flightradar24', readAt: new Date(T0).toISOString(),
@@ -50,7 +56,7 @@ const boardPayload = (dir) => ({
       orig: { code: 'VTBS', iata: 'BKK', city: 'Bangkok', name: 'Suvarnabhumi Airport' }, dest: { code: 'ZZZZ' } },
   ],
 });
-function harness({ enabled = true, gates = null } = {}) {
+function harness({ enabled = true, gates = null, track = null, flightExtra = {} } = {}) {
   const calls = [];
   const states = [];
   const fetchJson = async (u) => {
@@ -59,7 +65,8 @@ function harness({ enabled = true, gates = null } = {}) {
     if (u === '/api/fr24/access') return { ok: true, enabled };
     if (u.startsWith('/api/fr24/board/')) return boardPayload(new URL(u, 'http://x').searchParams.get('dir'));
     if (u.startsWith('/api/fr24/airport/')) return planesPayload();
-    if (u.startsWith('/api/fr24/flight/')) return { ok: true, flight: boardPayload('dep').rows[0] };
+    if (u.startsWith('/api/fr24/track/')) return typeof track === 'function' ? track(u) : track;
+    if (u.startsWith('/api/fr24/flight/')) return { ok: true, flight: boardPayload('dep').rows[0], ...flightExtra };
     if (u.startsWith('/api/fr24/locate/')) return { ok: true, callsign: u.split('/').pop(), plane: { id: '3b000001', callsign: 'SIA1', lat: 1.31, lng: 104.12, track: 300, gspeed: 250, alt: 6000 } };
     if (u.startsWith('/api/weather/outside')) return { ok: true, inSg: true, rows: { lightning: { status: 'ok', level: 'warn', count: 3, nearestKm: 2.1, at: '2026-11-05T05:58:00Z' } } };
     return null;
@@ -607,7 +614,8 @@ describe('I17 — a flight tap', () => {
     await layer.openBoard('WSSS');
     const n = calls.length;
     await layer.selectFlight('3b000001');
-    expect(calls.slice(n)).toEqual(['/api/fr24/locate/SIA1']);
+    // Amendment 8 (I24): still exactly one locate; then the flown path and the airports' positions, for the route.
+    expect(calls.slice(n)).toEqual(['/api/fr24/locate/SIA1', '/api/fr24/track/3b000001', '/api/fr24/flight/3b000001']);
     expect(pans).toEqual([{ lat: 1.31, lng: 104.12 }]);
     expect(boards.at(-1).selectedId).toBe('3b000001');
     expect(layer.planeCount()).toBeGreaterThan(0);
@@ -644,6 +652,150 @@ describe('I17 — a flight tap', () => {
     const lines = flightCardLines({ flight: boardPayload('dep').rows[1], lang: 'en' });
     expect(lines).toContain('Airline TGW');
     expect(lines.join(' ')).toContain('Bangkok (BKK)');
+  });
+});
+
+// ── I23 / I24 — our own plane, and the route of the flight whose card is open (amendment 8) ─────────────────────
+const SG = { lat: 1.3502, lng: 103.994 };
+const LHR = { lat: 51.4707, lng: -0.4599 };
+const TRACK = { ok: true, id: '3b000001', points: [[1.36, 104.0], [1.33, 104.06], [1.315, 104.11]] };
+const onMap = (made) => made.lines.filter((l) => l.map);
+const dotted = (l) => l.strokeOpacity === 0 && Array.isArray(l.icons) && l.icons[0].icon.path === 0;
+const dashed = (l) => l.strokeOpacity === 0 && Array.isArray(l.icons) && typeof l.icons[0].icon.path === 'string' && l.geodesic === true;
+
+describe('I23 — every plane is our own yellow SVG, turned to its heading', () => {
+  it('planeSvg: yellow with a dark outline; the picked flight amber with a thicker outline; no FR24 artwork', () => {
+    const a = planeSvg();
+    expect(a).toMatch(/^<svg /);
+    expect(a).toContain(`fill="${PLANE_FILL}"`);
+    expect(PLANE_FILL.toUpperCase()).toBe('#FACC15');
+    expect(a).toMatch(/stroke="#1F2937"/i);
+    const b = planeSvg({ picked: true });
+    expect(b).toContain(`fill="${PLANE_PICKED}"`);
+    expect(Number(b.match(/stroke-width="([\d.]+)"/)[1])).toBeGreaterThan(Number(a.match(/stroke-width="([\d.]+)"/)[1]));
+    const src = fs.readFileSync(path.join(process.cwd(), 'web/transport/src/lib/fr24-layer.js'), 'utf8');
+    expect(src).not.toMatch(/flightradar24\.com\/[^'"\s]*\.(svg|png)/i);
+  });
+  it('with Advanced Markers: an SVG element rotated by track (no -90 offset), never the text glyph', async () => {
+    const els = [];
+    const prev = globalThis.document;
+    globalThis.document = { createElement: () => { const e = { style: {}, attrs: {}, html: '', text: '', setAttribute(k, v) { this.attrs[k] = v; }, addEventListener() {} }; Object.defineProperty(e, 'innerHTML', { set(v) { e.html = v; }, get() { return e.html; } }); Object.defineProperty(e, 'textContent', { set(v) { e.text = v; }, get() { return e.text; } }); els.push(e); return e; } };
+    try {
+      const { gmaps } = fakeGmaps();
+      class AME { constructor(o) { Object.assign(this, o); } }
+      gmaps.marker = { AdvancedMarkerElement: AME };
+      const layer = createFr24Layer({}, gmaps, { now: () => T0, fetchJson: async (u) => (u === '/api/fr24/access' ? { ok: true, enabled: true } : u.startsWith('/api/fr24/airport/') ? planesPayload() : null) });
+      await layer.init();
+      await layer.togglePlanes('WSSS');
+      const planes = els.filter((e) => e.attrs['data-fr24-plane']);
+      expect(planes).toHaveLength(2);
+      for (const e of planes) {
+        expect(e.html).toMatch(/^<svg /);
+        expect(e.text).toBe('');
+      }
+      expect(planes.find((e) => e.attrs['data-fr24-plane'] === '3a000001').style.transform).toBe('rotate(270deg)');
+      expect(planes.find((e) => e.attrs['data-fr24-plane'] === '3a000002').style.transform).toBe('rotate(45deg)');
+      layer.destroy();
+    } finally {
+      globalThis.document = prev;
+    }
+  });
+  it('with classic Markers: the plane path in yellow, rotated by track, not the arrow symbol', async () => {
+    const { layer, made } = harness();
+    await layer.init();
+    await layer.togglePlanes('WSSS');
+    const m = made.find((x) => x.fr24Plane === '3a000002');
+    expect(typeof m.icon.path).toBe('string');
+    expect(m.icon.rotation).toBe(45);
+    expect(m.icon.fillColor.toUpperCase()).toBe(PLANE_FILL.toUpperCase());
+    expect(m.icon.strokeColor).toMatch(/#1F2937/i);
+  });
+});
+
+describe('I24 — a route only for the in-air flight whose card is open, removed when it closes', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+  const open = async (opts) => {
+    const h = harness(opts);
+    await h.layer.init();
+    await h.layer.openBoard('WSSS');
+    return h;
+  };
+  it('a row in the air: a dotted flown path ending at the plane, and a dashed line on to the destination', async () => {
+    const { layer, made } = await open({ track: TRACK, flightExtra: { origPos: SG, destPos: LHR } });
+    await layer.selectFlight('3b000001');
+    const lines = onMap(made);
+    expect(lines).toHaveLength(2);
+    const d = lines.find(dotted);
+    const g = lines.find(dashed);
+    expect(d.path[0]).toEqual({ lat: 1.36, lng: 104.0 });
+    expect(d.path.at(-1)).toEqual({ lat: 1.31, lng: 104.12 });
+    expect(g.path).toEqual([{ lat: 1.31, lng: 104.12 }, LHR]);
+    expect(g.icons[0].icon.strokeOpacity).toBeLessThan(d.icons[0].icon.fillOpacity);
+  });
+  it('the track refused (403 → unavailable): the dotted line runs from the origin airport to the plane instead', async () => {
+    const { layer, made } = await open({ track: { ok: false, reason: 'unavailable' }, flightExtra: { origPos: SG, destPos: LHR } });
+    await layer.selectFlight('3b000001');
+    const d = onMap(made).find(dotted);
+    expect(d.path).toEqual([SG, { lat: 1.31, lng: 104.12 }]);
+    expect(d.geodesic).toBe(true);
+  });
+  it('an unknown destination: the dotted line only, no dashed one', async () => {
+    const { layer, made } = await open({ track: TRACK, flightExtra: { origPos: SG, destPos: null } });
+    await layer.selectFlight('3b000001');
+    expect(onMap(made)).toHaveLength(1);
+    expect(onMap(made).every(dotted)).toBe(true);
+  });
+  it('a landed flight draws no route and asks for no track', async () => {
+    const { layer, made, calls } = await open({ track: TRACK, flightExtra: { origPos: SG, destPos: LHR } });
+    await layer.selectFlight('3b000002');
+    expect(made.lines).toHaveLength(0);
+    expect(calls.some((u) => u.startsWith('/api/fr24/track/'))).toBe(false);
+  });
+  it('every line goes on card close, another flight, board close and destroy', async () => {
+    const h = await open({ track: TRACK, flightExtra: { origPos: SG, destPos: LHR } });
+    await h.layer.selectFlight('3b000001');
+    expect(onMap(h.made)).toHaveLength(2);
+    h.layer.closeInfo();
+    expect(onMap(h.made)).toHaveLength(0);
+    await h.layer.selectFlight('3b000001');
+    expect(onMap(h.made)).toHaveLength(2);
+    h.made.iws[0].listeners.closeclick();
+    expect(onMap(h.made)).toHaveLength(0);
+    await h.layer.selectFlight('3b000001');
+    await h.layer.selectFlight('3b000002');
+    expect(onMap(h.made)).toHaveLength(0);
+    await h.layer.selectFlight('3b000001');
+    h.layer.closeBoard();
+    expect(onMap(h.made)).toHaveLength(0);
+    await h.layer.openBoard('WSSS');
+    await h.layer.selectFlight('3b000001');
+    h.layer.destroy();
+    expect(onMap(h.made)).toHaveLength(0);
+  });
+  it('a route that arrives after its card closed is not drawn', async () => {
+    let release;
+    const { layer, made } = await open({ track: () => new Promise((r) => { release = () => r(TRACK); }), flightExtra: { origPos: SG, destPos: LHR } });
+    const p = layer.selectFlight('3b000001');
+    await vi.advanceTimersByTimeAsync(0);
+    layer.closeInfo();
+    release();
+    await p;
+    expect(onMap(made)).toHaveLength(0);
+  });
+  it('a plane tap draws the route for that flight when it is in the air, and none once it has landed', async () => {
+    const a = harness({ track: TRACK, flightExtra: { origPos: SG, destPos: LHR } });
+    await a.layer.init();
+    await a.layer.togglePlanes('WSSS');
+    await a.made.find((m) => m.fr24Plane === '3a000001').listeners.click();
+    expect(a.calls).toContain('/api/fr24/track/3a000001');
+    expect(onMap(a.made)).toHaveLength(2);
+    const b = harness({ track: TRACK, flightExtra: { origPos: SG, destPos: LHR, flight: boardPayload('dep').rows[1] } });
+    await b.layer.init();
+    await b.layer.togglePlanes('WSSS');
+    await b.made.find((m) => m.fr24Plane === '3a000001').listeners.click();
+    expect(b.calls.some((u) => u.startsWith('/api/fr24/track/'))).toBe(false);
+    expect(b.made.lines).toHaveLength(0);
   });
 });
 

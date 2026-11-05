@@ -30,8 +30,10 @@ const summary = (i, ended, extra = {}) => ({
   first_seen: '2026-11-05T04:50:00Z', last_seen: '2026-11-05T05:55:00Z', flight_ended: ended, ...extra,
 });
 
+const trk = (i) => ({ timestamp: new Date(Date.parse('2026-11-05T05:10:00Z') + i * 10000).toISOString().replace(/\.\d{3}Z$/, 'Z'), lat: 1.4 + i * 0.001, lon: 103.9 + i * 0.002, alt: 1000 * i, gspeed: 300, vspeed: 0, track: 45, squawk: '1234', callsign: 'RPC9968', source: 'ADSB' });
+
 // A fake FR24: records every request and answers by path.
-function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary(2, false)], status = 200, usage = null, events = [] } = {}) {
+function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary(2, false)], status = 200, usage = null, events = [], tracks = null } = {}) {
   const calls = [];
   const request = async (url, headers) => {
     calls.push({ url, headers });
@@ -41,6 +43,7 @@ function fakeFr24({ planes = [pos(1), pos(2)], rows = [summary(1, true), summary
     if (u.pathname.endsWith('/live/flight-positions/light')) return { status: 200, data: { data: planes } };
     if (u.pathname.endsWith('/flight-summary/light')) return { status: 200, data: { data: rows } };
     if (u.pathname.endsWith('/historic/flight-events/light')) return { status: 200, data: { data: events } };
+    if (u.pathname.endsWith('/flight-tracks')) return { status: 200, data: tracks ?? { fr24_id: u.searchParams.get('flight_id'), tracks: [trk(0), trk(1), trk(2)] } };
     if (u.pathname.endsWith('/usage')) return { status: 200, data: usage || { data: [{ endpoint: 'live/flight-positions/light', request_count: 3, credits: 36 }, { endpoint: 'flight-summary/light', request_count: 2, credits: 6 }] } };
     return { status: 404, data: { message: 'Not found' } };
   };
@@ -560,12 +563,12 @@ describe('I21 — gate_arrival events: one request, at most 15 ids, terminals on
 describe('I14 — the routes in index.js', () => {
   const src = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8')
     .split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
-  it('the six FR24 routes each verify Telegram initData before fr24Route', () => {
-    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign', 'gates/:icao']) {
+  it('the seven FR24 routes each verify Telegram initData before fr24Route', () => {
+    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign', 'gates/:icao', 'track/:id']) {
       const rx = new RegExp(`app\\.get\\('/api/fr24/${r.replace('/', '\\/')}', requireInitDataFromBodyOrHeader, fr24Route\\(`);
       expect(src, r).toMatch(rx);
     }
-    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(6);
+    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(7);
   });
   it('the user id handed to handle() is the verified one, req.tg.user.id, and nothing from the query', () => {
     expect(src).toMatch(/handle\(fr24Service\(\), \{ kind, \.\.\.pick\(req\), userId: req\.tg\?\.user\?\.id \}\)/);
@@ -575,6 +578,110 @@ describe('I14 — the routes in index.js', () => {
     expect(src).toMatch(/bot\.onText\(\/\^\\\/fr24usage/);
     expect(src).toMatch(/usageReply\(fr24Service\(\), \{ chatId: msg\.chat\.id \}\)/);
     expect(fs.readFileSync(path.join(process.cwd(), 'bot-commands.js'), 'utf8')).not.toMatch(/fr24/i);
+  });
+});
+
+// ── I25 / I26 — the flown path and the airport coordinates (amendment 8) ──────────────────────────────────────
+describe('I25 — the track: one request per id per 2 minutes, counted, owner-only, at most 300 points', () => {
+  it('flight-tracks with flight_id, both headers', async () => {
+    const { svc, calls } = svcWith();
+    const r = await svc.track('3b000002');
+    expect(r.ok).toBe(true);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe('https://fr24api.flightradar24.com/api/flight-tracks?flight_id=3b000002');
+    expect(calls[0].headers).toMatchObject({ Authorization: `Bearer ${TOKEN}`, 'Accept-Version': 'v1' });
+    expect(r.id).toBe('3b000002');
+    expect(r.points).toEqual([[1.4, 103.9], [1.401, 103.902], [1.402, 103.904]]);
+  });
+  it('a bad id is refused before any request', async () => {
+    const { svc, calls } = svcWith();
+    for (const id of ['', 'XYZ', '3b0000021234567', '../x', null]) expect((await svc.track(id)).reason).toBe('badid');
+    expect(calls).toHaveLength(0);
+  });
+  it('points are ordered by time and down-sampled to at most 300, keeping the first and the last', async () => {
+    const many = Array.from({ length: 1000 }, (_, i) => trk(i)).reverse();
+    const { svc } = svcWith({ tracks: { fr24_id: '3b000002', tracks: many } });
+    const r = await svc.track('3b000002');
+    expect(r.points.length).toBeLessThanOrEqual(300);
+    expect(r.points.length).toBeGreaterThan(250);
+    expect(r.points[0]).toEqual([1.4, 103.9]);
+    expect(r.points.at(-1)).toEqual([Number((1.4 + 999 * 0.001).toFixed(5)), Number((103.9 + 999 * 0.002).toFixed(5))]);
+    for (let i = 1; i < r.points.length; i++) expect(r.points[i][0]).toBeGreaterThan(r.points[i - 1][0]);
+  });
+  it('the array form of the answer is read the same way, and positions without numbers are dropped', async () => {
+    const { svc } = svcWith({ tracks: [{ fr24_id: '3b000002', tracks: [trk(0), { ...trk(1), lat: null }, trk(2)] }] });
+    expect((await svc.track('3b000002')).points).toEqual([[1.4, 103.9], [1.402, 103.904]]);
+  });
+  it('40 credits per returned flight; 1 for an empty answer', async () => {
+    const a = svcWith();
+    await a.svc.track('3b000002');
+    expect(await a.svc.spent()).toBe(40);
+    const b = svcWith({ tracks: [] });
+    const r = await b.svc.track('3b000002');
+    expect(r.ok).toBe(true);
+    expect(r.points).toEqual([]);
+    expect(await b.svc.spent()).toBe(1);
+  });
+  it('cached 2 minutes per id: a second tap inside the window makes no request', async () => {
+    const { svc, calls, clock } = svcWith();
+    await svc.track('3b000002');
+    clock.advance(119 * 1000);
+    await svc.track('3b000002');
+    expect(calls).toHaveLength(1);
+    clock.advance(2 * 1000);
+    await svc.track('3b000002');
+    expect(calls).toHaveLength(2);
+    await svc.track('3b000003');
+    expect(calls).toHaveLength(3);
+  });
+  it('a 403 means the plan does not include the endpoint: "unavailable", not cached', async () => {
+    const { svc, calls } = svcWith({ status: 403 });
+    expect(await svc.track('3b000002')).toEqual({ ok: false, reason: 'unavailable' });
+    await svc.track('3b000002');
+    expect(calls).toHaveLength(2);
+    expect(await svc.spent()).toBe(0);
+  });
+  it('behind the owner gate: a non-owner gets 403 with no request; the owner gets the points', async () => {
+    const env = { TELEGRAM_OWNER_CHAT_ID: OWNER };
+    const { svc, calls } = svcWith();
+    expect(await fr24.handle(svc, { kind: 'track', id: '3b000002', userId: '999', env })).toEqual({ status: 403, body: { ok: false, reason: 'owner-only' } });
+    expect(calls).toHaveLength(0);
+    const r = await fr24.handle(svc, { kind: 'track', id: '3b000002', userId: OWNER, env });
+    expect(r.status).toBe(200);
+    expect(r.body.points).toHaveLength(3);
+    expect((await fr24.handle(svc, { kind: 'track', id: 'nope', userId: OWNER, env })).status).toBe(400);
+  });
+});
+
+describe('I26 — airport coordinates from the same OurAirports table; destPos only for a known destination', () => {
+  it('WSSS and WSSL carry p within 0.01 degrees of their positions; _meta names the field', () => {
+    for (const c of ['WSSS', 'WSSL']) {
+      const [lat, lng] = TABLE.airports[c].p;
+      expect(Math.abs(lat - fr24.AIRPORTS[c].lat)).toBeLessThan(0.01);
+      expect(Math.abs(lng - fr24.AIRPORTS[c].lng)).toBeLessThan(0.01);
+    }
+    expect(TABLE._meta.fields.p).toMatch(/lat/);
+    expect(TABLE.airports.EGLL.p).toHaveLength(2);
+  });
+  it('the builder rounds coordinates to 4 decimals and leaves p out when they are missing or not numbers', () => {
+    const csv = 'id,"name","latitude_deg","longitude_deg","municipality","scheduled_service","icao_code","iata_code"\n'
+      + '1,"A","1.350189","103.994003","S","yes","ABCD","ABC"\n'
+      + '2,"B","","","T","yes","EFGH","EFG"\n'
+      + '3,"C","x","103","U","yes","IJKL",\n';
+    const t = builder.buildTable(csv, { downloaded: '2026-11-05' });
+    expect(t.airports.ABCD.p).toEqual([1.3502, 103.994]);
+    expect(t.airports.EFGH.p).toBeUndefined();
+    expect(t.airports.IJKL.p).toBeUndefined();
+  });
+  it('a flight answer carries origPos and destPos from the table; an unknown destination has none', async () => {
+    const { svc } = svcWith({ rows: [summary(2, false)] });
+    const r = await svc.flight('3b000002');
+    expect(r.origPos).toEqual({ lat: TABLE.airports.WSSS.p[0], lng: TABLE.airports.WSSS.p[1] });
+    expect(r.destPos).toEqual({ lat: TABLE.airports.EGLL.p[0], lng: TABLE.airports.EGLL.p[1] });
+    const u = svcWith({ rows: [summary(2, false, { dest_icao: null, dest_icao_actual: null })] });
+    expect((await u.svc.flight('3b000002')).destPos).toBeNull();
+    const z = svcWith({ rows: [summary(2, false, { dest_icao: 'ZZZZ', dest_icao_actual: 'ZZZZ' })] });
+    expect((await z.svc.flight('3b000002')).destPos).toBeNull();
   });
 });
 
