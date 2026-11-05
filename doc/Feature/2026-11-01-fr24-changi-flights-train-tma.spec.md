@@ -350,6 +350,23 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     carries the emoji in `time` and `status`; the list row has three columns. Check: `fr24-layer.test.js`.
   - **Mutations:** a sort that drops a row; the airline sort ignoring the airline; the emoji dropped from the
     status.
+- **05-11 '26, amendment 5** (operator, 05-11 '26: *"remove the two buttons - "changi" and "seletar" overlay, i want
+  user to select from the dropdown vertical three dots at the side called airports"*). Approved at sha 8e322f09; this
+  amendment voids that approval and asks for it again.
+  - **No airport pins on the map.** C1's two ✈️ pins are removed. (In the headless screenshots the harness had
+    gathered them into a box at the top left; on a real map they sat on the two airports. Either way they go.)
+  - **"✈️ Airports" in the ⋮ menu instead**, using the menu's existing row-with-▾ form (the same one the 🌳 Park
+    row uses for its loops; `MapControls.jsx` is unchanged). The row appears only for a reader with access (C12):
+    `init()` still asks `/api/fr24/access` once, and a reader without access never sees the row.
+  - **Tapping the row** opens the Changi board (☑️ while a board is open) and tapping it again closes it. **Its ▾**
+    lists Changi and Seletar and opens the one picked; the open one is marked. The shared menu enables a ▾ list only
+    while its row is on, so the first pick of Seletar is: tap the row (Changi opens), then ▾, Seletar.
+  - The board's ✕ also turns the row off. Planes, the caption, the flight tap and the card are unchanged.
+  - **Invariant I20:** no airport marker is ever drawn; the menu row exists only with access; picking an airport
+    from the list opens that airport's board, with exactly one board request; the row's state follows the board.
+    Check: `fr24-layer.test.js` (the layer draws no marker before or after init; `openBoard` from the pick) and a
+    source check of `MrtMapPanel.jsx` (the `airports` row is added only when `fr24Enabled`, with a submenu).
+  - **Mutations:** a pin drawn again; the row shown without access; the pick opening the wrong airport.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
