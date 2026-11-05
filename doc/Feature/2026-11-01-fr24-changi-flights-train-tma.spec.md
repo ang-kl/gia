@@ -17,6 +17,7 @@ scope:
   - "web/transport/src/App.jsx"
   - "web/transport/src/lib/train-sim.js"
   - "web/_shared/components/SimCaptionStrip.jsx"
+  - "web/_shared/components/MapControls.jsx"
   - "__tests__/train-sim.test.js"
   - "package.json"
   - "doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md"
@@ -402,6 +403,23 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     closed).
   - **Mutations:** polling with the board closed; a found gate polled again; more than 15 ids in one request; an
     unsourced letter given a terminal; polling continuing after an "unavailable" answer.
+- **05-11 '26, amendment 7** (operator, 05-11 '26 16:16, on production v0.62.975 with a screenshot of the ⋮ menu's
+  Airports ▾ list showing Changi and Seletar greyed out: *"cannot click the airport for details"*). Approved at sha
+  ca436288; this amendment voids that approval and asks for it again.
+  - **The defect, as shipped:** the shared `MapControls.jsx` enables a row's ▾ entries only while the row is ticked
+    (`disabled={!on}`), which amendment 5 named as a limitation ("tap the row first"). On a phone it reads as broken:
+    the operator opened ▾ first and could pick nothing.
+  - **The fix:** a submenu may opt in with `pickWhenOff: true`, and its entries are then tappable whether or not the
+    row is ticked. Only the Airports submenu sets it; the 🌳 Park submenu, and every other app's menu, behave exactly
+    as before (no flag, no change). Picking Changi or Seletar opens that board and ticks the row; the row tap still
+    opens Changi or closes the open board.
+  - **Scope + `web/_shared/components/MapControls.jsx`** (shared by the Train, Hawker, Cuisine and Clipboard maps; the
+    change is opt-in, so they are unaffected).
+  - **Invariant I22:** with `pickWhenOff` an entry is enabled while its row is off; without it (Park) an entry stays
+    disabled while its row is off; the Airports submenu sets the flag and Park does not. Check: a source test of
+    `MapControls.jsx` and both submenus, and the render of the built Train app: open ⋮, open ▾ with the row unticked,
+    tap Seletar, the Seletar board opens.
+  - **Mutation:** the flag ignored (entries disabled again while the row is off).
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
