@@ -65,6 +65,11 @@ function entryOf(r) {
   if (IATA.test(iata)) e.i = iata;
   const city = String(r.municipality || '').trim();
   if (city) e.c = city;
+  // v0.62.977 — FR24 amendment 8 (I26): the position, rounded to 4 decimals (about 11 m), for the dashed line from a
+  // plane to its destination. Left out when OurAirports has no number.
+  const lat = r.latitude_deg === undefined || String(r.latitude_deg).trim() === '' ? NaN : Number(r.latitude_deg);
+  const lng = r.longitude_deg === undefined || String(r.longitude_deg).trim() === '' ? NaN : Number(r.longitude_deg);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) e.p = [Number(lat.toFixed(4)), Number(lng.toFixed(4))];
   return e;
 }
 
@@ -92,7 +97,7 @@ function buildTable(csvText, { downloaded = null } = {}) {
       downloaded,
       kept: 'scheduled_service = yes and a 4-character icao_code',
       count: Object.keys(sorted).length,
-      fields: { n: 'name', i: 'IATA code', c: 'city (municipality)' },
+      fields: { n: 'name', i: 'IATA code', c: 'city (municipality)', p: '[lat, lng], 4 decimals' },
     },
     airports: sorted,
   };

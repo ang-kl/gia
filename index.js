@@ -19331,6 +19331,8 @@ async function cacheBotUsername() {
     // v0.62.975 amendment 6 — the gates of up to 15 board flights, from FR24's flight events (2 credits per gate
     // found, 1 for an empty answer, cached 5 min, same gate). The phone asks only while an airport board is open.
     app.get('/api/fr24/gates/:icao', requireInitDataFromBodyOrHeader, fr24Route('gates', (req) => ({ icao: req.params.icao, ids: String(req.query.ids || '') })));
+    // v0.62.977 — FR24 spec amendment 8 (I25): the flown path of the flight whose card is open (40 credits, cached 2 min).
+    app.get('/api/fr24/track/:id', requireInitDataFromBodyOrHeader, fr24Route('track', (req) => ({ id: req.params.id })));
 
     app.get('/api/transport/stations', (_req, res) => {
       try {

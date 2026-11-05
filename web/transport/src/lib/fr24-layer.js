@@ -32,7 +32,20 @@ const GATE_AFTER_LANDING_MS = 60 * 60 * 1000;  // a landed flight without a gate
 const GATES_MAX = 15;                           // FR24's flight-events limit per request
 const FLIGHT_ID_RE = /^[0-9a-f]{6,12}$/;
 const WX_CLIENT_TTL_MS = 10 * 60 * 1000;
-const PLANE_COLOUR = '#6B7280';    // grey (C5)
+// Amendment 8 (I23): our own plane, drawn here (no FR24 artwork): a top-down airliner, nose up, in a 24 x 24 box, so a
+// rotation by the plane's track points it the way it flies. Yellow with a dark outline; the flight picked on the board
+// is amber with a thicker outline. It replaces the text glyph, which iOS draws as the colour emoji (already pointing
+// up-right, and ignoring the colour), so `track - 90` pointed it wrong.
+export const PLANE_FILL = '#FACC15';
+export const PLANE_PICKED = '#D97706';
+const PLANE_EDGE = '#1F2937';
+export const PLANE_PATH = 'M12 2c.8 0 1.4.9 1.4 2v5.2l7.6 4.4v1.9l-7.6-2.3v4.6l2.2 1.7v1.5L12 20.2 8.4 21v-1.5l2.2-1.7v-4.6L3 15.5v-1.9l7.6-4.4V4c0-1.1.6-2 1.4-2z';
+export function planeSvg({ picked = false, size = 24 } = {}) {
+  const fill = picked ? PLANE_PICKED : PLANE_FILL;
+  const sw = picked ? 1.6 : 1;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">`
+    + `<path d="${PLANE_PATH}" fill="${fill}" stroke="${PLANE_EDGE}" stroke-width="${sw}" stroke-linejoin="round"/></svg>`;
+}
 const SGT_MS = 8 * 3600 * 1000;
 const KM_PER_DEG = 111.195;
 
@@ -330,11 +343,49 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   const wx = new Map();       // icao → { at, text }
   let info = null;
   let gen = 0;
+  let routeLines = [];        // amendment 8 (I24): the open card's dotted path and dashed onward line
+  let routeGen = 0;           // bumped on every clear, so a route that arrives late is not drawn
 
   const infoWin = () => {
-    if (!info && gmaps && gmaps.InfoWindow) info = new gmaps.InfoWindow({ headerDisabled: true });
+    if (!info && gmaps && gmaps.InfoWindow) {
+      info = new gmaps.InfoWindow({ headerDisabled: true });
+      if (typeof info.addListener === 'function') info.addListener('closeclick', () => clearRoute());
+    }
     return info;
   };
+  // Amendment 8 (I24): the route of the one in-air flight whose card is open.
+  function clearRoute() {
+    routeGen += 1;
+    for (const l of routeLines) if (l && l.setMap) l.setMap(null);
+    routeLines = [];
+  }
+  const ll = (a) => (Array.isArray(a) ? { lat: a[0], lng: a[1] } : a);
+  function line(path, kind) {
+    if (!gmaps || !gmaps.Polyline || path.length < 2) return null;
+    const icons = kind === 'dotted'
+      ? [{ icon: { path: gmaps.SymbolPath.CIRCLE, scale: 1.6, fillColor: PLANE_PICKED, fillOpacity: 0.95, strokeOpacity: 0 }, offset: '0', repeat: '7px' }]
+      : [{ icon: { path: 'M 0,-1 0,1', scale: 2, strokeColor: PLANE_PICKED, strokeOpacity: 0.45 }, offset: '0', repeat: '12px' }];
+    return new gmaps.Polyline({ map, path, geodesic: true, strokeOpacity: 0, icons, zIndex: 7, clickable: false });
+  }
+  async function drawRoute(id, plane, positions = null) {
+    clearRoute();
+    const mine = routeGen;
+    if (!id || !plane || !FLIGHT_ID_RE.test(String(id))) return;
+    const [t, f] = await Promise.all([
+      getJson(`/api/fr24/track/${encodeURIComponent(id)}`),
+      positions ? Promise.resolve(positions) : getJson(`/api/fr24/flight/${encodeURIComponent(id)}`),
+    ]);
+    if (mine !== routeGen) return;
+    const at = { lat: plane.lat, lng: plane.lng };
+    const pts = t && t.ok && Array.isArray(t.points) ? t.points.map(ll) : [];
+    const orig = f && f.origPos ? f.origPos : null;
+    const dest = f && f.destPos ? f.destPos : null;
+    const flown = pts.length >= 2 ? [...pts, at] : orig ? [orig, at] : [];
+    const a = line(flown, 'dotted');
+    const b = dest ? line([at, dest], 'dashed') : null;
+    routeLines = [a, b].filter(Boolean);
+  }
+
   const drop = (m) => { if (AME && m instanceof AME) m.map = null; else if (m && m.setMap) m.setMap(null); };
   const place = (m, pos) => { if (AME && m instanceof AME) m.position = pos; else if (m && m.setPosition) m.setPosition(pos); };
   const emit = () => {
@@ -346,18 +397,21 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
 
   function makePlane(p, highlight = false) {
     const pos = { lat: p.lat, lng: p.lng };
-    const colour = highlight ? '#D97706' : PLANE_COLOUR;   // amber for the flight picked on the board
+    const heading = Number.isFinite(p.track) ? Math.round(p.track) : 0;
     const onTap = () => openFlight(p.id, p);
     let m;
     if (AME && typeof document !== 'undefined') {
       const el = document.createElement('div');
-      Object.assign(el.style, { fontSize: highlight ? '22px' : '16px', lineHeight: '1', color: colour, cursor: 'pointer', transform: `rotate(${Math.round((p.track || 0) - 90)}deg)`, filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.3))' });
-      el.textContent = '✈';
+      Object.assign(el.style, { width: highlight ? '30px' : '24px', height: highlight ? '30px' : '24px', lineHeight: '0', cursor: 'pointer', transform: `rotate(${heading}deg)`, filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.35))' });
+      el.innerHTML = planeSvg({ picked: highlight, size: highlight ? 30 : 24 });
       el.setAttribute('data-fr24-plane', p.id);
+      el.setAttribute('data-fr24-heading', String(heading));
       el.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); onTap(); });
       m = new AME({ map, content: el, position: pos, zIndex: 8, title: p.callsign || '' });
     } else {
-      m = new gmaps.Marker({ map, position: pos, zIndex: 8, title: p.callsign || '', icon: { path: gmaps.SymbolPath.FORWARD_CLOSED_ARROW, scale: highlight ? 6 : 4, rotation: p.track || 0, fillColor: colour, fillOpacity: 0.9, strokeColor: colour, strokeWeight: 1 } });
+      const icon = { path: PLANE_PATH, scale: highlight ? 1.3 : 1, rotation: heading, fillColor: highlight ? PLANE_PICKED : PLANE_FILL, fillOpacity: 1, strokeColor: PLANE_EDGE, strokeWeight: highlight ? 1.6 : 1 };
+      if (gmaps.Point) icon.anchor = new gmaps.Point(12, 12);
+      m = new gmaps.Marker({ map, position: pos, zIndex: 8, title: p.callsign || '', icon });
       m.addListener('click', onTap);
     }
     m.fr24Plane = p.id;
@@ -378,7 +432,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const readMs = Date.parse(planesData && planesData.readAt);
     offsetSec = Number.isFinite(readMs) ? Math.min(DR_MAX_SEC, Math.max(0, (now() - readMs) / 1000)) : DR_MAX_SEC;
     ticks = 0;
-    planeMarkers = list.map(makePlane);
+    planeMarkers = list.map((p) => makePlane(p));   // not .map(makePlane): the index would be read as `highlight`
     for (const m of planeMarkers) place(m, deadReckon(m.fr24Data, offsetSec));
     if (planeMarkers.length && offsetSec < DR_MAX_SEC) timer = setInterval(tick, 1000);
   }
@@ -485,6 +539,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     selectedId = null;
     detail = null;
     if (focus) { drop(focus); focus = null; }
+    clearRoute();
     if (onBoard) onBoard(null);
   }
   // I17: a row still in the air asks where the plane is now (one locate), pans there and opens its card on the map; a
@@ -499,6 +554,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const g = gateOf.get(String(id));
     const gateLine = g ? [gateText(g, lang)] : [];
     detail = [...flightCardLines({ flight: row, icao: boardIcao, lang }), ...gateLine];
+    clearRoute();
     if (!inAir) { render(); return; }
     if (!row.callsign) { detail = [...detail, ft('locate.none', lang)]; render(); return; }
     render();
@@ -513,6 +569,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const iw = infoWin();
     if (iw) { iw.setContent(flightCardHtml({ flight: row, plane: p, icao: boardIcao, lang })); iw.setPosition(pos); iw.open({ map }); }
     render();
+    await drawRoute(row.id, p);
   }
   async function fetchPlanes(icao) {
     const data = await getJson(`/api/fr24/airport/${icao}`);
@@ -539,12 +596,16 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const html = r && r.ok
       ? flightCardHtml({ flight: r.flight, plane: live, icao: planesIcao || boardIcao, lang })
       : `<div style="font-size:12px">${esc(ft(errKey(r), lang))}</div>`;
+    clearRoute();
     const iw = infoWin();
+    const at = live ? deadReckon(live, offsetSec + ticks) : null;
     if (iw) {
       iw.setContent(html);
-      iw.setPosition(live ? deadReckon(live, offsetSec + ticks) : FR24_AIRPORTS[planesIcao || boardIcao || 'WSSS']);
+      iw.setPosition(at || FR24_AIRPORTS[planesIcao || boardIcao || 'WSSS']);
       iw.open({ map });
     }
+    const landed = r && r.ok && r.flight && r.flight.ended && r.flight.landed;
+    if (at && !landed) await drawRoute(id, at, r && r.ok ? r : null);
   }
 
   async function init() {
@@ -561,9 +622,11 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   // The map's own click (on empty map) closes every popup; the board closes with them.
   function closeInfo() {
     if (info) info.close();
+    clearRoute();
   }
   function destroy() {
     clearPlanes();
+    clearRoute();
     if (focus) { drop(focus); focus = null; }
     boardIcao = null;
     stopGates();

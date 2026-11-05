@@ -17,6 +17,7 @@ scope:
   - "web/transport/src/App.jsx"
   - "web/transport/src/lib/train-sim.js"
   - "web/_shared/components/SimCaptionStrip.jsx"
+  - "web/_shared/components/MapControls.jsx"
   - "__tests__/train-sim.test.js"
   - "package.json"
   - "doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md"
@@ -402,6 +403,58 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     closed).
   - **Mutations:** polling with the board closed; a found gate polled again; more than 15 ids in one request; an
     unsourced letter given a terminal; polling continuing after an "unavailable" answer.
+- **05-11 '26, amendment 7** (operator, 05-11 '26 16:16, on production v0.62.975 with a screenshot of the ⋮ menu's
+  Airports ▾ list showing Changi and Seletar greyed out: *"cannot click the airport for details"*). Approved at sha
+  ca436288; this amendment voids that approval and asks for it again.
+  - **The defect, as shipped:** the shared `MapControls.jsx` enables a row's ▾ entries only while the row is ticked
+    (`disabled={!on}`), which amendment 5 named as a limitation ("tap the row first"). On a phone it reads as broken:
+    the operator opened ▾ first and could pick nothing.
+  - **The fix:** a submenu may opt in with `pickWhenOff: true`, and its entries are then tappable whether or not the
+    row is ticked. Only the Airports submenu sets it; the 🌳 Park submenu, and every other app's menu, behave exactly
+    as before (no flag, no change). Picking Changi or Seletar opens that board and ticks the row; the row tap still
+    opens Changi or closes the open board.
+  - **Scope + `web/_shared/components/MapControls.jsx`** (shared by the Train, Hawker, Cuisine and Clipboard maps; the
+    change is opt-in, so they are unaffected).
+  - **Invariant I22:** with `pickWhenOff` an entry is enabled while its row is off; without it (Park) an entry stays
+    disabled while its row is off; the Airports submenu sets the flag and Park does not. Check: a source test of
+    `MapControls.jsx` and both submenus, and the render of the built Train app: open ⋮, open ▾ with the row unticked,
+    tap Seletar, the Seletar board opens.
+  - **Mutation:** the flag ignored (entries disabled again while the row is off).
+- **05-11 '26, amendment 8** (operator, 05-11 '26 16:58, on production v0.62.975 with a screenshot of a located flight,
+  RPC9968 over Sabah, its card covering the plane: *"you should have the plane icon from FR24 and show the route in
+  dotted"*; then, asked, **"Both"** for the route and **"Own yellow plane"** for the icon). Approved at sha e82447d8;
+  this amendment voids that approval and asks for it again.
+  - **The plane:** every plane marker (the "Show planes" set and a located flight) becomes our own SVG of a top-down
+    airliner, yellow with a dark outline (amber with a thicker outline for the flight picked on the board), turned to
+    the plane's `track`. No FR24 artwork or logo is used: their icon is their work. The text glyph `✈` is retired
+    because on iOS it draws as the colour emoji ✈️, which ignores the colour and already points up-right, so a turn
+    of `track - 90°` points it the wrong way (inferred from how iOS draws the glyph; the SVG removes the question).
+  - **The route, for the one flight whose card is open while it is in the air:**
+    - the flown path, from FR24 `GET /api/flight-tracks?flight_id=` (40 credits per returned flight, about $0.012),
+      drawn as a **dotted** line from take-off to the plane. One request per tap; cached 2 minutes per id, inside the
+      monthly budget, owner-only like every other route (C12). Down-sampled on the server to at most 300 points.
+    - a fainter **dashed** great-circle line from the plane to the destination airport, when the destination is
+      known. 0 credits: the airport table gains each airport's coordinates (rounded to 4 decimals) from the same
+      OurAirports file, so `/api/fr24/flight/:id` returns `origPos` / `destPos` without a further request.
+    - if FR24 refuses the track (403, not on the plan) or it is empty, the dotted line falls back to a great-circle
+      line from the origin airport to the plane, and the card says nothing it cannot back.
+    - both lines are removed when the card closes, when another flight's card opens, when the board closes and on
+      teardown. A landed flight draws no route.
+  - **New route:** `/api/fr24/track/:id` in `index.js`, behind the same initData check and `fr24Route` as the rest.
+  - **Rebuild:** `data/airport-names.json` from a fresh download of `airports.csv` (OurAirports updates it daily, so
+    the sha256 in `_meta` changes and a few names may too); `_meta.fields` gains `p: [lat, lng]`.
+  - **Invariant I23:** a plane marker is an SVG turned by `track` (not a text glyph), yellow, amber when picked.
+    Check: `fr24-layer.test.js` on the marker element; render of the built Train app.
+  - **Invariant I24:** a route is drawn only for an in-air flight whose card is open: a dotted flown path and, with a
+    known destination, a dashed line on to it; every line is removed on card close, another card, board close and
+    destroy; a landed flight draws none. Check: `fr24-layer.test.js` with a fake `Polyline`; render.
+  - **Invariant I25:** the track costs one request per id per 2 minutes, counted against the budget, owner-only, at
+    most 300 points; a 403 answers `unavailable` and the client falls back to the origin line. Check: `fr24.test.js`.
+  - **Invariant I26:** the airport table carries coordinates for WSSS and WSSL within 0.01° of their published
+    positions, and `/api/fr24/flight/:id` returns `destPos` for a known destination and none for an unknown one.
+    Check: `fr24.test.js`.
+  - **Mutations:** a line left behind after the card closes; a route drawn for a landed flight; the track fetched
+    twice inside the cache window; more than 300 points sent; the plane drawn unrotated; the fallback skipped on 403.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
