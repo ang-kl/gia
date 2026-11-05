@@ -139,6 +139,27 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     expect(src).toMatch(/key === 'airports'/);
     expect(src).not.toMatch(/drawPins|fr24Pin/);
   });
+  it('the Airports ▾ entries can be tapped while the row is unticked; Park keeps "tick the row first" (I22)', () => {
+    // Amendment 7: on v0.62.975 the shared menu disabled every ▾ entry while its row was off, so Changi and Seletar
+    // were grey and nothing opened (operator, 05-11 '26: "cannot click the airport for details").
+    const mc = fs.readFileSync(path.join(process.cwd(), 'web/_shared/components/MapControls.jsx'), 'utf8');
+    const entry = mc.slice(mc.indexOf('subRows.map('), mc.indexOf('subRows.map(') + 700);
+    expect(entry).toMatch(/disabled=\{!pickable\}/);
+    expect(mc).toMatch(/const pickable = on \|\| \(!!sub\?\.pickWhenOff && !it\.disabled\)/);
+    expect(entry).not.toMatch(/disabled=\{!on\}/);
+    const panel = fs.readFileSync(path.join(process.cwd(), 'web/transport/src/components/MrtMapPanel.jsx'), 'utf8');
+    const i = panel.indexOf("key: 'airports'");
+    expect(panel.slice(i, panel.indexOf('] : []),', i))).toMatch(/pickWhenOff: true/);
+    expect(panel.match(/pickWhenOff/g)).toHaveLength(1);
+    // Park's ▾ (pcnSubmenu) does not opt in, and no other app sets the flag.
+    for (const f of ['web/hawker/src', 'web/cuisine/src', 'web/_shared']) {
+      const files = fs.readdirSync(path.join(process.cwd(), f), { recursive: true }).filter((n) => /\.jsx?$/.test(n));
+      for (const n of files) {
+        const s = fs.readFileSync(path.join(process.cwd(), f, n), 'utf8');
+        if (!/MapControls\.jsx$/.test(n)) expect(s, `${f}/${n}`).not.toMatch(/pickWhenOff/);
+      }
+    }
+  });
   it('planes are fetched only on Show planes, and a second tap hides them with no fetch', async () => {
     const { calls, layer } = harness();
     await layer.init();

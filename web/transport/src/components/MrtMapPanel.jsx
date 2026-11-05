@@ -1197,6 +1197,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       heading: fr24T('menu.airports', lang),
       items: () => ['WSSS', 'WSSL'].map((c) => ({ key: c, label: fr24T(`pin.${c}`, lang), active: fr24Open === c })),
       onPick: (c) => fr24Ref.current?.openBoard(c),
+      // Amendment 7 (I22): Changi / Seletar are tappable with the row unticked; picking one ticks it.
+      pickWhenOff: true,
     } }] : []),
   ];
 

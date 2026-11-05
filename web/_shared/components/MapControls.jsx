@@ -118,6 +118,10 @@ export default function MapControls({
                   const sub = it.submenu || null;
                   const subShown = !!sub && subOpen === it.key;
                   const subRows = subShown ? (sub.items() || []) : [];
+                  // v0.62.976 — FR24 spec amendment 7 (I22): a submenu that sets `pickWhenOff` (✈️ Airports) can be
+                  // picked with its row unticked, since the pick is what turns the row on. Park leaves it unset and
+                  // keeps "tick the row first".
+                  const pickable = on || (!!sub?.pickWhenOff && !it.disabled);
                   return (
                     <React.Fragment key={it.key}>
                     <div className="flex items-stretch">
@@ -157,11 +161,11 @@ export default function MapControls({
                           <button
                             key={r.key}
                             type="button"
-                            disabled={!on}
+                            disabled={!pickable}
                             onClick={() => sub.onPick(r.key)}
                             aria-pressed={!!r.active}
                             className={'text-left px-2 py-1 rounded-lg text-[11px] leading-tight '
-                              + (on ? 'text-gray-900 hover:bg-gray-100' : 'text-gray-400 cursor-default')}
+                              + (pickable ?'text-gray-900 hover:bg-gray-100' : 'text-gray-400 cursor-default')}
                           >{r.label}{r.active ? ' 🔒' : ''}</button>
                         ))}
                       </div>
