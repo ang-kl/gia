@@ -32,6 +32,10 @@ const GATE_AFTER_LANDING_MS = 60 * 60 * 1000;  // a landed flight without a gate
 const GATES_MAX = 15;                           // FR24's flight-events limit per request
 const FLIGHT_ID_RE = /^[0-9a-f]{6,12}$/;
 const WX_CLIENT_TTL_MS = 10 * 60 * 1000;
+const ETA_CLIENT_TTL_MS = 5 * 60 * 1000;      // amendment 9 (I29): at most one ETA request per tab per 5 minutes
+const PIN_BLUE = '#1A73E8';
+// Amendment 9 (I30): a plane at 0 ft or under 50 kt is on the ground; it gets a card but no route.
+export const onGround = (p) => !!p && ((Number.isFinite(p.alt) && p.alt <= 0) || (Number.isFinite(p.gspeed) && p.gspeed < 50));
 // Amendment 8 (I23): our own plane, drawn here (no FR24 artwork): a top-down airliner, nose up, in a 24 x 24 box, so a
 // rotation by the plane's track points it the way it flies. Yellow with a dark outline; the flight picked on the board
 // is amber with a thicker outline. It replaces the text glyph, which iOS draws as the colour emoji (already pointing
@@ -101,6 +105,9 @@ export const FR24_STRINGS = {
     ko: '지난 3시간 동안 운항이 없습니다.',
   },
   'board.loading': { en: 'Loading…', fr: 'Chargement…', id: 'Memuat…', ru: 'Загрузка…', de: 'Wird geladen…', zh: '加载中…', ja: '読み込み中…', es: 'Cargando…', ko: '불러오는 중…' },
+  // Amendment 9 (I27, I30).
+  'time.seen': { en: 'seen {time}', fr: 'vu {time}', id: 'terlihat {time}', ru: 'замечен {time}', de: 'gesehen {time}', zh: '{time} 起追踪', ja: '{time} 捕捉', es: 'visto {time}', ko: '{time} 포착' },
+  'card.nodetails': { en: 'No flight details', fr: 'Pas de détails de vol', id: 'Tanpa detail penerbangan', ru: 'Нет данных о рейсе', de: 'Keine Flugdetails', zh: '无航班详情', ja: '便の詳細なし', es: 'Sin detalles del vuelo', ko: '항공편 정보 없음' },
   'col.time.dep': { en: 'Took off', fr: 'Décollage', id: 'Lepas landas', ru: 'Вылет', de: 'Start', zh: '起飞', ja: '離陸', es: 'Despegue', ko: '이륙' },
   'col.time.arr': { en: 'Landed', fr: 'Atterri', id: 'Mendarat', ru: 'Посадка', de: 'Gelandet', zh: '降落', ja: '着陸', es: 'Aterrizó', ko: '착륙' },
   'col.dest': { en: 'To', fr: 'Vers', id: 'Ke', ru: 'Куда', de: 'Nach', zh: '目的地', ja: '行き先', es: 'Destino', ko: '목적지' },
@@ -242,7 +249,7 @@ export function gateText(g, lang = 'en') {
   if (!g || !g.gate) return null;
   return ft('gate.label', lang, { gate: g.gate }) + (g.terminal ? ` · ${g.terminal}` : '');
 }
-export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null, gates = null } = {}) {
+export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null, gates = null, etas = null } = {}) {
   const gateFor = (id) => (gates && typeof gates.get === 'function' ? gates.get(id) : gates && gates[id]) || null;
   const v = VIEWS.includes(view) ? view : 'strip';
   const s = SORTS.includes(sort) ? sort : 'time';
@@ -260,13 +267,23 @@ export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', d
     // Amendment 4: 🛫 on a take-off time, 🛬 on a landing time; "✈️ In the air" or "🛬 Landed hh:mm". An arrival still
     // flying shows when it took off from its origin.
     const stamp = (glyph, t) => (t ? `${glyph} ${t}` : '');
+    // Amendment 9 revised (I27): a row in the air shows what exists, in order - Arrivals: FR24's ETA, take-off, first
+    // seen; Departures: take-off, ETA at the destination, first seen. Every estimate carries ≈.
+    const etaOf = (id) => (etas && etas[id] ? sgtClock(etas[id]) : '');
+    const timeOf = (r, inAir, landedAt) => {
+      const off = stamp('🛫', sgtClock(r.takeoff));
+      if (!inAir) return dir === 'dep' ? off : stamp('🛬', landedAt);
+      const eta = etaOf(String(r.id)) ? stamp('🛬', `≈${etaOf(String(r.id))}`) : '';
+      const seen = r.firstSeen && sgtClock(r.firstSeen) ? ft('time.seen', lang, { time: sgtClock(r.firstSeen) }) : '';
+      return (dir === 'arr' ? eta || off : off || eta) || seen;
+    };
     rows = sortRows(data.rows.map((r) => {
       const inAir = !(r.ended && r.landed);
       const landedAt = inAir ? '' : sgtClock(r.landed);
       return {
         id: String(r.id), callsign: r.callsign || null, airline: r.airline || null, inAir,
         gate: gateText(gateFor(String(r.id)), lang),
-        time: dir === 'dep' || inAir ? stamp('🛫', sgtClock(r.takeoff)) : stamp('🛬', landedAt),
+        time: timeOf(r, inAir, landedAt),
         place: placeText(dir === 'dep' ? r.dest : r.orig),
         flight: r.flight || r.callsign || '', type: r.type || '',
         status: inAir ? `✈️ ${ft('status.air', lang)}` : `🛬 ${ft('status.landed', lang, { time: landedAt })}`,
@@ -311,7 +328,7 @@ export function flightCardLines({ flight = null, plane = null, icao = null, lang
 }
 export function flightCardHtml({ flight = null, plane = null, icao = null, lang = 'en' } = {}) {
   const f = flight || {};
-  const title = [f.flight, f.callsign || (plane && plane.callsign)].filter(Boolean).join(' · ') || '✈';
+  const title = [f.flight, f.callsign || (plane && plane.callsign)].filter(Boolean).join(' · ') || ft('card.nodetails', lang);
   return '<div data-fr24-card style="font-size:12px;line-height:1.45">'
     + `<strong>✈ ${esc(title)}</strong>`
     + flightCardLines({ flight, plane, icao, lang }).map((l) => `<br>${esc(l)}`).join('')
@@ -343,6 +360,9 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   const wx = new Map();       // icao → { at, text }
   let info = null;
   let gen = 0;
+  const etaTabs = new Map(); // amendment 9 (I29): `${icao}:${dir}` → { at, etas }
+  let etaOff = false;         // an "unavailable" answer: the plan lacks live positions full
+  let pins = [];              // amendment 9 (I28): the Changi and Seletar pins
   let routeLines = [];        // amendment 8 (I24): the open card's dotted path and dashed onward line
   let routeGen = 0;           // bumped on every clear, so a route that arrives late is not drawn
 
@@ -442,7 +462,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!boardIcao) return null;
     const b = boards.get(`${boardIcao}:${tab}`);
     const w = wx.get(boardIcao);
-    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf });
+    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf, etas: (etaTabs.get(`${boardIcao}:${tab}`) || {}).etas || null });
   }
   function render() {
     if (onBoard) onBoard(currentModel());
@@ -501,6 +521,52 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     pollGates();
   }
 
+  // I29: once a tab has loaded with a flight in the air, ask for the ETAs, at most every 5 minutes per tab.
+  async function loadEta(icao, dir) {
+    if (!enabled || etaOff || boardIcao !== icao) return;
+    const b = boards.get(`${icao}:${dir}`);
+    const rows = b && b.data && b.data.ok && Array.isArray(b.data.rows) ? b.data.rows : [];
+    if (!rows.some((r) => !(r.ended && r.landed))) return;
+    const key = `${icao}:${dir}`;
+    const had = etaTabs.get(key);
+    if (had && now() - had.at < ETA_CLIENT_TTL_MS) return;
+    etaTabs.set(key, { at: now(), etas: had ? had.etas : null });
+    const r = await getJson(`/api/fr24/eta/${icao}?dir=${dir}`);
+    if (r && r.ok && r.etas) etaTabs.set(key, { at: now(), etas: r.etas });
+    else if (r && r.reason === 'unavailable') etaOff = true;
+    render();
+  }
+  // I28: a small Google pin with ✈ at each airport, the name below; a tap opens that airport's board.
+  function clearPins() { for (const m of pins) drop(m); pins = []; }
+  function drawPins() {
+    clearPins();
+    const PE = gmaps && gmaps.marker && gmaps.marker.PinElement;
+    pins = Object.keys(FR24_AIRPORTS).map((icao) => {
+      const name = ft(`pin.${icao}`, lang);
+      const onTap = () => openBoard(icao);
+      let m;
+      if (AME && PE && typeof document !== 'undefined') {
+        const pin = new PE({ glyph: '✈', glyphColor: '#FFFFFF', background: PIN_BLUE, borderColor: '#174EA6', scale: 0.85 });
+        const wrap = document.createElement('div');
+        wrap.setAttribute('data-fr24-pin', icao);
+        Object.assign(wrap.style, { display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', transform: 'translateY(16px)' });
+        wrap.appendChild(pin.element);
+        const label = document.createElement('div');
+        label.textContent = name;
+        Object.assign(label.style, { font: '600 12px/1.2 system-ui, sans-serif', color: '#174EA6', textShadow: '0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff', whiteSpace: 'nowrap', marginTop: '1px' });
+        wrap.appendChild(label);
+        wrap.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); return onTap(); });
+        m = new AME({ map, content: wrap, position: FR24_AIRPORTS[icao], zIndex: 9, title: name });
+        m.fr24LabelEl = label;
+      } else {
+        m = new gmaps.Marker({ map, position: FR24_AIRPORTS[icao], zIndex: 9, title: name, label: { text: '✈', color: '#FFFFFF', fontSize: '13px' } });
+        m.addListener('click', onTap);
+      }
+      m.fr24Pin = icao;
+      return m;
+    });
+  }
+
   async function openBoard(icao, dir = 'dep') {
     if (!enabled || !FR24_AIRPORTS[icao]) return;
     boardIcao = icao;
@@ -511,7 +577,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const mine = ++gen;
     if (boardIcao !== icao) stopGates();
     await Promise.all([loadTab(icao, dir), loadWx(icao).catch(() => {})]);
-    if (mine === gen) { render(); if (dir === 'arr') startGates(); }
+    if (mine === gen) { render(); if (dir === 'arr') startGates(); await loadEta(icao, dir); }
   }
   async function setTab(dir) {
     if (!enabled || !boardIcao || (dir !== 'dep' && dir !== 'arr')) return;
@@ -522,6 +588,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     await loadTab(boardIcao, dir);
     render();
     if (dir === 'arr') startGates();
+    await loadEta(boardIcao, dir);
   }
   function setSort(x) {
     if (!boardIcao) return;
@@ -569,7 +636,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const iw = infoWin();
     if (iw) { iw.setContent(flightCardHtml({ flight: row, plane: p, icao: boardIcao, lang })); iw.setPosition(pos); iw.open({ map }); }
     render();
-    await drawRoute(row.id, p);
+    if (!onGround(p)) await drawRoute(row.id, p);
   }
   async function fetchPlanes(icao) {
     const data = await getJson(`/api/fr24/airport/${icao}`);
@@ -605,17 +672,23 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
       iw.open({ map });
     }
     const landed = r && r.ok && r.flight && r.flight.ended && r.flight.landed;
-    if (at && !landed) await drawRoute(id, at, r && r.ok ? r : null);
+    if (at && !landed && !onGround(live)) await drawRoute(id, at, r && r.ok ? r : null);
   }
 
   async function init() {
     const r = await getJson('/api/fr24/access');
     enabled = !!(r && r.ok && r.enabled === true);
-    // Amendment 5 (I20): no airport marker is drawn; the ⋮ menu's ✈️ Airports row opens a board.
+    // Amendment 9 revised (I28, replacing amendment 5's I20): the two airport pins, for a reader with access only.
+    if (enabled) drawPins();
     return enabled;
   }
   function setLang(l) {
     lang = l;
+    for (const m of pins) {
+      const name = ft(`pin.${m.fr24Pin}`, lang);
+      if (m.fr24LabelEl) m.fr24LabelEl.textContent = name;
+      if (typeof m.setTitle === 'function') m.setTitle(name); else m.title = name;
+    }
     render();
     emit();
   }
@@ -627,6 +700,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   function destroy() {
     clearPlanes();
     clearRoute();
+    clearPins();
     if (focus) { drop(focus); focus = null; }
     boardIcao = null;
     stopGates();
@@ -638,7 +712,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
 
   return {
     init, openBoard, setTab, setView, setSort, closeBoard, selectFlight, togglePlanes, refresh, openFlight, setLang, closeInfo, destroy,
-    pinCount: () => 0, openIcao: () => boardIcao, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
+    pinCount: () => pins.length, openIcao: () => boardIcao, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
     enabled: () => enabled,
   };
 }

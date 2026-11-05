@@ -46,6 +46,10 @@ const GATES_TTL_S = 300;
 const TRACK_TTL_S = 120;
 const TRACK_MAX = 300;
 const TRACK_CREDITS = 40;
+// Amendment 9 revised (I29): FR24's estimated arrival, from live positions FULL (the light answer has no eta), for
+// every live flight on one airport's tab in one request. 8 credits per returned flight, cached as long as a board tab.
+const ETA_TTL_S = 300;
+const ETA_CREDITS = 8;
 
 // Amendment 6: a gate's terminal, from its letter, ONLY where a source says so. Nothing is guessed: a letter that is
 // not here shows the gate code alone.
@@ -148,6 +152,7 @@ function rowOf(r) {
     airline: r.operating_as || r.painted_as || null, type: r.type || null, reg: r.reg || null,
     orig: airportName(r.orig_icao), dest: airportName(r.dest_icao_actual || r.dest_icao),
     takeoff: r.datetime_takeoff || null, landed: r.datetime_landed || null, ended: r.flight_ended === true,
+    firstSeen: r.first_seen || null,   // amendment 9 (I27): the free fallback when FR24 has no take-off time
   };
 }
 
@@ -263,6 +268,22 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       });
   }
 
+  // Amendment 9 revised (I29): id → eta for the live flights to (Arrivals) or from (Departures) one airport.
+  async function etas(icao, dir) {
+    if (!Object.prototype.hasOwnProperty.call(AIRPORTS, icao)) return { ok: false, reason: 'badcode' };
+    if (dir !== 'dep' && dir !== 'arr') return { ok: false, reason: 'baddir' };
+    const side = dir === 'dep' ? 'outbound' : 'inbound';
+    const url = `${BASE}/live/flight-positions/full?airports=${side}:${icao}&limit=${LIMIT}`;
+    return call(`fr24:eta:${icao}:${dir}`, ETA_TTL_S, url,
+      (d) => { const n = listOf(d).length; return n > 0 ? ETA_CREDITS * n : 1; },
+      (d) => {
+        const out = {};
+        for (const f of listOf(d)) if (f && f.fr24_id && typeof f.eta === 'string' && f.eta) out[String(f.fr24_id)] = f.eta;
+        return { icao, dir, etas: out };
+      },
+      { on403: 'unavailable' });
+  }
+
   // Amendment 8 (I25): the flown path, for the dotted line. The schema documents an object { fr24_id, tracks }; an
   // array of those is read the same way. A 403 is "not on this plan" (`unavailable`): the phone then draws the line
   // from the origin airport instead.
@@ -337,19 +358,20 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     return { ok: true, period: '30d', endpoints, total: endpoints.reduce((s, e) => s + e.credits, 0) };
   }
 
-  return { planes, board, flight, track, locate, gates, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
+  return { planes, board, flight, track, etas, locate, gates, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
 }
 
 // The routes' one entry point: the access gate, then the call. Returns { status, body } for index.js to send.
 async function handle(svc, { kind, icao, dir, id, callsign, ids, userId, env = process.env } = {}) {
   if (kind === 'access') return { status: 200, body: { ok: true, enabled: hasAccess(userId, env) } };
-  if (!['board', 'airport', 'flight', 'locate', 'gates', 'track'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
+  if (!['board', 'airport', 'flight', 'locate', 'gates', 'track', 'eta'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
   if (!hasAccess(userId, env)) return { status: 403, body: { ok: false, reason: 'owner-only' } };
   let body;
   if (kind === 'board') body = await svc.board(icao, dir);
   else if (kind === 'airport') body = await svc.planes(icao);
   else if (kind === 'locate') body = await svc.locate(callsign);
   else if (kind === 'track') body = await svc.track(id);
+  else if (kind === 'eta') body = await svc.etas(icao, dir);
   else if (kind === 'gates') body = await svc.gates(icao, String(ids || '').split(',').filter(Boolean));
   else body = await svc.flight(id);
   const bad = body && ['badcode', 'baddir', 'badid', 'badcallsign', 'badids'].includes(body.reason);
@@ -393,5 +415,5 @@ module.exports = {
   BASE, AIRPORTS, LIMIT, TTL_S, RATE_PER_MIN, DEFAULT_BUDGET, BOX_HALF_KM,
   airportName, tokenFrom, budgetFrom, monthKeySgt, boundsFor, creditsForPlanes, creditsForSummary,
   hasAccess, createFr24, handle, usageReply, forServer, GATE_TERMINALS, terminalForGate,
-  airportPos, downsample, TRACK_TTL_S, TRACK_MAX, TRACK_CREDITS,
+  airportPos, downsample, TRACK_TTL_S, TRACK_MAX, TRACK_CREDITS, ETA_TTL_S, ETA_CREDITS,
 };
