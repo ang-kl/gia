@@ -49,19 +49,24 @@ function FlightRow({ r, labels, selected, onSelect }) {
       type="button"
       onClick={() => onSelect(r.id)}
       data-fr24-row={r.id}
-      className={`w-full grid grid-cols-[3rem_1fr_auto] items-center gap-2 px-2 py-1.5 text-left border-b border-tg-border/60 ${selected ? 'bg-amber-400/20' : ''}`}
+      className={`w-full grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] items-center gap-2 px-2 py-1.5 text-left border-b border-tg-border/60 ${selected ? 'bg-amber-400/20' : ''}`}
     >
-      <span className="font-mono text-[13px] font-bold">{r.time || '--:--'}</span>
-      <span className="min-w-0">
+      {/* Amendment 4: three columns. Left the time over the place; centre the aircraft over the status; right the
+          flight number (operator, 05-11 '26). */}
+      <span className="min-w-0" data-fr24-col="left">
+        <span className="block font-mono text-[13px] font-bold">{r.time || '--:--'}</span>
         <span className="block text-[12px] font-semibold truncate" title={labels.place}>{r.place}</span>
-        <span className="block font-mono text-[10px] text-tg-hint">{r.flight} · {r.type}</span>
       </span>
-      <span className={`text-[10px] text-right ${r.inAir ? 'text-amber-600 font-semibold' : 'text-tg-hint'}`}>{r.status}</span>
+      <span className="min-w-0" data-fr24-col="centre">
+        <span className="block font-mono text-[11px] text-tg-hint">{r.type}</span>
+        <span className={`block text-[10px] truncate ${r.inAir ? 'text-amber-600 font-semibold' : 'text-tg-hint'}`}>{r.status}</span>
+      </span>
+      <span className="font-mono text-[12px] font-bold text-right" data-fr24-col="right">{r.flight}</span>
     </button>
   );
 }
 
-export default function Fr24Board({ model, onTab, onView, onPlanes, onClose, onSelect, onGetThere }) {
+export default function Fr24Board({ model, onTab, onView, onSort, onPlanes, onClose, onSelect, onGetThere }) {
   if (!model) return null;
   const rows = model.rows || [];
   return (
@@ -74,13 +79,25 @@ export default function Fr24Board({ model, onTab, onView, onPlanes, onClose, onS
         {model.tabs.map((t) => (
           <Chip key={t.dir} active={t.active} onClick={() => onTab(t.dir)}>{t.label}</Chip>
         ))}
+      </div>
+      <div className="mt-0.5 text-[10px] text-tg-hint truncate" title={model.header}>{model.header}</div>
+      {model.wx && <div className="text-[11px] font-semibold text-amber-600">{model.wx}</div>}
+      {/* Sort on the left, Cards / List on the right: one row, so the header row above stays one line (amendment 4's
+          first render wrapped it with all five chips there). */}
+      <div className="mt-1 flex items-center gap-1 flex-wrap">
+        {model.state === 'ok' && model.sorts && (
+          <span className="flex items-center gap-1" role="group" data-fr24-sort>
+            <span className="text-[10px] text-tg-hint">↕</span>
+            {model.sorts.map((x) => (
+              <Chip key={x.sort} active={x.active} onClick={() => onSort && onSort(x.sort)}>{x.label}</Chip>
+            ))}
+          </span>
+        )}
         <span className="flex-1" />
         {model.views.map((v) => (
           <Chip key={v.view} active={v.active} onClick={() => onView(v.view)}>{v.label}</Chip>
         ))}
       </div>
-      <div className="mt-0.5 text-[10px] text-tg-hint truncate" title={model.header}>{model.header}</div>
-      {model.wx && <div className="text-[11px] font-semibold text-amber-600">{model.wx}</div>}
 
       {model.state !== 'ok' && <div className="py-3 text-[12px]">{model.message}</div>}
       {model.state === 'ok' && model.view === 'strip' && (

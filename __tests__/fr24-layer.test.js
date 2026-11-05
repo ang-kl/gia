@@ -290,14 +290,14 @@ describe('I12 — the board is not Changi\'s board', () => {
   it('Departures rows: SGT take-off time, destination name and code, flight, aircraft, status', () => {
     const m = boardModel({ icao: 'WSSS', dir: 'dep', data: boardPayload('dep'), lang: 'en' });
     expect(m.state).toBe('ok');
-    expect(m.rows[0]).toMatchObject({ id: '3b000001', time: '13:10', place: 'London (LHR)', flight: 'SQ1', type: 'A359', status: 'In the air', inAir: true, callsign: 'SIA1' });
-    expect(m.rows[1]).toMatchObject({ status: 'Landed 13:30', inAir: false, place: 'ZZZZ' });   // unknown code as itself
+    expect(m.rows[0]).toMatchObject({ id: '3b000001', time: '🛫 13:10', place: 'London (LHR)', flight: 'SQ1', type: 'A359', status: '✈️ In the air', inAir: true, callsign: 'SIA1', airline: 'SIA' });
+    expect(m.rows[1]).toMatchObject({ status: '🛬 Landed 13:30', inAir: false, place: 'ZZZZ' });   // unknown code as itself
     expect(m.labels).toEqual({ time: 'Took off', place: 'To', flight: 'Flight', type: 'Aircraft', status: 'Status' });
   });
   it('Arrivals rows show origins and landed times', () => {
     const m = boardModel({ icao: 'WSSS', dir: 'arr', data: boardPayload('arr'), lang: 'en' });
-    expect(m.rows[1]).toMatchObject({ place: 'Bangkok (BKK)', time: '13:30' });
-    expect(m.rows[0]).toMatchObject({ time: '', status: 'In the air' });
+    expect(m.rows[1]).toMatchObject({ place: 'Bangkok (BKK)', time: '🛬 13:30' });
+    expect(m.rows[0]).toMatchObject({ time: '🛫 13:10', status: '✈️ In the air' });   // still flying: its take-off from the origin
     expect(m.header).toBe(ft('board.header.arr', 'en'));
     expect(m.labels.place).toBe('From');
   });
@@ -306,7 +306,7 @@ describe('I12 — the board is not Changi\'s board', () => {
       for (const dir of ['dep', 'arr']) {
         const m = boardModel({ icao: 'WSSS', dir, data: boardPayload(dir), lang });
         for (const v of Object.values(m.labels)) expect(v).not.toMatch(/terminal|gate|check-in|boarding/i);
-        for (const r of m.rows) expect(Object.keys(r).sort()).toEqual(['callsign', 'flight', 'id', 'inAir', 'place', 'status', 'time', 'type']);
+        for (const r of m.rows) expect(Object.keys(r).sort()).toEqual(['airline', 'callsign', 'flight', 'id', 'inAir', 'place', 'status', 'time', 'type']);
         expect(m.header).toBe(ft(`board.header.${dir}`, lang));
         expect(m.footer).toBe(ft('board.footer', lang));
       }
@@ -394,6 +394,73 @@ describe('I15 — the board in the dock: strip by default, list on request, the 
     expect(src).toMatch(/overflow-y-auto/);
     expect(src).toMatch(/max-h-\[40vh\]/);
     expect(src).toMatch(/liquid-glass/);
+  });
+});
+
+// ── I19 — sort, three columns, emoji (amendment 4) ─────────────────────────────────────────────────────────────
+describe('I19 — sort by time, flight or airline; three-column rows; emoji statuses', () => {
+  const many = () => ({ ok: true, rows: [
+    { id: 'a1', flight: 'TR602', callsign: 'TGW602', airline: 'TGW', type: 'A320', takeoff: '2026-11-05T05:40:00Z', landed: null, ended: false, dest: { code: 'VTBS', iata: 'BKK', city: 'Bangkok' } },
+    { id: 'a2', flight: 'SQ11', callsign: 'SIA11', airline: 'SIA', type: 'B77W', takeoff: '2026-11-05T05:30:00Z', landed: null, ended: false, dest: { code: 'RJTT', iata: 'HND', city: 'Tokyo' } },
+    { id: 'a3', flight: 'SQ2', callsign: 'SIA2', airline: 'SIA', type: 'A359', takeoff: '2026-11-05T05:20:00Z', landed: null, ended: false, dest: { code: 'EGLL', iata: 'LHR', city: 'London' } },
+    { id: 'a4', flight: 'CX691', callsign: 'CPA691', airline: 'CPA', type: 'A333', takeoff: '2026-11-05T05:10:00Z', landed: '2026-11-05T05:50:00Z', ended: true, dest: { code: 'VHHH', iata: 'HKG', city: 'Hong Kong' } },
+    { id: 'a5', flight: null, callsign: 'XYZ1', airline: null, type: 'C172', takeoff: '2026-11-05T05:00:00Z', landed: null, ended: false, dest: { code: 'WMKK' } },
+  ] });
+  const ids = (m) => m.rows.map((r) => r.id);
+  it('Time keeps the newest-first order Flightradar24 sends', () => {
+    expect(ids(boardModel({ icao: 'WSSS', dir: 'dep', data: many(), sort: 'time', lang: 'en' }))).toEqual(['a1', 'a2', 'a3', 'a4', 'a5']);
+    expect(ids(boardModel({ icao: 'WSSS', dir: 'dep', data: many(), lang: 'en' }))).toEqual(['a1', 'a2', 'a3', 'a4', 'a5']);
+  });
+  it('Flight sorts by flight number A to Z, numbers in numeric order, a missing one by its callsign', () => {
+    expect(ids(boardModel({ icao: 'WSSS', dir: 'dep', data: many(), sort: 'flight', lang: 'en' }))).toEqual(['a4', 'a3', 'a2', 'a1', 'a5']);
+  });
+  it('Airline sorts by airline code A to Z, then newest first; no code goes last', () => {
+    expect(ids(boardModel({ icao: 'WSSS', dir: 'dep', data: many(), sort: 'airline', lang: 'en' }))).toEqual(['a4', 'a2', 'a3', 'a1', 'a5']);
+  });
+  it('every sort keeps every row, and an unknown sort is Time', () => {
+    for (const s of ['time', 'flight', 'airline', 'bogus']) {
+      const m = boardModel({ icao: 'WSSS', dir: 'dep', data: many(), sort: s, lang: 'en' });
+      expect(m.rows).toHaveLength(5);
+      expect(new Set(ids(m)).size).toBe(5);
+    }
+    expect(boardModel({ icao: 'WSSS', dir: 'dep', data: many(), sort: 'bogus', lang: 'en' }).sort).toBe('time');
+  });
+  it('the model names the three sorts, the active one marked, in every locale', () => {
+    const m = boardModel({ icao: 'WSSS', dir: 'dep', data: many(), sort: 'airline', lang: 'en' });
+    expect(m.sorts).toEqual([
+      { sort: 'time', label: ft('sort.time', 'en'), active: false },
+      { sort: 'flight', label: ft('sort.flight', 'en'), active: false },
+      { sort: 'airline', label: ft('sort.airline', 'en'), active: true },
+    ]);
+  });
+  it('emoji: 🛫 on a take-off time, 🛬 on a landing time, ✈️ in the air, 🛬 landed', () => {
+    const dep = boardModel({ icao: 'WSSS', dir: 'dep', data: many(), lang: 'en' }).rows;
+    expect(dep[0].time).toBe('🛫 13:40');
+    expect(dep[0].status).toBe('✈️ ' + ft('status.air', 'en'));
+    expect(dep[3].status).toBe('🛬 ' + ft('status.landed', 'en', { time: '13:50' }));
+    for (const lang of FR24_LOCALES) {
+      const r = boardModel({ icao: 'WSSS', dir: 'dep', data: many(), lang }).rows;
+      expect(r[0].status.startsWith('✈️ ')).toBe(true);
+      expect(r[3].status.startsWith('🛬 ')).toBe(true);
+    }
+  });
+  it('sorting in the layer makes no request', async () => {
+    vi.useFakeTimers();
+    const { layer, boards, calls } = harness();
+    await layer.init();
+    await layer.openBoard('WSSS');
+    const n = calls.length;
+    layer.setSort('flight');
+    expect(boards.at(-1).sort).toBe('flight');
+    layer.setSort('airline');
+    expect(boards.at(-1).sort).toBe('airline');
+    expect(calls).toHaveLength(n);
+    vi.useRealTimers();
+  });
+  it('the list row has three columns: time and place, aircraft and status, flight', () => {
+    const src = fs.readFileSync(path.join(process.cwd(), 'web/transport/src/components/Fr24Board.jsx'), 'utf8');
+    for (const c of ['left', 'centre', 'right']) expect(src).toContain(`data-fr24-col="${c}"`);
+    expect(src).toMatch(/model\.sorts\.map/);
   });
 });
 

@@ -127,6 +127,9 @@ export const FR24_STRINGS = {
   'wx.lightning': { en: '⚡ Lightning ≤ 5 km · {time}', fr: '⚡ Foudre ≤ 5 km · {time}', id: '⚡ Petir ≤ 5 km · {time}', ru: '⚡ Молнии ≤ 5 км · {time}', de: '⚡ Blitze ≤ 5 km · {time}', zh: '⚡ 5 公里内闪电 · {time}', ja: '⚡ 5 km 以内で落雷 · {time}', es: '⚡ Rayos ≤ 5 km · {time}', ko: '⚡ 5km 이내 낙뢰 · {time}' },
   'view.strip': { en: 'Cards', fr: 'Cartes', id: 'Kartu', ru: 'Карточки', de: 'Karten', zh: '卡片', ja: 'カード', es: 'Tarjetas', ko: '카드' },
   'view.list': { en: 'List', fr: 'Liste', id: 'Daftar', ru: 'Список', de: 'Liste', zh: '列表', ja: 'リスト', es: 'Lista', ko: '목록' },
+  'sort.time': { en: 'Time', fr: 'Heure', id: 'Waktu', ru: 'Время', de: 'Zeit', zh: '时间', ja: '時刻', es: 'Hora', ko: '시간' },
+  'sort.flight': { en: 'Flight', fr: 'Vol', id: 'Penerbangan', ru: 'Рейс', de: 'Flug', zh: '航班', ja: '便名', es: 'Vuelo', ko: '항공편' },
+  'sort.airline': { en: 'Airline', fr: 'Compagnie', id: 'Maskapai', ru: 'Авиакомпания', de: 'Fluglinie', zh: '航空公司', ja: '航空会社', es: 'Aerolínea', ko: '항공사' },
   'btn.close': { en: 'Close', fr: 'Fermer', id: 'Tutup', ru: 'Закрыть', de: 'Schließen', zh: '关闭', ja: '閉じる', es: 'Cerrar', ko: '닫기' },
   'locate.none': { en: 'No live position for this flight right now', fr: 'Pas de position en direct pour ce vol', id: 'Belum ada posisi langsung untuk penerbangan ini', ru: 'Сейчас нет текущей позиции этого рейса', de: 'Gerade keine Live-Position für diesen Flug', zh: '目前没有该航班的实时位置', ja: 'この便の現在位置は今ありません', es: 'Ahora no hay posición en directo de este vuelo', ko: '지금은 이 항공편의 실시간 위치가 없습니다' },
   'link.mrt': { en: 'Getting there: Changi Airport MRT (CG2)', fr: 'Pour y aller : MRT Changi Airport (CG2)', id: 'Cara ke sana: MRT Changi Airport (CG2)', ru: 'Как добраться: станция MRT Changi Airport (CG2)', de: 'Anreise: MRT Changi Airport (CG2)', zh: '交通：樟宜机场地铁站（CG2）', ja: 'アクセス：MRT チャンギ空港駅（CG2）', es: 'Cómo llegar: MRT Changi Airport (CG2)', ko: '가는 길: MRT 창이 공항역 (CG2)' },
@@ -198,8 +201,20 @@ function errKey(data) {
 // bottom dock. It never carries a terminal, gate or check-in field; the header says these are actual times, and the
 // footer says what FR24 does not publish.
 const VIEWS = ['strip', 'list'];
-export function boardModel({ icao, dir = 'dep', view = 'strip', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null } = {}) {
+// Amendment 4 / I19: Time keeps the newest-first order FR24 sends; Flight is A to Z by flight number (numbers in
+// numeric order, a missing number by its callsign); Airline is A to Z by code, then newest first, no code last. All
+// three sort the rows already held, so a sort never costs a request.
+const SORTS = ['time', 'flight', 'airline'];
+const byText = (a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' });
+function sortRows(rows, sort) {
+  const indexed = rows.map((r, i) => ({ r, i }));
+  if (sort === 'flight') indexed.sort((x, y) => byText(x.r.flight || '\uffff', y.r.flight || '\uffff') || x.i - y.i);
+  else if (sort === 'airline') indexed.sort((x, y) => byText(x.r.airline || '\uffff', y.r.airline || '\uffff') || x.i - y.i);
+  return indexed.map((x) => x.r);
+}
+export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null } = {}) {
   const v = VIEWS.includes(view) ? view : 'strip';
+  const s = SORTS.includes(sort) ? sort : 'time';
   const labels = {
     time: ft(`col.time.${dir}`, lang), place: ft(dir === 'dep' ? 'col.dest' : 'col.orig', lang),
     flight: ft('col.flight', lang), type: ft('col.type', lang), status: ft('col.status', lang),
@@ -211,20 +226,24 @@ export function boardModel({ icao, dir = 'dep', view = 'strip', data = null, lan
   else if (!data || !data.ok) { state = 'error'; message = ft(errKey(data), lang); }
   else if (!Array.isArray(data.rows) || !data.rows.length) { state = 'empty'; message = ft('board.empty', lang); }
   else {
-    rows = data.rows.map((r) => {
+    // Amendment 4: 🛫 on a take-off time, 🛬 on a landing time; "✈️ In the air" or "🛬 Landed hh:mm". An arrival still
+    // flying shows when it took off from its origin.
+    const stamp = (glyph, t) => (t ? `${glyph} ${t}` : '');
+    rows = sortRows(data.rows.map((r) => {
       const inAir = !(r.ended && r.landed);
       const landedAt = inAir ? '' : sgtClock(r.landed);
       return {
-        id: String(r.id), callsign: r.callsign || null, inAir,
-        time: dir === 'dep' ? sgtClock(r.takeoff) : landedAt,
+        id: String(r.id), callsign: r.callsign || null, airline: r.airline || null, inAir,
+        time: dir === 'dep' || inAir ? stamp('🛫', sgtClock(r.takeoff)) : stamp('🛬', landedAt),
         place: placeText(dir === 'dep' ? r.dest : r.orig),
         flight: r.flight || r.callsign || '', type: r.type || '',
-        status: inAir ? ft('status.air', lang) : ft('status.landed', lang, { time: landedAt }),
+        status: inAir ? `✈️ ${ft('status.air', lang)}` : `🛬 ${ft('status.landed', lang, { time: landedAt })}`,
       };
-    });
+    }), s);
   }
   return {
-    icao, dir, view: v, state, message, rows, labels,
+    icao, dir, view: v, sort: s, state, message, rows, labels,
+    sorts: SORTS.map((x) => ({ sort: x, label: ft(`sort.${x}`, lang), active: x === s })),
     title: ft(`pin.${icao}`, lang),
     header: ft(`board.header.${dir}`, lang),
     footer: ft('board.footer', lang),
@@ -282,6 +301,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   let boardIcao = null;
   let tab = 'dep';
   let view = 'strip';
+  let sort = 'time';
   let selectedId = null;
   let detail = null;
   let focus = null;           // the marker drawn for a located flight
@@ -371,7 +391,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!boardIcao) return null;
     const b = boards.get(`${boardIcao}:${tab}`);
     const w = wx.get(boardIcao);
-    return boardModel({ icao: boardIcao, dir: tab, view, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail });
+    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail });
   }
   function render() {
     if (onBoard) onBoard(currentModel());
@@ -411,6 +431,11 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     detail = null;
     render();
     await loadTab(boardIcao, dir);
+    render();
+  }
+  function setSort(x) {
+    if (!boardIcao) return;
+    sort = SORTS.includes(x) ? x : 'time';
     render();
   }
   function setView(v) {
@@ -512,7 +537,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   }
 
   return {
-    init, openBoard, setTab, setView, closeBoard, selectFlight, togglePlanes, refresh, openFlight, setLang, closeInfo, destroy,
+    init, openBoard, setTab, setView, setSort, closeBoard, selectFlight, togglePlanes, refresh, openFlight, setLang, closeInfo, destroy,
     pinCount: () => pins.length, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
     enabled: () => enabled,
   };

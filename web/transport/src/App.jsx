@@ -1141,7 +1141,7 @@ export default function App() {
           style={{ bottom: 'calc(3.25rem + env(safe-area-inset-bottom, 0px))' }}>
           {fr24Board ? (
             <div className="px-3">
-              <Fr24Board model={fr24Board.model} onTab={fr24Board.onTab} onView={fr24Board.onView} onPlanes={fr24Board.onPlanes}
+              <Fr24Board model={fr24Board.model} onTab={fr24Board.onTab} onView={fr24Board.onView} onSort={fr24Board.onSort} onPlanes={fr24Board.onPlanes}
                 onClose={fr24Board.onClose} onSelect={fr24Board.onSelect} onGetThere={fr24Board.onGetThere} />
             </div>
           ) : lineStations.length > 0
