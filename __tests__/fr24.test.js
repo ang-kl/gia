@@ -692,61 +692,75 @@ describe('I26 — airport coordinates from the same OurAirports table; destPos o
   });
 });
 
-describe('I29 — the ETA call: one request per airport and direction per 5 minutes, 8 credits a flight, owner-only', () => {
-  it('live/flight-positions/full with inbound:<code> for Arrivals and outbound:<code> for Departures, limit 20', async () => {
+describe('I29 / I32 — the ETA call asks for the board\'s own flights by callsign, 8 credits a flight, owner-only', () => {
+  // Amendment 10 (I32): was `airports=inbound:WSSS&limit=20` - any 20 flights to Changi, which missed the board's rows.
+  const CS = ['SIA183', 'JJA2623'];
+  it('live/flight-positions/full with callsigns=<the rows, sorted>, limit = how many', async () => {
     const { svc, calls } = svcWith();
-    const a = await svc.etas('WSSS', 'arr');
+    const a = await svc.etas('WSSS', 'arr', CS);
     expect(a.ok).toBe(true);
-    expect(calls[0].url).toBe('https://fr24api.flightradar24.com/api/live/flight-positions/full?airports=inbound:WSSS&limit=20');
+    expect(calls[0].url).toBe('https://fr24api.flightradar24.com/api/live/flight-positions/full?callsigns=JJA2623,SIA183&limit=2');
     expect(calls[0].headers).toMatchObject({ Authorization: `Bearer ${TOKEN}`, 'Accept-Version': 'v1' });
-    await svc.etas('WSSL', 'dep');
-    expect(calls[1].url).toBe('https://fr24api.flightradar24.com/api/live/flight-positions/full?airports=outbound:WSSL&limit=20');
+    expect(calls[0].url).not.toMatch(/airports=/);
   });
   it('answers id → eta, only for flights that have one', async () => {
     const { svc } = svcWith();
-    const r = await svc.etas('WSSS', 'arr');
+    const r = await svc.etas('WSSS', 'arr', CS);
     expect(r.etas).toEqual({ '3b000002': '2026-11-05T07:40:00Z' });
     expect(r).toMatchObject({ icao: 'WSSS', dir: 'arr' });
   });
   it('8 credits per returned flight; 1 for an empty answer', async () => {
     const a = svcWith();
-    await a.svc.etas('WSSS', 'arr');
+    await a.svc.etas('WSSS', 'arr', CS);
     expect(await a.svc.spent()).toBe(16);
     const b = svcWith({ full: [] });
-    await b.svc.etas('WSSS', 'arr');
+    await b.svc.etas('WSSS', 'arr', CS);
     expect(await b.svc.spent()).toBe(1);
   });
-  it('cached 5 minutes per airport and direction', async () => {
+  it('cached 5 minutes per SET of callsigns, in any order', async () => {
     const { svc, calls, clock } = svcWith();
-    await svc.etas('WSSS', 'arr');
+    await svc.etas('WSSS', 'arr', CS);
     clock.advance(299 * 1000);
-    await svc.etas('WSSS', 'arr');
+    await svc.etas('WSSS', 'arr', [...CS].reverse());
     expect(calls).toHaveLength(1);
-    await svc.etas('WSSS', 'dep');
+    await svc.etas('WSSS', 'arr', ['SIA183']);
     expect(calls).toHaveLength(2);
     clock.advance(2 * 1000);
-    await svc.etas('WSSS', 'arr');
+    await svc.etas('WSSS', 'arr', CS);
     expect(calls).toHaveLength(3);
   });
-  it('a bad airport or direction is refused before any request; a 403 is unavailable and not cached', async () => {
+  it('a bad airport, direction, no callsign, a bad one or more than 15 is refused before any request', async () => {
     const { svc, calls } = svcWith();
-    expect((await svc.etas('EGLL', 'arr')).reason).toBe('badcode');
-    expect((await svc.etas('WSSS', 'x')).reason).toBe('baddir');
+    expect((await svc.etas('EGLL', 'arr', CS)).reason).toBe('badcode');
+    expect((await svc.etas('WSSS', 'x', CS)).reason).toBe('baddir');
+    for (const bad of [[], null, ['sia183'], ['SIA 1'], Array.from({ length: 16 }, (_, i) => `SIA${i + 10}`)]) {
+      expect((await svc.etas('WSSS', 'arr', bad)).reason, JSON.stringify(bad)).toBe('badcallsign');
+    }
     expect(calls).toHaveLength(0);
+    // Duplicates collapse, so 15 distinct plus a repeat is fine.
+    await svc.etas('WSSS', 'arr', [...Array.from({ length: 15 }, (_, i) => `SIA${i + 10}`), 'SIA10']);
+    expect(new URL(calls[0].url).searchParams.get('callsigns').split(',')).toHaveLength(15);
+  });
+  it('a 403 is unavailable and not cached', async () => {
     const f = svcWith({ status: 403 });
-    expect(await f.svc.etas('WSSS', 'arr')).toEqual({ ok: false, reason: 'unavailable' });
-    await f.svc.etas('WSSS', 'arr');
+    expect(await f.svc.etas('WSSS', 'arr', CS)).toEqual({ ok: false, reason: 'unavailable' });
+    await f.svc.etas('WSSS', 'arr', CS);
     expect(f.calls).toHaveLength(2);
   });
-  it('behind the owner gate; bad input is a 400', async () => {
+  it('behind the owner gate; the callsigns come from the cs query; bad input is a 400', async () => {
     const env = { TELEGRAM_OWNER_CHAT_ID: OWNER };
     const { svc, calls } = svcWith();
-    expect(await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'arr', userId: '999', env })).toEqual({ status: 403, body: { ok: false, reason: 'owner-only' } });
+    expect(await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'arr', cs: 'SIA183', userId: '999', env })).toEqual({ status: 403, body: { ok: false, reason: 'owner-only' } });
     expect(calls).toHaveLength(0);
-    const r = await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'arr', userId: OWNER, env });
+    const r = await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'arr', cs: 'SIA183,JJA2623', userId: OWNER, env });
     expect(r.status).toBe(200);
     expect(r.body.etas['3b000002']).toBe('2026-11-05T07:40:00Z');
-    expect((await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'up', userId: OWNER, env })).status).toBe(400);
+    expect((await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'arr', cs: '', userId: OWNER, env })).status).toBe(400);
+    expect((await fr24.handle(svc, { kind: 'eta', icao: 'WSSS', dir: 'up', cs: 'SIA183', userId: OWNER, env })).status).toBe(400);
+  });
+  it('the route passes cs through', () => {
+    const src = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8');
+    expect(src).toMatch(/fr24Route\('eta', \(req\) => \(\{ icao: req\.params\.icao, dir: req\.query\.dir, cs: String\(req\.query\.cs \|\| ''\) \}\)\)/);
   });
 });
 

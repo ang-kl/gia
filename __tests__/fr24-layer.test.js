@@ -17,7 +17,7 @@ const require = createRequire(import.meta.url);
 const server = require('../fr24.js');
 
 const T0 = Date.parse('2026-11-05T06:00:00Z'); // 14:00 SGT
-const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8}|gates\/(WSSS|WSSL)\?ids=[0-9a-f,]+|track\/[0-9a-f]+|eta\/(WSSS|WSSL)\?dir=(dep|arr))$|^\/api\/weather\/outside\?/;
+const OUR_URLS = /^\/api\/fr24\/(access|board\/(WSSS|WSSL)\?dir=(dep|arr)|airport\/(WSSS|WSSL)|flight\/[0-9a-f]+|locate\/[A-Z0-9]{2,8}|gates\/(WSSS|WSSL)\?ids=[0-9a-f,]+|track\/[0-9a-f]+|eta\/(WSSS|WSSL)\?dir=(dep|arr)&cs=[A-Z0-9,]+)$|^\/api\/weather\/outside\?/;
 
 function fakeGmaps() {
   const made = [];
@@ -813,23 +813,27 @@ describe('I27 — the row time follows what exists; every estimate is marked ≈
     const eta = { '3b000009': '2026-11-05T07:40:00Z' };
     expect(one('arr', airRow({ takeoff: '2026-11-05T05:10:00Z', firstSeen: '2026-11-05T04:50:00Z' }), eta)).toBe('🛬 ≈15:40');
     expect(one('arr', airRow({ takeoff: '2026-11-05T05:10:00Z', firstSeen: '2026-11-05T04:50:00Z' }))).toBe('🛫 13:10');
-    expect(one('arr', airRow({ firstSeen: '2026-11-05T04:50:00Z' }))).toBe('seen 12:50');
+    expect(one('arr', airRow({ firstSeen: '2026-11-05T04:50:00Z' }))).toBe('🛫 ≈12:50');   // amendment 10 (I33)
     expect(one('arr', airRow())).toBe('');
   });
   it('Departures in the air: take-off, else ETA at the destination, else first seen', () => {
     const eta = { '3b000009': '2026-11-05T10:05:00Z' };
     expect(one('dep', airRow({ takeoff: '2026-11-05T05:10:00Z' }), eta)).toBe('🛫 13:10');
     expect(one('dep', airRow({ firstSeen: '2026-11-05T04:50:00Z' }), eta)).toBe('🛬 ≈18:05');
-    expect(one('dep', airRow({ firstSeen: '2026-11-05T04:50:00Z' }))).toBe('seen 12:50');
+    expect(one('dep', airRow({ firstSeen: '2026-11-05T04:50:00Z' }))).toBe('🛫 ≈12:50');
   });
   it('landed rows are unchanged, ETA or not', () => {
     const landed = airRow({ ended: true, landed: '2026-11-05T05:31:00Z', takeoff: '2026-11-05T03:20:00Z' });
     expect(one('arr', landed, { '3b000009': '2026-11-05T07:40:00Z' })).toBe('🛬 13:31');
     expect(one('dep', landed, { '3b000009': '2026-11-05T07:40:00Z' })).toBe('🛫 11:20');
   });
-  it('"seen" and "No flight details" exist in all nine locales', () => {
-    for (const k of ['time.seen', 'card.nodetails']) for (const l of FR24_LOCALES) expect(FR24_STRINGS[k][l], `${k}.${l}`).toBeTruthy();
-    for (const l of FR24_LOCALES) expect(FR24_STRINGS['time.seen'][l]).toContain('{time}');
+  it('"No flight details" exists in all nine locales; no "seen" wording is left (amendment 10, I33)', () => {
+    for (const l of FR24_LOCALES) expect(FR24_STRINGS['card.nodetails'][l], `card.nodetails.${l}`).toBeTruthy();
+    expect(FR24_STRINGS['time.seen']).toBeUndefined();
+    for (const l of FR24_LOCALES) {
+      const t = boardModel({ icao: 'WSSS', dir: 'arr', data: { ok: true, rows: [airRow({ firstSeen: '2026-11-05T04:50:00Z' })] }, lang: l }).rows[0].time;
+      expect(t, l).toBe('🛫 ≈12:50');
+    }
   });
 });
 
@@ -908,9 +912,9 @@ describe('I29 — the phone asks for ETAs once a tab with a flight in the air ha
     await layer.init();
     expect(etaCalls(calls)).toHaveLength(0);
     await layer.openBoard('WSSS');
-    expect(etaCalls(calls)).toEqual(['/api/fr24/eta/WSSS?dir=dep']);
+    expect(etaCalls(calls)).toEqual(['/api/fr24/eta/WSSS?dir=dep&cs=SIA1']);
     await layer.setTab('arr');
-    expect(etaCalls(calls)).toEqual(['/api/fr24/eta/WSSS?dir=dep', '/api/fr24/eta/WSSS?dir=arr']);
+    expect(etaCalls(calls)).toEqual(['/api/fr24/eta/WSSS?dir=dep&cs=SIA1', '/api/fr24/eta/WSSS?dir=arr&cs=SIA1']);
     await layer.setTab('arr');
     expect(boards.at(-1).rows.find((r) => r.id === '3b000001').time).toBe('🛬 ≈15:40');
     await layer.setTab('dep');
@@ -977,6 +981,93 @@ describe('I30 — a plane with no details gets a single-✈ card; a plane on the
     await layer2.openBoard('WSSS');
     await layer2.selectFlight('3b000001');
     expect(h.calls.slice(orig).some((u) => u.startsWith('/api/fr24/track/'))).toBe(false);
+  });
+});
+
+// ── I31 / I32 — amendment 10 ─────────────────────────────────────────────────────────────────────────────────────
+describe('I31 — one planes request at a time; a busy refresh keeps the planes', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+  const planesHarness = (answers) => {
+    const { gmaps, made } = fakeGmaps();
+    const calls = [];
+    const states = [];
+    let n = 0;
+    const layer = createFr24Layer({ panTo() {} }, gmaps, { now: () => T0, onState: (s) => states.push(s), fetchJson: async (u) => {
+      calls.push(u);
+      if (u === '/api/fr24/access') return { ok: true, enabled: true };
+      if (u.startsWith('/api/fr24/airport/')) { const a = answers[Math.min(n, answers.length - 1)]; n += 1; return typeof a === 'function' ? a() : a; }
+      return null;
+    } });
+    return { layer, calls, states, made, live: () => made.filter((m) => m.fr24Plane && m.map).length };
+  };
+  it('a double tap while the first request is loading makes one request, and the planes stay on', async () => {
+    let release;
+    const h = planesHarness([() => new Promise((r) => { release = () => r(planesPayload()); })]);
+    await h.layer.init();
+    const a = h.layer.togglePlanes('WSSS');
+    const b = h.layer.togglePlanes('WSSS');
+    release();
+    await Promise.all([a, b]);
+    expect(h.calls.filter((u) => u.startsWith('/api/fr24/airport/'))).toHaveLength(1);
+    expect(h.layer.planeCount()).toBe(2);
+    expect(h.live()).toBe(2);
+  });
+  it('a busy answer to a refresh keeps the planes already drawn and says so; budget too', async () => {
+    for (const reason of ['busy', 'budget']) {
+      const h = planesHarness([planesPayload(), { ok: false, reason }]);
+      await h.layer.init();
+      await h.layer.togglePlanes('WSSS');
+      expect(h.live()).toBe(2);
+      await h.layer.refresh();
+      expect(h.live(), reason).toBe(2);
+      expect(h.states.at(-1)).toMatchObject({ planes: true, icao: 'WSSS' });
+      expect(h.states.at(-1).caption).toContain(ft(`err.${reason}`, 'en'));
+    }
+  });
+  it('a first request answered busy draws nothing and leaves the planes off (nothing to keep)', async () => {
+    const h = planesHarness([{ ok: false, reason: 'busy' }]);
+    await h.layer.init();
+    await h.layer.togglePlanes('WSSS');
+    expect(h.live()).toBe(0);
+    expect(h.states.at(-1)).toEqual({ planes: false });
+  });
+  it('after a request settles, a tap toggles off as before', async () => {
+    const h = planesHarness([planesPayload()]);
+    await h.layer.init();
+    await h.layer.togglePlanes('WSSS');
+    await h.layer.togglePlanes('WSSS');
+    expect(h.live()).toBe(0);
+  });
+});
+
+describe('I32 — the phone asks for ETAs by the in-air rows\' callsigns, at most 15, none when there are none', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+  it('names exactly the in-air rows with a callsign, sorted, at most 15', async () => {
+    const { gmaps } = fakeGmaps();
+    const calls = [];
+    const rows = [
+      ...Array.from({ length: 17 }, (_, i) => ({ ...boardPayload('arr').rows[0], id: `3c${String(i).padStart(6, '0')}`, callsign: `SIA${100 + i}` })),
+      { ...boardPayload('arr').rows[0], id: '3d000001', callsign: null },
+      { ...boardPayload('arr').rows[1] },
+    ];
+    const layer = createFr24Layer({ panTo() {} }, gmaps, { now: () => T0, fetchJson: async (u) => {
+      calls.push(u);
+      if (u === '/api/fr24/access') return { ok: true, enabled: true };
+      if (u.startsWith('/api/fr24/board/')) return { ok: true, rows };
+      if (u.startsWith('/api/fr24/eta/')) return { ok: true, etas: { '3c000000': '2026-11-05T07:40:00Z' } };
+      return null;
+    } });
+    await layer.init();
+    await layer.openBoard('WSSS');
+    const e = calls.filter((u) => u.startsWith('/api/fr24/eta/'));
+    expect(e).toHaveLength(1);
+    const cs = new URL(e[0], 'http://x').searchParams.get('cs').split(',');
+    expect(cs).toHaveLength(15);
+    expect(cs).toEqual([...cs].sort());
+    expect(cs).not.toContain('TGW2');   // the landed row
+    for (const c of cs) expect(c).toMatch(/^SIA1\d\d$/);
   });
 });
 
