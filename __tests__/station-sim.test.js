@@ -85,7 +85,9 @@ describe('the wiring (source pins)', () => {
   it('the station marker tap adds the station\'s lines and turns the simulation on; the card close does not stop it', () => {
     const c = code('web/transport/src/components/MrtMapPanel.jsx');
     // v0.62.971 (spec 2026-11-04, C1-C2): the tap adds the STATION (up to five, oldest out); its lines are derived.
-    expect(c).toMatch(/onStationSelect\?\.\(s\);\s*setSimStations\(\(cur\) => addRunItem\(cur, \{ key: s\.name, name: s\.name, lines: s\.lines \|\| \[\] \}\)\);\s*setSimOn\(true\);/);
+    // v0.62.979 (spec 2026-11-05-r17-unopened-station-no-trains, amendment 1): the two calls sit inside the
+    // `if (runnableStation(s))` guard, so a station not open yet starts nothing; the unguarded form no longer matches.
+    expect(c).toMatch(/onStationSelect\?\.\(s\);\s*(?:\/\/[^\n]*\n\s*)*if \(runnableStation\(s\)\) \{\s*setSimStations\(\(cur\) => addRunItem\(cur, \{ key: s\.name, name: s\.name, lines: s\.lines \|\| \[\] \}\)\);\s*setSimOn\(true\);\s*\}/);
     expect(c).toMatch(/const simLines = stationsToLines\(simStations\)/);
     expect(c).toMatch(/effectiveSimLines\(\{ simOn, simLines, focusedCode \}\)/);
     expect(c).not.toMatch(/closeclick[^\n]*setSimOn\(false\)/);
