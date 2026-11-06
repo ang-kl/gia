@@ -8,6 +8,7 @@ scope:
   - "web/transport/src/components/MrtMapPanel.jsx"
   - "web/_shared/lib/station-sim-controller.js"
   - "__tests__/run-future-guard.test.js"
+  - "__tests__/station-sim.test.js"
   - "package.json"
   - "doc/Feature/2026-11-05-r17-unopened-station-no-trains.spec.md"
   - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
@@ -61,6 +62,22 @@ verify: ""
 ## Out of scope
 - First and last bus per service at a stop (R-15's follow-up), not asked for.
 - The other Register rows; the docs and vault catch-up.
+
+## Amendments
+- **06-11 '26, amendment 1** (operator, 06-11 '26 10:26 SGT, answering the FLOW ALERT [F6 + F7 + F3] in № 4,856:
+  *"Amend the R-17 spec"*). Approved at sha 3c580619; this amendment voids that approval and asks for it again.
+  - **Found by the full suite after the build:** `__tests__/station-sim.test.js:88` (v0.62.971, spec 2026-11-04 C1-C2)
+    pins the Train tap handler's source as
+    `/onStationSelect\?\.\(s\);\s*setSimStations\(\(cur\) => addRunItem\(cur, \{ key: s\.name, name: s\.name, lines: s\.lines \|\| \[\] \}\)\);\s*setSimOn\(true\);/`
+    — the two calls straight after the selection, with nothing between. The guard I1 requires puts them inside
+    `if (runnableStation(s)) { … }`, so the pin fails (1 of 6,850, the only failure). The file was outside scope.
+  - **Scope + `__tests__/station-sim.test.js`.** Line 88's regex changes to accept the guard between `onStationSelect?.(s);`
+    and the two calls (and the guard's closing brace after them), and nothing else in that test changes: its other
+    assertions (`stationsToLines(simStations)`, `effectiveSimLines`, no `setSimOn(false)` on `closeclick`) stand. The test
+    keeps its intent - a tap on an open station adds it and starts the trains; closing the card does not stop them -
+    and the new pin also refuses the unguarded form, so it cannot pass for the pre-R-17 code.
+  - **Check:** the full suite green; mutation M1 (guard removed) is then caught by both `run-future-guard.test.js` and
+    `station-sim.test.js`.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT (Passed / Failed / Not Verifiable, each with evidence), verify output, PR link.
