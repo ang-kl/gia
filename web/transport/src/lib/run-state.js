@@ -59,6 +59,11 @@ export function addRunItem(list, item, keyOf = (x) => x.key) {
   while (out.length > RUN_MAX) out.shift();
   return out;
 }
+// v0.62.979 — spec 2026-11-05-r17-unopened-station-no-trains, I1: only a station that is open may start trains. A
+// station still 'future' at the moment of the tap gets its card (which says when it opens) and nothing else.
+export function runnableStation(s) {
+  return !!s && s.status !== 'future';
+}
 export function removeRunItem(list, key, keyOf = (x) => x.key) {
   return (Array.isArray(list) ? list : []).filter((x) => keyOf(x) !== key);
 }

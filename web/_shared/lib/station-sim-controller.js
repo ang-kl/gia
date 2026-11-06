@@ -101,6 +101,8 @@ export function createStationSimController(map, gmaps, { fetchJson = null, onSta
   }
   async function addStation(station) {
     if (!station || !station.name) return;
+    // v0.62.979 — R-17 (spec 2026-11-05-r17-unopened-station-no-trains, I2): a station not open yet starts nothing.
+    if (station.status === 'future') return;
     const item = { key: station.name, name: station.name, lines: Array.isArray(station.lines) ? station.lines : [] };
     if (!stationsToLines([item]).length) return;
     await load();

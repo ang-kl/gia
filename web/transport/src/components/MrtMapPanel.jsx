@@ -64,7 +64,7 @@ import trainSim from '../data/train-sim.json';
 // v0.62.967 — a bus service's route and the buses on it, drawn when a service number in a stop's bubble is tapped.
 import { createBusRouteLayer } from '../lib/mapOverlays.js';
 import { createTrainSimLayer, simState, lineGeometry, simT, effectiveSimLines, aggregateSimStatus } from '../lib/train-sim.js';
-import { addRunItem, removeRunItem, stationsToLines, trainResumeAt, trainResumeText } from '../lib/run-state.js';
+import { addRunItem, removeRunItem, runnableStation, stationsToLines, trainResumeAt, trainResumeText } from '../lib/run-state.js';
 import { createStopBusesLayer } from '../lib/stop-buses.js';
 import { createFr24Layer, ft as fr24T } from '../lib/fr24-layer.js';
 import { initData } from '../tg.js';
@@ -1047,8 +1047,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         // re-targeting the station-detail view) and leaves Overview.
         if (overview) setOverview(false);
         onStationSelect?.(s);
-        setSimStations((cur) => addRunItem(cur, { key: s.name, name: s.name, lines: s.lines || [] }));
-        setSimOn(true);
+        // v0.62.979 — R-17: a station not open yet shows its card (with the opening date) but starts no trains.
+        if (runnableStation(s)) {
+          setSimStations((cur) => addRunItem(cur, { key: s.name, name: s.name, lines: s.lines || [] }));
+          setSimOn(true);
+        }
         openStationInfo(s, marker, isFuture, crowdLevel);
       });
       markersRef.current.push(marker);
