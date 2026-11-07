@@ -24,6 +24,14 @@ export const FR24_AIRPORTS = Object.freeze({
   WSSS: Object.freeze({ lat: 1.35019, lng: 103.994003 }),
   WSSL: Object.freeze({ lat: 1.41555, lng: 103.86673 }),
 });
+// Amendment 11 (I34): where the pins sit - where people look, not the airfield reference point above (which stays the
+// centre of the planes box). Changi: LTA bus stop 95029 "Changi Airport Ter 1", beside Jewel (production
+// /api/transport/station-context, read 07-11 '26); the reference point is 1 km away between the runways. Seletar: no
+// LTA stop names its passenger terminal and no other source was found, so it stays on its reference point.
+export const FR24_PINS = Object.freeze({
+  WSSS: Object.freeze({ lat: 1.36106, lng: 103.99081 }),
+  WSSL: FR24_AIRPORTS.WSSL,
+});
 export const DR_MAX_SEC = 120;
 const BOARD_CLIENT_TTL_MS = 5 * 60 * 1000;
 // Amendment 6 (I21): gate polling, only while an airport board is open.
@@ -563,10 +571,10 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
         Object.assign(label.style, { font: '600 12px/1.2 system-ui, sans-serif', color: '#174EA6', textShadow: '0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff', whiteSpace: 'nowrap', marginTop: '1px' });
         wrap.appendChild(label);
         wrap.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); return onTap(); });
-        m = new AME({ map, content: wrap, position: FR24_AIRPORTS[icao], zIndex: 9, title: name });
+        m = new AME({ map, content: wrap, position: FR24_PINS[icao], zIndex: 9, title: name });
         m.fr24LabelEl = label;
       } else {
-        m = new gmaps.Marker({ map, position: FR24_AIRPORTS[icao], zIndex: 9, title: name, label: { text: '✈', color: '#FFFFFF', fontSize: '13px' } });
+        m = new gmaps.Marker({ map, position: FR24_PINS[icao], zIndex: 9, title: name, label: { text: '✈', color: '#FFFFFF', fontSize: '13px' } });
         m.addListener('click', onTap);
       }
       m.fr24Pin = icao;

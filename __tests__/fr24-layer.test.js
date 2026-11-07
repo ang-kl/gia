@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import {
   FR24_LOCALES, FR24_STRINGS, FR24_AIRPORTS, DR_MAX_SEC, ft, deadReckon, etaMinutes, sgtClock, captionText,
-  boardModel, flightCardHtml, flightCardLines, createFr24Layer, planeSvg, PLANE_FILL, PLANE_PICKED,
+  boardModel, flightCardHtml, flightCardLines, createFr24Layer, planeSvg, PLANE_FILL, PLANE_PICKED, FR24_PINS,
 } from '../web/transport/src/lib/fr24-layer.js';
 
 const require = createRequire(import.meta.url);
@@ -846,7 +846,7 @@ describe('I28 — Changi and Seletar pins, always for a reader with access; a ta
     const pins = made.filter((m) => m.fr24Pin);
     expect(pins).toHaveLength(2);
     const ch = pins.find((m) => m.fr24Pin === 'WSSS');
-    expect(ch.position).toEqual(FR24_AIRPORTS.WSSS);
+    expect(ch.position).toEqual(FR24_PINS.WSSS);   // amendment 11 (I34): the terminal, not the reference point
     expect(ch.label.text).toBe('✈');
     expect(ch.title).toBe('Changi');
     const off = harness({ enabled: false });
@@ -1068,6 +1068,31 @@ describe('I32 — the phone asks for ETAs by the in-air rows\' callsigns, at mos
     expect(cs).toEqual([...cs].sort());
     expect(cs).not.toContain('TGW2');   // the landed row
     for (const c of cs) expect(c).toMatch(/^SIA1\d\d$/);
+  });
+});
+
+// ── I34 — the pins sit where people look (amendment 11) ──────────────────────────────────────────────────────
+const metres = (a, b) => {
+  const R = 6371000; const r = (x) => (x * Math.PI) / 180;
+  const h = Math.sin(r(b.lat - a.lat) / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(r(b.lng - a.lng) / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+};
+describe('I34 — Changi pin at Terminal 1 / Jewel (LTA stop 95029); Seletar on its reference point; planes box unchanged', () => {
+  it('FR24_PINS: Changi within 30 m of 1.36106, 103.99081 and at least 800 m from the reference point; Seletar on it', () => {
+    expect(metres(FR24_PINS.WSSS, { lat: 1.36106, lng: 103.99081 })).toBeLessThan(30);
+    expect(metres(FR24_PINS.WSSS, FR24_AIRPORTS.WSSS)).toBeGreaterThan(800);
+    expect(FR24_PINS.WSSL).toEqual(FR24_AIRPORTS.WSSL);
+    expect(Object.keys(FR24_PINS).sort()).toEqual(['WSSL', 'WSSS']);
+  });
+  it('the reference points, used for the planes box, are unchanged on both sides', () => {
+    expect(FR24_AIRPORTS.WSSS).toEqual({ lat: 1.35019, lng: 103.994003 });
+    expect(server.AIRPORTS.WSSS).toEqual({ lat: 1.35019, lng: 103.994003 });
+  });
+  it('the drawn pins use FR24_PINS', async () => {
+    const { layer, made } = harness();
+    await layer.init();
+    expect(made.find((m) => m.fr24Pin === 'WSSS').position).toEqual(FR24_PINS.WSSS);
+    expect(made.find((m) => m.fr24Pin === 'WSSL').position).toEqual(FR24_PINS.WSSL);
   });
 });
 
