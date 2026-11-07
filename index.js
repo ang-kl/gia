@@ -19334,7 +19334,7 @@ async function cacheBotUsername() {
     // v0.62.977 — FR24 spec amendment 8 (I25): the flown path of the flight whose card is open (40 credits, cached 2 min).
     app.get('/api/fr24/track/:id', requireInitDataFromBodyOrHeader, fr24Route('track', (req) => ({ id: req.params.id })));
     // v0.62.978 — FR24 spec amendment 9 (I29): estimated arrivals for one tab's live flights (8 credits a flight, 5 min).
-    app.get('/api/fr24/eta/:icao', requireInitDataFromBodyOrHeader, fr24Route('eta', (req) => ({ icao: req.params.icao, dir: req.query.dir })));
+    app.get('/api/fr24/eta/:icao', requireInitDataFromBodyOrHeader, fr24Route('eta', (req) => ({ icao: req.params.icao, dir: req.query.dir, cs: String(req.query.cs || '') })));
 
     app.get('/api/transport/stations', (_req, res) => {
       try {

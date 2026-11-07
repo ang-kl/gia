@@ -50,6 +50,7 @@ const TRACK_CREDITS = 40;
 // every live flight on one airport's tab in one request. 8 credits per returned flight, cached as long as a board tab.
 const ETA_TTL_S = 300;
 const ETA_CREDITS = 8;
+const ETA_MAX = 15;                     // amendment 10 (I32): the board's in-air rows, by callsign
 
 // Amendment 6: a gate's terminal, from its letter, ONLY where a source says so. Nothing is guessed: a letter that is
 // not here shows the gate code alone.
@@ -268,13 +269,16 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       });
   }
 
-  // Amendment 9 revised (I29): id → eta for the live flights to (Arrivals) or from (Departures) one airport.
-  async function etas(icao, dir) {
+  // Amendment 9 revised (I29), amendment 10 (I32): id → eta for the board's own in-air flights, asked by callsign
+  // (at most 15, sorted, so the order does not matter to the cache). Was "any 20 flights to or from the airport",
+  // which missed the rows on the board.
+  async function etas(icao, dir, callsigns) {
     if (!Object.prototype.hasOwnProperty.call(AIRPORTS, icao)) return { ok: false, reason: 'badcode' };
     if (dir !== 'dep' && dir !== 'arr') return { ok: false, reason: 'baddir' };
-    const side = dir === 'dep' ? 'outbound' : 'inbound';
-    const url = `${BASE}/live/flight-positions/full?airports=${side}:${icao}&limit=${LIMIT}`;
-    return call(`fr24:eta:${icao}:${dir}`, ETA_TTL_S, url,
+    const list = [...new Set(Array.isArray(callsigns) ? callsigns.map(String) : [])].sort();
+    if (!list.length || list.length > ETA_MAX || !list.every((c) => CALLSIGN.test(c))) return { ok: false, reason: 'badcallsign' };
+    const url = `${BASE}/live/flight-positions/full?callsigns=${list.join(',')}&limit=${list.length}`;
+    return call(`fr24:eta:${list.join(',')}`, ETA_TTL_S, url,
       (d) => { const n = listOf(d).length; return n > 0 ? ETA_CREDITS * n : 1; },
       (d) => {
         const out = {};
@@ -362,7 +366,7 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
 }
 
 // The routes' one entry point: the access gate, then the call. Returns { status, body } for index.js to send.
-async function handle(svc, { kind, icao, dir, id, callsign, ids, userId, env = process.env } = {}) {
+async function handle(svc, { kind, icao, dir, id, callsign, ids, cs, userId, env = process.env } = {}) {
   if (kind === 'access') return { status: 200, body: { ok: true, enabled: hasAccess(userId, env) } };
   if (!['board', 'airport', 'flight', 'locate', 'gates', 'track', 'eta'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
   if (!hasAccess(userId, env)) return { status: 403, body: { ok: false, reason: 'owner-only' } };
@@ -371,7 +375,7 @@ async function handle(svc, { kind, icao, dir, id, callsign, ids, userId, env = p
   else if (kind === 'airport') body = await svc.planes(icao);
   else if (kind === 'locate') body = await svc.locate(callsign);
   else if (kind === 'track') body = await svc.track(id);
-  else if (kind === 'eta') body = await svc.etas(icao, dir);
+  else if (kind === 'eta') body = await svc.etas(icao, dir, String(cs || '').split(',').filter(Boolean));
   else if (kind === 'gates') body = await svc.gates(icao, String(ids || '').split(',').filter(Boolean));
   else body = await svc.flight(id);
   const bad = body && ['badcode', 'baddir', 'badid', 'badcallsign', 'badids'].includes(body.reason);
@@ -415,5 +419,5 @@ module.exports = {
   BASE, AIRPORTS, LIMIT, TTL_S, RATE_PER_MIN, DEFAULT_BUDGET, BOX_HALF_KM,
   airportName, tokenFrom, budgetFrom, monthKeySgt, boundsFor, creditsForPlanes, creditsForSummary,
   hasAccess, createFr24, handle, usageReply, forServer, GATE_TERMINALS, terminalForGate,
-  airportPos, downsample, TRACK_TTL_S, TRACK_MAX, TRACK_CREDITS, ETA_TTL_S, ETA_CREDITS,
+  airportPos, downsample, TRACK_TTL_S, TRACK_MAX, TRACK_CREDITS, ETA_TTL_S, ETA_CREDITS, ETA_MAX,
 };
