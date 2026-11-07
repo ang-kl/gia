@@ -548,6 +548,30 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
     `fr24-layer.test.js`, `fr24.test.js`.
   - **Mutations:** a double toggle making two requests; `busy` clearing the planes; the ETA call without `callsigns`;
     more than 15 callsigns; the fallback without `≈`.
+- **07-11 '26, amendment 11** (operator, 07-11 '26 15:42 SGT, Train Mini App on Telegram Desktop, v0.62.979, zoom 18
+  over Changi T2 / T3, no airport pin in view: *"Why the Airport doesn't have a pin like we stated"*; then, asked,
+  **"At the terminals"**). Approved at sha 97598b6a; this amendment voids that approval and asks for it again.
+  - **Measured:** the Railway http log shows the desktop app asked `/api/fr24/access` at 07:41:13Z (200; the answer
+    body is not logged). The pins are drawn at `FR24_AIRPORTS`, OurAirports' airport reference point - for Changi
+    1.35019, 103.994003, between the runways, **1,002 m** from Changi Airport MRT (CG2, 1.3573, 103.9885 in
+    `data/mrt-coords.json`). At zoom 18 that is outside the screenshot.
+  - **The fix:** the pins move to where people look; the planes' search box does not (`fr24.js` `AIRPORTS` and the
+    client `FR24_AIRPORTS` stay on the reference point).
+    - **Changi** → LTA bus stop **95029**, "Changi Airport Ter 1", beside Jewel: 1.36106, 103.99081 (production
+      `/api/transport/station-context`, read 07-11 '26). The terminal stops 95109 (T3) and 95129 (T2) were the other
+      candidates; their middle lands on CG2's own pin, so T1 / Jewel is used.
+    - **Seletar** → **stays on its reference point**, 1.41555, 103.86673. Measured: no LTA stop names the passenger
+      terminal (the nearest named ones are 68149 "ST Aerospace" and 68139 "Youth Flying Club"), and no other source
+      for the terminal building was found, so nothing better than the reference point can be stated. This departs
+      from "Seletar pin at its passenger terminal" in the question asked, and is put here for the operator to accept
+      or reject at approval.
+  - **Found on the way, not fixed here:** the bus-stop expander renders LTA's "Ter" as "Terrace" (`sg-address.js:21`
+    `ter: 'Terrace'`, and `web/_shared/lib/sg-terms-i18n.js:63`), so the Changi stops read "Changi Airport Terrace 1".
+    At an airport "Ter" is "Terminal". Its own spec, if wanted.
+  - **Invariant I34:** the Changi pin is within 30 m of 1.36106, 103.99081 and at least 800 m from the reference
+    point; the Seletar pin is on the reference point; `FR24_AIRPORTS` and the server's `AIRPORTS` are unchanged.
+    Check: `fr24-layer.test.js`.
+  - **Mutation:** the Changi pin put back on the reference point.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
