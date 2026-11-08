@@ -39,7 +39,7 @@
 //     - status    : 'open' | 'closed' (default 'open'). Closed venues are
 //                   EXCLUDED from visitableVenues() but INCLUDED in
 //                   editionVenues(Y) (the year/edition view).
-//     - awards    : Array<{ year:2025|2026, category:<enum> }>. Length ≥ 1
+//     - awards    : Array<{ year:2025|2026|2027, category:<enum> }>. Length ≥ 1
 //                   EXCEPT on a Green Star holder, which may hold none —
 //                   see greenStarYears below and the note in validateVenue.
 //
@@ -72,7 +72,17 @@ const { assertCityManifest } = require('./michelin-city-manifest');
 
 const CATEGORIES = new Set(['three-star', 'two-star', 'one-star', 'bib-gourmand']);
 const STATUSES = new Set(['open', 'closed']);
-const VALID_YEARS = new Set([2025, 2026]);
+// v0.62.982 — 2027 added for the MICHELIN Guide Kuala Lumpur & Penang 2027
+// (announced 04-11 '26). Only MY has a 2027 edition so far; see
+// latestEditionYear() below for why that matters to awardsDiff.
+const VALID_YEARS = new Set([2025, 2026, 2027]);
+
+// "2025, 2026 or 2027" — the validator's message is built from the set so it
+// cannot go stale at the next edition (it read "2025 or 2026" until v0.62.982).
+function _yearsPhrase() {
+  const ys = [...VALID_YEARS].sort((a, b) => a - b);
+  return ys.length > 1 ? `${ys.slice(0, -1).join(', ')} or ${ys[ys.length - 1]}` : String(ys[0]);
+}
 
 // ── MICHELIN Green Star ──────────────────────────────────────────────
 // The Green Star is a SUSTAINABILITY distinction, not a rung on the star
@@ -163,12 +173,16 @@ const CITY_IATA = Object.freeze({
 
 // Per-(country, year) MANIFEST. The expected per-tier + total counts the
 // curated tables must satisfy ONCE non-empty (gated — empty files skip).
-// MY pre-registered from the official Malaysia guide (2025 + 2026); the
-// curator's 130-award table must match exactly or load throws.
+// MY pre-registered from the official Malaysia guide (2025 + 2026 + 2027); the
+// curated 200-award table must match exactly or load throws.
 const COUNTRY_MANIFEST = Object.freeze({
   MY: {
     2025: { 'two-star': 1, 'one-star': 6, 'bib-gourmand': 56, total: 63 },
     2026: { 'two-star': 1, 'one-star': 8, 'bib-gourmand': 58, total: 67 },
+    // 2027 (announced 04-11 '26): Potager new one-star; Bib +4 (7 Chai Ipoh Hor
+    // Fun, Minji Bak Kut Teh, Lemon Koay Teow Soup new; Serabai Istimewa back)
+    // and -2 (Heun Kee closed, Ah Boy Koay Teow Th'ng out).
+    2027: { 'two-star': 1, 'one-star': 9, 'bib-gourmand': 60, total: 70 },
   },
   TH: {
     2025: { 'three-star': 1, 'two-star': 7, 'one-star': 28, 'bib-gourmand': 124, total: 160 },
@@ -326,7 +340,7 @@ function validateVenue(v, source = 'unknown', requireCuratedCity = true) {
       throw new Error(`${where}: invalid award category ${JSON.stringify(a.category)} on "${v.name}" — must be one of ${[...CATEGORIES].join(', ')}`);
     }
     if (!VALID_YEARS.has(a.year)) {
-      throw new Error(`${where}: award "year" must be 2025 or 2026 on "${v.name}", got ${JSON.stringify(a.year)}`);
+      throw new Error(`${where}: award "year" must be ${_yearsPhrase()} on "${v.name}", got ${JSON.stringify(a.year)}`);
     }
   }
   // Green Star: optional, but when present must be an array of valid edition
@@ -722,9 +736,33 @@ function greenStarYears(venue) {
   return Array.isArray(gs) ? gs.slice() : [];
 }
 
-const MAX_EDITION_YEAR = Math.max(...VALID_YEARS);
+// v0.62.982 — the latest edition is PER COUNTRY. It used to be one global
+// MAX_EDITION_YEAR = Math.max(...VALID_YEARS); adding 2027 for Malaysia would
+// then have marked every Thai, Japanese, Taiwanese… venue current in 2026 as
+// droppedAfter 2026, because no other guide has published a 2027 edition.
+// Derived from the loaded data (newest award or Green Star year among the
+// country's venues), so a country's next edition moves it with no code change.
+// Memoised against the pool size; the pool only grows at load and in tests.
+let _latestByCC = null;
+let _latestPoolSize = -1;
+function latestEditionYear(cc) {
+  if (!_latestByCC || _latestPoolSize !== VENUES.length) {
+    _latestByCC = new Map();
+    for (const v of VENUES) {
+      let y = -Infinity;
+      for (const a of v.awards || []) if (a.year > y) y = a.year;
+      for (const g of (Array.isArray(v[GREEN_STAR_KEY]) ? v[GREEN_STAR_KEY] : [])) if (g > y) y = g;
+      if (y > (_latestByCC.get(v.country) ?? -Infinity)) _latestByCC.set(v.country, y);
+    }
+    _latestPoolSize = VENUES.length;
+  }
+  const got = _latestByCC.get(cc);
+  return Number.isFinite(got) ? got : Math.max(...VALID_YEARS);
+}
 
-function awardsDiff(venue) {
+// `latestEdition` overrides the country lookup (synthetic fixtures name their
+// own edition; a venue with no country falls back to the newest valid year).
+function awardsDiff(venue, latestEdition) {
   if (!venue || !Array.isArray(venue.awards) || venue.awards.length === 0) {
     return { debutYear: null, latestYear: null, latestCategory: null, promotions: [], demotions: [] };
   }
@@ -749,7 +787,8 @@ function awardsDiff(venue) {
     demotions,
   };
   // Dropped: closed, or no award in the most recent edition year.
-  if (venue.status === 'closed' || latest.year < MAX_EDITION_YEAR) {
+  const edition = Number.isFinite(latestEdition) ? latestEdition : latestEditionYear(venue.country);
+  if (venue.status === 'closed' || latest.year < edition) {
     out.droppedAfter = latest.year;
   }
   return out;
@@ -823,6 +862,7 @@ module.exports = {
   visitableVenues,
   editionVenues,
   awardsDiff,
+  latestEditionYear,
   retainedAwardYears,
   retainedGreenStarYears,
 };

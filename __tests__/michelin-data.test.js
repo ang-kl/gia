@@ -5,7 +5,7 @@
 // As of v0.61.333 the loader is VENUE-CENTRIC ONLY and no longer ingests
 // the Singapore flat dataset (SG lives standalone in SG-michelin.js on its
 // own fast path). This suite therefore covers:
-//   - the real MY-michelin.js load (63@2025 / 67@2026 / awards-sum 130),
+//   - the real MY-michelin.js load (63@2025 / 67@2026 / 70@2027 / awards-sum 200),
 //   - hasMichelinData (true for MY/KL/George Town, false for SG + empties),
 //   - the synthetic-fixture venue-centric suites (dup id, year views,
 //     categoryForYear, closed-venue exclusion, awardsDiff, manifest gating).
@@ -19,11 +19,12 @@ const require = createRequire(import.meta.url);
 const data = require('../michelin-data.js');
 
 describe('michelin-data — Malaysia (MY-michelin.js) load', () => {
-  it('loads 70 venues with sum(awards) === 130', () => {
+  // v0.62.982 — 2027 edition: 74 venues, 200 awards (was 70 / 130).
+  it('loads 74 venues with sum(awards) === 200', () => {
     const my = data.venuesForCountry('MY');
-    expect(my.length).toBe(70);
+    expect(my.length).toBe(74);
     const sum = my.reduce((n, v) => n + v.awards.length, 0);
-    expect(sum).toBe(130);
+    expect(sum).toBe(200);
   });
 
   it('63 venues hold a 2025 award, 67 hold a 2026 award', () => {
@@ -45,6 +46,7 @@ describe('michelin-data — Malaysia (MY-michelin.js) load', () => {
     }
     expect(tiers(2025)).toEqual({ 'two-star': 1, 'one-star': 6, 'bib-gourmand': 56 });
     expect(tiers(2026)).toEqual({ 'two-star': 1, 'one-star': 8, 'bib-gourmand': 58 });
+    expect(tiers(2027)).toEqual({ 'two-star': 1, 'one-star': 9, 'bib-gourmand': 60 });
   });
 
   it('every MY venue has a unique id and the full venue shape', () => {
@@ -69,7 +71,7 @@ describe('michelin-data — Malaysia (MY-michelin.js) load', () => {
     expect(nirwana).not.toBeNull();
     expect(nirwana.name).toBe('Nirwana');
     expect(nirwana.formerNames).toEqual(['Sri Nirwana Maju']);
-    expect(nirwana.awards.length).toBe(2);     // 2025 + 2026
+    expect(nirwana.awards.length).toBe(3);     // 2025 + 2026 + 2027
   });
 
   it("marks Heun Kee Claypot Chicken Rice (Pudu) as status:'closed'", () => {
@@ -932,11 +934,11 @@ describe('michelin-data — hasMichelinData gate', () => {
 });
 
 describe('michelin-data — country tables', () => {
-  it('MY-michelin.js is venue-centric with 70 curated rows', () => {
+  it('MY-michelin.js is venue-centric with 74 curated rows', () => {
     const my = require('../MY-michelin.js');
     expect(my.COUNTRY).toBe('MY');
     expect(Array.isArray(my.ENTRIES)).toBe(true);
-    expect(my.ENTRIES.length).toBe(70);
+    expect(my.ENTRIES.length).toBe(74);
   });
 
   it('CN-michelin.js is venue-centric with 511 curated rows', () => {
@@ -1166,7 +1168,9 @@ describe('venue-award-schema — awardsDiff', () => {
   const [promoted, debut, closed] = normFixtures([FX_PROMOTED, FX_DEBUT_2026, FX_CLOSED]);
 
   it('flags a promotion + records debut/latest', () => {
-    const diff = data.awardsDiff(promoted);
+    // v0.62.982 — the fixture is an 'MY' row and MY's latest edition is now
+    // 2027, so it names its own edition (2026) rather than inherit the real one.
+    const diff = data.awardsDiff(promoted, 2026);
     expect(diff.debutYear).toBe(2025);
     expect(diff.latestYear).toBe(2026);
     expect(diff.latestCategory).toBe('two-star');
