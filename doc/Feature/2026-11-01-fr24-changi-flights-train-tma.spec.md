@@ -514,6 +514,64 @@ Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (
       known take-off on Departures; a route drawn for a plane on the ground; the doubled ✈ title.
     - **Cost, stated before approval:** up to 160 credits per tab load with 20 flights in the air, typically 40-120;
       the monthly budget of 25,000 covers roughly 150-600 tab loads before the ETA call starts answering `budget`.
+- **06-11 '26, amendment 10** (operator, 06-11 '26 17:35, on production v0.62.979 with a screenshot of the Changi
+  Arrivals strip - "seen 17:19 · 7C2623 Seoul (ICN) · In the air", "seen 17:17 · SQ183 Ho Chi Minh City (SGN) · In the
+  air" - and a ground card for TR538: *"why arent these planes on the ground. my phone time is 17:23 but plane shows
+  arrive 17:29"* and *"i cannot see the yellow planes even though is defaulted on"*). Approved at sha b67c6217; this
+  amendment voids that approval and asks for it again.
+  - **Measured, Railway http log 09:23:27-09:24:07Z (17:23:27-17:24:07 SGT), the operator's iPhone:** `access`,
+    `board/WSSS` (dep), `eta/WSSS`, `locate/TGW538`, `board/WSSS` (arr), `eta/WSSS`, `gates/WSSS`, `locate/SIA183`, then
+    **`airport/WSSS` twice, 5 ms apart** (09:24:07.004 and .009). One button, one handler (`MrtMapPanel.jsx`
+    `onPlanes`), so the second is a duplicate click event; nothing in `togglePlanes` stops a second call while the first
+    is in flight.
+  - **Why no yellow planes (inferred from the log, not from FR24's answer):** those were the 8th and 9th FR24 calls
+    inside 37 seconds; `fr24.js` allows 8 a minute (`RATE_PER_MIN`), so the 9th answers `busy`, and `fetchPlanes` treats
+    any not-ok answer as "no planes" (`planesData = null; clearPlanes()`), wiping the planes the 8th had just drawn.
+  - **Why `seen 17:19` on a Seoul flight:** FR24's `first_seen` is when it first picked the plane up, normally at the
+    origin gate - so for these two rows it is roughly when they left Seoul and Ho Chi Minh City, a few minutes earlier;
+    they are hours from Changi. The label "seen" does not say that.
+  - **Why no `≈` arrival time on them (inferred):** the ETA call asks for `airports=inbound:WSSS&limit=20` - any 20 of
+    the live flights heading to Changi, in FR24's order, not the ones on the board. The rows shown are the most
+    recently first-seen, which a 20-of-many sample usually misses.
+  - **The fix:**
+    - `togglePlanes` ignores a second call while a planes request is in flight; a `busy` (or `budget`) answer to a
+      refresh keeps the planes already drawn and says so in the caption, instead of clearing them.
+    - the ETA call asks FR24 for the board's own in-air flights by callsign (`callsigns=<up to 15>`, the rows shown),
+      not "any 20 to Changi"; same price (8 credits per flight returned), now spent only on rows the reader sees. Route
+      `/api/fr24/eta/:icao?dir=&cs=` (callsigns checked against `CALLSIGN`, at most 15, sorted for the cache key).
+    - the free fallback reads `🛫 ≈17:19` ("left about 17:19", the time FR24 first saw it) instead of `seen 17:19`.
+  - **Not changed:** a Departures row whose plane is still at the gate reads "In the air" until FR24 marks it; the
+    board has no position for it until a tap locates it (the TR538 card showed 0 ft · 0 kt). Stated, not fixed.
+  - **Invariant I31:** at most one planes request in flight; a `busy` / `budget` refresh keeps the planes drawn.
+    **I32:** the ETA request names exactly the in-air rows' callsigns (≤ 15, none when there are none) and the board's
+    `≈` times come from it. **I33:** the fallback text is `🛫 ≈HH:MM` in the nine locales, never "seen". Checks:
+    `fr24-layer.test.js`, `fr24.test.js`.
+  - **Mutations:** a double toggle making two requests; `busy` clearing the planes; the ETA call without `callsigns`;
+    more than 15 callsigns; the fallback without `≈`.
+- **07-11 '26, amendment 11** (operator, 07-11 '26 15:42 SGT, Train Mini App on Telegram Desktop, v0.62.979, zoom 18
+  over Changi T2 / T3, no airport pin in view: *"Why the Airport doesn't have a pin like we stated"*; then, asked,
+  **"At the terminals"**). Approved at sha 97598b6a; this amendment voids that approval and asks for it again.
+  - **Measured:** the Railway http log shows the desktop app asked `/api/fr24/access` at 07:41:13Z (200; the answer
+    body is not logged). The pins are drawn at `FR24_AIRPORTS`, OurAirports' airport reference point - for Changi
+    1.35019, 103.994003, between the runways, **1,002 m** from Changi Airport MRT (CG2, 1.3573, 103.9885 in
+    `data/mrt-coords.json`). At zoom 18 that is outside the screenshot.
+  - **The fix:** the pins move to where people look; the planes' search box does not (`fr24.js` `AIRPORTS` and the
+    client `FR24_AIRPORTS` stay on the reference point).
+    - **Changi** → LTA bus stop **95029**, "Changi Airport Ter 1", beside Jewel: 1.36106, 103.99081 (production
+      `/api/transport/station-context`, read 07-11 '26). The terminal stops 95109 (T3) and 95129 (T2) were the other
+      candidates; their middle lands on CG2's own pin, so T1 / Jewel is used.
+    - **Seletar** → **stays on its reference point**, 1.41555, 103.86673. Measured: no LTA stop names the passenger
+      terminal (the nearest named ones are 68149 "ST Aerospace" and 68139 "Youth Flying Club"), and no other source
+      for the terminal building was found, so nothing better than the reference point can be stated. This departs
+      from "Seletar pin at its passenger terminal" in the question asked, and is put here for the operator to accept
+      or reject at approval.
+  - **Found on the way, not fixed here:** the bus-stop expander renders LTA's "Ter" as "Terrace" (`sg-address.js:21`
+    `ter: 'Terrace'`, and `web/_shared/lib/sg-terms-i18n.js:63`), so the Changi stops read "Changi Airport Terrace 1".
+    At an airport "Ter" is "Terminal". Its own spec, if wanted.
+  - **Invariant I34:** the Changi pin is within 30 m of 1.36106, 103.99081 and at least 800 m from the reference
+    point; the Seletar pin is on the reference point; `FR24_AIRPORTS` and the server's `AIRPORTS` are unchanged.
+    Check: `fr24-layer.test.js`.
+  - **Mutation:** the Changi pin put back on the reference point.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
