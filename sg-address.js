@@ -18,7 +18,11 @@
 // Whole-token expansions, applied at any position in the string.
 const ABBREV = {
   rd: 'Road', ave: 'Avenue', av: 'Avenue', dr: 'Drive', drv: 'Drive',
-  cres: 'Crescent', cresent: 'Crescent', cl: 'Close', ter: 'Terrace',
+  // v0.62.983 — `ter` is LTA's "Terminal" ("Changi Airport Ter 1", "Kent Ridge Ter"), not
+  // Terrace: all 36 "Ter" stop descriptions on production are bus, ferry, cargo or airport
+  // terminals, and no LTA road name uses the token. A terrace written out in full ("Marine
+  // Terrace") never passes through this key. Spec 2026-11-09-lta-ter-is-terminal.
+  cres: 'Crescent', cresent: 'Crescent', cl: 'Close', ter: 'Terminal',
   hts: 'Heights', gdns: 'Gardens', lk: 'Link', hway: 'Highway',
   lor: 'Lorong', lrg: 'Lorong', jln: 'Jalan', ctrl: 'Central',
   upp: 'Upper', bt: 'Bukit', tg: 'Tanjong', mt: 'Mount',
