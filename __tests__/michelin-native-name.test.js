@@ -94,7 +94,10 @@ describe('michelin native names — coverage, measured against the source files'
   });
 
   it('the corpus itself did not move', () => {
-    expect(V.length).toBe(2118);
+    // v0.62.982 — 2118 → 2122: four Malaysian rows from the MICHELIN Guide KL & Penang 2027
+    // (Potager, 7 Chai Ipoh Hor Fun, Minji Bak Kut Teh, Lemon Koay Teow Soup). None carries a
+    // native field; the Latin-script test above still holds for MY.
+    expect(V.length).toBe(2122);
     expect(V.filter((v) => !v.cuisine).length).toBe(3);   // O-228's named residue, unchanged
   });
 });
