@@ -69,6 +69,8 @@ export const BUS_STRINGS = {
   'stop.coming': { en: '{svc} · arriving in ≈ {min} min', fr: '{svc} · arrive dans ≈ {min} min', id: '{svc} · tiba dalam ≈ {min} mnt', ru: '{svc} · прибудет через ≈ {min} мин', de: '{svc} · kommt in ≈ {min} Min.', zh: '{svc} · 约 {min} 分钟后到站', ja: '{svc} · 約 {min} 分で到着', es: '{svc} · llega en ≈ {min} min', ko: '{svc} · 약 {min}분 후 도착' },
   'stop.going': { en: '{svc} · next: {stop} in ≈ {min} min', fr: '{svc} · prochain arrêt : {stop} dans ≈ {min} min', id: '{svc} · berikutnya: {stop} dalam ≈ {min} mnt', ru: '{svc} · следующая: {stop} через ≈ {min} мин', de: '{svc} · nächster Halt: {stop} in ≈ {min} Min.', zh: '{svc} · 下一站：{stop}，约 {min} 分钟', ja: '{svc} · 次：{stop}（約 {min} 分）', es: '{svc} · siguiente: {stop} en ≈ {min} min', ko: '{svc} · 다음: {stop}, 약 {min}분 후' },
   'route.unavailable': { en: 'Route unavailable', fr: 'Itinéraire indisponible', id: 'Rute tidak tersedia', ru: 'Маршрут недоступен', de: 'Route nicht verfügbar', zh: '路线不可用', ja: 'ルートを取得できません', es: 'Ruta no disponible', ko: '노선을 불러올 수 없음' },
+  // v0.62.984 — spec 2026-11-09-bus-first-last-in-route-strip: today's first and last bus at the tapped stop.
+  'route.hours': { en: '{first}-{last} at this stop', fr: '{first}-{last} à cet arrêt', id: '{first}-{last} di halte ini', ru: '{first}-{last} на этой остановке', de: '{first}-{last} an dieser Haltestelle', zh: '本站 {first}-{last}', ja: 'この停留所 {first}-{last}', es: '{first}-{last} en esta parada', ko: '이 정류장 {first}-{last}' },
   'route.next': { en: 'Next: {stop} in ≈ {min} min', fr: 'Prochain arrêt : {stop} dans ≈ {min} min', id: 'Berikutnya: {stop} dalam ≈ {min} mnt', ru: 'Следующая: {stop} через ≈ {min} мин', de: 'Nächster Halt: {stop} in ≈ {min} Min.', zh: '下一站：{stop}，约 {min} 分钟', ja: '次：{stop}（約 {min} 分）', es: 'Siguiente: {stop} en ≈ {min} min', ko: '다음: {stop}, 약 {min}분 후' },
 };
 
@@ -83,7 +85,12 @@ const hhmm = (ms) => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Singapor
 
 // C7 — the header strip: "🚌 10 → Kent Ridge Ter" over "12 buses · LTA DataMall 19:04" (and "· straight lines" when
 // the road shape was not available), in the weather strip's shape with the bus tone.
-export function routeStripModel({ service, lastStop = '', count = 0, readAt = 0, shapeSource = 'road', lang = 'en', error = false } = {}) {
+// LTA's minutes after midnight as a clock reads them: 12 → "00:12".
+const clock = (min) => `${String(Math.floor(min / 60) % 24).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+
+// v0.62.984 — `hours` ({ first, last } in minutes, from the route layer) adds "· 05:30-00:12 at this stop" to the title,
+// only when both are real times.
+export function routeStripModel({ service, lastStop = '', count = 0, readAt = 0, shapeSource = 'road', lang = 'en', error = false, hours = null } = {}) {
   const style = { display: 'flex', alignItems: 'center', gap: 8, margin: '6px 8px 0', padding: '7px 10px', borderRadius: 10, fontSize: 12, lineHeight: 1.3, ...BUS_TONE };
   const base = { 'data-bus-route': String(service ?? ''), swap: bt('route.swap', lang), style, role: 'status' };
   if (error) return { ...base, title: `🚌 ${service} · ${bt('route.unavailable', lang)}`, sub: '' };
@@ -91,5 +98,9 @@ export function routeStripModel({ service, lastStop = '', count = 0, readAt = 0,
   let sub = `${n} · ${bt('route.read', lang, { time: hhmm(readAt) })}`;
   if (shapeSource === 'straight') sub += ` · ${bt('route.straight', lang)}`;
   else if (shapeSource === 'partial') sub += ` · ${bt('route.partial', lang)}`;
-  return { ...base, title: bt('route.title', lang, { svc: service, dest: lastStop }), sub };
+  let title = bt('route.title', lang, { svc: service, dest: lastStop });
+  if (hours && Number.isFinite(hours.first) && Number.isFinite(hours.last)) {
+    title += ` · ${bt('route.hours', lang, { first: clock(hours.first), last: clock(hours.last) })}`;
+  }
+  return { ...base, title, sub };
 }

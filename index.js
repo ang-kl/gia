@@ -19819,7 +19819,9 @@ async function cacheBotUsername() {
         const stops = await transport.busRoute(redis, service, direction);
         if (!stops) return res.status(404).json({ error: 'unknown route', service, direction });
         const shape = await transport.routeShape(redis, service, direction, stops);
-        res.json({ service, direction, stops, shape, shapeSource: shape ? (shape.partial ? 'partial' : 'road') : 'straight' });
+        // v0.62.984 — dayIndex: today's bus day type (0 weekday, 1 Saturday, 2 Sunday or public holiday), so the strip can
+        // pick each stop's first and last bus for today. Spec 2026-11-09-bus-first-last-in-route-strip.
+        res.json({ service, direction, stops, shape, shapeSource: shape ? (shape.partial ? 'partial' : 'road') : 'straight', dayIndex: await transport.busDayToday() });
       } catch (err) {
         console.warn('[bus-route] failed:', err?.message);
         res.status(500).json({ error: 'route unavailable', service, direction });
