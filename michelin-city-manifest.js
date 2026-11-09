@@ -70,8 +70,9 @@ const CITY_MANIFEST = Object.freeze({
     "Macau": { 2025: { "three-star": 2, "two-star": 6 }, 2026: { "three-star": 2, "two-star": 6, "one-star": 13, "bib-gourmand": 13 } },
   },
   MY: {
-    "Kuala Lumpur": { 2025: { "two-star": 1, "one-star": 4, "bib-gourmand": 24 }, 2026: { "two-star": 1, "one-star": 6, "bib-gourmand": 25 } },
-    "George Town": { 2025: { "one-star": 2, "bib-gourmand": 32 }, 2026: { "one-star": 2, "bib-gourmand": 33 } },
+    // 2027 (v0.62.982): the press release splits the 60 Bib as 26 KL / 34 Penang.
+    "Kuala Lumpur": { 2025: { "two-star": 1, "one-star": 4, "bib-gourmand": 24 }, 2026: { "two-star": 1, "one-star": 6, "bib-gourmand": 25 }, 2027: { "two-star": 1, "one-star": 7, "bib-gourmand": 26 } },
+    "George Town": { 2025: { "one-star": 2, "bib-gourmand": 32 }, 2026: { "one-star": 2, "bib-gourmand": 33 }, 2027: { "one-star": 2, "bib-gourmand": 34 } },
   },
   PH: {
     "Makati - Metro Manila": { 2026: { "two-star": 1, "one-star": 5, "bib-gourmand": 9 } },
