@@ -272,7 +272,7 @@ function SimCaptionStrip({ on, status, lang = 'en', className = '' }) {
 // up from the map panel's layer through onBusRouteChange.
 function BusRouteStrip({ state, lang = 'en', className = '' }) {
   if (!state || !state.active) return null;
-  const m = routeStripModel({ service: state.service, lastStop: state.lastStop, count: state.count, readAt: state.readAt, shapeSource: state.shapeSource, lang, error: !!state.error });
+  const m = routeStripModel({ service: state.service, lastStop: state.lastStop, count: state.count, readAt: state.readAt, shapeSource: state.shapeSource, lang, error: !!state.error, hours: state.hours });
   return (
     <div role={m.role} data-bus-route={m['data-bus-route']} className={className} style={m.style}>
       <span style={{ flex: 1, minWidth: 0 }}>

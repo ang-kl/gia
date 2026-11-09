@@ -844,7 +844,10 @@ async function busRoute(redis, service, direction) {
   const out = [];
   for (const s of list) {
     const m = await stopMeta(redis, s.code);
-    out.push({ seq: s.seq, code: s.code, name: m.name, road: m.road, lat: m.lat, lng: m.lng, distance: s.distance });
+    // v0.62.984 — fb / lb ride along ([weekday, Saturday, Sunday] minutes, null when not running), so the strip can say
+    // today's first and last bus at the tapped stop. Spec 2026-11-09-bus-first-last-in-route-strip.
+    out.push({ seq: s.seq, code: s.code, name: m.name, road: m.road, lat: m.lat, lng: m.lng, distance: s.distance,
+      fb: Array.isArray(s.fb) ? s.fb : null, lb: Array.isArray(s.lb) ? s.lb : null });
   }
   return out;
 }
@@ -961,6 +964,13 @@ async function stopResume(redis, stopCode, { http = axios, now = Date.now, isHol
   const out = { code, readAt: nowMs, operators };
   if (!isHoliday) await redis.set(ck, JSON.stringify(out), { EX: RESUME_TTL_S }).catch(() => {});
   return out;
+}
+// v0.62.984 — today's bus day type (0 weekday, 1 Saturday, 2 Sunday or public holiday), returned with a route. The rule
+// is run-state.js's `busDayIndex`, the one `busHours` uses; holidays come from holidays.js as in stopResume.
+async function busDayToday({ now = Date.now, isHoliday = null } = {}) {
+  const { busDayIndex } = await runStateLib();
+  const hol = isHoliday || ((iso) => !!holidaysLib().isPublicHoliday(new Date(Date.parse(iso + 'T04:00:00Z'))));
+  return busDayIndex(now(), hol);
 }
 let _holidays = null;
 function holidaysLib() {
@@ -1105,6 +1115,7 @@ module.exports = {
   busRouteBuses,     // v0.62.967
   stopBuses,         // v0.62.969
   stopResume,        // v0.62.971
+  busDayToday,       // v0.62.984
   routeShape,        // v0.62.967
   shapeCapKey,       // v0.62.967
   encodePolyline,    // v0.62.967

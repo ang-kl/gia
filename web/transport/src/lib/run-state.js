@@ -109,11 +109,21 @@ export function trainResumeAt(window, nowMs, holidays = []) {
   return atSgt(t, window?.[kind(t, dowOf(t))]?.[0] ?? 330);
 }
 
+// LTA's bus day type for a Singapore calendar day: 0 weekday, 1 Saturday, 2 Sunday; public holidays take Sunday.
+const busDayOf = (holidays, iso, dow) => (dow === 0 || isHol(holidays, iso) ? 2 : dow === 6 ? 1 : 0);
+
+// v0.62.984 — spec 2026-11-09-bus-first-last-in-route-strip, I2: today's index into fb / lb. The server returns it with a
+// route (the client has no holiday list); `busHours` below uses the same rule, so the two cannot disagree.
+export function busDayIndex(nowMs, holidays = []) {
+  const p = sgtParts(nowMs);
+  return busDayOf(holidays, p.iso, p.dow);
+}
+
 // C7 — a bus service at one stop: fb / lb are [weekday, Saturday, Sunday] first and last bus in minutes (null when the
 // service does not run that day). Public holidays take Sunday times. Returns { inHours, resumeAt }.
 export function busHours(fb, lb, nowMs, holidays = []) {
   const p = sgtParts(nowMs);
-  const k = (iso, dow) => (dow === 0 || isHol(holidays, iso) ? 2 : dow === 6 ? 1 : 0);
+  const k = (iso, dow) => busDayOf(holidays, iso, dow);
   const kt = k(p.iso, p.dow);
   const y = dayBefore(p.iso);
   const ky = k(y, dowOf(y));

@@ -1306,9 +1306,18 @@ export function createBusRouteLayer(map, gmaps, { fetchJson = null, onState = nu
     onState({
       active: !!cur, service: cur ? cur.service : null, direction: cur ? cur.direction : null,
       lastStop: d && d.stops && d.stops.length ? (d.stops[d.stops.length - 1].name || '') : '',
-      count: lastCount, readAt: lastRead, shapeSource: d ? d.shapeSource : null, error: false, ...patch,
+      count: lastCount, readAt: lastRead, shapeSource: d ? d.shapeSource : null, error: false, hours: hoursAt(d), ...patch,
     });
   };
+  // v0.62.984 — spec 2026-11-09-bus-first-last-in-route-strip: today's first and last bus at the TAPPED stop in the drawn
+  // direction, or null (not on this side after ↔, not running today, or a server that sent no dayIndex).
+  function hoursAt(d) {
+    if (!cur || !d || !Array.isArray(d.stops) || ![0, 1, 2].includes(d.dayIndex)) return null;
+    const s = d.stops.find((x) => String(x.code) === String(cur.stopCode));
+    const first = s && Array.isArray(s.fb) ? s.fb[d.dayIndex] : null;
+    const last = s && Array.isArray(s.lb) ? s.lb[d.dayIndex] : null;
+    return Number.isFinite(first) && Number.isFinite(last) ? { first, last } : null;
+  }
   const dropMarker = (m) => { if (!m) return; if (AME && m instanceof AME) m.map = null; else if (m.setMap) m.setMap(null); };
   function clearDrawing() {
     if (line) { line.setMap(null); line = null; }
