@@ -1,0 +1,116 @@
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:georss="http://www.georss.org/georss" xmlns:gml="http://www.opengis.net/gml" xml:base="http://datamall2.mytransport.sg/ltaodataservice">
+    <id>http://schemas.datacontract.org/2004/07/</id>
+    <title />
+    <updated>2018-2-15T22:26:8Z</updated>
+    <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability" />
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()</id>
+        <category term="DataMall2.Models.CarParkAvailability" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <title />
+        <updated>2018-2-15T22:26:8Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:CarParkID>1</d:CarParkID>
+                <d:Area>Marina</d:Area>
+                <d:Development>Suntec City</d:Development>
+                <d:Latitude>undefined</d:Latitude>
+                <d:Longitude>undefined</d:Longitude>
+                <d:Lots>320</d:Lots>
+                <d:CarParkType>LTA</d:CarParkType>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()</id>
+        <category term="DataMall2.Models.CarParkAvailability" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <title />
+        <updated>2018-2-15T22:26:8Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:CarParkID>2</d:CarParkID>
+                <d:Area>Marina</d:Area>
+                <d:Development>Marina Square</d:Development>
+                <d:Latitude>undefined</d:Latitude>
+                <d:Longitude>undefined</d:Longitude>
+                <d:Lots>1894</d:Lots>
+                <d:CarParkType>LTA</d:CarParkType>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()</id>
+        <category term="DataMall2.Models.CarParkAvailability" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <title />
+        <updated>2018-2-15T22:26:8Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:CarParkID>3</d:CarParkID>
+                <d:Area>Marina</d:Area>
+                <d:Development>Raffles City</d:Development>
+                <d:Latitude>undefined</d:Latitude>
+                <d:Longitude>undefined</d:Longitude>
+                <d:Lots>803</d:Lots>
+                <d:CarParkType>LTA</d:CarParkType>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()</id>
+        <category term="DataMall2.Models.CarParkAvailability" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <title />
+        <updated>2018-2-15T22:26:8Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:CarParkID>4</d:CarParkID>
+                <d:Area>Marina</d:Area>
+                <d:Development>The Esplanade</d:Development>
+                <d:Latitude>undefined</d:Latitude>
+                <d:Longitude>undefined</d:Longitude>
+                <d:Lots>797</d:Lots>
+                <d:CarParkType>LTA</d:CarParkType>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()</id>
+        <category term="DataMall2.Models.CarParkAvailability" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailability()" />
+        <title />
+        <updated>2018-2-15T22:26:8Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:CarParkID>5</d:CarParkID>
+                <d:Area>Marina</d:Area>
+                <d:Development>Millenia Singapore</d:Development>
+                <d:Latitude>undefined</d:Latitude>
+                <d:Longitude>undefined</d:Longitude>
+                <d:Lots>1288</d:Lots>
+                <d:CarParkType>LTA</d:CarParkType>
+            </m:properties>
+        </content>
+    </entry>
+</feed>

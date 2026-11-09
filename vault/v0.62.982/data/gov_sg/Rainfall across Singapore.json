@@ -1,0 +1,256 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Real-time API weather services",
+    "description": "Real-time API documentation of weather services",
+    "contact": {
+      "email": "feedback@data.gov.sg"
+    },
+    "version": "1.0.11"
+  },
+  "servers": [
+    {
+      "url": "https://api-open.data.gov.sg/v2/real-time/api"
+    }
+  ],
+  "paths": {
+    "/rainfall": {
+      "get": {
+        "summary": "Get rainfall readings across Singapore",
+        "description": "**[https://api-open.data.gov.sg/v2/real-time/api/rainfall](https://api-open.data.gov.sg/v2/real-time/api/rainfall)**\n\n<br/>\n\n<br/>\n\n- Filter for specific date or date-time by providing `date` in query parameter.\n  - use YYYY-MM-DD format to retrieve all of the readings for that day\n  - use YYYY-MM-DDTHH:mm:ss to retrieve the latest readings at that moment in time\n  - example: `?date=2024-07-16` or `?date=2024-07-16T23:59:00`\n\n<br/>\n\n- If `date` is not provided in query parameter, API will return the latest reading\n\n<br/>\n\n- Unit of measure for readings is `mm`\n\n",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "description": "Format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (SGT). Example: 2024-07-16 or 2024-07-16T23:59:00",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "paginationToken",
+            "description": "Pagination token for retrieving subsequent data pages (only exists when there is a next page available for requests with date filters)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for higher rate limits (optional)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rainfall Information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Response status code (always 0 for success)"
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Error message (empty string for success)",
+                      "example": null
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "stations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Station's ID",
+                                "example": "S111"
+                              },
+                              "deviceId": {
+                                "type": "string",
+                                "description": "Reading Device's ID (usually same as Station's ID)",
+                                "example": "S111"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "Station's name",
+                                "example": "Scotts Road"
+                              },
+                              "labelLocation": {
+                                "type": "object",
+                                "properties": {
+                                  "latitude": {
+                                    "type": "number",
+                                    "description": "Latitude coordinate of the region label",
+                                    "example": 1.31055
+                                  },
+                                  "longitude": {
+                                    "type": "number",
+                                    "description": "Longitude coordinate of the region label",
+                                    "example": 103.8365
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "readings": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "timestamp": {
+                                "type": "string",
+                                "example": "2024-07-17T14:00:00.000Z"
+                              },
+                              "data": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "stationId": {
+                                      "type": "string",
+                                      "example": "S111"
+                                    },
+                                    "value": {
+                                      "type": "number",
+                                      "example": 2
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "readingType": {
+                          "type": "string",
+                          "description": "Information about the reading",
+                          "example": "TB1 Rainfall 5 Minute Total F"
+                        },
+                        "readingUnit": {
+                          "type": "string",
+                          "description": "Measurement unit for reading",
+                          "example": "mm"
+                        },
+                        "paginationToken": {
+                          "type": "string",
+                          "description": "Token to retrieve next page if exists",
+                          "example": "b2Zmc2V0PTEwMA== (you will see this token only if next page exists)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid HTTP request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number",
+                      "example": 4
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "ERROR_PARAMS"
+                    },
+                    "data": {
+                      "type": "object",
+                      "example": null
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "enum": [
+                        "Invalid date format. Date format must be YYYY-MM-DD (2024-06-01) or YYYY-MM-DDTHH:mm:ss (2024-06-01T08:30:00).",
+                        "Invalid pagination token."
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Weather data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number",
+                      "example": 17
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "REAL_TIME_API_DATA_NOT_FOUND"
+                    },
+                    "data": {
+                      "type": "object",
+                      "example": null
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "example": "Data not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number",
+                      "example": 24
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "TOO_MANY_REQUESTS"
+                    },
+                    "data": {
+                      "type": "object",
+                      "example": null
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "example": "Rate limit exceeded"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+name: Translate curated prose (Gemini)
+
+# Manual-only. Generates id/ru/de translations of nation-overlay
+# touristExplainer prose via the Gemini API, then pushes the generated
+# overlay to the `bot/translate-content` branch for human review.
+#
+# It does NOT create the PR itself — repo policy blocks GitHub Actions from
+# creating/approving PRs (a supply-chain safeguard). Open the PR from the
+# pushed branch with a human-scoped token after the run. The GEMINI_API_KEY
+# repo secret is injected into the runner env only — never committed/logged.
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why are you regenerating translations? (logged in the commit)'
+        required: false
+        default: 'Refresh curated-prose translations'
+
+permissions:
+  contents: write
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate translations
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/translate-content.mjs
+
+      - name: Push generated overlay to branch
+        env:
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          set -e
+          PATHS="nation-overlay-i18n.generated.js web/cuisine/src/v2/data/fun-facts-i18n.generated.js nation-overlay-dishnotes-i18n.generated.js"
+          if [ -z "$(git status --porcelain $PATHS)" ]; then
+            echo "No change to generated overlays — nothing to push."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B bot/translate-content
+          git add $PATHS
+          git commit -m "chore(i18n): regenerate curated-prose translations (id/ru/de)" \
+                     -m "Reason: ${REASON}"
+          git push --force origin bot/translate-content
+          echo "Pushed bot/translate-content — open a PR from this branch to review."

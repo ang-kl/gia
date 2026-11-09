@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-08-19T00:00:00Z",
+  "source": "i18n.js (server-side STRINGS)",
+  "declared_keys_in_source": 276,
+  "languages": [
+    "id",
+    "ru",
+    "de",
+    "zh",
+    "ja",
+    "es"
+  ],
+  "items_per_language": 265,
+  "batches_per_language": 6,
+  "batch_size": 50,
+  "total_translation_units": 1590,
+  "total_job_files": 36,
+  "new_strings": 7,
+  "with_repo_translation": 10,
+  "by_kind": {
+    "message": 158,
+    "label": 85,
+    "button": 22
+  },
+  "by_parse_mode": {
+    "none": 235,
+    "Markdown": 16,
+    "HTML": 14
+  },
+  "excluded": {
+    "owner_only": {
+      "reason": "/hidden is gated by isOwnerChat (index.js:6908, :7114); these strings are read by the operator alone. Spend-guard alerts likewise DM TELEGRAM_OWNER_CHAT_ID and stay English.",
+      "count": 16,
+      "keys": [
+        "hidden.busy",
+        "hidden.huntingLegacy",
+        "hidden.legacyNotFound",
+        "hidden.anchorAmbiguous",
+        "hidden.anchorAmbiguous.got",
+        "hidden.searching",
+        "hidden.progress.1",
+        "hidden.progress.2",
+        "hidden.progress.3",
+        "hidden.progress.4",
+        "hidden.progress.5",
+        "hidden.timeout",
+        "hidden.overload",
+        "hidden.outerError",
+        "hidden.allClosed",
+        "hidden.latestReviewLabel"
+      ]
+    },
+    "long_form": {
+      "reason": "Multi-paragraph legal/privacy prose. A machine mistranslation here has consequences and a back-translation spot-check will not reliably catch it. Human translator only.",
+      "count": 2,
+      "keys": [
+        "privacy.body",
+        "legal.body"
+      ]
+    }
+  },
+  "files": [
+    "scripts/i18n-audit-jobs/i18n-audit-id-01.json",
+    "scripts/i18n-audit-jobs/i18n-audit-id-02.json",
+    "scripts/i18n-audit-jobs/i18n-audit-id-03.json",
+    "scripts/i18n-audit-jobs/i18n-audit-id-04.json",
+    "scripts/i18n-audit-jobs/i18n-audit-id-05.json",
+    "scripts/i18n-audit-jobs/i18n-audit-id-06.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ru-01.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ru-02.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ru-03.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ru-04.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ru-05.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ru-06.json",
+    "scripts/i18n-audit-jobs/i18n-audit-de-01.json",
+    "scripts/i18n-audit-jobs/i18n-audit-de-02.json",
+    "scripts/i18n-audit-jobs/i18n-audit-de-03.json",
+    "scripts/i18n-audit-jobs/i18n-audit-de-04.json",
+    "scripts/i18n-audit-jobs/i18n-audit-de-05.json",
+    "scripts/i18n-audit-jobs/i18n-audit-de-06.json",
+    "scripts/i18n-audit-jobs/i18n-audit-zh-01.json",
+    "scripts/i18n-audit-jobs/i18n-audit-zh-02.json",
+    "scripts/i18n-audit-jobs/i18n-audit-zh-03.json",
+    "scripts/i18n-audit-jobs/i18n-audit-zh-04.json",
+    "scripts/i18n-audit-jobs/i18n-audit-zh-05.json",
+    "scripts/i18n-audit-jobs/i18n-audit-zh-06.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ja-01.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ja-02.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ja-03.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ja-04.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ja-05.json",
+    "scripts/i18n-audit-jobs/i18n-audit-ja-06.json",
+    "scripts/i18n-audit-jobs/i18n-audit-es-01.json",
+    "scripts/i18n-audit-jobs/i18n-audit-es-02.json",
+    "scripts/i18n-audit-jobs/i18n-audit-es-03.json",
+    "scripts/i18n-audit-jobs/i18n-audit-es-04.json",
+    "scripts/i18n-audit-jobs/i18n-audit-es-05.json",
+    "scripts/i18n-audit-jobs/i18n-audit-es-06.json"
+  ]
+}

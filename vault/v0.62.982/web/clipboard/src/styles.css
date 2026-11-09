@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { -webkit-font-smoothing: antialiased; }
+
+/* v0.62.442 — operator: editing a field (drawer title, dish filter, etc.) must
+   NOT zoom the viewport. iOS Safari/Telegram auto-zooms when an input's
+   font-size is < 16px; force ≥16px on all text inputs to kill the zoom while
+   keeping the small visual chrome elsewhere. */
+input, textarea, select { font-size: 16px; }
+
+/* v0.62.442 — Cuisine-TMA folio drawer effect: the header filter panels slide
+   down + fade in (same doctrine as the Cuisine "Cuisine & filters" tab). */
+@keyframes sk-drop-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sk-drop { animation: sk-drop-in .18s cubic-bezier(.2,.8,.2,1); transform-origin: top; }
+
+/* Hide scrollbars on the catch-all horizontal strip. */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* Slot accents — left-border + bg tints used by drawer rows. */
+.slot-m { border-left: 3px solid theme('colors.g-morning'); }
+.slot-l { border-left: 3px solid theme('colors.g-midday'); }
+.slot-e { border-left: 3px solid theme('colors.g-evening'); }
+.slot-n { border-left: 3px solid theme('colors.g-night'); }
+
+/* Drop-zone highlight while dragging. */
+.dropzone {
+  outline: 2px dashed theme('colors.tg-accent');
+  outline-offset: 2px;
+  background-color: color-mix(in srgb, theme('colors.tg-accent') 12%, transparent);
+}
+
+/* Card being dragged — slight lift + rotate. */
+.dragging {
+  opacity: 0.4;
+}
+.drag-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  transform: rotate(-2deg) scale(1.04);
+  box-shadow: 0 18px 32px rgba(0,0,0,0.55);
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #2b59c9;
+  padding: 8px 10px;
+  font-size: 12px;
+  max-width: 220px;
+  color: #141a36;
+}
+
+/* Bottom-sheet scrim. */
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 40;
+}
+.sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #ffffff;
+  color: #141a36;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  padding: 12px 14px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid #e4e8f2;
+  box-shadow: 0 -10px 28px rgba(20,26,54,0.18);
+  z-index: 41;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.sheet-grab {
+  width: 38px; height: 4px; border-radius: 2px;
+  background: #e4e8f2; margin: 0 auto 10px;
+}
+
+/* P1-b — respect prefers-reduced-motion: collapse animation/transition
+   durations so motion-sensitive users get a still, instant UI. Ported
+   verbatim from the Hawker/Transport safety net (v0.62.636/637); Motion +
+   AutoAnimate honour the flag on their own — this is the shared CSS net. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* P1-c — visible keyboard focus (see the other TMAs' identical rule). The
+   Sketchbook palette is fixed-light by operator decision, so the ring uses
+   the palette's own accent hex rather than the Telegram accent variable. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role]):focus-visible {
+  outline: 2px solid #2b59c9 !important;
+  outline-offset: 2px;
+}
+
+/* v0.62.890 — the focus ring that read as a DIVIDER. Operator: "the dropdown
+   list for toggled language KR should be together with the rest". There was no
+   divider and Korean was never treated specially: the language menu focuses the
+   ACTIVE language when it opens (the P1-d keyboard model), P1-c above draws a
+   2px accent outline at `outline-offset: 2px`, and the menu container is
+   `overflow-hidden` with rounded corners — so the ring's left, right and bottom
+   edges are clipped and only its TOP edge survives, landing exactly where a
+   divider between two rows would sit. Korean is selected AND last, so it read as
+   "separated below a line"; pick Espanol and the same ring reads as "highlighted".
+   Drawing it INSIDE the row fixes the appearance without weakening the
+   indicator — same colour, same width, still keyboard-only. `outline` above is
+   !important but `outline-offset` is NOT, so this needs no !important of its own. */
+[role="menuitemradio"]:focus-visible { outline-offset: -2px; }
+
+/* P1-f — invisible touch-target extension (see cuisine/hawker/transport
+   styles.css for the rationale): visible size unchanged, transparent
+   ::after widens the interactive box; directional variants avoid overlap
+   in tight clusters. */
+.gia-hit, .gia-hit-x, .gia-hit-y { position: relative; }
+.gia-hit::after, .gia-hit-x::after, .gia-hit-y::after { content: ''; position: absolute; }
+.gia-hit::after   { inset: -8px; }
+.gia-hit-x::after { inset: -2px -8px; }
+.gia-hit-y::after { inset: -8px -2px; }
+
+/* ══ Material 3 checkbox (see components/M3Checkbox.jsx) ══════════════════
+   Written as plain CSS rather than utilities because it needs sibling
+   selectors on :checked / :indeterminate / :focus-visible and a drawn
+   checkmark — none of which Tailwind expresses without a plugin. */
+.gia-m3cb { position: relative; flex: none; width: 40px; height: 40px; display: grid; place-items: center; }
+.gia-m3cb input {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; margin: 0; cursor: pointer; z-index: 1;
+}
+.gia-m3cb-box {
+  position: relative; width: 18px; height: 18px; border-radius: 2px;
+  border: 2px solid #7e88a8; color: #141a36;
+  display: grid; place-items: center;
+  transition: background-color .1s linear, border-color .1s linear;
+}
+/* the 40dp state layer */
+.gia-m3cb-box::before {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+  background: currentColor; opacity: 0; transition: opacity .1s linear; pointer-events: none;
+}
+.gia-m3cb input:active + .gia-m3cb-box::before,
+.gia-m3cb input:focus-visible + .gia-m3cb-box::before { opacity: .12; }
+.gia-m3cb input:focus-visible + .gia-m3cb-box { outline: 2px solid #2b59c9; outline-offset: 3px; }
+.gia-m3cb input:checked + .gia-m3cb-box,
+.gia-m3cb input:indeterminate + .gia-m3cb-box {
+  background: #2b59c9; border-color: #2b59c9; color: #2b59c9;
+}
+.gia-m3cb-box svg { width: 18px; height: 18px; overflow: visible; }
+.gia-m3cb-box .tick, .gia-m3cb-box .dash {
+  fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.gia-m3cb-box .tick { stroke-dasharray: 18; stroke-dashoffset: 18; transition: stroke-dashoffset .15s cubic-bezier(.2,0,0,1); }
+.gia-m3cb-box .dash { stroke-dasharray: 9;  stroke-dashoffset: 9;  transition: stroke-dashoffset .15s cubic-bezier(.2,0,0,1); }
+.gia-m3cb input:checked + .gia-m3cb-box .tick { stroke-dashoffset: 0; }
+.gia-m3cb input:indeterminate + .gia-m3cb-box .dash { stroke-dashoffset: 0; }
+.gia-m3cb input:indeterminate + .gia-m3cb-box .tick { stroke-dashoffset: 18; }
+
+/* ══ itinerary layer panel ═══════════════════════════════════════════════ */
+/* The connector runs down from the PARENT checkbox's centreline (x = 20px),
+   which is what makes the nesting readable without guessing an indent. */
+.gia-itin-kids { margin-left: 20px; border-left: 1.5px solid #e4e8f2; }
+.gia-itin-kids .gia-itin-row { padding-left: 10px; }
+.gia-itin-row { display: flex; align-items: center; min-height: 48px; border-radius: .5rem; cursor: pointer; }
+.gia-itin-row.is-part { min-height: 40px; }
+
+/* ══ print / PDF ═════════════════════════════════════════════════════════
+   There was no print path anywhere in this repository before this feature.
+   The live Google map is a WebGL canvas of raster tiles — browsers routinely
+   print it blank or as grey boxes, and Google's terms restrict reuse of
+   captured tiles — so the printed page swaps in the SVG schematic instead.
+   Both are drawn from lib/itinerary.js, so they cannot disagree. */
+@media print {
+  .gia-print-hide, .gia-itin-layers { display: none !important; }
+  .gia-print-only { display: block !important; }
+  .gia-itin-sheet {
+    position: static !important; inset: auto !important;
+    height: auto !important; max-height: none !important;
+    box-shadow: none !important; border: 0 !important; z-index: auto !important;
+  }
+  .gia-itin-drawer { break-inside: avoid; }
+  body { background: #fff !important; }
+}
+.gia-print-only { display: none; }
+
+/* v0.62.706 — the map control clusters, matching Hawker/Transport/Cuisine.
+   Sketchbook is fixed-light (D-37), so these are the palette's own hexes
+   rather than the Telegram theme vars the other three use. */
+.gia-map-btn {
+  background-color: #ffffff;
+  color: #141a36;
+  border-color: #e4e8f2;
+}

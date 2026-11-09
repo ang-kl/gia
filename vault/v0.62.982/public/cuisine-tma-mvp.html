@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Cuisine TMA — MVP Preview</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #efece7;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+    color: #1c1c1e;
+  }
+
+  /* ── Folio tabs ── */
+  .folio-tab {
+    padding: 7px 14px 8px;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid #d1cec9;
+    border-bottom: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8e8e93;
+    background: #e3dfd9;
+    cursor: pointer;
+    position: relative;
+    bottom: -1px;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .folio-tab.active {
+    background: #fff;
+    color: #1c1c1e;
+    font-weight: 600;
+    z-index: 2;
+  }
+
+  /* ── Panel ── */
+  .panel {
+    background: #fff;
+    border: 1px solid #d1cec9;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  }
+  .panel.left-active  { border-radius: 0 12px 12px 12px; }
+  .panel.right-active { border-radius: 12px 0 12px 12px; }
+
+  /* ── Filter chips ── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1px solid #d1cec9;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: #fff;
+    color: #1c1c1e;
+    transition: all 0.13s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .chip.active {
+    background: #2481cc;
+    color: #fff;
+    border-color: #2481cc;
+  }
+  .chip:active { transform: scale(0.96); }
+
+  /* ── Cuisine category card ── */
+  .cat-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    border: 1px solid #e8e5e0;
+    border-radius: 14px;
+    background: #faf9f7;
+    cursor: pointer;
+    transition: all 0.13s;
+    position: relative;
+  }
+  .cat-card:hover   { border-color: #2481cc; background: #f0f7ff; }
+  .cat-card:active  { transform: scale(0.97); }
+  .cat-card.selected { background: #dceeff; border-color: #2481cc; }
+  .cat-card .count {
+    font-size: 10px;
+    font-weight: 600;
+    color: #2481cc;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .cat-card .arrow {
+    font-size: 11px;
+    color: #8e8e93;
+    flex-shrink: 0;
+  }
+
+  /* ── Dish grid ── */
+  .dish-btn {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 4px;
+    min-height: 44px;
+    border-bottom: 1px solid #f0ede8;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    font-family: inherit;
+    transition: background 0.1s;
+  }
+  .dish-btn:active { background: #f5f8ff; }
+
+  /* ── Fact card ── */
+  .fact-card {
+    background: #f0f6ff;
+    border: 1px solid rgba(36,129,204,0.35);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 6px 0 8px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* ── Scrollable zone ── */
+  .scrollable {
+    max-height: 370px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Classic chip links ── */
+  .cl-chip {
+    color: #2481cc;
+    cursor: pointer;
+    font-size: 12px;
+    display: inline;
+  }
+  .cl-chip:active { opacity: 0.6; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(28,28,30,0.55);
+    padding: 8px 0 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── Search FAB simulation ── */
+  .search-fab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #efece7;
+    border: 1px solid #d1cec9;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #8e8e93;
+    cursor: pointer;
+    transition: border-color 0.13s;
+  }
+  .search-fab:hover { border-color: #2481cc; }
+
+  /* ── Download bar ── */
+  .dl-bar {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .dl-btn {
+    display: inline-block;
+    background: #2481cc;
+    color: #fff;
+    padding: 9px 22px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.13s;
+  }
+  .dl-btn:hover { opacity: 0.88; }
+</style>
+</head>
+<body>
+
+<div style="width:370px; max-width:100%;">
+
+  <!-- ═══ TABS ROW ═══ -->
+  <div style="display:flex; align-items:flex-end; gap:4px; padding:0 4px;">
+    <button class="folio-tab active" id="tab0" onclick="switchTab(0)">
+      🍲 Choose your cuisine
+    </button>
+    <button class="folio-tab" id="tab1" onclick="switchTab(1)">
+      📍 Pick local classic
+    </button>
+  </div>
+
+  <!-- ═══ PANEL ═══ -->
+  <div class="panel left-active" id="mainPanel">
+
+    <!-- ── CUISINE PANEL ── -->
+    <div id="panelCuisine">
+
+      <!-- Filter chips row -->
+      <div style="display:flex; gap:6px; padding:10px 12px 10px; overflow-x:auto; align-items:center;">
+        <button class="chip" id="chip-new" onclick="toggleChip('new')">
+          <span style="font-size:9px; font-weight:800; background:#e74c3c; color:#fff; padding:1px 4px; border-radius:3px;">NEW</span>
+        </button>
+        <button class="chip" id="chip-halal" onclick="toggleChip('halal')">حلال</button>
+        <button class="chip" id="chip-pet" onclick="toggleChip('pet')">🐾 Pet</button>
+        <button class="chip" id="chip-filters" onclick="toggleChip('filters')">⊙ Filters</button>
+        <button class="chip active" id="chip-rating" onclick="toggleChip('rating')">⭐ ≥3.7</button>
+        <button onclick="clearCuisines()" style="margin-left:auto; color:#8e8e93; font-size:20px; line-height:1; background:none; border:none; cursor:pointer; padding:0 4px; flex-shrink:0;" title="Clear selection">×</button>
+      </div>
+
+      <div style="height:1px; background:#f0ede8; margin:0 12px;"></div>
+
+      <!-- Cuisine grid (scrollable) -->
+      <div class="scrollable" style="padding:12px;">
+        <div id="cuisineGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+
+        <!-- Selected summary bar -->
+        <div id="selSummary" style="display:none; margin-top:12px; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#8e8e93; padding:0 2px;">
+          <span id="selCount"></span>
+          <button onclick="clearCuisines()" style="background:none; border:none; font-size:11px; color:#8e8e93; cursor:pointer; text-decoration:underline;">Clear</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── LOCAL CLASSIC PANEL ── -->
+    <div id="panelClassic" style="display:none;">
+
+      <!-- Header -->
+      <div style="padding:10px 16px 8px;">
+        <div style="font-size:14px; font-weight:700;">📍 Singapore</div>
+        <div style="font-size:11px; color:#8e8e93; margin-top:2px;">Tap a dish to learn more, then 🔍 Find eateries.</div>
+      </div>
+
+      <div class="scrollable" style="padding:0 12px 12px;">
+
+        <!-- Main dish grid (2-col) -->
+        <div id="dishGrid" style="display:grid; grid-template-columns:1fr 1fr; border-top:1px solid #f0ede8;"></div>
+
+        <!-- Fact card area -->
+        <div id="factArea"></div>
+
+        <!-- More classics toggle -->
+        <div style="border-top:1px solid #f0ede8; margin-top:4px;">
+          <button onclick="toggleClassics()" style="width:100%; text-align:left; display:flex; align-items:center; gap:6px; padding:12px 4px; min-height:44px; background:none; border:none; cursor:pointer; font-size:12px; font-family:inherit;">
+            <span id="classicsArrow" style="color:#8e8e93; font-size:11px;">▸</span>
+            <span style="flex:1;">More Singapore classics</span>
+            <span style="color:#8e8e93; font-size:11px;">(28)</span>
+          </button>
+
+          <div id="classicsPanel" style="display:none; padding-bottom:8px;">
+            <div id="classicsBuckets"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+
+  <!-- ── Mock search dock ── -->
+  <div style="margin-top:12px; background:#fff; border:1px solid #d1cec9; border-radius:12px; padding:10px 12px; display:flex; align-items:center; gap:8px;">
+    <input type="text" placeholder="Try nasi lemak, best ramen..." style="flex:1; border:none; background:none; font-size:13px; color:#1c1c1e; outline:none; font-family:inherit;" />
+    <button style="width:32px; height:32px; border-radius:50%; background:#2481cc; color:#fff; border:2px solid rgba(255,255,255,0.4); font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">🔍</button>
+  </div>
+
+  <!-- Download -->
+  <div class="dl-bar">
+    <a class="dl-btn" id="dlLink" href="#" download="cuisine-tma-mvp.html">⬇ Download HTML</a>
+  </div>
+
+</div><!-- /frame -->
+
+<script>
+// ══ Data ══════════════════════════════════════════════════
+const CATEGORIES = [
+  { id:'common-here',            emoji:'🌟', label:'Common in Singapore',          sub:'Singaporean, Peranakan, Eurasian' },
+  { id:'southeast-asian',        emoji:'🌴', label:'Southeast Asian',               sub:'Malaysian, Thai, Filipino, Viet…' },
+  { id:'east-asian',             emoji:'🍜', label:'East Asian',                    sub:'Japanese, Korean, Chinese, Taiwanese' },
+  { id:'china-regional',         emoji:'🥢', label:'China (Regional)',              sub:'Cantonese, Sichuan, Hokkien…' },
+  { id:'south-asian',            emoji:'🌶', label:'South Asian',                   sub:'South Indian, North Indian, Sri Lankan…' },
+  { id:'middle-eastern',         emoji:'🕌', label:'Middle Eastern & Central Asian',sub:'Lebanese, Persian, Turkish…' },
+  { id:'european',               emoji:'🇪🇺', label:'European',                    sub:'French, Italian, Spanish…' },
+  { id:'slavic-eastern-european',emoji:'🪆', label:'Slavic / Eastern European',    sub:'Uzbek, Georgian…' },
+  { id:'americas',               emoji:'🌎', label:'Americas',                      sub:'American, Mexican, Brazilian' },
+  { id:'australasia',            emoji:'🦘', label:'Australasia',                  sub:'Australian, New Zealand' },
+  { id:'african',                emoji:'🌍', label:'African',                       sub:'Ethiopian, Moroccan…' },
+  { id:'dessert',                emoji:'🍮', label:'Dessert, Fruits',               sub:'Durian, Fruits, Pastry…' },
+  { id:'fusion',                 emoji:'🌐', label:'Fusion',                        sub:'' },
+  { id:'michelin',               emoji:'✳️', label:'Michelin / Bib Gourmand',      sub:'SG · MY · TH · JP…', sgOnly:true },
+];
+
+const DISHES = [
+  { dish:'Hainanese Chicken Rice', local:'海南鸡饭', history:'A colonial-era adaptation of Wenchang chicken brought by Hainanese immigrants to Singapore. Designated Singapore\'s de-facto national dish; stalls like Tian Tian at Maxwell have served it for over 60 years.', sources:['Makansutra'] },
+  { dish:'Chilli Crab', local:'辣椒螃蟹', history:'Invented by Cher Yam Tian in the 1950s, later refined by her husband Lim Choon Ngee at Palm Beach Seafood. Named by CNN as one of the world\'s top 50 foods. Mud crabs in a tomato-chilli-egg gravy.', sources:['CNN Travel','NHB'] },
+  { dish:'Laksa', local:'叻沙', history:'Peranakan coconut-curry noodle soup, debated between Singapore and Penang. Katong Laksa (cut noodles, eaten by spoon) is Singapore\'s own. Awarded UNESCO Intangible Cultural Heritage recognition under Peranakan cuisine.', sources:['NHB','Makansutra'] },
+  { dish:'Char Kway Teow', local:'炒粿条', history:'Flat rice noodles stir-fried over high flame with lard, cockles, Chinese sausage and dark soy. A dock-worker dish from the 1800s; the charred "wok-hei" aroma is its hallmark. Hill Street Char Kway Teow (since 1980) is the benchmark stall.', sources:['NHB'] },
+];
+
+const CLASSICS = {
+  breakfast: ['Kaya Toast', 'Soft-Boiled Eggs', 'You Tiao', 'Chwee Kueh', 'Min Jiang Kueh'],
+  main:      ['Bak Kut Teh', 'Wonton Mee', 'Hokkien Mee', 'Nasi Lemak', 'Fish Head Curry', 'Prawn Noodle Soup', 'Rojak'],
+  snack:     ['Satay', 'Popiah', 'Otak-Otak', 'Curry Puff', 'Ngoh Hiang'],
+  dessert:   ['Chendol', 'Ice Kachang', 'Tau Huay', 'Ondeh Ondeh', 'Pulut Hitam'],
+  drink:     ['Teh Tarik', 'Kopi O', 'Bandung', 'Barley Water', 'Sugar Cane Juice'],
+};
+
+const BUCKETS = [
+  { key:'breakfast', icon:'☕', label:'Breakfast' },
+  { key:'main',      icon:'🍽', label:'Lunch & Dinner' },
+  { key:'snack',     icon:'🥢', label:'Snacks & sides' },
+  { key:'dessert',   icon:'🧁', label:'Desserts' },
+  { key:'drink',     icon:'🥤', label:'Drinks' },
+];
+
+const SPICY = /\b(laksa|chilli|sambal|curry|rendang|tom yum)\b/i;
+
+// ══ State ═════════════════════════════════════════════════
+let selectedCuisines = new Set();
+let openFactIdx = null;
+let classicsOpen = false;
+let chipStates = { rating: true };
+
+// ══ Cuisine panel ═════════════════════════════════════════
+function renderCuisineGrid() {
+  const grid = document.getElementById('cuisineGrid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const sel = selectedCuisines.has(cat.id);
+    const div = document.createElement('button');
+    div.className = 'cat-card' + (sel ? ' selected' : '');
+    div.style.width = '100%';
+    div.style.textAlign = 'left';
+    div.style.border = 'none';
+    div.style.fontFamily = 'inherit';
+    div.onclick = () => toggleCuisine(cat.id);
+    div.innerHTML = `
+      <span style="font-size:18px; flex-shrink:0;">${cat.emoji}</span>
+      <span style="flex:1; min-width:0;">
+        <div style="font-size:12px; font-weight:600; line-height:1.3;">${cat.label}${cat.sgOnly ? ' <span style="font-size:9px; color:#8e8e93; font-weight:400;">🇸🇬</span>' : ''}</div>
+        <div style="font-size:10px; color:#8e8e93; margin-top:1px;">${cat.sub}</div>
+      </span>
+      ${sel ? '<span class="count">[1]</span>' : ''}
+      <span class="arrow">${sel ? '✓' : '▸'}</span>
+    `;
+    grid.appendChild(div);
+  });
+  updateSelSummary();
+}
+
+function toggleCuisine(id) {
+  if (selectedCuisines.has(id)) selectedCuisines.delete(id);
+  else if (selectedCuisines.size < 5) selectedCuisines.add(id);
+  renderCuisineGrid();
+}
+
+function clearCuisines() {
+  selectedCuisines.clear();
+  renderCuisineGrid();
+}
+
+function updateSelSummary() {
+  const bar = document.getElementById('selSummary');
+  const count = selectedCuisines.size;
+  if (count > 0) {
+    bar.style.display = 'flex';
+    document.getElementById('selCount').textContent =
+      count + ' cuisine' + (count > 1 ? 's' : '') + ' selected' + (count === 5 ? ' (max)' : '');
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function toggleChip(id) {
+  chipStates[id] = !chipStates[id];
+  const el = document.getElementById('chip-' + id);
+  el.classList.toggle('active', !!chipStates[id]);
+}
+
+// ══ Local classic panel ═══════════════════════════════════
+function renderDishGrid() {
+  const grid = document.getElementById('dishGrid');
+  grid.innerHTML = '';
+  DISHES.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'dish-btn';
+    btn.style.fontFamily = 'inherit';
+    btn.onclick = () => toggleFact(i);
+    btn.innerHTML = `
+      <span style="min-width:0; word-break:break-word;">
+        <span style="font-size:12px; font-weight:600;">${d.dish}</span>
+        ${d.local ? `<span style="color:#8e8e93; font-size:11px; white-space:nowrap;"> ${d.local}</span>` : ''}
+      </span>
+    `;
+    grid.appendChild(btn);
+  });
+}
+
+function toggleFact(idx) {
+  const area = document.getElementById('factArea');
+  if (openFactIdx === idx) {
+    openFactIdx = null;
+    area.innerHTML = '';
+    return;
+  }
+  openFactIdx = idx;
+  const d = DISHES[idx];
+  area.innerHTML = `
+    <div class="fact-card">
+      <div style="font-weight:700; font-size:13px; margin-bottom:6px;">📜 ${d.dish}${d.local ? ' · <span style="font-weight:400; color:#8e8e93; white-space:nowrap;">' + d.local + '</span>' : ''}</div>
+      <div style="font-size:12px; line-height:1.55; color:#333;">${d.history}</div>
+      ${d.sources ? `<div style="font-size:11px; color:#8e8e93; margin-top:6px;">source: ${d.sources.join(' · ')}</div>` : ''}
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:8px;">
+        <button onclick="openFactIdx=null; document.getElementById('factArea').innerHTML=''; alert('🔍 Would search for: ${d.dish}');"
+          style="font-size:12px; font-weight:700; padding:6px 16px; border-radius:20px; background:#2481cc; color:#fff; border:none; cursor:pointer; font-family:inherit;">
+          🔍 Find eateries
+        </button>
+        <button onclick="openFactIdx=null; document.getElementById('factArea').innerHTML='';"
+          style="font-size:12px; color:#8e8e93; background:none; border:none; cursor:pointer; font-family:inherit;">
+          [ close ]
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleClassics() {
+  classicsOpen = !classicsOpen;
+  document.getElementById('classicsArrow').textContent = classicsOpen ? '▾' : '▸';
+  const panel = document.getElementById('classicsPanel');
+  panel.style.display = classicsOpen ? 'block' : 'none';
+  if (classicsOpen && !panel.dataset.rendered) {
+    renderClassicBuckets();
+    panel.dataset.rendered = '1';
+  }
+}
+
+function renderClassicBuckets() {
+  const cont = document.getElementById('classicsBuckets');
+  cont.innerHTML = '';
+  BUCKETS.forEach(b => {
+    const dishes = CLASSICS[b.key] || [];
+    if (!dishes.length) return;
+    const sec = document.createElement('div');
+    sec.style.paddingTop = '8px';
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.innerHTML = `${b.icon} ${b.label} <span style="font-weight:400; color:#8e8e93;">(${dishes.length})</span>`;
+    sec.appendChild(label);
+    const row = document.createElement('div');
+    row.style.lineHeight = '2';
+    dishes.forEach((dish, i) => {
+      if (i > 0) {
+        const dot = document.createElement('span');
+        dot.style.color = '#8e8e93';
+        dot.textContent = ' · ';
+        row.appendChild(dot);
+      }
+      const spicy = SPICY.test(dish);
+      if (spicy) {
+        const sp = document.createElement('span');
+        sp.setAttribute('aria-label', 'spicy');
+        sp.textContent = '🌶 ';
+        row.appendChild(sp);
+      }
+      const btn = document.createElement('button');
+      btn.className = 'cl-chip';
+      btn.style.background = 'none';
+      btn.style.border = 'none';
+      btn.style.fontFamily = 'inherit';
+      btn.style.cursor = 'pointer';
+      btn.style.padding = '0';
+      btn.textContent = dish;
+      btn.onclick = () => alert('📜 Would open card for: ' + dish);
+      row.appendChild(btn);
+    });
+    sec.appendChild(row);
+    cont.appendChild(sec);
+  });
+}
+
+// ══ Tab switch ═══════════════════════════════════════════
+function switchTab(idx) {
+  document.getElementById('tab0').classList.toggle('active', idx === 0);
+  document.getElementById('tab1').classList.toggle('active', idx === 1);
+  const panel = document.getElementById('mainPanel');
+  panel.className = 'panel ' + (idx === 0 ? 'left-active' : 'right-active');
+  document.getElementById('panelCuisine').style.display = idx === 0 ? 'block' : 'none';
+  document.getElementById('panelClassic').style.display  = idx === 1 ? 'block' : 'none';
+}
+
+// ══ Download self ════════════════════════════════════════
+document.getElementById('dlLink').addEventListener('click', function(e) {
+  e.preventDefault();
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cuisine-tma-mvp.html';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ══ Init ═════════════════════════════════════════════════
+renderCuisineGrid();
+renderDishGrid();
+</script>
+</body>
+</html>

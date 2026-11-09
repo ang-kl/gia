@@ -17,6 +17,9 @@ export const CURRENT_VAULT_TREE = 'f9941f040e4af3f39ea0e135ddf72a509aa41810';
 export const CURRENT_SNAPSHOTS = new Map([
   ['v0.62.937', { source: CURRENT_SOURCE, tree: CURRENT_VAULT_TREE }],
   ['v0.62.948', { source: 'bd9a310c835bfe2d91441d13eb33c37e1228e5c9', tree: 'b274ade89071cfe72085fdea6a97792191ce153a' }],
+  // v0.62.982 (09-11 '26, spec doc/Feature/2026-11-09-docs-and-vault-v0-62-982.spec.md): the third current snapshot,
+  // made the same way from main at 67b19509. The two pins above are unchanged.
+  ['v0.62.982', { source: '67b19509de041b50efd87fee8507b160788c679f', tree: '509e40f817b81524f03bfea4e6614909bba7db38' }],
 ]);
 export function versionFolders() {
   return [...EXPECTED_FOLDERS, ...CURRENT_SNAPSHOTS.keys()].sort((x,y)=>x.localeCompare(y,undefined,{numeric:true}));
