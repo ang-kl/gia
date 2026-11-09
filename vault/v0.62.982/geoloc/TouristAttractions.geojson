@@ -1,0 +1,2840 @@
+{
+	"type" : "FeatureCollection",
+	"name" : "TOURISM",
+	"features" : [
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85135599973535, 1.2900000000285456 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1001,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/museums-galleries/national-gallery-singapore.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/1095-national-gallery-singapore-carousel-01-rec.jpg",
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : "Â©Darren Soh/National Gallery",
+				"PAGETITLE" : "National Gallery Singapore",
+				"LASTMODIFIED" : "2015-10-23T18:03:40.939+08:00",
+				"LATITUDE" : 1.29,
+				"LONGTITUDE" : 103.851356,
+				"ADDRESS" : "1 St Andrew's Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Take in the regionâ€™s newest and largest museum of modern Singapore and Southeast Asian art housed within two of Singaporeâ€™s awe-inspiring national monuments.",
+				"EXTERNAL_LINK" : "http://www.nationalgallery.sg",
+				"META_DESCRIPTION" : "Take in the regionâ€™s newest and largest museum of modern Singapore and Southeast Asian art housed within two of Singaporeâ€™s awe-inspiring national monuments.",
+				"OPENING_HOURS" : "Effective from 24 November 2015, Sunday to Thursday and  public holidays,10am - 7pm ,Friday to Saturday and  eve of public holidays, 10am - 10pm",
+				"INC_CRC" : "8A41138FE0684CA7",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85917100028674, 1.3020000004260976 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1002,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/sultan-mosque.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Sultan Mosque (Masjid Sultan) Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:27:45.190+08:00",
+				"LATITUDE" : 1.302,
+				"LONGTITUDE" : 103.859171,
+				"ADDRESS" : "3 Muscat Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Also known as Masjid Sultan, the impressive Sultan Mosque in historic Kampong Glam is the focal point for Singaporeâ€™s Muslim community.",
+				"EXTERNAL_LINK" : "http://www.sultanmosque.org.sg",
+				"META_DESCRIPTION" : "The impressive Sultan Mosque (also known as Masjid Sultan) in historic Kampong Glam is the focal point for Singaporeâ€™s Muslim community.",
+				"OPENING_HOURS" : "Monday to Sunday:9.30am â€“ 12pm and 2pm â€“ 4pm ,Friday:2.30pm â€“ 4pm",
+				"INC_CRC" : "A3218DB77F17BFC6",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84538000018904, 1.2820000002937373 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1003,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/sri-mariamman-temple.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/sri-mariamman-temple-carousel02-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Sri Mariamman Temple's ornate and elaborate detailing makes it a wonder to behold.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Sri Mariamman Temple: Hindu Temple in Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:31:58.848+08:00",
+				"LATITUDE" : 1.282,
+				"LONGTITUDE" : 103.84538,
+				"ADDRESS" : "244 South Bridge Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Located in Chinatown, the Sri Mariamman Temple dates back to 1827 and is the oldest Hindu temple in Singapore.",
+				"EXTERNAL_LINK" : "http://heb.gov.sg/our-subsidiaries/temples/sri-mariamman-temple.aspx",
+				"META_DESCRIPTION" : "Sri Mariamman Temple, located in Chinatown, is the oldest Hindu temple in Singapore.",
+				"OPENING_HOURS" : "Daily from 7am â€“ 12pm, and 6pm â€“ 9pm",
+				"INC_CRC" : "F66A0BB9C79777F1",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84966000032438, 1.2930000003953066 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1004,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/armenian-church.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/armenian-church-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Armenian Church in Singapore is a 19th-century architectural masterpiece.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Armenian Church in Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:34:55.710+08:00",
+				"LATITUDE" : 1.293,
+				"LONGTITUDE" : 103.84966,
+				"ADDRESS" : "60 Hill Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The oldest Christian church in Singapore is an architectural masterpiece from the early 19th century.",
+				"EXTERNAL_LINK" : "http://www.armeniansinasia.org/",
+				"META_DESCRIPTION" : "The Armenian Church is the oldest Christian church in Singapore and an architectural masterpiece from the early 19th century.",
+				"OPENING_HOURS" : "Daily, 9am â€“6pm",
+				"INC_CRC" : "4C9C762C0E30783B",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85168000024267, 1.2950000001195543 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1005,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/chijmes.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/chijmes-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The charm of CHIJMES, Singapore harks back to a bygone, gracious age.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "CHIJMES Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:13:35.220+08:00",
+				"LATITUDE" : 1.295,
+				"LONGTITUDE" : 103.85168,
+				"ADDRESS" : "30 Victoria Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Whether functioning as a school or a lifestyle and entertainment complex, it appears the beauty of CHIJMES is only equalled by its versatility.",
+				"EXTERNAL_LINK" : "http://chijmes.com.sg/",
+				"META_DESCRIPTION" : "Who would have thought a former school would make such a graceful transition? As a lifestyle and entertainment complex, CHIJMES soars high above the rest.",
+				"OPENING_HOURS" : "Daily, 24 hours,Opening hours of businesses in CHIJMES may vary.",
+				"INC_CRC" : "5A0FF621153ABB8F",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85230999960987, 1.2920000003645002 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1006,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/st-andrews-cathedral.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/st-andrews-cathedral-temple-carousel01-rect-norender.jpg",
+				"IMAGE_ALT_TEXT" : "Singapore's largest cathedral is worth a visit for its architectural beauty.",
+				"PHOTOCREDITS" : "Saint Andrew's Cathedral",
+				"PAGETITLE" : "St Andrewâ€™s Cathedral- Singapore Architecture Landmark",
+				"LASTMODIFIED" : "2015-11-02T10:22:49.830+08:00",
+				"LATITUDE" : 1.292,
+				"LONGTITUDE" : 103.85231,
+				"ADDRESS" : "11 St Andrew's Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Singapore's largest cathedral is a stellar example of colonial-era architecture and heritage.",
+				"EXTERNAL_LINK" : "http://www.livingstreams.org.sg/sac/visitors.html",
+				"META_DESCRIPTION" : "St Andrew's Cathedral is Singapore's largest cathedral and a stellar example of colonial-era architecture and heritage.",
+				"OPENING_HOURS" : "Monday to Saturday, 9am â€“ 5pm",
+				"INC_CRC" : "F104CE5D04DF4D5C",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84358529987428, 1.2811980001643042 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1007,
+				"URL_PATH" : null,
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Kreta Ayer Square",
+				"LASTMODIFIED" : null,
+				"LATITUDE" : 1.281198,
+				"LONGTITUDE" : 103.8435853,
+				"ADDRESS" : "Banda Street",
+				"POSTALCODE" : "050005",
+				"OVERVIEW" : null,
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : null,
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "6A7E98EDC86C67B5",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85348479978057, 1.2995489004045309 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1008,
+				"URL_PATH" : null,
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Albert Mall Trishaw Park ",
+				"LASTMODIFIED" : null,
+				"LATITUDE" : 1.2995489,
+				"LONGTITUDE" : 103.8534848,
+				"ADDRESS" : "Queen Street",
+				"POSTALCODE" : "188542",
+				"OVERVIEW" : null,
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : null,
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "45D505D1EEA1778E",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84379239960526, 1.2825532995782902 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1009,
+				"URL_PATH" : null,
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Chinatown Food Street ",
+				"LASTMODIFIED" : null,
+				"LATITUDE" : 1.2825533,
+				"LONGTITUDE" : 103.8437924,
+				"ADDRESS" : "Smith Street",
+				"POSTALCODE" : "058938",
+				"OVERVIEW" : null,
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : null,
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "75321EDBF631A02B",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84435000038138, 1.2839999998153107 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1010,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/chinatown-heritage-centre.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/chinatown-heritage-centre-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Learn more about local Chinese culture at the Singapore Chinatown Heritage Centre.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Chinatown Heritage Centre, Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:16:52.847+08:00",
+				"LATITUDE" : 1.284,
+				"LONGTITUDE" : 103.84435,
+				"ADDRESS" : "48 Pagoda Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Experience how Singaporeâ€™s early Chinese migrants once lived and learn more about local Chinese culture at the Chinatown Heritage Centre.",
+				"EXTERNAL_LINK" : "http://www.singaporechinatown.com.sg/",
+				"META_DESCRIPTION" : "At the Chinatown Heritage Centre, experience how Singaporeâ€™s early Chinese migrants once lived and learn more about local Chinese culture.",
+				"OPENING_HOURS" : "Daily, 9am â€“ 8pm,Last entry at 7pm.*Chinatown Heritage Centre will be closed for renovation from 1 October 2014 till end-2015.",
+				"INC_CRC" : "7332216C5D293856",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8476300001705, 1.2809999998118309 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1011,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/thian-hock-keng-temple.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/thian-hock-kheng-temple-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Thian Hock Keng Temple in Singapore is dedicated to Mazu, the Goddess of the Sea.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Thian Hock Keng Temple, Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:20:57.245+08:00",
+				"LATITUDE" : 1.281,
+				"LONGTITUDE" : 103.84763,
+				"ADDRESS" : "158 Telok Ayer Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Beautifully restored, Thian Hock Keng Temple is the oldest Chinese temple in Singapore and dedicated to Mazu, the Goddess of the Sea.",
+				"EXTERNAL_LINK" : "http://www.thianhockkeng.com.sg",
+				"META_DESCRIPTION" : "Thian Hock Keng Temple is the oldest Chinese temple in Singapore and dedicated to Mazu, the Goddess of the Sea. ",
+				"OPENING_HOURS" : "Daily, 7.30am â€“ 5.30pm",
+				"INC_CRC" : "18FFC26DC4E67365",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8994200000771, 1.3099999998793554 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1012,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/eurasian-heritage-centre.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/eurasian-heritage-centre-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Discover the history and culture of the Eurasian community in Singapore.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Eurasian Heritage Centre: Singapore Attraction",
+				"LASTMODIFIED" : "2015-11-02T10:13:25.883+08:00",
+				"LATITUDE" : 1.31,
+				"LONGTITUDE" : 103.89942,
+				"ADDRESS" : "139 Ceylon Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This engaging heritage attraction takes you through the history and culture of the Eurasian community in Singapore.",
+				"EXTERNAL_LINK" : "http://www.eurasians.org.sg/",
+				"META_DESCRIPTION" : "This engaging heritage attraction takes you through the history and culture of the Eurasian community in Singapore.",
+				"OPENING_HOURS" : "Tuesday to Sunday, 9am â€“ 6pm, Closed on Monday",
+				"INC_CRC" : "BAAD59F623AEBEEB",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8373360000777, 1.276999999876382 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1013,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/shophouses-typology.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/shophouses-typology-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The varying styles of Singapore's shophouses are a showcase of our evolving architecture.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Shophouses",
+				"LASTMODIFIED" : "2015-11-02T10:15:26.429+08:00",
+				"LATITUDE" : 1.277,
+				"LONGTITUDE" : 103.837336,
+				"ADDRESS" : null,
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "With many beautifully preserved examples on hand today, the shophouses in Singapore are prime examples of timeless architectural appeal.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "Few buildings epitomise our culture as fully as the shophouse, with its surprisingly harmonious mix of diverse design elements.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "0EC57F4BEBE4F154",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8515699997292, 1.2940000004493357 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1014,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/capitol-building-singapore.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/capitol-building-carousel01-rect-norender.jpg",
+				"IMAGE_ALT_TEXT" : "The Capitol Building's distinctive facade adds a touch of grandeur to the cityscape.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Capitol Building Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:06:38.723+08:00",
+				"LATITUDE" : 1.294,
+				"LONGTITUDE" : 103.85157,
+				"ADDRESS" : "11 Stamford Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The queen of Singapore cinemas will soon reclaim her crown as the premier entertainment hub when Capitol Building reopens next year.",
+				"EXTERNAL_LINK" : "http://www.capitolsingapore.com",
+				"META_DESCRIPTION" : "Now undergoing massive restoration works, Capitol Building will emerge as Singaporeâ€™s premier entertainment hub next year.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "506DC313593D2E73",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8552800002768, 1.2899999997642684 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1015,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/esplanade-theatres-on-the-bay.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/the-esplanade-theatres-on-the-bay-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Catch a world-class opera or pop concert at Singaporeâ€™s premier performing arts centre.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Esplanade Theatre",
+				"LASTMODIFIED" : "2015-11-02T09:14:44.054+08:00",
+				"LATITUDE" : 1.29,
+				"LONGTITUDE" : 103.85528,
+				"ADDRESS" : "1 Esplanade Drive",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This boldly designed performing arts centre has become a memorable part of Singaporeâ€™s skyline.",
+				"EXTERNAL_LINK" : "http://www.esplanade.com",
+				"META_DESCRIPTION" : "The Esplanade is boldly designed performing arts centre that has become a memorable part of Singaporeâ€™s skyline.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "F9AA0A3A4F000413",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8636129995887, 1.2819999996692497 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1016,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/gardens-by-the-bay.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/gardens-by-the-bay-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Gardens by the Bay seamlessly blends sleek design, cutting-edge technology and fun.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Gardens by the Bay ",
+				"LASTMODIFIED" : "2015-11-02T09:42:14.206+08:00",
+				"LATITUDE" : 1.282,
+				"LONGTITUDE" : 103.863613,
+				"ADDRESS" : "18 Marina Gardens Drive",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The lush and beautiful Gardens by the Bay is dominated by the sleekly sculptured biodomes â€“ marvels of architecture, design and engineering.",
+				"EXTERNAL_LINK" : "http://www.gardensbythebay.com.sg",
+				"META_DESCRIPTION" : "Biodomes, baobabs and the blossoming bounty of every conceivable plant will bowl you over at Gardens by the Bay. ",
+				"OPENING_HOURS" : "Outdoor Gardens: 5am â€“ 2am,Conservatories: 9am â€“ 9pm,OCBC Skyway: 9am â€“ 9pm",
+				"INC_CRC" : "76915C78AEBDC509",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80305000014201, 1.2819999996256088 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1017,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/the-interlace.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "The Interlace ",
+				"LASTMODIFIED" : "2015-11-02T09:19:31.553+08:00",
+				"LATITUDE" : 1.282,
+				"LONGTITUDE" : 103.80305,
+				"ADDRESS" : "180-226 Depot Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Thereâ€™s more than meets the eye in The Interlaceâ€™s artful arrangement of residential blocks.",
+				"EXTERNAL_LINK" : "http://www.theinterlace.com",
+				"META_DESCRIPTION" : "Few buildings demonstrate out-of-the-box thinking as well as The Interlace, an intriguingly designed residential complex. ",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "C2F299FC784257BC",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84652200044346, 1.2859999996480584 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1018,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/parkroyal-on-pickering.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/parkroyal-pickering-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Pamper yourself and save the world at the same time at PARKROYAL on Pickering.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "PARKROYAL on Pickering",
+				"LASTMODIFIED" : "2015-11-02T09:34:05.378+08:00",
+				"LATITUDE" : 1.286,
+				"LONGTITUDE" : 103.846522,
+				"ADDRESS" : "3 Upper Pickering Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "PARKROYAL on Pickering is a luxurious garden oasis in downtown Singapore.",
+				"EXTERNAL_LINK" : "http://www.parkroyalhotels.com/en/hotels-resorts/singapore/pickering.html",
+				"META_DESCRIPTION" : "PARKROYAL on Pickering is a luxurious garden oasis in downtown Singapore.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "C6EFB5D7A8C68DEC",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85160000018641, 1.3029999996442767 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1019,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/lasalle-college-of-the-arts.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/503-lasalle-college-of-the-arts-carousel01-rect..jpg",
+				"IMAGE_ALT_TEXT" : "Lasalle College of the Arts pushes the boundaries of creativity in architecture",
+				"PHOTOCREDITS" : "Lasalle College of the Arts",
+				"PAGETITLE" : "Lasalle College of the Arts",
+				"LASTMODIFIED" : "2015-11-02T09:49:08.755+08:00",
+				"LATITUDE" : 1.303,
+				"LONGTITUDE" : 103.8516,
+				"ADDRESS" : "1 McNally Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "How can something that fits so perfectly into a cityscape evoke nature as well? It all lies in the design of Lasalle College of the Arts. ",
+				"EXTERNAL_LINK" : "https://www.lasalle.edu.sg",
+				"META_DESCRIPTION" : "Lasalle College of the Arts evokes awe with its bold, graphic lines and stunning reinterpretation of nature.",
+				"OPENING_HOURS" : "Administration Office, Monday to Friday, 9am to 6pm. Visitors can still walk around the campus after office opening hours",
+				"INC_CRC" : "AD9BDC832BC45CC9",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.75749000006692, 1.418999999932186 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1063,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/kranji-war-memorial.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/kranji-war-memorial-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The serene Kranji War Memorial, Singapore is a hillside cemetery set in a quiet neighbourhood.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Kranji War Memorial Landmark in Singapore",
+				"LASTMODIFIED" : "2015-10-26T15:19:50.818+08:00",
+				"LATITUDE" : 1.419,
+				"LONGTITUDE" : 103.75749,
+				"ADDRESS" : "9 Woodlands Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Kranji War Memorial in Singapore honours the men and women from the Commonwealth who died in the line of duty during World War II.",
+				"EXTERNAL_LINK" : "http://bit.ly/19MZ0SB",
+				"META_DESCRIPTION" : "The Kranji War Memorial in Singapore honours the men and women from the Commonwealth who died in the line of duty during World War II.",
+				"OPENING_HOURS" : "Daily, 8am â€“ 6.30pm",
+				"INC_CRC" : "6FDDFA1F3E6DFFBC",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85421699970863, 1.2899999997232254 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1064,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/indian-national-army-monument.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/indian-national-army-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Indian National Army Monument tells an intriguing story of Singapore's past.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Indian National Army (INA) Monument in Singapore",
+				"LASTMODIFIED" : "2015-10-26T15:02:55.258+08:00",
+				"LATITUDE" : 1.29,
+				"LONGTITUDE" : 103.854217,
+				"ADDRESS" : "Esplanade Park",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "This marker at Esplanade Park was one of the eleven World War II markers erected in 1995 to commemorate the 50th anniversary of the end of World War II.",
+				"EXTERNAL_LINK" : "http://www.nhb.gov.sg/places/historic-sites/indian-national-army-memorial",
+				"META_DESCRIPTION" : "The Indian National Army (INA) Monument at Esplanade Park is a memorial that was built in 1995 to mark the 50th anniversary of the end of World War II.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "859B928F80ABD3FC",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79432999969906, 1.2800000003925769 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1065,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/reflections-at-bukit-chandu.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/reflections-at-bukit-chandu-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Reflections at Bukit Chandu is housed in a lovingly restored colonial bungalow.",
+				"PHOTOCREDITS" : "Reflections at Bukit Chandu",
+				"PAGETITLE" : "Reflections at Bukit Chandu: Singapore War Memorial ",
+				"LASTMODIFIED" : "2015-10-26T14:52:32.405+08:00",
+				"LATITUDE" : 1.28,
+				"LONGTITUDE" : 103.79433,
+				"ADDRESS" : "31-K Pepys Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This heritage centre relives the Battle of Pasir Panjang, one of the fiercest battles fought against the Japanese in Singapore during World War II.",
+				"EXTERNAL_LINK" : "http://www.nhb.gov.sg/museums/reflections-at-bukit-chandu",
+				"META_DESCRIPTION" : "Reflections at Bukit Chandu relives the Battle of Pasir Panjang, one of the fiercest battles fought against the Japanese in Singapore during World War II.",
+				"OPENING_HOURS" : "Tuesday to Sunday, 9am â€“ 5.30pm,Closed on Monday (except on public holidays)",
+				"INC_CRC" : "47440F9758199711",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85383800032336, 1.2900000001118352 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1066,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/cenotaph.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/cenotaph-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Surrounded by lush green, The Cenotaph sits at a quiet spot amid the city buzz.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "The Cenotaph - a Singapore War Memorial Landmark",
+				"LASTMODIFIED" : "2015-10-26T15:16:16.699+08:00",
+				"LATITUDE" : 1.29,
+				"LONGTITUDE" : 103.853838,
+				"ADDRESS" : "Esplanade Park, Connaught Drive",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "This war memorial in Esplanade Park honours the heroes who fought and died during World War I and World War II.",
+				"EXTERNAL_LINK" : "http://www.nhb.gov.sg/places/sites-and-monuments/national-monuments/esplanade-park-memorials",
+				"META_DESCRIPTION" : "The Cenotaph in Singapore is a war memorial in Esplanade Park that honours the heroes who fought and died during World War I and World War II.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "C5915CD7497DF8B4",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85461799967786, 1.2929999996111916 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1067,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/civilian-war-memorial.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "The Civilian War Memorial park in Singapore",
+				"LASTMODIFIED" : "2015-10-26T14:58:00.714+08:00",
+				"LATITUDE" : 1.293,
+				"LONGTITUDE" : 103.854618,
+				"ADDRESS" : "Bras Basah Road & Beach Road intersection",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Situated at the War Memorial Park in Beach Road, this memorial commemorates civilian victims of the Japanese Occupation in Singapore.",
+				"EXTERNAL_LINK" : "http://www.nhb.gov.sg/places/sites-and-monuments/national-monuments/civilian-war-memorial",
+				"META_DESCRIPTION" : "The Civilian War Memorial and park in Beach Road commemorates Singaporeâ€™s civilian victims of the Japanese Occupation during World War II. ",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "935776C867C2D03C",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85257999969205, 1.3079999996066878 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1068,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/sri-veeramakaliamman-temple.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/sri-veeramakaliamman-temple-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Sri Veeramakaliamman Temple is a distinctive landmark in the heart of Little India.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Sri Veeramakaliamman Temple: Hindu Temple in Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:25:02.966+08:00",
+				"LATITUDE" : 1.308,
+				"LONGTITUDE" : 103.85258,
+				"ADDRESS" : "141 Serangoon Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Sri Veeramakaliamman Temple is one of Singaporeâ€™s oldest Hindu temples, in the heart of Little India.",
+				"EXTERNAL_LINK" : "http://www.sriveeramakaliamman.com/",
+				"META_DESCRIPTION" : "Sri Veeramakaliamman Temple is one of Singaporeâ€™s oldest Hindu temples, in the heart of Little India.",
+				"OPENING_HOURS" : "Daily, 5.30am â€“ 9.30pm",
+				"INC_CRC" : "FEDEA6040C052B81",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85081000006583, 1.2980000004431316 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1069,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/maghain-aboth-synagogue.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Maghain Aboth Synagogue",
+				"LASTMODIFIED" : "2015-11-02T10:18:20.061+08:00",
+				"LATITUDE" : 1.298,
+				"LONGTITUDE" : 103.85081,
+				"ADDRESS" : "24/26 Waterloo Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Maghain Aboth Synagogue is a gem in more ways than one, providing both a snapshot of history and a glimpse into a rich culture.",
+				"EXTERNAL_LINK" : "http://www.singaporejews.com",
+				"META_DESCRIPTION" : "The simple exterior of the Maghain Aboth Synagogue gives no indication of its richly elegant interiors.",
+				"OPENING_HOURS" : "Visits are available only by appointment. For more information, email jewishwb@singnet.com.sg or call +65 6337 2189 (ext. 103)",
+				"INC_CRC" : "760792BE1458AFC0",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85128000020117, 1.2899999996647205 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1020,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/old-supreme-court.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/old-supreme-court-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Old Supreme Court lends a stately presence to the heart of Singapore city.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Old Supreme Court Singapore",
+				"LASTMODIFIED" : "2015-11-02T09:51:34.087+08:00",
+				"LATITUDE" : 1.29,
+				"LONGTITUDE" : 103.85128,
+				"ADDRESS" : "1 St Andrew's Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "From dispensing justice to displaying art, the Old Supreme Court undergoes an overhaul for its new role as the National Gallery Singapore.",
+				"EXTERNAL_LINK" : "http://app.supremecourt.gov.sg/",
+				"META_DESCRIPTION" : "Due to reopen as the National Gallery Singapore, the Old Supreme Court is in itself a masterpiece of classical art. ",
+				"OPENING_HOURS" : "Expected to open in 2015",
+				"INC_CRC" : "0ACB270946B731B6",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83360000005707, 1.2840000001747696 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1021,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/sit-flats.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/sit-flat-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The charm of Tiong Bahru comes to life through its Art Deco architecture.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "SIT Flats Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:09:11.340+08:00",
+				"LATITUDE" : 1.284,
+				"LONGTITUDE" : 103.8336,
+				"ADDRESS" : "Seng Poh Road and Tiong Bahru Road",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "Take a walk back in time through the Art Deco architecture in the heritage neighbourhood of Tiong Bahru.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "The Art Deco elegance of the flats in Tiong Bahru speak of the richness of a vanished world.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "F0C5D4F77C7959DD",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85043999993232, 1.2809999996676307 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1022,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/lau-pa-sat.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/lau-pa-sat-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Lau Pa Sat blends graceful colonial architecture, heritage and delicious food.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Lau Pa Sat Singapore",
+				"LASTMODIFIED" : "2015-11-02T09:59:12.640+08:00",
+				"LATITUDE" : 1.281,
+				"LONGTITUDE" : 103.85044,
+				"ADDRESS" : "18 Raffles Quay",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The grande dame of markets in Singapore, Lau Pa Sat blends history, striking architecture and scrumptious local food into one heady experience. ",
+				"EXTERNAL_LINK" : "http://www.laupasat.biz",
+				"META_DESCRIPTION" : "The historic market Lau Pa Sat offers a winning combination of graceful colonial architecture, a longstanding heritage and delicious food. ",
+				"OPENING_HOURS" : "Daily, 24 hours",
+				"INC_CRC" : "CF73CFA6827DA207",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85986000025427, 1.302999999904892 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1023,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/malay-heritage-centre.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/malay-heritage-centre-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Delve into the rich heritage and culture of Singaporeâ€™s Malay community.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Malay Heritage Centre, Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:08:04.332+08:00",
+				"LATITUDE" : 1.303,
+				"LONGTITUDE" : 103.85986,
+				"ADDRESS" : "85 Sultan Gate",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Malay Heritage Centre is a must-visit if youâ€™re keen on learning about the rich heritage and culture of Singaporeâ€™s Malay community. ",
+				"EXTERNAL_LINK" : "http://www.malayheritage.org.sg",
+				"META_DESCRIPTION" : "The Malay Heritage Centre is a must-visit if youâ€™re keen on learning about the rich heritage and culture of Singaporeâ€™s Malay community.",
+				"OPENING_HOURS" : "Malay Heritage Centre Museum, Tuesday to Sunday, 10am â€“ 6pm, Closed on Monday, Malay Heritage Centre Compound, Tuesday to Sunday, 8am â€“ 8pm, Friday and Saturday, 8am â€“ 10pm, Closed on Monday",
+				"INC_CRC" : "83F8ACCCA113D64D",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84920000039304, 1.294000000202201 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1024,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/peranakan-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/peranakan-museum-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Many communities, one nation. Find out more about our people, such as the ubiquitous Peranakans.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Peranakan Museum Singapore: History & Culture",
+				"LASTMODIFIED" : "2015-11-02T10:11:13.152+08:00",
+				"LATITUDE" : 1.294,
+				"LONGTITUDE" : 103.8492,
+				"ADDRESS" : "39 Armenian Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Get to know Singaporeâ€™s vibrant Peranakan community and history at this top-notch museum, filled with fine artefacts and fun exhibits.",
+				"EXTERNAL_LINK" : "http://peranakanmuseum.org.sg/",
+				"META_DESCRIPTION" : "At the Peranakan Museum, get to know Singaporeâ€™s vibrant Peranakan community and its eclectic culture and history with fun and interactive exhibits.",
+				"OPENING_HOURS" : "Saturday to Thursday, 10am â€“ 7pm, Friday, 10am â€“ 9pm",
+				"INC_CRC" : "06BBBF16E7838AF6",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85403999971999, 1.2960000003582115 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1025,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/raffles-hotel.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/raffles-hotel-carousel03-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The iconic Raffles Hotel has been home to both tall tales and famous folks.",
+				"PHOTOCREDITS" : "Raffles Hotel, Singapore",
+				"PAGETITLE" : "Raffles Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:11:09.028+08:00",
+				"LATITUDE" : 1.296,
+				"LONGTITUDE" : 103.85404,
+				"ADDRESS" : "1 Beach Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Hark back to a golden age of elegant refinement and gracious living at Raffles Singapore, where the past reawakens to glorious life.",
+				"EXTERNAL_LINK" : "http://www.raffleshotel.com",
+				"META_DESCRIPTION" : "Sip a Singapore Sling beneath the whirling fans at the Long Bar, and let the tranquil charms of Raffles Singapore bring you back into another era.",
+				"OPENING_HOURS" : "Daily, 24 hours",
+				"INC_CRC" : "5E85C549B98314BC",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80458999962369, 1.2780000000841434 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1026,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/performance-arts/gillman-barracks.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/543-GillmanBarracks-Carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : "Gillman Barracks",
+				"PAGETITLE" : "Gillman Barracks â€“ YourSingapore ",
+				"LASTMODIFIED" : "2015-11-03T10:00:29.955+08:00",
+				"LATITUDE" : 1.278,
+				"LONGTITUDE" : 103.80459,
+				"ADDRESS" : "9 Lock Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "A former British military camp is now Asia's new Destination for Contemporary Art.",
+				"EXTERNAL_LINK" : "https://www.gillmanbarracks.com/",
+				"META_DESCRIPTION" : "Gillman Barracks Singapore is Asiaâ€™s vibrant new destination for the creation, exhibition and discussion of contemporary art.",
+				"OPENING_HOURS" : "Tuesday to Saturday, 11am - 7pm, Sunday, 11am - 6pm , Galleries closed on Monday and public holidays.",
+				"INC_CRC" : "3D3246477E5D479E",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85929000007607, 1.2859999997006601 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1027,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/museums-galleries/artscience-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/art-science-musuem-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The ArtScience Museum in Singapore hosts a variety of international touring exhibitions.",
+				"PHOTOCREDITS" : "Vincent Chong",
+				"PAGETITLE" : "ArtScience Museum Singapore",
+				"LASTMODIFIED" : "2015-11-02T18:21:50.005+08:00",
+				"LATITUDE" : 1.286,
+				"LONGTITUDE" : 103.85929,
+				"ADDRESS" : "6 Bayfront Ave",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Catch world-class touring exhibitions at this premier exhibition space.",
+				"EXTERNAL_LINK" : "http://www.marinabaysands.com/museum.html",
+				"META_DESCRIPTION" : "Catch world-class touring exhibitions at the ArtScience Museum at Marina Bay Sands.",
+				"OPENING_HOURS" : "Daily, 10am â€“ 7pm, Last admission at 6pm",
+				"INC_CRC" : "02A7C6FFBF228FAA",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85168000025745, 1.297000000128204 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1028,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/museums-galleries/8q-sam.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/8q-sam-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "SAM at 8Q is the funkier sister of the Singapore Art Museum.",
+				"PHOTOCREDITS" : "8Q at SAM",
+				"PAGETITLE" : "SAM at 8Q & Singapore Art Museum",
+				"LASTMODIFIED" : "2015-11-02T18:22:04.494+08:00",
+				"LATITUDE" : 1.297,
+				"LONGTITUDE" : 103.85168,
+				"ADDRESS" : "8 Queen Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "An extension of the Singapore Art Museum, SAM at 8Q features contemporary art exhibitions and is home to a Moving Image Gallery, where film screenings are held.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "SAM at 8Q at the Singapore Art Museum showcases the works of Singapore contemporary artists.",
+				"OPENING_HOURS" : "Monday to Thursday, 10am â€“ 7pm, Friday, 10am â€“ 9pm",
+				"INC_CRC" : "7383D64B6FD017FE",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84553999962162, 1.28300000012288 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1029,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/jamae-mosque.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/jamae-mosque-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Jamae Mosque in Singapore is one of the oldest mosques in Singapore.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Jamae Mosque (Masjid Chulia) Singapore",
+				"LASTMODIFIED" : "2015-11-03T10:25:29.354+08:00",
+				"LATITUDE" : 1.283,
+				"LONGTITUDE" : 103.84554,
+				"ADDRESS" : "218 South Bridge Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Also known as Masjid Chulia, Jamae Mosque is one of Singaporeâ€™s oldest mosques and a prominent landmark in Chinatown since the 1820s.",
+				"EXTERNAL_LINK" : "http://www.masjidjamaechulia.sg/",
+				"META_DESCRIPTION" : "Jamae Mosque (or Masjid Chulia) is one of Singaporeâ€™s oldest mosques and a prominent landmark in Chinatown since the 1820s.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "DF376519A275508C",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85160000018641, 1.3029999996442767 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1030,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/performance-arts/institute-of-contemporary-arts.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/institute-for-contemporary-art-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Be inspired by the architecture and creativity at the Institute of Contemporary Arts, Singapore.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Institute of Contemporary Arts Singapore",
+				"LASTMODIFIED" : "2015-11-03T14:00:10.125+08:00",
+				"LATITUDE" : 1.303,
+				"LONGTITUDE" : 103.8516,
+				"ADDRESS" : "LASALLE College of the Arts, 1 McNally Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This experimental art space housed in a tertiary arts college will help you deepen your understanding of contemporary art.",
+				"EXTERNAL_LINK" : "https://www.lasalle.edu.sg/ICAS/About-ICAS",
+				"META_DESCRIPTION" : "Housed in a tertiary arts college, the Institute of Contemporary Arts Singapore will help you deepen your appreciation for experimental artworks.",
+				"OPENING_HOURS" : "Tuesday to Sunday, 12pm - 7pm, Closed on Monday and public holidays",
+				"INC_CRC" : "AD9BDC8350C903BC",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86313699997287, 1.2890000003342243 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1031,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/viewpoints/singapore-flyer.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/singapore-flyer-carousel01-rect-norender.jpg",
+				"IMAGE_ALT_TEXT" : "Marvel at spectacular panoramas of the city skyline from the Singapore Flyer.",
+				"PHOTOCREDITS" : "Singapore Flyer",
+				"PAGETITLE" : "Singapore Flyer",
+				"LASTMODIFIED" : "2015-11-03T17:55:41.364+08:00",
+				"LATITUDE" : 1.289,
+				"LONGTITUDE" : 103.863137,
+				"ADDRESS" : "30 Raffles Avenue",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This giant observation wheel offers 360-degree city views, a panorama that stretches to parts of Malaysia and Indonesia on a clear day.",
+				"EXTERNAL_LINK" : "http://www.singaporeflyer.com",
+				"META_DESCRIPTION" : "The Singapore Flyer not only offers you stunning views of the city, but is one of the cityâ€™s most recognisable architectural icons.",
+				"OPENING_HOURS" : "Daily, 8.30am - 10.30pm, (last admission: 10.15pm)",
+				"INC_CRC" : "9A9BD5E2B2D1A42F",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86081000028442, 1.2830000003284543 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1032,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/marina-bay-sands.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/marina-bay-sands-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The breathtaking Marina Bay Sands is a sheer modern architectural triumph.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Marina Bay SandsÂ®",
+				"LASTMODIFIED" : "2015-11-02T09:44:49.007+08:00",
+				"LATITUDE" : 1.283,
+				"LONGTITUDE" : 103.86081,
+				"ADDRESS" : "10 Bayfront Avenue",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "A feat of engineering, an architectural statement and a sheer aesthetic triumph, Marina Bay Sands<sup>Â®</sup> has upped the ante for buildings in Singapore.",
+				"EXTERNAL_LINK" : "http://www.marinabaysands.com",
+				"META_DESCRIPTION" : "Superlatives naturally spring to mind when beholding Marina Bay SandsÂ®. Its bold, swooping curves, steep slopes, and soaring spaces defy gravity and evoke awe.",
+				"OPENING_HOURS" : "SkyPark<supÂ® Operating Hours - Monday to Thursday, 9:30am â€“ 10pm, Friday to Sunday, 9:30am â€“ 11pm, Shoppes Daily, 10am â€“ 10pm (hours vary by store)",
+				"INC_CRC" : "8438A8927B4B6634",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87158999958272, 1.2810000003603013 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1033,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/marina-barrage.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/marina-barrage-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "More than just an ordinary dam, the Marina Barrage is an ideal recreational space.",
+				"PHOTOCREDITS" : "Public Utilities Board",
+				"PAGETITLE" : "Marina Barrage",
+				"LASTMODIFIED" : "2015-11-02T09:24:23.885+08:00",
+				"LATITUDE" : 1.281,
+				"LONGTITUDE" : 103.87159,
+				"ADDRESS" : "8 Marina Gardens Drive",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This innovative facility not only supplies water to Singaporeans and helps alleviate floods but also doubles up as a place for family fun.",
+				"EXTERNAL_LINK" : "https://www.pub.gov.sg/marinabarrage",
+				"META_DESCRIPTION" : "The Marina Barrage not only supplies water to Singaporeans and helps alleviate floods but also doubles up as a place for family fun.",
+				"OPENING_HOURS" : "Marina Barrage - All day  Information Counter Daily, 9am â€“ 9pm",
+				"INC_CRC" : "4C9E8C92AB6052D1",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81525399985189, 1.2759999999166904 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1034,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/henderson-waves.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/henderson-waves-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Explore some of the cityâ€™s best parks and trails, such as the Southern Ridges Walk.",
+				"PHOTOCREDITS" : "Andrew Tan",
+				"PAGETITLE" : "Henderson Waves Bridge",
+				"LASTMODIFIED" : "2015-11-02T09:47:06.929+08:00",
+				"LATITUDE" : 1.276,
+				"LONGTITUDE" : 103.815254,
+				"ADDRESS" : "Henderson Road",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "Lush jungle is broken up with a seriously creative twist in the fantastic form of the Henderson Waves bridge. ",
+				"EXTERNAL_LINK" : "http://www.nparks.gov.sg",
+				"META_DESCRIPTION" : "With the Henderson Waves bridge, form meets function to stunning effect.",
+				"OPENING_HOURS" : "Daily, 24 hours",
+				"INC_CRC" : "599D97F4EC870841",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84141999971553, 1.274999999753642 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1035,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/pinnacle-at-duxton.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/the-pinnacle-duxton-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Pinnacle@Duxton's architecture is a refreshing change in a sea of concrete blocks.",
+				"PHOTOCREDITS" : "Malcolm Tredinnick",
+				"PAGETITLE" : "Pinnacle@Duxton ",
+				"LASTMODIFIED" : "2015-11-02T09:37:49.535+08:00",
+				"LATITUDE" : 1.275,
+				"LONGTITUDE" : 103.84142,
+				"ADDRESS" : "1 Cantonment Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The soaring lines and stunning views of majestic residential estate Pinnacle at Duxton will make you forget your fear of heights. Almost.",
+				"EXTERNAL_LINK" : "http://www.pinnacleduxton.com.sg",
+				"META_DESCRIPTION" : "With its lofty towers and dizzying sky gardens, the Pinnacle at Duxton takes residential living to soaring new heights.",
+				"OPENING_HOURS" : "50th storey Skybridge, Daily, 9am â€“10pm",
+				"INC_CRC" : "E103170995E2D57B",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86285000001742, 1.3029999998983477 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1036,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/hajjah-fatimah-mosque.html",
+				"IMAGE_PATH" : "/content/dam/desktop/global/see-do-singapore/architecture/hajjah-fatimah-mosque-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Hajjah Fatimah Mosque in Singapore features an intriguing blend of cross-cultural architectural influences.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Hajjah Fatimah Mosque ",
+				"LASTMODIFIED" : "2015-11-02T09:55:25.479+08:00",
+				"LATITUDE" : 1.303,
+				"LONGTITUDE" : 103.86285,
+				"ADDRESS" : "4001 Beach Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Hajjah Fatimah Mosque will captivate you with its intriguing blend of cross-cultural architectural influences.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "With its tilting European-style minaret and Chinese tiling, the Hajjah Fatimah Mosque is one of the most unique mosques in Singapore.",
+				"OPENING_HOURS" : "Daily, 9am â€“9pm",
+				"INC_CRC" : "46693400A116E7AE",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78313999984512, 1.286000000346512 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1037,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/haw-par-villa.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Haw Par Villa: Singapore Theme Park",
+				"LASTMODIFIED" : "2015-11-02T10:03:18.577+08:00",
+				"LATITUDE" : 1.286,
+				"LONGTITUDE" : 103.78314,
+				"ADDRESS" : "262 Pasir Panjang Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Embark on an unforgettable journey into Chinese folklore and mythology at the Haw Par Villa theme park. ",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "A visit to the Haw Par Villa theme park is an unforgettable journey into Chinese folklore and mythology.  ",
+				"OPENING_HOURS" : "Daily, 9am â€“ 7pm",
+				"INC_CRC" : "268CDAD9B7FF78AB",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83731000001244, 1.2769999999169914 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1038,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/nus-baba-house.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/baba-house-carousel02-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Beautifully preserved architecture and artefacts make the NUS Baba House a must-visit.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "NUS Baba House - Singapore Peranakan Architecture ",
+				"LASTMODIFIED" : "2015-11-02T10:05:26.618+08:00",
+				"LATITUDE" : 1.277,
+				"LONGTITUDE" : 103.83731,
+				"ADDRESS" : "157 Neil Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This heritage house lends rich insight into Singapore's Peranakan community, thanks to beautifully preserved architecture and artefacts.",
+				"EXTERNAL_LINK" : "http://www.nus.edu.sg/museum/baba",
+				"META_DESCRIPTION" : "NUS Baba House is a heritage house that gives a rich look at Singapore's Peranakan community, thanks to beautifully preserved architecture and artefacts.",
+				"OPENING_HOURS" : "Visits are by appointment only.Visitors must sign up in advance for heritage tours which fall on:Monday, 2pm â€“ 3pm,Tuesday, 6.30pm â€“ 7.30pm,Thursday, 10am â€“ 11am,Saturday, 11am â€“ 12pm",
+				"INC_CRC" : "9E7DDB2F4473C7B0",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8412220004295, 1.2930000001957573 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1039,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/historical/hong-san-see.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Hong San See Temple Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:04:31.503+08:00",
+				"LATITUDE" : 1.293,
+				"LONGTITUDE" : 103.841222,
+				"ADDRESS" : "31 Mohamed Sultan Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Restored by expert craftsmen from China, the Hong San See temple has been brought back to its full glory.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "Dancing dragons and prancing phoenixes are just some of the visual delights to catch at the exquisitely restored Hong San See temple.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "E321462F6848B108",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.68398000019575, 1.3440000000974517 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1040,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/chinese-heritage-centre.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/chinese-heritage-centre-carousel02-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Explore questions on ethnic identity such as what it means to be a Chinese.",
+				"PHOTOCREDITS" : "Chinese Heritage Centre, NTU",
+				"PAGETITLE" : "Chinese Heritage Centre, Singapore",
+				"LASTMODIFIED" : "2015-11-02T09:59:33.922+08:00",
+				"LATITUDE" : 1.344,
+				"LONGTITUDE" : 103.68398,
+				"ADDRESS" : "12 Nanyang Drive",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Chinese Heritage Centre in Singapore is where you can find out more about overseas Chinese communities and their culture.",
+				"EXTERNAL_LINK" : "http://chc.ntu.edu.sg/",
+				"META_DESCRIPTION" : "The Chinese Heritage Centre in Singapore is where you can find out more about overseas Chinese communities and their culture.",
+				"OPENING_HOURS" : "Monday to Friday, 9.30am â€“ 5pm,Saturday and Sunday, 10am â€“5pm, Closed on public holidays",
+				"INC_CRC" : "D45AB32E8C4F8C9D",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85950000007281, 1.3019999997246097 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1041,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/kampong-glam.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/kampong-glam-carousel01-rect-norender.jpg",
+				"IMAGE_ALT_TEXT" : "Delve into Malay culture at the heart of its community, Kampong Glam Singapore.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Kampong Glam & Malay Culture in Singapore",
+				"LASTMODIFIED" : "2015-10-22T12:28:04.683+08:00",
+				"LATITUDE" : 1.302,
+				"LONGTITUDE" : 103.8595,
+				"ADDRESS" : "3 Muscat Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Discover Kampong Glam's rich history, living traditions, excellent eateries and trendy shops in this vibrant neighbourhood.",
+				"EXTERNAL_LINK" : "http://www.kampongglam.org.sg/",
+				"META_DESCRIPTION" : "Discover the heart of Singaporeâ€™s Malay community, living traditions, excellent eateries and trendy shops in vibrant Kampong Glam.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "BBD5ED22B1A56BA8",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80449999961294, 1.275000000179779 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1042,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/performance-arts/centre-for-contemporary-art.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/afiq_omar_rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Contemporary Arts Center hosts exhibitions, live performances, film screenings and talks by visiting artists and curators.",
+				"PHOTOCREDITS" : "Courtesy of NTU CCA Singapore",
+				"PAGETITLE" : "Contemporary Arts Center",
+				"LASTMODIFIED" : "2015-10-20T12:34:59.810+08:00",
+				"LATITUDE" : 1.275,
+				"LONGTITUDE" : 103.8045,
+				"ADDRESS" : "43 Malan Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This university arts research centre explores contemporary art through exhibitions, public programmes, residencies and research programmes.",
+				"EXTERNAL_LINK" : "http://www.ntu.ccasingapore.org/",
+				"META_DESCRIPTION" : "The Contemporary Arts Center at the Nanyang Technological University uses a variety of medium to explore contemporary art.",
+				"OPENING_HOURS" : "Tuesday to Sunday, 12pm â€“ 7pm Friday, 12pm â€“ 9pm , Closed on Monday. Open on public holiday.",
+				"INC_CRC" : "6A6F2B61557D2044",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84933999966081, 1.294000000221489 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1043,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/performance-arts/the-substation.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "The Substation, Singapore Contemporary Art Centre",
+				"LASTMODIFIED" : "2015-10-20T12:32:55.819+08:00",
+				"LATITUDE" : 1.294,
+				"LONGTITUDE" : 103.84934,
+				"ADDRESS" : "45 Armenian Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This experimental arts centre gives a space for contemporary artists to try out new concepts.",
+				"EXTERNAL_LINK" : "http://www.substation.org",
+				"META_DESCRIPTION" : "The Substation is an experimental arts centre that gives a space for contemporary artists to try out new concepts.",
+				"OPENING_HOURS" : "The Substation Box Office ,Monday to Friday, 12pm - 2pm and 5pm - 8pm.Saturday and Sunday, open an hour prior to weekend showtimes. Closed on public holidays.The Substation Gallery Daily, 12pm â€“ 9pm Closed on public holidays",
+				"INC_CRC" : "B4C55CC9FDE0F260",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84571999971159, 1.277999999836356 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1044,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/museums-galleries/red-dot-design-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/red-dot-design-museum-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Award-winning exhibits at the Red Dot Design Museum in Singapore are sure to delight design fans.",
+				"PHOTOCREDITS" : "Red Dot Museum",
+				"PAGETITLE" : "Red Dot Design Museum, Singapore",
+				"LASTMODIFIED" : "2015-10-20T12:16:22.647+08:00",
+				"LATITUDE" : 1.278,
+				"LONGTITUDE" : 103.84572,
+				"ADDRESS" : "28 Maxwell Road, Red Dot Traffic",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This museum holds more than 1,000 award-winning products, communications and concepts that will delight design fans.",
+				"EXTERNAL_LINK" : "http://museum.red-dot.sg",
+				"META_DESCRIPTION" : "The Red Dot Design Museum holds more than 1,000 products and items that are winners for their good design. ",
+				"OPENING_HOURS" : "Monday - Friday, 11am â€“ 6 pm, Saturday and Sunday, 11am â€“ 8 pm",
+				"INC_CRC" : "A8B7CE8F39CCEF90",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85106800020363, 1.2969999999964028 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1045,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/museums-galleries/singapore-art-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/singapore-art-museum-carousel01-rect-norender.jpg",
+				"IMAGE_ALT_TEXT" : "Get to know the works of contemporary artists around Southeast Asia at the Singapore Art Museum.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Singapore Art Museum",
+				"LASTMODIFIED" : "2015-10-20T11:37:44.504+08:00",
+				"LATITUDE" : 1.297,
+				"LONGTITUDE" : 103.851068,
+				"ADDRESS" : "71 Bras Basah Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Singapore Art Museum is Singaporeâ€™s contemporary art museum, focused on Southeast Asian contemporary art.",
+				"EXTERNAL_LINK" : "http://www.singaporeartmuseum.sg",
+				"META_DESCRIPTION" : "The Singapore Art Museum houses the worldâ€™s largest public collection of contemporary Southeast Asian artworks.",
+				"OPENING_HOURS" : "Monday to Thursday, 10am â€“ 7pm, Friday, 10am â€“ 9pm",
+				"INC_CRC" : "B4605FC262DB3F21",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8552800002768, 1.2899999997642684 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1046,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/performance-arts/esplanade-theatres-on-the-bay.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/the-esplanade-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Get your dose of creativity at Esplanade Theatres on the Bay, Singapore's premier arts centre.",
+				"PHOTOCREDITS" : "Mori Hidetaka, Courtesy of Esplanade â€“ Theatres on the Bay",
+				"PAGETITLE" : "Esplanade Theatres on the Bay",
+				"LASTMODIFIED" : "2015-10-20T12:21:35.825+08:00",
+				"LATITUDE" : 1.29,
+				"LONGTITUDE" : 103.85528,
+				"ADDRESS" : "1 Esplanade Drive",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Catch a non-stop line-up of world-class performances at Singaporeâ€™s premier arts centre.",
+				"EXTERNAL_LINK" : "http://www.esplanade.com/index.jsp",
+				"META_DESCRIPTION" : "Esplanade Theatres on the Bay is the countryâ€™s premier arts centre as well as an iconic landmark on the cityâ€™s skyline.",
+				"OPENING_HOURS" : "Box Office Opening Hours Daily, 12pm â€“ 8.30pm, The Esplanade Box Office will open 1 hour prior to show commencement for shows before 12 noon and will remain open up to half an hour after show commencement for shows starting after 8.30pm.",
+				"INC_CRC" : "F9AA0A3A98D9D27B",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85350999960747, 1.2989999996335708 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1047,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/museums-galleries/national-design-centre.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/national-design-centre-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Explore the wonderful world of design at the National Design Centre, Singapore.",
+				"PHOTOCREDITS" : "National Design Centre",
+				"PAGETITLE" : "National Design Centre, Singapore",
+				"LASTMODIFIED" : "2015-10-20T11:24:02.450+08:00",
+				"LATITUDE" : 1.299,
+				"LONGTITUDE" : 103.85351,
+				"ADDRESS" : "111 Middle Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The National Design Centre is the nexus for all things design. It hosts design exhibitions, events and programmes that will quicken the pulse of design lovers.",
+				"EXTERNAL_LINK" : "http://www.designsingapore.org/ndc/About_NDC.aspx",
+				"META_DESCRIPTION" : "The National Design Centre is a design loverâ€™s dream destination.",
+				"OPENING_HOURS" : "Daily, 9.00am â€“ 9.00pm",
+				"INC_CRC" : "A1F25F990EF373CE",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85164100010331, 1.2879999996701443 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1048,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/performance-arts/victoria-theatre-concert-hall.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/victoria-theatre-concert-hall-caurousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Catch world-class performances at stunning venues, like The Victoria Theatre and Concert Hall.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Victoria Theatre Singapore",
+				"LASTMODIFIED" : "2015-10-22T09:40:49.148+08:00",
+				"LATITUDE" : 1.288,
+				"LONGTITUDE" : 103.851641,
+				"ADDRESS" : "11 Empress Place",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "After a four-year refurbishment, the Victoria Theatre and Concert Hall has since reopened, with its first official concert held there in August 2014.",
+				"EXTERNAL_LINK" : "https://www.nac.gov.sg/arts-spaces/nac-arts-venues",
+				"META_DESCRIPTION" : "The historic Victoria Theatre and Concert Hall has been transformed to meet the needs of a modern audience.",
+				"OPENING_HOURS" : "Daily, 10am â€“ 9pm",
+				"INC_CRC" : "5B5888031CB1474A",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77268600037716, 1.3020000001066534 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1049,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/arts/museums-galleries/nus-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/arts/nus-museum-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The NUS Museum in Singapore houses more than 8,000 exhibits that take you back to the past.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "NUS University Museum, Singapore",
+				"LASTMODIFIED" : "2015-10-20T11:32:34.809+08:00",
+				"LATITUDE" : 1.302,
+				"LONGTITUDE" : 103.772686,
+				"ADDRESS" : "50 Kent Ridge Crescent, National University of Singapore",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Get a deeper insight into Asian art and artefacts at this museum on the campus of the National University of Singapore.",
+				"EXTERNAL_LINK" : "http://www.nus.edu.sg/cfa/museum/",
+				"META_DESCRIPTION" : "Get a deeper insight into Asian art and artefacts at NUS Museum at Singaporeâ€™s leading university.",
+				"OPENING_HOURS" : "Tuesday to Friday, 10am â€“ 7.30pm,Saturday and Sunday, 10am â€“ 6pm",
+				"INC_CRC" : "7DBC3F0E501D2FD0",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84691999995587, 1.3280000004372896 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1050,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/sun-yat-sen-memorial-hall.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/sun-yat-sen-memorial-hall-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Sun Yat Sen Memorial Hall pays tribute to the revolutionary leader.",
+				"PHOTOCREDITS" : "Choo Yut Shing",
+				"PAGETITLE" : "Sun Yat Sen Memorial Hall",
+				"LASTMODIFIED" : "2015-10-26T14:46:02.086+08:00",
+				"LATITUDE" : 1.328,
+				"LONGTITUDE" : 103.84692,
+				"ADDRESS" : "12 Tai Gin Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This revamped museum is a fitting tribute to the intriguing life and times of Chinese revolutionary leader Dr Sun Yat Sen.",
+				"EXTERNAL_LINK" : "http://www.sysnmh.org.sg",
+				"META_DESCRIPTION" : "The Sun Yat Sen Memorial Hall is a fitting tribute to the intriguing life and times of Chinese revolutionary leader Dr Sun Yat Sen.",
+				"OPENING_HOURS" : "Tuesday to Sunday, 10am â€“ 5pm, Closed on Monday",
+				"INC_CRC" : "5D6EE2A55F8543E0",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85172300005618, 1.2870000003613598 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1051,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/asian-civilizations-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/asian-civilizations-museum-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Asian Civilizations Museum, Singapore is a historic building that tells the story of Asian civilisation.",
+				"PHOTOCREDITS" : "National Heritage Board",
+				"PAGETITLE" : "Asian Civilisations Museum & Singapore Museum",
+				"LASTMODIFIED" : "2015-10-26T14:28:34.961+08:00",
+				"LATITUDE" : 1.287,
+				"LONGTITUDE" : 103.851723,
+				"ADDRESS" : "1 Empress Place",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Housed in a historical building by the Singapore River, this museum tells the stories of Asian civilisations through its permanent collections.",
+				"EXTERNAL_LINK" : "http://acm.org.sg/",
+				"META_DESCRIPTION" : "Housed in a historical building by the Singapore River, this museum is a microcosm of Asian civilisations spread over 11 galleries.",
+				"OPENING_HOURS" : "Saturday to Thursday, 10am â€“ 7pm, Friday, 10am â€“ 9pm",
+				"INC_CRC" : "A10C6E40AC6C7348",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84882999956713, 1.297000000312191 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1052,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/national-museum-of-singapore.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/national-museum-of-singapore-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The National Museum of Singapore building is also an architectural icon that is stunning to behold.",
+				"PHOTOCREDITS" : "National Heritage Board",
+				"PAGETITLE" : "National Museum of Singapore",
+				"LASTMODIFIED" : "2015-10-26T14:25:34.625+08:00",
+				"LATITUDE" : 1.297,
+				"LONGTITUDE" : 103.84883,
+				"ADDRESS" : "93 Stamford Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Singaporeâ€™s oldest museum is a progressive showcase of the countryâ€™s history and culture.",
+				"EXTERNAL_LINK" : "http://nationalmuseum.sg/",
+				"META_DESCRIPTION" : "The National Museum of Singapore is a progressive showcase of the countryâ€™s history and culture.",
+				"OPENING_HOURS" : "Singapore History Gallery Daily, 10am â€“ 6pm,Last admission at 5.30pm.Singapore Living Galleries Daily, 10am â€“ 8pm Free admission from 6pm â€“8pm , Last admission at 7.30pm",
+				"INC_CRC" : "F27784301E60DA7F",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87583999995009, 1.3640000004237094 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1053,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/japanese-cemetery-park.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/japanese-cemetery-park-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Japanese Cemetery Park holds the ashes of thousands of Japanese soldiers, marines and airmen killed during World War II.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "The Japanese Cemetery Park",
+				"LASTMODIFIED" : "2015-10-26T14:42:00.436+08:00",
+				"LATITUDE" : 1.364,
+				"LONGTITUDE" : 103.87584,
+				"ADDRESS" : "825B Chuan Hoe Avenue",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Located in Hougang, this is the largest Japanese cemetery in Southeast Asia and the burial ground of Singaporeâ€™s early Japanese community.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "The Japanese Cemetery Park is the largest Japanese cemetery in Southeast Asia, containing nearly 1,000 graves of Singaporeâ€™s early Japanese community.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "AAC47560B5B56D89",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8523800002118, 1.287000000031055 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1054,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/dalhousie-obelisk.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/dalhousie-obelisk-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Dalhousie Obelisk is a historically significant piece of Singapore architecture.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Dalhousie Obelisk, a Singapore Landmark",
+				"LASTMODIFIED" : "2015-10-26T14:38:19.671+08:00",
+				"LATITUDE" : 1.287,
+				"LONGTITUDE" : 103.85238,
+				"ADDRESS" : "1 Empress Place",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Dalhousie Obelisk at Empress Place is a famous architectural landmark in Singapore.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "Dalhousie Obelisk at Empress Place is a famous architectural landmark in Singapore.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "3E08894007354254",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85084499992789, 1.287999999873069 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1055,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/sir-raffles-statue-landing-site.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Raffles Statue â€“ Sir Stamford Raffles Landing Site ",
+				"LASTMODIFIED" : "2015-10-26T14:48:54.546+08:00",
+				"LATITUDE" : 1.288,
+				"LONGTITUDE" : 103.850845,
+				"ADDRESS" : "Raffles Landing Site , 59 Boat Quay",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The sculpture depicts Sir Stamford Raffles, founder of modern Singapore. Two statues exist, at the Raffles Landing Site and Empress Place.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "Raffles Statue depicts the founder of modern Singapore, Sir Stamford Raffles. Two statues exist today, at the Raffles Landing Site and Empress Place.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "DC86CA981B710A4D",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84870000020112, 1.2930000000949322 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1056,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/philatelic-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/singapore-philatetic-museum-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Take a colourful trip back in time at this Singapore museum dedicated to postage stamps and related materials.",
+				"PHOTOCREDITS" : "Singapore Philatelic Museum",
+				"PAGETITLE" : "Singapore Philatelic Museum",
+				"LASTMODIFIED" : "2015-10-26T14:31:26.106+08:00",
+				"LATITUDE" : 1.293,
+				"LONGTITUDE" : 103.8487,
+				"ADDRESS" : "23-B Coleman Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Singapore Philatelic Museum offers windows into Singapore and the world through stamps.",
+				"EXTERNAL_LINK" : "http://spm.org.sg",
+				"META_DESCRIPTION" : "The Philatelic Museum offers visitors postage stamp-sized windows into Singapore and the rest of the world.",
+				"OPENING_HOURS" : "Monday, 1pm â€“ 7pm,Tuesday to Sunday, 9.30am â€“ 7pm",
+				"INC_CRC" : "5B73DB247FBCA574",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76883000026213, 1.3519999997259542 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1057,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/memories-at-ford-factory.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/memories-at-ford-factory-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The site of the first Ford plant in Southeast Asia, the Old Ford Factory in Singapore is a journey to the past.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Old Ford Factory Singapore Museum",
+				"LASTMODIFIED" : "2015-10-26T14:21:11.852+08:00",
+				"LATITUDE" : 1.352,
+				"LONGTITUDE" : 103.76883,
+				"ADDRESS" : "351 Upper Bukit Timah Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Old Ford Factory holds an archive of memories about Singapore's wartime occupation by the Japanese.",
+				"EXTERNAL_LINK" : "http://www.nas.gov.sg/moff/Home.aspx",
+				"META_DESCRIPTION" : "The Old Ford Factory is a repository of memories about the hardships endured during the Japanese Occupation of Singapore.",
+				"OPENING_HOURS" : "Monday to Saturday, 9am â€“ 5.30pm,Sunday, 12pm â€“ 5.30pm",
+				"INC_CRC" : "F217B13C0A456F8F",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.844519999686, 1.2830000002936524 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1058,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/singapore-coins-notes-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/singapore-coins-and-notes-museum-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Explore the city of Singapore through its coins and notes over the years at the Singapore Coins and Notes Museum.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Singapore Coins and Notes Museum & Museum Singapore",
+				"LASTMODIFIED" : "2015-10-26T14:00:10.268+08:00",
+				"LATITUDE" : 1.283,
+				"LONGTITUDE" : 103.84452,
+				"ADDRESS" : "40 Pagoda Street, Level 1",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The rare collection of currencies on display here tells Singaporeâ€™s story through the money it has used over the years.",
+				"EXTERNAL_LINK" : "http://www.singaporecoinsandnotesmuseum.com/index1.php",
+				"META_DESCRIPTION" : "The Singapore Coins and Notes Museum tells the story of Singapore through the currencies it has used over the years.",
+				"OPENING_HOURS" : "Daily, 10am â€“ 8pm",
+				"INC_CRC" : "05EF8EBBB8DE1D58",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8451299996125, 1.2800000002552012 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1059,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/singapore-city-gallery.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/singapore-city-gallery-carousel02-rect.jpg",
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Singapore City Gallery",
+				"LASTMODIFIED" : "2015-10-26T14:11:48.280+08:00",
+				"LATITUDE" : 1.28,
+				"LONGTITUDE" : 103.84513,
+				"ADDRESS" : "45 Maxwell Road, The URA Centre",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Singapore City Gallery tells the story of the cityâ€™s physical transformation.",
+				"EXTERNAL_LINK" : "http://www.ura.gov.sg/uol/citygallery.aspx",
+				"META_DESCRIPTION" : "The Singapore City Gallery tells the story of the cityâ€™s physical transformation.",
+				"OPENING_HOURS" : "Monday to Saturday, 9am â€“ 5pm",
+				"INC_CRC" : "F0CCAF5D64E8F5DF",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.97402999980378, 1.361999999672771 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1060,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/changi-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/changi-museum-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Explore our wartime past by learning about the Fall of Singapore and the infamous Changi Prison.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Changi Museum Singapore",
+				"LASTMODIFIED" : "2015-10-26T14:03:31.564+08:00",
+				"LATITUDE" : 1.362,
+				"LONGTITUDE" : 103.97403,
+				"ADDRESS" : "1000 Upper Changi Road North",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Changi Museum provides an emotional exploration of Singaporeâ€™s wartime history during the Japanese Occupation.",
+				"EXTERNAL_LINK" : "http://www.changimuseum.sg",
+				"META_DESCRIPTION" : "Changi Museum provides an emotional exploration of Singaporeâ€™s wartime history during the Japanese Occupation.",
+				"OPENING_HOURS" : "Daily, 9:30am â€“ 5pm,(Last admission: 4.30pm)",
+				"INC_CRC" : "4CD202077C0535A8",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85439000040034, 1.2960000001675374 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1061,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/history-museums/mint-musuem-of-toys.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/mint-museum-of-toys-carousel02-rect.jpg",
+				"IMAGE_ALT_TEXT" : "More than 50,000 vintage toys from as many as 40 countries are on display at this Singapore toy museum.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "MINT Museum of Toys Singapore & Toy Museum",
+				"LASTMODIFIED" : "2015-10-26T14:08:00.518+08:00",
+				"LATITUDE" : 1.296,
+				"LONGTITUDE" : 103.85439,
+				"ADDRESS" : "26 Seah Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This toy museum will delight both adults and kids with the vast collection of vintage toys and memorabilia from around the world.",
+				"EXTERNAL_LINK" : "http://www.emint.com",
+				"META_DESCRIPTION" : "Singapore's MINT Museum of Toys' vast collection of vintage toys will delight both kids and adults.",
+				"OPENING_HOURS" : "Daily, 9.30am â€“ 6.30pm",
+				"INC_CRC" : "AAFD449D4F301E02",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85302700009542, 1.28800000012399 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1062,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/history/memorials/lim-bo-seng-memorial.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/history/lim-bo-seng-memorial-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The Lim Bo Seng Memorial commemorates one of Singapore's heroes from World War II.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Lim Bo Seng Memorial",
+				"LASTMODIFIED" : "2015-10-26T15:07:36.240+08:00",
+				"LATITUDE" : 1.288,
+				"LONGTITUDE" : 103.853027,
+				"ADDRESS" : "Esplanade Park, Connaught Drive",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "This gazetted national monument at Esplanade Park commemorates one of Singaporeâ€™s heroes from World War II.",
+				"EXTERNAL_LINK" : "http://www.nhb.gov.sg/places/sites-and-monuments/national-monuments/esplanade-park-memorials",
+				"META_DESCRIPTION" : "The gazetted Lim Bo Seng Memorial at Esplanade Park commemorates one of Singaporeâ€™s heroes from World War II.",
+				"OPENING_HOURS" : "Daily",
+				"INC_CRC" : "4EFF4F4C99B404D7",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82380800006612, 1.254000000047537 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 961,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/fun-things-to-do/universal-studios-singapore.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/universal-studios-singapore-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Southeast Asia's first Hollywood movie theme park offers a dizzying selection of entertainment offerings.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Universal Studios Singaporeâ„¢ Theme Park",
+				"LASTMODIFIED" : "2015-09-29T15:30:43.563+08:00",
+				"LATITUDE" : 1.254,
+				"LONGTITUDE" : 103.823808,
+				"ADDRESS" : "8 Sentosa Gateway, Sentosa Island",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Step into the glamorous world of movies at this world-class theme park located within Resorts World Sentosaâ„¢.",
+				"EXTERNAL_LINK" : "http://www.rwsentosa.com/language/en-US/Homepage/Attractions/UniversalStudiosSingapore",
+				"META_DESCRIPTION" : "Universal Studios Singaporeâ„¢ at Resorts Worldâ„¢ Sentosa is a movie-themed entertainment park that the whole family can enjoy.",
+				"OPENING_HOURS" : "Open daily at 10am.Closing time varies. Please visit the official website for more information.",
+				"INC_CRC" : "DB45FE524993575F",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.73587200016765, 1.3330000002550502 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 962,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/fun-things-to-do/science-centre.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : "Adults and kids of all ages who are not even science buffs will have fun at the Singapore Science Centre.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Singapore Science Centre",
+				"LASTMODIFIED" : "2015-09-22T10:24:38.376+08:00",
+				"LATITUDE" : 1.333,
+				"LONGTITUDE" : 103.735872,
+				"ADDRESS" : "15 Science Centre Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This enlightening attraction holds the largest collection of educational materials devoted to science in Singapore.",
+				"EXTERNAL_LINK" : "http://www.science.edu.sg/Pages/SCBHome.aspx",
+				"META_DESCRIPTION" : "Singapore Science Centre holds the largest collection of educational materials devoted to science in the country.",
+				"OPENING_HOURS" : "Science Centre Singapore Daily, 10am â€“ 6pm(last admission: 5.15pm) .Omni Theatre Daily, 12pm â€“ 6pm (last show: 6pm) . Snow City Daily, 10am â€“ 6pm (last admission: 5pm) School and public holidays, 10am â€“ 7pm (last admission: 6pm)",
+				"INC_CRC" : "6FAA32B7C50261E2",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84886999959404, 1.2830000000414445 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 963,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/fuk-tak-chi-museum.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/fuk-tak-chi-carousel02-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Marvel at the Fuk Tak Chi Museum's carefully restored architecture in the heart of Chinatown.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Fuk Tak Chi Museum & Places of Interest",
+				"LASTMODIFIED" : "2015-09-08T15:13:53.486+08:00",
+				"LATITUDE" : 1.283,
+				"LONGTITUDE" : 103.84887,
+				"ADDRESS" : "76 Telok Ayer Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Fuk Tak Chi Museum was once the oldest Chinese temple in Singapore and is an elegant example of restored architecture in Chinatown.",
+				"EXTERNAL_LINK" : "http://www.fareastsquare.com.sg/home/index.aspx?key=fuktakchimuseum",
+				"META_DESCRIPTION" : "Fuk Tak Chi Museum was once the oldest Chinese temple in Singapore and is an elegant example of restored architecture in Chinatown.",
+				"OPENING_HOURS" : "Daily, 10am â€“ 10pm",
+				"INC_CRC" : "7ECA5CEEE4C356D6",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90714000043164, 1.3070000004423514 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 964,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/heritage-discovery/katong-antique-house.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/culture-heritage/katong-antique-house-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Marvel at antiques and heirlooms worthy of any museum collection at the Katong Antique House.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Katong Antique House Singapore: Peranakan Heritage",
+				"LASTMODIFIED" : "2015-09-08T14:39:06.950+08:00",
+				"LATITUDE" : 1.307,
+				"LONGTITUDE" : 103.90714,
+				"ADDRESS" : "208 East Coast Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Step into this fully restored bona fide Peranakan family home, and admire the many antiques and heirlooms worthy of any museum collection.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "Step into this fully restored bona fide Peranakan family home, and admire the many antiques and heirlooms worthy of any museum collection.",
+				"OPENING_HOURS" : "Daily, 11am â€“ 4.30pm",
+				"INC_CRC" : "F7836D1C9B916BE8",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7299999996923, 1.3390000002544793 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 965,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/chinese-garden.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/chinese-garden-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Step back in time to ancient China at the beautiful Chinese Garden, Singapore.",
+				"PHOTOCREDITS" : "Vincent Chong",
+				"PAGETITLE" : "Chinese Garden Singapore",
+				"LASTMODIFIED" : "2015-10-02T11:19:38.384+08:00",
+				"LATITUDE" : 1.339,
+				"LONGTITUDE" : 103.73,
+				"ADDRESS" : "1 Chinese Garden Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "A tranquil patch of imperial China in the west of Singapore is pleasant respite from the bustle of the city.",
+				"EXTERNAL_LINK" : "http://www.nhb.gov.sg/resources/virtual-exhibitions-and-tours/walking-through-heritage/chinese-garden",
+				"META_DESCRIPTION" : "A tranquil patch of imperial China in the west of Singapore is pleasant respite from the bustle of the city.",
+				"OPENING_HOURS" : "Daily, 6am â€“ 11pm",
+				"INC_CRC" : "3C917E2CD86E361B",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91218699991474, 1.3010000001624495 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 966,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/east-coast-park.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/east-coast-park-carousel03-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Whether you prefer water sports, rollerblading or cycling, find a myriad of things to do at East Coast Park, Singapore.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "East Coast Park Singapore",
+				"LASTMODIFIED" : "2015-10-02T14:29:32.607+08:00",
+				"LATITUDE" : 1.301,
+				"LONGTITUDE" : 103.912187,
+				"ADDRESS" : "Along East Coast Parkway and East Coast Park Service Road",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "With so many attractions packed into this 15-km stretch of beaches, youâ€™ll never run out of things to do.",
+				"EXTERNAL_LINK" : "http://www.nparks.gov.sg/cms/index.php?option=com_visitorsguide&task=parks&id=14&Itemid=371",
+				"META_DESCRIPTION" : "With so many attractions packed into the 15-km stretch of beaches at East Coast Park, youâ€™ll never run out of things to do.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "D0E1D8FF4A96DF2D",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84650899995276, 1.294999999918433 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 967,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/fort-canning-park.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/fort-canning-park-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Take a stroll back in time at Fort Canning Park, Singapore - a landmark full of history.",
+				"PHOTOCREDITS" : "Joel Chua DY",
+				"PAGETITLE" : "Fort Canning Park",
+				"LASTMODIFIED" : "2015-10-02T14:32:42.018+08:00",
+				"LATITUDE" : 1.295,
+				"LONGTITUDE" : 103.846509,
+				"ADDRESS" : "Bounded by Hill Street, Canning Rise, Clemenceau Avenue and River Valley Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Whether youâ€™re a history buff, music fan or nature lover, this historic landmark on a hill is full of surprises.",
+				"EXTERNAL_LINK" : "http://www.nparks.gov.sg/cms/index.php?option=com_visitorsguide&task=parks&id=16Th",
+				"META_DESCRIPTION" : "Whether youâ€™re a history buff, music fan or nature lover, this historic Fort Canning Park has something for everyone.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "38782D28A71F3E85",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86052300023823, 1.223000000366299 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 968,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/singapore-islands/kusu-island.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Kusu Island, Singapore",
+				"LASTMODIFIED" : "2015-09-09T09:44:33.992+08:00",
+				"LATITUDE" : 1.223,
+				"LONGTITUDE" : 103.860523,
+				"ADDRESS" : "Kusu Island",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "If youâ€™re looking for local heritage off the beaten track with a good dash of nature, Kusu Island hits the spot.",
+				"EXTERNAL_LINK" : "http://www.sentosa.com.sg/en/nature/southern-islands/kusu-island/",
+				"META_DESCRIPTION" : "Kusu Island lies to the south of Singapore, and has a wonderful mix of local heritage and beach activities.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "5F10ACC32D85616C",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.70644199958227, 1.3189999996204014 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 969,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/fun-with-animals/jurong-bird-park.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/jurong-bird-park-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Enjoy close encounters with some of our prettiest and rarest feathered friends at the Jurong Bird Park.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Jurong Bird Park, Singapore: Attractions & Things to Do",
+				"LASTMODIFIED" : "2015-09-22T10:10:33.155+08:00",
+				"LATITUDE" : 1.319,
+				"LONGTITUDE" : 103.706442,
+				"ADDRESS" : "2 Jurong Hill",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Jurong Bird Park has almost every species to impress avian lovers, along with fun exhibits, interactive shows, and of course, its charming residents. ",
+				"EXTERNAL_LINK" : "http://www.birdpark.com.sg",
+				"META_DESCRIPTION" : "Jurong Bird Park has almost every species to impress avian lovers, along with fun exhibits, interactive shows, and of course, its charming residents.",
+				"OPENING_HOURS" : "Daily, 8.30am - 6pm",
+				"INC_CRC" : "E2FBCC953D5F4AC1",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79972399991794, 1.2789999999040045 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 970,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/hortpark.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/hortpark-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Escape the buzz of the city at HortPark, Singapore.",
+				"PHOTOCREDITS" : "National Parks Board",
+				"PAGETITLE" : "HortPark",
+				"LASTMODIFIED" : "2015-09-09T09:47:25.899+08:00",
+				"LATITUDE" : 1.279,
+				"LONGTITUDE" : 103.799724,
+				"ADDRESS" : "33 Hyderabad Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Lose yourself in this dreamscape of stunning gardens that will make you forget the bustle of city.",
+				"EXTERNAL_LINK" : "http://www.nparks.gov.sg/cms/index.php?option=com_visitorsguide&task=parks&id=17&Itemid=73",
+				"META_DESCRIPTION" : "HortPark is a gorgeous collection of stunning gardens and plants that will make you  forget about the bustle of city.",
+				"OPENING_HOURS" : "Daily, 6am â€“10pm",
+				"INC_CRC" : "381418C90B272057",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81952500018511, 1.2570000004048696 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 971,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/fun-things-to-do/adventure-cove.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/adventure-cove-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Adventure Cove Waterparkâ„¢, Singapore is the perfect place to have fun with loved ones.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Adventure Cove Waterparkâ„¢ Singapore",
+				"LASTMODIFIED" : "2015-09-23T19:20:35.693+08:00",
+				"LATITUDE" : 1.257,
+				"LONGTITUDE" : 103.819525,
+				"ADDRESS" : "8 Sentosa Gateway, Sentosa Island",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Make a big splash at this aquatic adventure park at Resorts Worldâ„¢ Sentosa.",
+				"EXTERNAL_LINK" : "http://www.rwsentosa.com/language/en-US/Homepage/Attractions/MarineLifePark/AdventureCoveWaterpark",
+				"META_DESCRIPTION" : "Adventure Cove Waterparkâ„¢ Singapore at Resorts Worldâ„¢ Sentosa promises a day of wet and wild fun in the sun.",
+				"OPENING_HOURS" : "Daily, 10am â€“ 6pm",
+				"INC_CRC" : "84163E94B06A5E91",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85160000018641, 1.3029999996442767 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 972,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/architecture/modern/lassalle-college-of-the-arts.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/architecture/lasalle-college-of-the-arts-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Lasalle College of the Arts pushes the boundaries of creativity in architecture.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Lasalle College of the Arts",
+				"LASTMODIFIED" : "2015-09-24T12:37:44.129+08:00",
+				"LATITUDE" : 1.303,
+				"LONGTITUDE" : 103.8516,
+				"ADDRESS" : "1 McNally Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "How can something that fits so perfectly into a cityscape evoke nature as well? It all lies in the design of Lasalle College of the Arts. ",
+				"EXTERNAL_LINK" : "https://www.lasalle.edu.sg",
+				"META_DESCRIPTION" : "How can something that fits so perfectly into a cityscape evoke nature as well? It all lies in the design of Lasalle College of the Arts. ",
+				"OPENING_HOURS" : "Administration Office Monday to Friday, 9am â€“ 6pm.Visitors can still walk around the campus after office opening hours.",
+				"INC_CRC" : "AD9BDC832F37C922",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84676000002159, 1.2880000004068544 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 973,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/singapore-river.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/singapore-river-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Take a stroll along the Singapore River and see how the city came to be.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Singapore River: History & Culture Tours",
+				"LASTMODIFIED" : "2015-10-12T15:16:52.053+08:00",
+				"LATITUDE" : 1.288,
+				"LONGTITUDE" : 103.84676,
+				"ADDRESS" : "10 Eu Tong Sen Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Get to know historic Singapore River and its famous quays: Boat Quay, Clarke Quay and Robertson Quay. After all, this is where it all began.",
+				"EXTERNAL_LINK" : "http://singapore-river.com/",
+				"META_DESCRIPTION" : "Get to know the historic Singapore River and its famous quays: Boat Quay, Clarke Quay and Robertson Quay. This, after all, is where it all began.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "619DB3A77C312E77",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90447999980002, 1.3060000002637855 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 974,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/joochiat-katong.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/joochiat-katong-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Spend a day exploring heritage shophouses and quaint stores at Joo Chiat/Katong.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Joo Chiat/Katong: Singapore Peranakan Neighbourhood",
+				"LASTMODIFIED" : "2015-10-12T15:49:21.359+08:00",
+				"LATITUDE" : 1.306,
+				"LONGTITUDE" : 103.90448,
+				"ADDRESS" : "113 East Coast Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Discover Peranakan culture as you stroll past heritage shophouses, quaint stores and eateries in this charming corner of eastern Singapore.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "Discover Peranakan culture as you stroll past heritage shophouses, quaint stores and eateries in Joo Chiat/Katong, a charming corner of eastern Singapore.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "6C8E94468E2E7124",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82809000041743, 1.2489999998116283 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 975,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/sentosa.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/sentosa-carousel01-rect-norender.jpg",
+				"IMAGE_ALT_TEXT" : "Get ready for laughs, thrills and loads of fun in the sun at Sentosa Island.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Sentosa Island, Singapore: Leisure & Attractions",
+				"LASTMODIFIED" : "2015-10-12T15:13:28.117+08:00",
+				"LATITUDE" : 1.249,
+				"LONGTITUDE" : 103.82809,
+				"ADDRESS" : "33 Allanbrooke Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Sentosa Island is Singaporeâ€™s favourite leisure destination with exciting attractions, golden beaches, luxe retreats and the countryâ€™s first integrated resort.",
+				"EXTERNAL_LINK" : "http://www.sentosa.com.sg",
+				"META_DESCRIPTION" : "Sentosa Island is Singaporeâ€™s favourite leisure destination, with more than 500 hectares filled with exciting attractions, golden beaches, luxe retreats and the countryâ€™s first integrated resort, Resorts World Sentosa.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "96E94C87B982648F",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84377099955947, 1.2820000001680132 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 976,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/chinatown.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/chinatown-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Chinatown, Singapore is a bustling mix of old-world charm and modern delights.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Chinatown Singapore: History & Culture",
+				"LASTMODIFIED" : "2015-10-12T14:54:36.802+08:00",
+				"LATITUDE" : 1.282,
+				"LONGTITUDE" : 103.843771,
+				"ADDRESS" : "2 Banda Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Singaporeâ€™s historic Chinatown is a bustling mix of old and new, filled with traditional shops and markets as well as cool stores and cafes.",
+				"EXTERNAL_LINK" : "http://www.chinatown.sg/",
+				"META_DESCRIPTION" : "Singaporeâ€™s legendary Chinatown is a bustling mix of old and new, filled with traditional shops and night markets as well as cool stores and cafes. ",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "B0548C755E3EC082",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84438000032263, 1.2820000003099785 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 977,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/culture-heritage/places-of-worship/buddha-tooth-relic-temple-museum.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Buddha Tooth Relic Temple & Museum in Singapore",
+				"LASTMODIFIED" : "2015-11-02T10:18:49.556+08:00",
+				"LATITUDE" : 1.282,
+				"LONGTITUDE" : 103.84438,
+				"ADDRESS" : "288 South Bridge Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This Tang-styled Chinese Buddhist temple in Chinatown gets its name from what the Buddhists regard as the Sacred Buddha Tooth Relic.",
+				"EXTERNAL_LINK" : "http://www.btrts.org.sg/",
+				"META_DESCRIPTION" : "The Buddha Tooth Relic Temple & Museum is a Tang-styled Chinese Buddhist temple in Chinatown that gets its name from the Sacred Buddha Tooth Relic.",
+				"OPENING_HOURS" : "Daily, 7am â€“ 7pm",
+				"INC_CRC" : "B2F1C26B038D18E4",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80194400025553, 1.2660000003513552 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 978,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/reserves/labrador-nature-reserve.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/labrador-nature-reserve-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Labrador Nature Reserve in Singapore is a beautiful park that is rich with biodiversity.",
+				"PHOTOCREDITS" : "National Parks Board",
+				"PAGETITLE" : "Labrador Nature Reserve",
+				"LASTMODIFIED" : "2015-03-30T12:57:27.648+08:00",
+				"LATITUDE" : 1.266,
+				"LONGTITUDE" : 103.801944,
+				"ADDRESS" : "Labrador Villa Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "With its rich biodiversity and war relics, nature lovers and history enthusiasts will find plenty to do at Labrador Nature Reserve.",
+				"EXTERNAL_LINK" : "http://www.nparks.gov.sg/cms/index.php?option=com_visitorsguide&task=naturereserves&id=48",
+				"META_DESCRIPTION" : "With its rich biodiversity and war relics, nature lovers and history enthusiasts will find plenty to do at Labrador Nature Reserve.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "753BAD6A217FA42F",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85645400029692, 1.2799999995467486 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 979,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/marina-bay-area.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/marina-bay-area-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Marina Bay SandsÂ® is an integrated resort with experiences like no other.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Marina Bay Singapore: Attractions & Things to do",
+				"LASTMODIFIED" : "2015-07-23T09:42:57.583+08:00",
+				"LATITUDE" : 1.28,
+				"LONGTITUDE" : 103.856454,
+				"ADDRESS" : "11 Marina Boulevard",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Marina Bay represents all things modern and super-stylish, from trendy dining destinations to exciting leisure spots.",
+				"EXTERNAL_LINK" : "http://www.marina-bay.sg",
+				"META_DESCRIPTION" : "Marina Bay represents all things modern and super-stylish in Singapore, from trendy dining destinations to fun leisure spots.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "6CE0801F52123ACB",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85898999984691, 1.2839999999560643 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 980,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/resorts/marina-bay-sands.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/marina-bay-sands-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Marina Bay Sands, Singapore",
+				"LASTMODIFIED" : "2015-09-01T15:35:42.052+08:00",
+				"LATITUDE" : 1.284,
+				"LONGTITUDE" : 103.85899,
+				"ADDRESS" : "10 Bayfront Avenue",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This iconic integrated resort boasts luxury accommodations, upscale shopping and an infinity pool with unparalleled views of the city. ",
+				"EXTERNAL_LINK" : "http://www.marinabaysands.com/index.html",
+				"META_DESCRIPTION" : "Marina Bay SandsÂ® boasts luxury accommodations, upscale shopping and an infinity pool with unparalleled views of the city. ",
+				"OPENING_HOURS" : "Opening hours varies. Please visit the official website for more information.",
+				"INC_CRC" : "E5BB2C46D3EE44FE",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.96371000011354, 1.4079999997246015 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 981,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/reserves/chek-jawa.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/chek-jawa-carousel03-rect-norender.jpg",
+				"IMAGE_ALT_TEXT" : "Bird lovers can spot rare species from a 21-metre tall viewing tower at Chek Jawa.",
+				"PHOTOCREDITS" : "National Parks Board",
+				"PAGETITLE" : "Chek Jawa",
+				"LASTMODIFIED" : "2015-09-07T14:06:03.482+08:00",
+				"LATITUDE" : 1.408,
+				"LONGTITUDE" : 103.96371,
+				"ADDRESS" : "Chek Jawa, Pulau Ubin",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "A world away from shopping malls and glitzy hotels, this natural wonder is one of Singaporeâ€™s richest eco-systems.",
+				"EXTERNAL_LINK" : "https://www.nparks.gov.sg/gardens-parks-and-nature/parks-and-nature-reserves/pulau-ubin-and-chek-jawa/what-to-see/about-chek-jawa",
+				"META_DESCRIPTION" : "A world away from shopping malls and glitzy hotels, the natural wonder of Chek Jawa is one of Singaporeâ€™s richest eco-systems.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "A74F81F2FB5B23A8",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85455199965341, 1.2869999999610218 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 982,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/viewpoints/merlion-park.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/merlion-park-skypark-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Come and see the Singapore icon that is half-fish and half-lion at the Merlion Park.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Merlion Park, Singapore: Attractions & Things to Do",
+				"LASTMODIFIED" : "2015-10-06T17:28:25.792+08:00",
+				"LATITUDE" : 1.287,
+				"LONGTITUDE" : 103.854552,
+				"ADDRESS" : "One Fullerton",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Half-fish and half-lion, the iconic Merlion resides at the waterfront Merlion Park. ",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "Merlion Park houses a Singapore icon that is half-fish and half-lion, and famous throughout the world.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "38420344FBD4E2E7",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86081000028442, 1.2830000003284543 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 983,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/viewpoints/marina-bay-sands-skypark.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/marina-bay-sands-skypark-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Take in stunning views from an infinity pool and observation deck in the clouds at the Marina Bay Sands SkyPark.",
+				"PHOTOCREDITS" : "Andrew Tan",
+				"PAGETITLE" : "Marina Bay SandsÂ® SkyPark",
+				"LASTMODIFIED" : "2015-09-28T18:27:45.210+08:00",
+				"LATITUDE" : 1.283,
+				"LONGTITUDE" : 103.86081,
+				"ADDRESS" : "Level 57, 10 Bayfront Avenue",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Marina Bay Sands<sup>Â®</sup> SkyPark is a roof like no other, perched 200 metres in the air with an infinity pool and observation deck in the clouds.",
+				"EXTERNAL_LINK" : "http://www.marinabaysands.com/sands-skypark.html",
+				"META_DESCRIPTION" : "The Marina Bay Sands<sup>Â®</sup> SkyPark is a roof like no other, perched 200 metres in the air with an infinity pool and observation deck in the clouds.",
+				"OPENING_HOURS" : "Monday to Thursday, 9.30am - 10pm.Friday to Sunday, 9.30am - 11pm",
+				"INC_CRC" : "8438A8929B2FABF8",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82033000043589, 1.2570000000417383 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 984,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/recreation-leisure/resorts/resorts-world-sentosa.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/resorts-world-sentosa-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "From world-class theme parks to celebrity restaurants, Resorts World Sentosa has it all.",
+				"PHOTOCREDITS" : "Resort World Sentosa",
+				"PAGETITLE" : "Resorts World Sentosa, Singapore ",
+				"LASTMODIFIED" : "2015-09-28T18:21:18.109+08:00",
+				"LATITUDE" : 1.257,
+				"LONGTITUDE" : 103.82033,
+				"ADDRESS" : "8 Sentosa Gateway, Sentosa Island",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Experience endless excitement at Resorts World Sentosa with a variety of attractions and entertainment hot spots.",
+				"EXTERNAL_LINK" : "http://www.rwsentosa.com",
+				"META_DESCRIPTION" : "Whether itâ€™s themes parks, world-class performances or celebrity restaurants, youâ€™ll never run out of things to do at Resorts Worldâ„¢ Sentosa.",
+				"OPENING_HOURS" : "Opening hours differ for the various attractions.",
+				"INC_CRC" : "8C49472B1AD4B536",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81758899996797, 1.2810000003160744 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 985,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/the-southern-ridges.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/recreation-leisure/resorts-world-sentosa-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "From world-class theme parks to celebrity restaurants, Resorts World Sentosa has it all.",
+				"PHOTOCREDITS" : "Resort World Sentosa",
+				"PAGETITLE" : "Singapore Garden & Singapore Park",
+				"LASTMODIFIED" : "2015-09-09T09:59:33.518+08:00",
+				"LATITUDE" : 1.281,
+				"LONGTITUDE" : 103.817589,
+				"ADDRESS" : "Henderson Road, Mount Faber Park, Telok Blangah Hill Park",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This 10-km stretch of connecting trails lets you walk among the trees to observe a wide variety of flora and fauna in their natural habitat.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "The Southern Ridges is a 10-km stretch of connecting trails which lets you walk among the trees to observe a wide variety of flora and fauna in their natural habitat.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "D1353188ED7A51A2",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.73014900005393, 1.4469999996456566 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 986,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/reserves/sungei-buloh-wetland-reserve.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/the-southern-ridges-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Get up close with a wide variety of flora and fauna in their natural habitat at this Singapore Garden.",
+				"PHOTOCREDITS" : "National Parks Board",
+				"PAGETITLE" : "Sungei Buloh",
+				"LASTMODIFIED" : "2015-10-02T15:32:19.572+08:00",
+				"LATITUDE" : 1.447,
+				"LONGTITUDE" : 103.730149,
+				"ADDRESS" : "301 Neo Tiew Crescent",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This ecological wonder will transport you into a world rich in animal and plant life.",
+				"EXTERNAL_LINK" : "https://www.nparks.gov.sg/sbwr",
+				"META_DESCRIPTION" : "The ecological wonder of Sungei Buloh will transport you into a world rich in animal and plant life.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "E597C7266E042D5D",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81949299993633, 1.2570000002343933 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 987,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/fun-with-animals/sea-aquarium.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/sungei-buloh-wetland-reserve-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Explore a world rich with animal and plant life at the Sungei Buloh Wetland Reserve.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "S.E.A. Aquarium",
+				"LASTMODIFIED" : "2015-10-02T15:23:07.822+08:00",
+				"LATITUDE" : 1.257,
+				"LONGTITUDE" : 103.819493,
+				"ADDRESS" : "8 Sentosa Gateway, Sentosa Island",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Immerse yourself underwater at the S.E.A. Aquariumâ„¢ and discover more than 100,000 marine animals.",
+				"EXTERNAL_LINK" : "http://www.rwsentosa.com/language/en-US/Homepage/Attractions/MarineLifePark",
+				"META_DESCRIPTION" : "Immerse yourself underwater at the S.E.A. Aquariumâ„¢ and take a look into the planetâ€™s largest window to the ocean.",
+				"OPENING_HOURS" : "Open daily at 10am.Closing time varies. Please visit the official website for more information.",
+				"INC_CRC" : "9134D87554DCEE92",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81591400037976, 1.3139999997177145 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 988,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/singapore-botanic-gardens.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/singapore-botanic-gardens-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Singapore Botanic Gardens",
+				"LASTMODIFIED" : "2015-10-02T15:27:52.272+08:00",
+				"LATITUDE" : 1.314,
+				"LONGTITUDE" : 103.815914,
+				"ADDRESS" : "1 Cluny Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Singaporeâ€™s oldest garden is a treasure trove for plant lovers, or those who simply want to have a good time outdoors.",
+				"EXTERNAL_LINK" : "http://www.sbg.org.sg",
+				"META_DESCRIPTION" : "Singaporeâ€™s Botanic Gardens is a treasure trove for plant lovers, or those who simply want to have a good time outdoors.",
+				"OPENING_HOURS" : "Singapore Botanic Gardens Daily, 5am - 12am National Orchid Garden Daily, 8.30am - 7pm(last ticket sales at 6pm)Jacob Ballas Children's Garden Tuesday to Sunday, 8am - 7pm(last admission: 6.30pm)Closed every Monday (except when it falls on a designated public holiday)SBG Heritage MuseumDaily*, 9am - 6pm*Closed every last Monday of the month (except when it falls on a designated public holiday, it will be closed the following day)",
+				"INC_CRC" : "996D763831AEBD0A",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79302299990539, 1.4040000000626178 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 989,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/fun-with-animals/singapore-zoo.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/singapore-zoo-carousel04-rect.jpg",
+				"IMAGE_ALT_TEXT" : "The award-winning Singapore Zoo lets you see your favourite animals in all their natural wonder.",
+				"PHOTOCREDITS" : "Wildlife Reserves Singapore",
+				"PAGETITLE" : "Singapore Zoo: Attractions & Things to Do",
+				"LASTMODIFIED" : "2015-09-22T09:45:21.173+08:00",
+				"LATITUDE" : 1.404,
+				"LONGTITUDE" : 103.793023,
+				"ADDRESS" : "80 Mandai Lake Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Singaporeâ€™s zoo is a beautiful, award-winning wildlife park, where animals can roam freely in their natural habitats.",
+				"EXTERNAL_LINK" : "http://www.zoo.com.sg",
+				"META_DESCRIPTION" : "Catch animals in their natural habitats at the award-winning Singapore Zoo.",
+				"OPENING_HOURS" : "Daily, 8.30am â€“ 6pm(last ticket sale at 5.30pm)",
+				"INC_CRC" : "18667098ECAA1337",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78942299961993, 1.4039999999307053 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 990,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/fun-with-animals/river-safari-singapore.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/river-safari-singapore-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Meet manatees, monkeys and more as you ride the world's rivers at River Safari, Singapore.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "River Safari Singapore",
+				"LASTMODIFIED" : "2015-09-22T10:33:35.047+08:00",
+				"LATITUDE" : 1.404,
+				"LONGTITUDE" : 103.789423,
+				"ADDRESS" : "80 Mandai Lake Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "At the River Safari Singapore, meet manatees and monkeys, piranhas and pandas, as they congregate in and around the parkâ€™s waters.",
+				"EXTERNAL_LINK" : "http://www.riversafari.com.sg",
+				"META_DESCRIPTION" : "The River Safari Singapore is a fascinating new wildlife park that recreates life in and around the worldâ€™s rivers.",
+				"OPENING_HOURS" : "Daily, 10am - 7pm",
+				"INC_CRC" : "66488FA65567B198",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81920600027753, 1.2709999998354296 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 991,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/mount-faber.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/mount-faber-carouse01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Spend a unique evening overlooking spectacular views on a cable car in Singapore's Mount Faber.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Cable Car Singapore & Mount Faber",
+				"LASTMODIFIED" : "2015-10-02T15:13:15.155+08:00",
+				"LATITUDE" : 1.271,
+				"LONGTITUDE" : 103.819206,
+				"ADDRESS" : "109 Mount Faber Road",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "Getting to this hilltop dining and entertainment spot at Mount Faber by cable car  is half the fun.",
+				"EXTERNAL_LINK" : "http://www.mountfaber.com.sg/",
+				"META_DESCRIPTION" : "Getting to the hilltop dining and entertainment spot at Mount Faber by cable car is half the fun.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "49FF8DB6217FEF79",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78806100013595, 1.4019999995871437 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 992,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/fun-with-animals/night-safari.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/night-safari-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Enter a world of nocturnal creatures at the Night Safari, Singapore.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Night Safari, Singapore",
+				"LASTMODIFIED" : "2015-10-02T15:15:50.135+08:00",
+				"LATITUDE" : 1.402,
+				"LONGTITUDE" : 103.788061,
+				"ADDRESS" : "80 Mandai Lake Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Instead of going to a club, pop into another popular nightspot, the Night Safari, and mingle with a different crowd of animals at this special zoo.",
+				"EXTERNAL_LINK" : "http://www.nightsafari.com.sg",
+				"META_DESCRIPTION" : "Head to the Night Safari for an after dark visit to the weird and wonderful creatures of the night.",
+				"OPENING_HOURS" : "Daily, 7.30pm - 12am .Last ticket sale at 11.15pm.F and B and retail outlets open from 5.30pm",
+				"INC_CRC" : "8BA1B3A7C79E9CA7",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.9592610004016, 1.413999999772592 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 993,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/singapore-islands/pulau-ubin.html",
+				"IMAGE_PATH" : null,
+				"IMAGE_ALT_TEXT" : null,
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Pulau Ubin & Singapore Islands",
+				"LASTMODIFIED" : "2015-10-02T15:18:44.241+08:00",
+				"LATITUDE" : 1.414,
+				"LONGTITUDE" : 103.959261,
+				"ADDRESS" : "Pulau Ubin",
+				"POSTALCODE" : "0",
+				"OVERVIEW" : "Gravel roads, lush forests and abundant wildlife â€“ Pulau Ubin is a living showcase of what Singapore was like in the 1960s.",
+				"EXTERNAL_LINK" : "http://www.nparks.gov.sg/cms/index.php?option=com_visitorsguide&task=parks&id=29&Itemid=73",
+				"META_DESCRIPTION" : "Hop on a bumboat to the island of Pulau Ubin if you want a taste of nature and rustic village life, away from the hustle and bustle of Singapore.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "797CCAAC0AC70CA1",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84982000024839, 1.3070000000134547 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 994,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/little-india.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/little-india-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Immerse yourself in the rich culture of Little India, Singapore.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Little India Singapore: History & Culture",
+				"LASTMODIFIED" : "2015-10-12T15:10:33.979+08:00",
+				"LATITUDE" : 1.307,
+				"LONGTITUDE" : 103.84982,
+				"ADDRESS" : "60 Bukit Timah Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Little India is a buzzing historic area that shows off the best of Singaporeâ€™s Indian community from vibrant culture to incredible shopping.",
+				"EXTERNAL_LINK" : "http://www.littleindia.com.sg/",
+				"META_DESCRIPTION" : "Little India is a buzzing historic district that shows off the best of Singaporeâ€™s Indian community, from vibrant culture to ethnic-inspired shopping.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "4E505C4139BD1E3A",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83248999988604, 1.3039999996704363 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 995,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/orchard.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/orchard-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Orchard Road, Singapore is nothing short of a shopper's paradise.",
+				"PHOTOCREDITS" : "Goh Hak Liang",
+				"PAGETITLE" : "Orchard Road, Singapore: Asia's Most Famous Shopping Street",
+				"LASTMODIFIED" : "2015-10-14T14:29:19.486+08:00",
+				"LATITUDE" : 1.304,
+				"LONGTITUDE" : 103.83249,
+				"ADDRESS" : "437 Orchard Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "Orchard Road, Asiaâ€™s most famous shopping street, is home to fashion favourites, specialist stores and loads of other lifestyle choices.",
+				"EXTERNAL_LINK" : "http://www.orchardroad.org/",
+				"META_DESCRIPTION" : "Donâ€™t miss a trip to Orchard Road. Asiaâ€™s most famous shopping street is home to fashion favourites, specialist stores and loads of other lifestyle choices.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "BA90E4BD24EB506E",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8223460002478, 1.3449999999405355 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 996,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/reserves/macritchie-nature-reserve.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/macritchie-nature-reserve-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "MacRitchie Reservoir is natureâ€™s playground for those who love the great outdoors.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "MacRitchie Singapore & Singapore Nature Reserve",
+				"LASTMODIFIED" : "2015-10-15T18:52:17.740+08:00",
+				"LATITUDE" : 1.345,
+				"LONGTITUDE" : 103.822346,
+				"ADDRESS" : "MacRitchie Reservoir Park",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The attractions around MacRitchie Reservoir is a playground of nature for those who love the outdoors.",
+				"EXTERNAL_LINK" : "http://www.nparks.gov.sg/cms/macritchie.php?option=com_visitorsguide&task=naturereserves&id=49&Itemid=75",
+				"META_DESCRIPTION" : "The attractions around MacRitchie Reservoir caters to fitness fanatics, water sports enthusiasts and nature lovers.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "55CEE55B4F6A895A",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8636129995887, 1.2819999996692497 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 997,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/nature-wildlife/parks-gardens/gardens-by-the-bay.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/nature-wildlife/gardens-by-the-bay-carousel02-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Be mesmerised by stunning waterfront views at the award-winning horticultural destination that is Gardens by the Bay.",
+				"PHOTOCREDITS" : "Derrick See",
+				"PAGETITLE" : "Gardens by the Bay",
+				"LASTMODIFIED" : "2015-10-19T15:26:06.746+08:00",
+				"LATITUDE" : 1.282,
+				"LONGTITUDE" : 103.863613,
+				"ADDRESS" : "18 Marina Gardens Drive",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "This sprawling garden in the city provides mesmerising waterfront views across three gardens, spanning over 101 hectares of reclaimed land.",
+				"EXTERNAL_LINK" : "http://www.gardensbythebay.com.sg/en/home.html",
+				"META_DESCRIPTION" : "Gardens by the Bay provides mesmerising waterfront views across three gardens, spanning over 101 hectares of reclaimed land.",
+				"OPENING_HOURS" : "Bay South Outdoor Gardens Daily, 5am - 2am Cooled Conservatories and OCBC Skyway Daily, 9am - 9pm(last ticket sale at 8pm).Far East Organization Children's Garden Tuesday* to Friday, 10am - 7pm(last admission: 6.30pm)*Closed on Tuesday if a public holiday falls on the preceding Monday Weekends and public holidays, 9am - 9pm(last admission: 8.30pm)",
+				"INC_CRC" : "76915C78CEAAEB32",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85222000003073, 1.292999999711766 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 998,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/civic-district.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/civic-district-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Immerse yourself in a day of history and culture at the Civic District, Singapore.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Civic District, Singapore",
+				"LASTMODIFIED" : "2015-10-13T14:04:28.278+08:00",
+				"LATITUDE" : 1.293,
+				"LONGTITUDE" : 103.85222,
+				"ADDRESS" : "150 North Bridge Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Civic District is where Singaporeâ€™s historical, architectural and cultural heritage started.",
+				"EXTERNAL_LINK" : null,
+				"META_DESCRIPTION" : "The Civic District is where Singaporeâ€™s historical, architectural and cultural heritage starts.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "6C2A4BCE94CE4175",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8205700001771, 1.2650000000524553 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 999,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/harbourfront.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/harbourfront-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "HarbourFront, Singapore is your exciting gateway to entertainment and Singapore's outlying islands.",
+				"PHOTOCREDITS" : "St. James Holdings Ltd",
+				"PAGETITLE" : "HarbourFront, Singapore",
+				"LASTMODIFIED" : "2015-10-12T15:30:50.116+08:00",
+				"LATITUDE" : 1.265,
+				"LONGTITUDE" : 103.82057,
+				"ADDRESS" : "81 Telok Blangah Road",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "HarbourFront is the place to go if you're hopping on a cruise from Singapore, taking a regional ferry or simply want to eat, shop or relax.",
+				"EXTERNAL_LINK" : "http://www.shba.org.sg/",
+				"META_DESCRIPTION" : "HarbourFront is the place to go if you're hopping on a cruise from Singapore, taking a ferry to the outlying islands or simply want to eat, shop or relax.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "D8640AC2A93885F8",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85624000008437, 1.3009999996153456 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 1000,
+				"URL_PATH" : "www.yoursingapore.com/en/see-do-singapore/places-to-see/bras-basah-bugis.html",
+				"IMAGE_PATH" : "www.yoursingapore.com/content/dam/desktop/global/see-do-singapore/places-to-see/bras-basah-bugis-carousel01-rect.jpg",
+				"IMAGE_ALT_TEXT" : "Thereâ€™s nowhere else quite like shopping at Bugis.",
+				"PHOTOCREDITS" : null,
+				"PAGETITLE" : "Bras Basah.Bugis, Singapore Cultural District",
+				"LASTMODIFIED" : "2015-10-12T15:34:32.303+08:00",
+				"LATITUDE" : 1.301,
+				"LONGTITUDE" : 103.85624,
+				"ADDRESS" : "220 Victoria Street",
+				"POSTALCODE" : null,
+				"OVERVIEW" : "The Bras Basah.Bugis Precinct is the arts and heritage district in Singapore's civic centre, and home to museums and monuments.",
+				"EXTERNAL_LINK" : "http://www.brasbasahbugis.sg/",
+				"META_DESCRIPTION" : "The Bras Basah.Bugis Precinct is the vibrant arts and cultural district in the heart of Singapore's civic centre, and home to top museums and monuments.",
+				"OPENING_HOURS" : null,
+				"INC_CRC" : "44132C4232BA16E5",
+				"FMEL_UPD_D" : "20180619175243"
+			}
+		}
+	]
+}

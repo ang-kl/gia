@@ -3,6 +3,8 @@ import { isCredentialFixturePath, forbiddenArchivePath, credentialShapesInText, 
 
 // Spec doc/Feature/2026-10-29-docs-and-vault-v0-62-948.spec.md (I1, I3): v0.62.948 joins as a second
 // unsanitised current snapshot; nothing pinned about the 27 historical folders or v0.62.937 moves.
+// Spec doc/Feature/2026-11-09-docs-and-vault-v0-62-982.spec.md (I1, I3): v0.62.982 joins as a third; the
+// pins for v0.62.937 and v0.62.948 stay exactly as they were, only the set and the folder count grow.
 describe('current snapshots',()=>{
   it('keeps v0.62.937 pinned exactly as before',()=>{
     expect(CURRENT_SOURCE).toBe('439cf204312b5ad892ec8bd57f37a3d105212f7e');
@@ -15,13 +17,23 @@ describe('current snapshots',()=>{
     expect(s.tree).toMatch(/^[0-9a-f]{40}$/);
     expect(s.tree).not.toBe(CURRENT_VAULT_TREE);
   });
-  it('holds exactly two current snapshots, neither sanitised nor historical',()=>{
-    expect([...CURRENT_SNAPSHOTS.keys()]).toEqual(['v0.62.937','v0.62.948']);
+  it('keeps v0.62.948 pinned exactly as before',()=>{
+    expect(CURRENT_SNAPSHOTS.get('v0.62.948')).toEqual({source:'bd9a310c835bfe2d91441d13eb33c37e1228e5c9',tree:'b274ade89071cfe72085fdea6a97792191ce153a'});
+  });
+  it('adds v0.62.982 from main at 67b19509, with its own pinned tree',()=>{
+    const s=CURRENT_SNAPSHOTS.get('v0.62.982');
+    expect(s.source).toBe('67b19509de041b50efd87fee8507b160788c679f');
+    expect(s.tree).toMatch(/^[0-9a-f]{40}$/);
+    expect(new Set([CURRENT_VAULT_TREE,CURRENT_SNAPSHOTS.get('v0.62.948').tree,s.tree]).size).toBe(3);
+  });
+  it('holds exactly three current snapshots, none sanitised nor historical',()=>{
+    expect([...CURRENT_SNAPSHOTS.keys()]).toEqual(['v0.62.937','v0.62.948','v0.62.982']);
     for(const v of CURRENT_SNAPSHOTS.keys()){ expect(ALLOWED_SANITISED.has(v)).toBe(false); expect(EXPECTED_FOLDERS.has(v)).toBe(false); }
   });
-  it('expects 29 version folders in all',()=>{
-    expect(versionFolders().length).toBe(29);
+  it('expects 30 version folders in all',()=>{
+    expect(versionFolders().length).toBe(30);
     expect(versionFolders()).toContain('v0.62.948');
+    expect(versionFolders()).toContain('v0.62.982');
   });
 });
 
