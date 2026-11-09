@@ -19616,7 +19616,8 @@ async function cacheBotUsername() {
     // overlay controller radius-clips it to the viewport. Redis-cached
     // 24 h (the catalogue rarely changes). Empty list when Redis is down.
     app.get('/api/geo/bus-stops', async (_req, res) => {
-      const CACHE_KEY = 'geo:busstops';
+      // v0.62.983 — `:v2`: the old key held names expanded with "Ter" → "Terrace"; LTA's "Ter" is Terminal.
+      const CACHE_KEY = 'geo:busstops:v2';
       try {
         if (redis.isOpen) {
           const cached = await redis.get(CACHE_KEY).catch(() => null);

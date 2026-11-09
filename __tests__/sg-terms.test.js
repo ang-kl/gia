@@ -107,8 +107,9 @@ describe('the vocabulary is complete and its exemptions are reasoned', () => {
     // the proper-noun bucket only because this table did not contain them → 75 at v0.62.917, when
     // the ordinals landed. `Sixth Avenue` composes to 第六道, which is exactly what the station
     // register independently says, so the six ordinals are checked against a source rather than
-    // against themselves — see `sg-nouns.test.js`.
-    expect(Object.keys(SG_TERMS).length, 'the vocabulary changed size — bump this deliberately').toBe(75);
+    // against themselves — see `sg-nouns.test.js`. → 76 at v0.62.983: `terminal`, because LTA's
+    // "Ter" is Terminal, not Terrace (spec 2026-11-09-lta-ter-is-terminal).
+    expect(Object.keys(SG_TERMS).length, 'the vocabulary changed size — bump this deliberately').toBe(76);
     expect(TERM_LOCALES).toEqual(['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
   });
 

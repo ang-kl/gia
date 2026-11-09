@@ -60,7 +60,8 @@ export const TERM_LOCALES = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
  */
 export const ABBREV = Object.freeze({
   rd: 'road', ave: 'avenue', av: 'avenue', dr: 'drive', drv: 'drive',
-  cres: 'crescent', cresent: 'crescent', cl: 'close', ter: 'terrace',
+  // v0.62.983 — `ter` is LTA's "Terminal", not Terrace; see `sg-address.js`.
+  cres: 'crescent', cresent: 'crescent', cl: 'close', ter: 'terminal',
   hts: 'heights', gdns: 'gardens', lk: 'link', hway: 'highway',
   lor: 'lorong', lrg: 'lorong', jln: 'jalan', ctrl: 'central',
   upp: 'upper', bt: 'bukit', tg: 'tanjong', mt: 'mount',
@@ -97,6 +98,9 @@ export const SG_TERMS = Object.freeze({
   crescent:    { fr: 'Croissant', id: 'Crescent', ru: 'Кресент', de: 'Bogen', zh: '弯', ja: 'クレセント', es: 'Media luna', ko: '크레센트' },
   close:       { fr: 'Impasse', id: 'Close', ru: 'Клоуз', de: 'Sackgasse', zh: '弄', ja: 'クローズ', es: 'Cerrada', ko: '클로즈' },
   terrace:     { fr: 'Terrasse', id: 'Teras', ru: 'Террас', de: 'Terrasse', zh: '台', ja: 'テラス', es: 'Terraza', ko: '테라스' },
+  // v0.62.983 — LTA's "Ter" (bus, ferry, cargo and airport terminals). zh 终站 is the operator's
+  // choice, the bus-terminal sense that fits 31 of the 36 stops.
+  terminal:    { fr: 'Terminal', id: 'Terminal', ru: 'Терминал', de: 'Terminal', zh: '终站', ja: 'ターミナル', es: 'Terminal', ko: '터미널' },
   heights:     { fr: 'Hauteurs', id: 'Heights', ru: 'Хайтс', de: 'Höhen', zh: '高', ja: 'ハイツ', es: 'Alturas', ko: '하이츠' },
   gardens:     { fr: 'Jardins', id: 'Taman', ru: 'Гарденс', de: 'Gärten', zh: '花园', ja: 'ガーデンズ', es: 'Jardines', ko: '가든' },
   garden:      { fr: 'Jardin', id: 'Taman', ru: 'Гарден', de: 'Garten', zh: '花园', ja: 'ガーデン', es: 'Jardín', ko: '가든' },
