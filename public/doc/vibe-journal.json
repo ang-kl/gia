@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-04",
-  "count": 1888,
+  "generated": "2026-11-09",
+  "count": 1895,
   "records": [
     {
       "pr": 1,
@@ -54273,6 +54273,237 @@
         "doc/vault"
       ],
       "title": "v0.62.974 TEL5/DTL3e: Bedok South, Sungei Bedok and Xilin open by themselves at 00:00 SGT on 26 Dec 2026",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1917,
+      "status": "merged",
+      "merged": "2026-11-04 12:11:37+00:00",
+      "day": "2026-11-04",
+      "version": "0.62.974",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: Docs current to v0.62.974, and one all-rights-reserved LICENSE",
+      "approach": "## What Two parts.",
+      "codeImpact": "16 files — tests, doc, root-docs, LICENSE, public/",
+      "modules": [
+        "LICENSE",
+        "root-docs",
+        "tests",
+        "doc",
+        "public/"
+      ],
+      "nFiles": 16,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "Docs current to v0.62.974, and one all-rights-reserved LICENSE",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1918,
+      "status": "merged",
+      "merged": "2026-11-05 00:39:50+00:00",
+      "day": "2026-11-05",
+      "version": "0.62.975",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: Flightradar24 at Changi and Seletar in the Train Mini App, owner-only first",
+      "approach": "## What Spec: `doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md`, amendments 1 to 6, all approved.",
+      "codeImpact": "18 files — index.js, fr24.js, TMA:transport, tests, doc, data, package, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "fr24.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:transport"
+      ],
+      "nFiles": 18,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.975: Flightradar24 at Changi and Seletar in the Train Mini App, owner-only first",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1919,
+      "status": "merged",
+      "merged": "2026-11-05 09:30:46+00:00",
+      "day": "2026-11-05",
+      "version": "0.62.977",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: FR24 - Airports ▾ tappable unticked; own yellow plane, dotted flown path, dashed line to destination",
+      "approach": "Two FR24 fixes, both from the operator's testing on production v0.62.975.",
+      "codeImpact": "13 files — index.js, fr24.js, TMA:transport, tests, doc, data, package, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "fr24.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:transport"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.977: FR24 - Airports ▾ tappable unticked; own yellow plane, dotted flown path, dashed line to destination",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1920,
+      "status": "merged",
+      "merged": "2026-11-05 11:53:17+00:00",
+      "day": "2026-11-05",
+      "version": "0.62.978",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Transport / carpark",
+      "intent": "Fix: FR24 - Changi/Seletar pins, estimated arrival instead of --:--, card fix on the ground",
+      "approach": "FR24 spec amendment 9 and its revision, from the operator's testing of v0.62.977 on production.",
+      "codeImpact": "9 files — index.js, fr24.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "fr24.js",
+        "index.js",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.978: FR24 - Changi/Seletar pins, estimated arrival instead of --:--, card fix on the ground",
+      "reworkCue": false,
+      "reworkOf": 1919,
+      "burst": false
+    },
+    {
+      "pr": 1921,
+      "status": "merged",
+      "merged": "2026-11-06 03:22:07+00:00",
+      "day": "2026-11-06",
+      "version": "0.62.979",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: R-17 - a station not open yet shows its card and starts no trains",
+      "approach": "Register № 226, R-17: \"A not-yet-open station can be tapped into the 🚇 drawer, and its lines' trains then run.\" Operator: \"build the R-17 guard, in one PR.\" Spec: `doc/Feature/2026-11-05-r17-unopened-station-no-trains.spec.md`, with…",
+      "codeImpact": "9 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.979: R-17 - a station not open yet shows its card and starts no trains",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1922,
+      "status": "merged",
+      "merged": "2026-11-08 14:26:33+00:00",
+      "day": "2026-11-08",
+      "version": "0.62.981",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: FR24 - Show planes survives a double tap; ETA for the board's own flights; Changi pin at Terminal 1",
+      "approach": "FR24 spec amendments 10 and 11, from the operator's tests of v0.62.979 on iPhone and on Telegram Desktop.",
+      "codeImpact": "9 files — index.js, fr24.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "fr24.js",
+        "index.js",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.981: FR24 - Show planes survives a double tap; ETA for the board's own flights; Changi pin at Terminal 1",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1923,
+      "status": "merged",
+      "merged": "2026-11-09 01:31:15+00:00",
+      "day": "2026-11-09",
+      "version": "0.62.982",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Michelin Guide Kuala Lumpur & Penang 2027 in the Malaysia table",
+      "approach": "The MICHELIN Guide Kuala Lumpur & Penang 2027 (announced 04-11 '26): 1 two-star, 9 one-star, 60 Bib Gourmand, 70 awards; KL 1/7/26, George Town 0/2/34.",
+      "codeImpact": "10 files — MY-michelin.js, michelin-city-manifest.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "MY-michelin.js",
+        "tests",
+        "doc",
+        "michelin-city-manifest.js",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.982: Michelin Guide Kuala Lumpur & Penang 2027 in the Malaysia table",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false

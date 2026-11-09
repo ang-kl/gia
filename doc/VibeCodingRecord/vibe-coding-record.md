@@ -1,20 +1,20 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-11-04 from a snapshot of all 1888 pull requests (#1–#1916).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-11-09 from a snapshot of all 1895 pull requests (#1–#1923).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1888 total — 1877 merged, 11 closed without merge.
+- **PRs:** 1895 total — 1884 merged, 11 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1916 · 2026-11-04 10:01:15+00:00 · _v0.62.974 TEL5/DTL3e: Bedok South, Sungei Bedok and Xilin open by themselves at 00:00 SGT on 26 Dec 2026_
+- **Latest:** #1923 · 2026-11-09 01:31:15+00:00 · _v0.62.982: Michelin Guide Kuala Lumpur & Penang 2027 in the Malaysia table_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1296 |
-| fix | 255 |
+| feature | 1302 |
+| fix | 256 |
 | docs | 121 |
 | copy | 72 |
 | refactor | 50 |
@@ -27,15 +27,15 @@
 | Area | PRs |
 |---|--:|
 | Cuisine Picker | 676 |
-| Docs / vault | 317 |
+| Docs / vault | 318 |
 | Hawker NEA | 136 |
 | Language / i18n | 92 |
-| Transport / carpark | 86 |
-| Recognised lists | 79 |
+| Transport / carpark | 90 |
+| Recognised lists | 80 |
 | Core / misc | 74 |
 | Search / free-text | 62 |
 | Infra / setup | 59 |
-| Weather | 55 |
+| Weather | 56 |
 | Buddy / sharing | 53 |
 | Menu hub | 48 |
 | /hidden surprise | 47 |
@@ -1940,6 +1940,13 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1914 | merged | 2026-11-04 06:12:54+00:00 | 0.62.972 | feature | Weather | Add: v0.62.972 Train map: layer row and zoom buttons below the floating header | ## What Spec `doc/Feature/2026-11-04-train-map-controls-below-header.spec.md`, approved 04-11 08:11 SGT, built as **v0.62.972** in the Train Mini App. | 10 files — TMA:transport, tests, doc, package | transport | tests; doc/vault |
 | 1915 | merged | 2026-11-04 08:46:37+00:00 | 0.62.973 | feature | Cuisine Picker | Add: v0.62.973 Cuisine: remove the "Traditional / Non-AI results" footer line; spec for TEL5/DTL3e auto-open on 26 Dec | ## What Spec `doc/Feature/2026-11-04-remove-non-ai-results-line.spec.md` (merged with #1914 as a document; approved 04-11 14:48 SGT). | 13 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
 | 1916 | merged | 2026-11-04 10:01:15+00:00 | 0.62.974 | feature | Cuisine Picker | Add: v0.62.974 TEL5/DTL3e: Bedok South, Sungei Bedok and Xilin open by themselves at 00:00 SGT on 26 Dec 2026 | ## What Spec `doc/Feature/2026-11-04-tel5-dtl3e-auto-open-26-dec.spec.md` (merged with #1915 as a document; approved 04-11 16:51 SGT). | 14 files — index.js, station-open.js, TMA:cuisine, tests, doc, data, package, scripts/ | cuisine | tests; doc/vault |
+| 1917 | merged | 2026-11-04 12:11:37+00:00 | 0.62.974 | feature | Docs / vault | Add: Docs current to v0.62.974, and one all-rights-reserved LICENSE | ## What Two parts. | 16 files — tests, doc, root-docs, LICENSE, public/ | — | Redis/state; privacy; tests; doc/vault |
+| 1918 | merged | 2026-11-05 00:39:50+00:00 | 0.62.975 | feature | Weather | Add: Flightradar24 at Changi and Seletar in the Train Mini App, owner-only first | ## What Spec: `doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md`, amendments 1 to 6, all approved. | 18 files — index.js, fr24.js, TMA:transport, tests, doc, data, package, scripts/ | transport | privacy; tests; doc/vault |
+| 1919 | merged | 2026-11-05 09:30:46+00:00 | 0.62.977 | feature | Transport / carpark | Add: FR24 - Airports ▾ tappable unticked; own yellow plane, dotted flown path, dashed line to destination | Two FR24 fixes, both from the operator's testing on production v0.62.975. | 13 files — index.js, fr24.js, TMA:transport, tests, doc, data, package, scripts/ | transport | tests; doc/vault |
+| 1920 | merged | 2026-11-05 11:53:17+00:00 | 0.62.978 | fix | Transport / carpark | Fix: FR24 - Changi/Seletar pins, estimated arrival instead of --:--, card fix on the ground | FR24 spec amendment 9 and its revision, from the operator's testing of v0.62.977 on production. | 9 files — index.js, fr24.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1921 | merged | 2026-11-06 03:22:07+00:00 | 0.62.979 | feature | Transport / carpark | Add: R-17 - a station not open yet shows its card and starts no trains | Register № 226, R-17: "A not-yet-open station can be tapped into the 🚇 drawer, and its lines' trains then run." Operator: "build the R-17 guard, in one PR." Spec: `doc/Feature/2026-11-05-r17-unopened-station-no-trains.spec.md`, with… | 9 files — TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1922 | merged | 2026-11-08 14:26:33+00:00 | 0.62.981 | feature | Transport / carpark | Add: FR24 - Show planes survives a double tap; ETA for the board's own flights; Changi pin at Terminal 1 | FR24 spec amendments 10 and 11, from the operator's tests of v0.62.979 on iPhone and on Telegram Desktop. | 9 files — index.js, fr24.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1923 | merged | 2026-11-09 01:31:15+00:00 | 0.62.982 | feature | Recognised lists | Add: Michelin Guide Kuala Lumpur & Penang 2027 in the Malaysia table | The MICHELIN Guide Kuala Lumpur & Penang 2027 (announced 04-11 '26): 1 two-star, 9 one-star, 60 Bib Gourmand, 70 awards; KL 1/7/26, George Town 0/2/34. | 10 files — MY-michelin.js, michelin-city-manifest.js, michelin-data.js, tests, doc, package | — | tests; doc/vault |
 
 ---
 
