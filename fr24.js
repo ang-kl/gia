@@ -84,6 +84,11 @@ function airportName(code) {
   if (e.i) out.iata = e.i;
   if (e.c) out.city = e.c;
   if (e.n) out.name = e.n;
+  // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz: the airport's time zone (I2, I3) and position (the globe, I5),
+  // from the same table. Left out when the table has none; never guessed.
+  if (e.z) out.tz = e.z;
+  const pos = airportPos(c);
+  if (pos) out.pos = pos;
   return out;
 }
 
@@ -282,8 +287,17 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       (d) => { const n = listOf(d).length; return n > 0 ? ETA_CREDITS * n : 1; },
       (d) => {
         const out = {};
-        for (const f of listOf(d)) if (f && f.fr24_id && typeof f.eta === 'string' && f.eta) out[String(f.fr24_id)] = f.eta;
-        return { icao, dir, etas: out };
+        // v0.62.985 (I7): the same answer carries each plane's altitude and ground speed, so a row can say
+        // "On the ground" without a second request.
+        const pos = {};
+        for (const f of listOf(d)) {
+          if (!f || !f.fr24_id) continue;
+          if (typeof f.eta === 'string' && f.eta) out[String(f.fr24_id)] = f.eta;
+          if (Number.isFinite(f.alt) || Number.isFinite(f.gspeed)) {
+            pos[String(f.fr24_id)] = { alt: Number.isFinite(f.alt) ? f.alt : null, gspeed: Number.isFinite(f.gspeed) ? f.gspeed : null };
+          }
+        }
+        return { icao, dir, etas: out, pos };
       },
       { on403: 'unavailable' });
   }

@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.62.984",
+  "version": "0.62.985",
   "private": true,
   "license": "UNLICENSED",
   "main": "index.js",
@@ -43,6 +43,7 @@
   "devDependencies": {
     "pino-pretty": "^11.0.0",
     "playwright-core": "^1.62.1",
+    "tz-lookup": "^6.1.25",
     "vitest": "^2.0.0"
   }
 }
