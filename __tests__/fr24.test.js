@@ -135,7 +135,8 @@ describe('I11 — the board request', () => {
     expect(r.dir).toBe('dep');
     expect(r.rows).toHaveLength(2);
     expect(r.rows[0]).toMatchObject({ id: '3b000001', flight: 'SQ1', airline: 'SIA', type: 'A359', ended: true, takeoff: '2026-11-05T05:10:00Z', landed: '2026-11-05T05:50:00Z' });
-    expect(r.rows[0].dest).toEqual({ code: 'EGLL', iata: 'LHR', city: 'London', name: 'London Heathrow Airport' });
+    // v0.62.985 — each place also carries its time zone and position (spec 2026-11-11-fr24-globe-arrival-tz, I2, I5).
+    expect(r.rows[0].dest).toEqual({ code: 'EGLL', iata: 'LHR', city: 'London', name: 'London Heathrow Airport', tz: 'Europe/London', pos: fr24.airportPos('EGLL') });
     expect(r.rows[0].orig).toMatchObject({ code: 'WSSS', iata: 'SIN' });
     expect(r.rows[1]).toMatchObject({ ended: false, landed: null });
   });
@@ -437,7 +438,7 @@ describe('I13 — airport names come only from the OurAirports table', () => {
     expect(t._meta.sha256).toBe(require('crypto').createHash('sha256').update(csv).digest('hex'));
   });
   it('WSSS and WSSL resolve; an unknown code shows as itself, never guessed', () => {
-    expect(fr24.airportName('WSSS')).toEqual({ code: 'WSSS', iata: 'SIN', city: 'Singapore', name: 'Singapore Changi Airport' });
+    expect(fr24.airportName('WSSS')).toEqual({ code: 'WSSS', iata: 'SIN', city: 'Singapore', name: 'Singapore Changi Airport', tz: 'Asia/Singapore', pos: { lat: 1.3502, lng: 103.994 } });
     expect(fr24.airportName('WSSL')).toMatchObject({ code: 'WSSL', iata: 'XSP' });
     expect(fr24.airportName('ZZZZ')).toEqual({ code: 'ZZZZ' });
     expect(fr24.airportName(null)).toBeNull();
@@ -708,6 +709,22 @@ describe('I29 / I32 — the ETA call asks for the board\'s own flights by callsi
     const r = await svc.etas('WSSS', 'arr', CS);
     expect(r.etas).toEqual({ '3b000002': '2026-11-05T07:40:00Z' });
     expect(r).toMatchObject({ icao: 'WSSS', dir: 'arr' });
+  });
+  // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (I7, I8): the same answer carries each plane's altitude and
+  // ground speed, so "On the ground" costs no second request; and a single tapped callsign is one call, cached.
+  it('answers each plane\'s altitude and ground speed too, from the same call', async () => {
+    const { svc, calls } = svcWith();
+    const r = await svc.etas('WSSS', 'arr', CS);
+    expect(r.pos).toEqual({ '3b000002': { alt: 3001, gspeed: 180 }, '3b000003': { alt: 3002, gspeed: 180 } });
+    expect(calls).toHaveLength(1);
+  });
+  it('one tapped callsign: one call, then the cache for 5 minutes', async () => {
+    const { svc, calls } = svcWith();
+    await svc.etas('WSSS', 'dep', ['UAE355']);
+    await svc.etas('WSSS', 'dep', ['UAE355']);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toMatch(/callsigns=UAE355&limit=1$/);
+    expect(fr24.ETA_TTL_S).toBe(300);
   });
   it('8 credits per returned flight; 1 for an empty answer', async () => {
     const a = svcWith();

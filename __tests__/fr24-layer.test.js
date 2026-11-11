@@ -233,24 +233,22 @@ describe('I6 — Flightradar24 and the reading time are on screen while planes a
   beforeEach(() => { vi.useFakeTimers(); });
   afterEach(() => { vi.useRealTimers(); });
 
-  it('the caption names Flightradar24 and the reading time in SGT, and says positions are moved by estimate', () => {
-    const c = captionText({ readAt: new Date(T0).toISOString(), lang: 'en', moving: true });
-    expect(c).toContain('Flightradar24');
-    expect(c).toContain('14:00:00');
-    expect(c).toContain('SGT');
-    expect(c).toMatch(/estimate/);
-    const still = captionText({ readAt: new Date(T0).toISOString(), lang: 'en', moving: false });
-    expect(still).toContain('14:00:00');
-    expect(still).not.toMatch(/moved by estimate/);
+  // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (A1, I1): the operator removed the caption bar ("remove FR24
+  // label as it is an obstruction"), so captionText and its strings are gone and the state carries no caption.
+  // Flightradar24 is still credited in every flight card and on the board (tested below), and the state still says
+  // whether the planes are being moved by estimate.
+  it('there is no caption any more: no captionText, no caption strings', () => {
+    expect(captionText).toBeUndefined();
+    for (const k of ['caption.moving', 'caption.still', 'caption.refresh']) expect(FR24_STRINGS[k]).toBeUndefined();
   });
-  it('the layer reports the caption while planes are shown, and clears it when they are hidden', async () => {
+  it('the layer reports planes shown and moving, then not moving, then hidden, with no caption', async () => {
     const { states, layer } = harness();
     await layer.init();
     await layer.togglePlanes('WSSS');
-    expect(states.at(-1)).toMatchObject({ planes: true, icao: 'WSSS' });
-    expect(states.at(-1).caption).toContain('Flightradar24');
+    expect(states.at(-1)).toMatchObject({ planes: true, icao: 'WSSS', moving: true });
+    expect(states.at(-1).caption).toBeUndefined();
     await vi.advanceTimersByTimeAsync(DR_MAX_SEC * 1000 + 2000);
-    expect(states.at(-1).caption).not.toMatch(/moved by estimate/);
+    expect(states.at(-1)).toMatchObject({ planes: true, moving: false });
     await layer.togglePlanes('WSSS');
     expect(states.at(-1)).toMatchObject({ planes: false });
   });
@@ -320,9 +318,12 @@ describe('I8 — every string exists in nine locales', () => {
   });
   it('no non-English locale silently serves the English, bar the proper nouns', () => {
     const SAME_OK = new Set(['pin.WSSL', 'pin.WSSS', 'col.flight']);
+    // v0.62.985 — French and Spanish write hours and minutes as "4 h" and "30 min", and French and Indonesian call a
+    // globe "Globe": the same text as English, correctly. Exempt those locale-key pairs only, not the whole key.
+    const SAME_IN = { 'dur.h': ['fr', 'es'], 'dur.min': ['fr', 'es'], 'globe.chip': ['fr', 'id'] };
     for (const [key, row] of Object.entries(FR24_STRINGS)) {
       if (SAME_OK.has(key)) continue;
-      for (const l of FR24_LOCALES.filter((x) => x !== 'en')) expect(row[l], `${key}.${l}`).not.toBe(row.en);
+      for (const l of FR24_LOCALES.filter((x) => x !== 'en' && !(SAME_IN[key] || []).includes(x))) expect(row[l], `${key}.${l}`).not.toBe(row.en);
     }
   });
   it('ft falls back to English and fills placeholders', () => {
@@ -352,7 +353,8 @@ describe('I12 — the board is not Changi\'s board', () => {
       for (const dir of ['dep', 'arr']) {
         const m = boardModel({ icao: 'WSSS', dir, data: boardPayload(dir), lang });
         for (const v of Object.values(m.labels)) expect(v).not.toMatch(/terminal|gate|check-in|boarding/i);
-        for (const r of m.rows) expect(Object.keys(r).sort()).toEqual(['airline', 'callsign', 'flight', 'gate', 'id', 'inAir', 'place', 'status', 'time', 'type']);
+        // v0.62.985 (I7): `ground`, a boolean for "On the ground"; still no terminal or check-in field.
+        for (const r of m.rows) expect(Object.keys(r).sort()).toEqual(['airline', 'callsign', 'flight', 'gate', 'ground', 'id', 'inAir', 'place', 'status', 'time', 'type']);
         expect(m.header).toBe(ft(`board.header.${dir}`, lang));
         expect(m.footer).toBe(ft('board.footer', lang));
       }
@@ -1022,7 +1024,8 @@ describe('I31 — one planes request at a time; a busy refresh keeps the planes'
       await h.layer.refresh();
       expect(h.live(), reason).toBe(2);
       expect(h.states.at(-1)).toMatchObject({ planes: true, icao: 'WSSS' });
-      expect(h.states.at(-1).caption).toContain(ft(`err.${reason}`, 'en'));
+      // v0.62.985 (I1): said in the state's `note`, the caption it used to ride in being gone.
+      expect(h.states.at(-1).note).toBe(ft(`err.${reason}`, 'en'));
     }
   });
   it('a first request answered busy draws nothing and leaves the planes off (nothing to keep)', async () => {
@@ -1120,8 +1123,10 @@ describe('MrtMapPanel wires the layer', () => {
     expect(src).toMatch(/\.init\(\)/);
     expect(src).toMatch(/x-telegram-init-data/);
   });
-  it('renders the caption the layer reports', () => {
-    expect(src).toMatch(/fr24State\?\.caption|fr24State\.caption/);
+  // v0.62.985 (I1): was "renders the caption the layer reports"; the bar is removed.
+  it('renders no caption bar', () => {
+    expect(src).not.toMatch(/fr24State\?\.caption|fr24State\.caption/);
+    expect(src).not.toMatch(/data-fr24-caption/);
   });
   it('hands the board up to App (onFr24BoardChange) with its actions', () => {
     expect(src).toMatch(/onFr24BoardChange/);

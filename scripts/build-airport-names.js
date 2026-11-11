@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/build-airport-names.js — v0.62.975. Spec: doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md, C11, I13.
+// scripts/build-airport-names.js — v0.62.975 (z: v0.62.985). Spec: doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md, C11, I13.
 //
 // Builds data/airport-names.json, the table fr24.js uses to name the airports on the movements board, from
 // OurAirports' airports.csv (https://ourairports.com/data/ — "All data is released to the Public Domain", read
@@ -51,6 +51,8 @@ function parseCsv(text) {
 }
 
 const ICAO = /^[A-Z0-9]{4}$/;
+let tzl = null;
+const tzLookup = () => (tzl || (tzl = require('tz-lookup')));
 const IATA = /^[A-Z0-9]{3}$/;
 
 // The filter, exported so the test can call it on sample rows (I13).
@@ -69,7 +71,13 @@ function entryOf(r) {
   // plane to its destination. Left out when OurAirports has no number.
   const lat = r.latitude_deg === undefined || String(r.latitude_deg).trim() === '' ? NaN : Number(r.latitude_deg);
   const lng = r.longitude_deg === undefined || String(r.longitude_deg).trim() === '' ? NaN : Number(r.longitude_deg);
-  if (Number.isFinite(lat) && Number.isFinite(lng)) e.p = [Number(lat.toFixed(4)), Number(lng.toFixed(4))];
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    e.p = [Number(lat.toFixed(4)), Number(lng.toFixed(4))];
+    // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (I3): the airport's IANA time zone, from its own coordinates,
+    // so a flight's card can say when it lands in local time. tz-lookup (CC0-1.0) is a devDependency, used here
+    // only: the table carries the answer and the app ships nothing new.
+    e.z = tzLookup()(lat, lng);
+  }
   return e;
 }
 
@@ -97,7 +105,7 @@ function buildTable(csvText, { downloaded = null } = {}) {
       downloaded,
       kept: 'scheduled_service = yes and a 4-character icao_code',
       count: Object.keys(sorted).length,
-      fields: { n: 'name', i: 'IATA code', c: 'city (municipality)', p: '[lat, lng], 4 decimals' },
+      fields: { n: 'name', i: 'IATA code', c: 'city (municipality)', p: '[lat, lng], 4 decimals', z: 'IANA time zone (tz-lookup 6.1.25, from p)' },
     },
     airports: sorted,
   };

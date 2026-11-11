@@ -36,7 +36,7 @@
 // Loading: reuses /maps-key + the __giaMapsReady global from the
 // hawker / cuisine TMAs so the Maps JS bundle deduplicates.
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
@@ -67,6 +67,9 @@ import { createTrainSimLayer, simState, lineGeometry, simT, effectiveSimLines, a
 import { addRunItem, removeRunItem, runnableStation, stationsToLines, trainResumeAt, trainResumeText } from '../lib/run-state.js';
 import { createStopBusesLayer } from '../lib/stop-buses.js';
 import { createFr24Layer, ft as fr24T } from '../lib/fr24-layer.js';
+// v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (I6): the flight globe and its land data load only when opened.
+import { globeAvailable } from '../lib/flight-globe.js';
+const FlightGlobe = lazy(() => import('./FlightGlobe.jsx'));
 import { initData } from '../tg.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -202,9 +205,14 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const [pcnLocked, setPcnLocked] = useState(null);
   // v0.62.975 — Flightradar24 at Changi and Seletar (spec doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md).
   // The layer asks /api/fr24/access once, after the map exists, and draws its two ✈️ pins only when the server says
-  // this reader may see them (owner-only until FR24_PUBLIC=1, C12). `fr24State` is the caption while planes are shown.
+  // this reader may see them (owner-only until FR24_PUBLIC=1, C12). `fr24State` is the planes state while they are
+  // shown (v0.62.985: no caption any more, I1).
   const fr24Ref = useRef(null);
-  const [fr24State, setFr24State] = useState(null);
+  const [, setFr24State] = useState(null);
+  // v0.62.985 (A3, I6): the selected flight the layer reports (a tapped plane or a board row), and the globe: false,
+  // 'card' or 'full'. The 🌐 Globe chip exists only while a flight with both airports' positions is selected.
+  const [fr24Flight, setFr24Flight] = useState(null);
+  const [globeOpen, setGlobeOpen] = useState(false);
   // Amendment 5: whether this reader may see the ✈️ Airports menu row, and which airport's board is open (or null).
   const [fr24Enabled, setFr24Enabled] = useState(false);
   const [fr24Open, setFr24Open] = useState(null);
@@ -689,6 +697,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         lang: langRef.current,
         fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() } }).then((r) => r.json()).catch(() => null),
         onState: (s) => setFr24State(s && s.planes ? s : null),
+        onFlight: (f) => { setFr24Flight(f || null); if (!f) setGlobeOpen(false); },
         onBoard: (m) => { setFr24Open(m ? m.icao : null); onFr24BoardChangeRef.current?.(m ? {
           model: m,
           onTab: (d) => fr24Ref.current?.setTab(d),
@@ -1169,6 +1178,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.62.278 — operator: 🍚 Hawker overlay pill, standardized from Cuisine.
     // OFF by default in the Train TMA (see App overlayLayers default).
     { key: 'hawker',      icon: '🍚', label: t('layer.hawker', lang) },
+    // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (A3, I6): 🌐 Globe, beside Hawker, only while a flight is
+    // selected; it opens the small globe card.
+    ...(globeAvailable(fr24Flight) ? [{ key: 'globe', icon: '🌐', label: fr24T('globe.chip', lang) }] : []),
     // v0.62.961 — simulated trains (spec C2): local state, not an overlay layer, so it is never kept across a reopen.
     { key: 'simTrains',   icon: '🚆', label: simT('toggle', lang) }
   ];
@@ -1234,25 +1246,21 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           : { height: expanded ? '90vh' : '70vh', minHeight: '420px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
-      {/* v0.62.975 — spec 2026-11-01-fr24-changi-flights-train-tma, C4/C5 (I6): while Flightradar24 planes are on the
-          map, the source and the reading time are on screen, with "moved by estimate" for the 2 minutes the planes
-          are dead-reckoned. ↻ fetches again; there is no polling. Top-right, below the layer row: at the bottom the
-          station carousel (z-30) covered it in the first headless render. */}
-      {fr24State?.caption && (
-        <div
-          className="absolute right-2 z-10 max-w-[70%] rounded-md px-2 py-1 text-[10px] leading-tight shadow-md flex items-center gap-1"
-          style={{ top: controlTops.clusterTop ? `calc(${controlTops.clusterTop} + 44px)` : '92px', background: 'rgba(17,24,39,0.85)', color: '#FDE68A' }}
-          role="status"
-          data-fr24-caption>
-          <span>{fr24State.caption}</span>
-          <button
-            type="button"
-            onClick={() => fr24State.refresh?.()}
-            className="ml-1 px-1 rounded border border-amber-300"
-            aria-label={fr24T('caption.refresh', lang)}
-            title={fr24T('caption.refresh', lang)}
-          >↻</button>
-        </div>
+      {/* v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (A1, I1): the dark Flightradar24 caption bar that stood
+          here (v0.62.975, C4/C5) is removed; the operator, 11-11 '26: "remove FR24 label as it is an obstruction".
+          FR24 stays credited on the board and in each flight card. In its place, while open, the flight globe (A3, I6):
+          a small card that expands to the whole screen on a tap. */}
+      {globeOpen && globeAvailable(fr24Flight) && (
+        <Suspense fallback={null}>
+          <FlightGlobe
+            flight={fr24Flight}
+            lang={lang}
+            full={globeOpen === 'full'}
+            top={controlTops.clusterTop ? `calc(${controlTops.clusterTop} + 44px)` : '92px'}
+            onExpand={() => setGlobeOpen('full')}
+            onClose={() => setGlobeOpen(false)}
+          />
+        </Suspense>
       )}
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
           expand toggle. v0.61.16 — fixed white styling: the Google map
@@ -1314,9 +1322,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
         top={controlTops.rowTop}
-        layers={{ ...(overlayLayers || {}), simTrains: simOn, airports: !!fr24Open }}
+        layers={{ ...(overlayLayers || {}), simTrains: simOn, airports: !!fr24Open, globe: !!globeOpen }}
         onToggleLayer={(key) => (key === 'airports'
           ? (fr24Open ? fr24Ref.current?.closeBoard() : fr24Ref.current?.openBoard('WSSS'))
+          : key === 'globe' ? setGlobeOpen((g) => (g ? false : 'card'))
           : key === 'simTrains' ? (simOn ? stopAllTrains() : setSimOn(true)) : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
         }))}

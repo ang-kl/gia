@@ -37,7 +37,8 @@ function FlightCard({ r, labels, selected, onSelect }) {
       <div className="text-[12px] font-semibold truncate" title={labels.place}>{r.place}</div>
       <div className="flex items-center justify-between gap-1 text-[10px] text-tg-hint">
         <span className="font-mono">{r.type}</span>
-        <span className={r.inAir ? 'text-amber-600 font-semibold' : ''}>{r.status}</span>
+        {/* v0.62.985 (I7): a row on the ground is not shown in the flying amber. */}
+        <span className={r.inAir && !r.ground ? 'text-amber-600 font-semibold' : ''}>{r.status}</span>
       </div>
       {r.gate && <div className="text-[10px] font-semibold" data-fr24-gate>{r.gate}</div>}
     </button>
@@ -60,7 +61,7 @@ function FlightRow({ r, labels, selected, onSelect }) {
       </span>
       <span className="min-w-0" data-fr24-col="centre">
         <span className="block font-mono text-[11px] text-tg-hint">{r.type}</span>
-        <span className={`block text-[10px] truncate ${r.inAir ? 'text-amber-600 font-semibold' : 'text-tg-hint'}`}>{r.status}</span>
+        <span className={`block text-[10px] truncate ${r.inAir && !r.ground ? 'text-amber-600 font-semibold' : 'text-tg-hint'}`}>{r.status}</span>
         {/* Amendment 6: the gate, once FR24 reports the plane reached it; "· T4" only for a sourced letter. */}
         {r.gate && <span className="block text-[10px] font-semibold truncate" data-fr24-gate>{r.gate}</span>}
       </span>

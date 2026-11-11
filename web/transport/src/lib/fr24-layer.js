@@ -127,29 +127,41 @@ export const FR24_STRINGS = {
   'status.landed': { en: 'Landed {time}', fr: 'Atterri à {time}', id: 'Mendarat {time}', ru: 'Сел в {time}', de: 'Gelandet {time}', zh: '{time} 已降落', ja: '{time} 着陸', es: 'Aterrizó a las {time}', ko: '{time} 착륙' },
   'btn.show': { en: 'Show planes', fr: 'Afficher les avions', id: 'Tampilkan pesawat', ru: 'Показать самолёты', de: 'Flugzeuge zeigen', zh: '显示飞机', ja: '機体を表示', es: 'Mostrar aviones', ko: '비행기 보기' },
   'btn.hide': { en: 'Hide planes', fr: 'Masquer les avions', id: 'Sembunyikan pesawat', ru: 'Скрыть самолёты', de: 'Flugzeuge ausblenden', zh: '隐藏飞机', ja: '機体を隠す', es: 'Ocultar aviones', ko: '비행기 숨기기' },
-  'caption.moving': {
-    en: 'Flightradar24 · positions as of {time} SGT, moved by estimate between updates',
-    fr: 'Flightradar24 · positions à {time} SGT, déplacées par estimation entre deux mises à jour',
-    id: 'Flightradar24 · posisi per {time} SGT, digeser berdasarkan perkiraan di antara pembaruan',
-    ru: 'Flightradar24 · позиции на {time} SGT, между обновлениями сдвигаются по оценке',
-    de: 'Flightradar24 · Positionen von {time} SGT, zwischen den Abrufen geschätzt weiterbewegt',
-    zh: 'Flightradar24 · 位置截至 {time} SGT，两次更新之间按估算移动',
-    ja: 'Flightradar24 · {time} SGT 時点の位置。更新の間は推定で動かしています',
-    es: 'Flightradar24 · posiciones a las {time} SGT, movidas por estimación entre actualizaciones',
-    ko: 'Flightradar24 · {time} SGT 기준 위치이며, 업데이트 사이에는 추정으로 이동합니다',
+  // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz. The caption bar is gone (I1): 'caption.moving', 'caption.still'
+  // and 'caption.refresh' were removed with it. In their place, the arrival time in the destination's zone (I2) and
+  // "On the ground" (I7).
+  'card.arrives': {
+    // {day} is "" or " (previous day)" / " (next day)", placed where each language puts it.
+    en: 'Arrives ≈ {local} {city} time{day} · {sgt} SGT', fr: 'Arrivée ≈ {local} heure de {city}{day} · {sgt} SGT',
+    id: 'Tiba ≈ {local} waktu {city}{day} · {sgt} SGT', ru: 'Прибытие ≈ {local} ({city}, местное время){day} · {sgt} SGT',
+    de: 'Ankunft ≈ {local} Ortszeit {city}{day} · {sgt} SGT', zh: '预计 {city} 时间 {local}{day} 抵达 · {sgt} SGT',
+    ja: '到着 ≈ {city}時間 {local}{day} · {sgt} SGT', es: 'Llega ≈ {local} hora de {city}{day} · {sgt} SGT', ko: '도착 ≈ {city} 시간 {local}{day} · {sgt} SGT',
   },
-  'caption.still': {
-    en: 'Flightradar24 · positions as of {time} SGT',
-    fr: 'Flightradar24 · positions à {time} SGT',
-    id: 'Flightradar24 · posisi per {time} SGT',
-    ru: 'Flightradar24 · позиции на {time} SGT',
-    de: 'Flightradar24 · Positionen von {time} SGT',
-    zh: 'Flightradar24 · 位置截至 {time} SGT',
-    ja: 'Flightradar24 · {time} SGT 時点の位置',
-    es: 'Flightradar24 · posiciones a las {time} SGT',
-    ko: 'Flightradar24 · {time} SGT 기준 위치',
+  'card.arrivesSgt': { en: 'Arrives ≈ {sgt} SGT', fr: 'Arrivée ≈ {sgt} SGT', id: 'Tiba ≈ {sgt} SGT', ru: 'Прибытие ≈ {sgt} SGT', de: 'Ankunft ≈ {sgt} SGT', zh: '预计 {sgt} SGT 抵达', ja: '到着 ≈ {sgt} SGT', es: 'Llega ≈ {sgt} SGT', ko: '도착 ≈ {sgt} SGT' },
+  'card.tzBehind': {
+    en: '{city} is {diff} behind Singapore', fr: '{city} a {diff} de retard sur Singapour', id: '{city} {diff} lebih lambat dari Singapura',
+    ru: '{city}: отставание от Сингапура {diff}', de: 'In {city} ist es {diff} früher als in Singapur', zh: '{city} 比新加坡慢 {diff}',
+    ja: '{city}はシンガポールより{diff}遅い', es: '{city} va {diff} por detrás de Singapur', ko: '{city}은(는) 싱가포르보다 {diff} 느림',
   },
-  'caption.refresh': { en: 'Refresh', fr: 'Actualiser', id: 'Muat ulang', ru: 'Обновить', de: 'Aktualisieren', zh: '刷新', ja: '更新', es: 'Actualizar', ko: '새로고침' },
+  'card.tzAhead': {
+    en: '{city} is {diff} ahead of Singapore', fr: '{city} a {diff} d’avance sur Singapour', id: '{city} {diff} lebih cepat dari Singapura',
+    ru: '{city}: опережение Сингапура на {diff}', de: 'In {city} ist es {diff} später als in Singapur', zh: '{city} 比新加坡快 {diff}',
+    ja: '{city}はシンガポールより{diff}進んでいる', es: '{city} va {diff} por delante de Singapur', ko: '{city}은(는) 싱가포르보다 {diff} 빠름',
+  },
+  'card.tzSame': {
+    en: '{city} is on Singapore time', fr: '{city} est à l’heure de Singapour', id: '{city} sama dengan waktu Singapura',
+    ru: '{city}: время как в Сингапуре', de: 'In {city} gilt dieselbe Uhrzeit wie in Singapur', zh: '{city} 与新加坡时间相同',
+    ja: '{city}はシンガポールと同じ時刻', es: '{city} tiene la misma hora que Singapur', ko: '{city}은(는) 싱가포르와 같은 시간',
+  },
+  'card.dayPrev': { en: '(previous day)', fr: '(la veille)', id: '(hari sebelumnya)', ru: '(накануне)', de: '(Vortag)', zh: '（前一天）', ja: '（前日）', es: '(día anterior)', ko: '(전날)' },
+  'card.dayNext': { en: '(next day)', fr: '(le lendemain)', id: '(hari berikutnya)', ru: '(на следующий день)', de: '(Folgetag)', zh: '（次日）', ja: '（翌日）', es: '(día siguiente)', ko: '(다음 날)' },
+  'dur.h': { en: '{n} h', fr: '{n} h', id: '{n} jam', ru: '{n} ч', de: '{n} Std.', zh: '{n} 小时', ja: '{n} 時間', es: '{n} h', ko: '{n}시간' },
+  'dur.min': { en: '{n} min', fr: '{n} min', id: '{n} mnt', ru: '{n} мин', de: '{n} Min.', zh: '{n} 分钟', ja: '{n} 分', es: '{n} min', ko: '{n}분' },
+  // v0.62.985 (I6): the 🌐 Globe chip beside 🍚 Hawker, and the globe card.
+  'globe.chip': { en: 'Globe', fr: 'Globe', id: 'Globe', ru: 'Глобус', de: 'Globus', zh: '地球仪', ja: '地球儀', es: 'Globo', ko: '지구본' },
+  'globe.expand': { en: 'Tap to expand', fr: 'Touchez pour agrandir', id: 'Ketuk untuk memperbesar', ru: 'Нажмите, чтобы развернуть', de: 'Zum Vergrößern tippen', zh: '点按放大', ja: 'タップで拡大', es: 'Toca para ampliar', ko: '탭하여 확대' },
+  'globe.drag': { en: 'Drag to turn', fr: 'Faites glisser pour tourner', id: 'Geser untuk memutar', ru: 'Перетащите, чтобы повернуть', de: 'Zum Drehen ziehen', zh: '拖动旋转', ja: 'ドラッグで回転', es: 'Arrastra para girar', ko: '드래그하여 회전' },
+  'status.ground': { en: 'On the ground', fr: 'Au sol', id: 'Di darat', ru: 'На земле', de: 'Am Boden', zh: '在地面', ja: '地上', es: 'En tierra', ko: '지상' },
   'card.airline': { en: 'Airline {code}', fr: 'Compagnie {code}', id: 'Maskapai {code}', ru: 'Авиакомпания {code}', de: 'Fluggesellschaft {code}', zh: '航空公司 {code}', ja: '航空会社 {code}', es: 'Aerolínea {code}', ko: '항공사 {code}' },
   'card.aircraft': { en: 'Aircraft {type}', fr: 'Appareil {type}', id: 'Pesawat {type}', ru: 'Самолёт {type}', de: 'Flugzeug {type}', zh: '机型 {type}', ja: '機材 {type}', es: 'Avión {type}', ko: '기종 {type}' },
   'card.reg': { en: 'Registration {reg}', fr: 'Immatriculation {reg}', id: 'Registrasi {reg}', ru: 'Бортовой номер {reg}', de: 'Kennzeichen {reg}', zh: '注册号 {reg}', ja: '登録記号 {reg}', es: 'Matrícula {reg}', ko: '등록번호 {reg}' },
@@ -222,8 +234,48 @@ export function etaMinutes(p, icao) {
   return Math.round((kmBetween(p, a) / (p.gspeed * 1.852)) * 60);
 }
 
-export function captionText({ readAt, lang = 'en', moving = false } = {}) {
-  return ft(moving ? 'caption.moving' : 'caption.still', lang, { time: sgtClock(readAt, true) });
+// v0.62.985 (I2): a zone's offset from UTC in minutes at an instant, from Intl, so summer time is honoured; null for a
+// zone Intl does not know.
+export function tzOffsetMin(tz, atMs) {
+  try {
+    const parts = {};
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    for (const p of fmt.formatToParts(new Date(atMs))) parts[p.type] = p.value;
+    const wall = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour % 24, +parts.minute, +parts.second);
+    const off = Math.round((wall - Math.floor(atMs / 1000) * 1000) / 60000);
+    return Number.isFinite(off) ? off : null;
+  } catch {
+    return null;
+  }
+}
+const durText = (m, lang) => {
+  const h = Math.floor(m / 60);
+  const mm = m % 60;
+  return [h ? ft('dur.h', lang, { n: h }) : '', mm ? ft('dur.min', lang, { n: mm }) : ''].filter(Boolean).join(' ');
+};
+// v0.62.985 (I2, I4): FR24's ETA as "Arrives ≈ 13:58 Dubai time · 17:58 SGT" and "Dubai is 4 h behind Singapore"; one
+// line for a flight to Singapore; nothing at all without an ETA or a zone.
+export function arrivalLines({ eta = null, dest = null, lang = 'en' } = {}) {
+  const ms = typeof eta === 'string' ? Date.parse(eta) : NaN;
+  if (!Number.isFinite(ms) || !dest || !dest.tz) return [];
+  const off = tzOffsetMin(dest.tz, ms);
+  const sgOff = tzOffsetMin('Asia/Singapore', ms);
+  if (off == null || sgOff == null) return [];
+  const sgt = sgtClock(ms);
+  if (dest.tz === 'Asia/Singapore') return [ft('card.arrivesSgt', lang, { sgt })];
+  const wall = (o) => new Date(ms + o * 60000).toISOString();
+  const localDay = wall(off).slice(0, 10);
+  const sgDay = wall(sgOff).slice(0, 10);
+  const local = wall(off).slice(11, 16);
+  const day = localDay < sgDay ? ` ${ft('card.dayPrev', lang)}` : localDay > sgDay ? ` ${ft('card.dayNext', lang)}` : '';
+  const city = dest.city || dest.name || dest.code || '';
+  const d = off - sgOff;
+  const diff = d === 0
+    ? ft('card.tzSame', lang, { city })
+    : ft(d < 0 ? 'card.tzBehind' : 'card.tzAhead', lang, { city, diff: durText(Math.abs(d), lang) });
+  return [ft('card.arrives', lang, { local, city, sgt, day }), diff];
 }
 
 function placeText(p) {
@@ -257,7 +309,7 @@ export function gateText(g, lang = 'en') {
   if (!g || !g.gate) return null;
   return ft('gate.label', lang, { gate: g.gate }) + (g.terminal ? ` · ${g.terminal}` : '');
 }
-export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null, gates = null, etas = null } = {}) {
+export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null, gates = null, etas = null, live = null } = {}) {
   const gateFor = (id) => (gates && typeof gates.get === 'function' ? gates.get(id) : gates && gates[id]) || null;
   const v = VIEWS.includes(view) ? view : 'strip';
   const s = SORTS.includes(sort) ? sort : 'time';
@@ -290,13 +342,17 @@ export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', d
     rows = sortRows(data.rows.map((r) => {
       const inAir = !(r.ended && r.landed);
       const landedAt = inAir ? '' : sgtClock(r.landed);
+      // v0.62.985 (I7): not landed, but its live position (the planes on the map, or the ETA answer) is at 0 ft or
+      // under 50 kt: "🛞 On the ground", not "In the air". With no live position the wording is unchanged.
+      const ground = inAir && !!live && onGround(live[String(r.id)]);
+      const airText = ground ? `🛞 ${ft('status.ground', lang)}` : `✈️ ${ft('status.air', lang)}`;
       return {
-        id: String(r.id), callsign: r.callsign || null, airline: r.airline || null, inAir,
+        id: String(r.id), callsign: r.callsign || null, airline: r.airline || null, inAir, ground,
         gate: gateText(gateFor(String(r.id)), lang),
         time: timeOf(r, inAir, landedAt),
         place: placeText(dir === 'dep' ? r.dest : r.orig),
         flight: r.flight || r.callsign || '', type: r.type || '',
-        status: inAir ? `✈️ ${ft('status.air', lang)}` : `🛬 ${ft('status.landed', lang, { time: landedAt })}`,
+        status: inAir ? airText : `🛬 ${ft('status.landed', lang, { time: landedAt })}`,
       };
     }), s);
   }
@@ -319,7 +375,7 @@ export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', d
 
 // C3: one flight's card, as lines (the board's detail) and as HTML (the card on the map). The landing estimate is
 // ours, labelled, and only for a plane inbound to the tapped airport.
-export function flightCardLines({ flight = null, plane = null, icao = null, lang = 'en' } = {}) {
+export function flightCardLines({ flight = null, plane = null, icao = null, lang = 'en', eta = null } = {}) {
   const f = flight || {};
   const lines = [];
   if (f.airline) lines.push(ft('card.airline', lang, { code: f.airline }));
@@ -331,21 +387,28 @@ export function flightCardLines({ flight = null, plane = null, icao = null, lang
   if (plane && Number.isFinite(plane.alt) && Number.isFinite(plane.gspeed)) {
     lines.push(ft('card.alt', lang, { ft: Math.round(plane.alt).toLocaleString('en-US'), kt: Math.round(plane.gspeed) }));
   }
+  // v0.62.985 (I7): on the ground and not landed says so; (I2, I4) in the air, FR24's ETA in the destination's zone
+  // and in SGT replaces our own distance estimate, which stays only when there is no ETA.
+  const landed = !!(f.ended && f.landed);
+  const ground = !landed && onGround(plane);
+  if (ground) lines.push(`🛞 ${ft('status.ground', lang)}`);
+  const arrive = !landed && !ground && !f.ended ? arrivalLines({ eta, dest: f.dest, lang }) : [];
+  lines.push(...arrive);
   const inbound = f.dest && f.dest.code && f.dest.code === icao && !f.ended;
-  const eta = inbound && plane ? etaMinutes(plane, icao) : null;
-  if (eta != null) lines.push(`${ft('card.eta', lang, { min: eta })} ${ft('card.estimate', lang)}`);
+  const mins = !arrive.length && inbound && plane ? etaMinutes(plane, icao) : null;
+  if (mins != null) lines.push(`${ft('card.eta', lang, { min: mins })} ${ft('card.estimate', lang)}`);
   return lines;
 }
-export function flightCardHtml({ flight = null, plane = null, icao = null, lang = 'en' } = {}) {
+export function flightCardHtml({ flight = null, plane = null, icao = null, lang = 'en', eta = null } = {}) {
   const f = flight || {};
   const title = [f.flight, f.callsign || (plane && plane.callsign)].filter(Boolean).join(' · ') || ft('card.nodetails', lang);
   return '<div data-fr24-card style="font-size:12px;line-height:1.45">'
     + `<strong>✈ ${esc(title)}</strong>`
-    + flightCardLines({ flight, plane, icao, lang }).map((l) => `<br>${esc(l)}`).join('')
+    + flightCardLines({ flight, plane, icao, lang, eta }).map((l) => `<br>${esc(l)}`).join('')
     + '<br><em style="color:#9CA3AF;font-size:10px">Flightradar24</em></div>';
 }
 
-export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'en', now = () => Date.now(), onState = null, onBoard = null } = {}) {
+export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'en', now = () => Date.now(), onState = null, onBoard = null, onFlight = null } = {}) {
   const getJson = fetchJson || ((u) => fetch(u).then((r) => r.json()).catch(() => null));
   const AME = gmaps && gmaps.marker && gmaps.marker.AdvancedMarkerElement;
   let lang = lang0;
@@ -372,6 +435,8 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   let gen = 0;
   const etaTabs = new Map(); // amendment 9 (I29): `${icao}:${dir}` → { at, etas }
   let etaOff = false;         // an "unavailable" answer: the plan lacks live positions full
+  const etaOne = new Map();   // v0.62.985 (I8): callsign → { at, id, eta, pos } for a tapped plane not on a board
+  let openId = null;          // v0.62.985: the flight whose card is open on the map, so a late ETA updates only it
   let pins = [];              // amendment 9 (I28): the Changi and Seletar pins
   let planesLoading = false;  // amendment 10 (I31): one planes request at a time (a phone can fire a tap twice)
   let planesNote = null;      // amendment 10 (I31): 'busy' / 'budget' after a refresh that kept the old planes
@@ -424,8 +489,8 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!onState) return;
     if (!planesIcao || !planesData) { onState({ planes: false }); return; }
     const moving = offsetSec + ticks < DR_MAX_SEC && timer != null;
-    const caption = captionText({ readAt: planesData.readAt, lang, moving }) + (planesNote ? ` · ${ft(planesNote, lang)}` : '');
-    onState({ planes: true, icao: planesIcao, readAt: planesData.readAt, moving, caption, refresh: () => refresh() });
+    // v0.62.985 (I1): no caption; the bar it fed is gone. A busy/over-budget refresh still says why, as `note`.
+    onState({ planes: true, icao: planesIcao, readAt: planesData.readAt, moving, note: planesNote ? ft(planesNote, lang) : null });
   };
 
   function makePlane(p, highlight = false) {
@@ -475,7 +540,60 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!boardIcao) return null;
     const b = boards.get(`${boardIcao}:${tab}`);
     const w = wx.get(boardIcao);
-    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf, etas: (etaTabs.get(`${boardIcao}:${tab}`) || {}).etas || null });
+    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf, etas: (etaTabs.get(`${boardIcao}:${tab}`) || {}).etas || null, live: liveNow() });
+  }
+  // v0.62.985 (I7): fr24_id → { alt, gspeed } from what is already in hand: the planes on the map and the ETA answers.
+  // No request of its own.
+  function liveNow() {
+    const out = {};
+    const list = planesData && Array.isArray(planesData.planes) ? planesData.planes : [];
+    for (const p of list) if (p && p.id) out[String(p.id)] = { alt: p.alt, gspeed: p.gspeed };
+    for (const e of etaTabs.values()) if (e && e.pos) Object.assign(out, e.pos);
+    for (const e of etaOne.values()) if (e && e.id && e.pos) out[e.id] = e.pos;
+    return out;
+  }
+  // v0.62.985 (I2, I8): the ETA for one flight - from a board tab's answer if it has one, else one call by callsign,
+  // kept 5 minutes. Never for a plane on the ground; never again after "unavailable".
+  function etaFromTabs(id) {
+    for (const e of etaTabs.values()) if (e && e.etas && e.etas[id]) return e.etas[id];
+    return null;
+  }
+  async function etaFor(f, id, live) {
+    if (!f || f.ended || onGround(live)) return null;
+    const known = etaFromTabs(id);
+    if (known) return known;
+    const cs = String(f.callsign || (live && live.callsign) || '');
+    const icao = planesIcao || boardIcao;
+    if (etaOff || !cs || !FR24_AIRPORTS[icao]) return null;
+    const had = etaOne.get(cs);
+    if (had && now() - had.at < ETA_CLIENT_TTL_MS) return had.pending ? await had.pending : had.eta;
+    const dir = f.dest && f.dest.code === icao ? 'arr' : 'dep';
+    const pending = getJson(`/api/fr24/eta/${icao}?dir=${dir}&cs=${encodeURIComponent(cs)}`).then((r) => {
+      if (r && r.reason === 'unavailable') etaOff = true;
+      const eta = r && r.ok && r.etas ? (r.etas[id] || Object.values(r.etas)[0] || null) : null;
+      const pos = r && r.ok && r.pos ? (r.pos[id] || Object.values(r.pos)[0] || null) : null;
+      etaOne.set(cs, { at: now(), id, eta, pos });
+      return eta;
+    });
+    etaOne.set(cs, { at: now(), id, eta: null, pending });
+    return pending;
+  }
+  // v0.62.985 (I6): the selected flight, for the 🌐 Globe chip: both airports' positions (the flight's, else the
+  // place's own `pos`), the plane where known, and whether it has landed. null when nothing is selected.
+  function report(sel) { if (onFlight) onFlight(sel); }
+  function selOf(f, { origPos = null, destPos = null, plane = null } = {}) {
+    const pt = (p, place) => {
+      const q = p || (place && place.pos) || null;
+      return q && Number.isFinite(q.lat) && Number.isFinite(q.lng) ? { lat: q.lat, lng: q.lng, label: (place && (place.iata || place.code)) || '' } : null;
+    };
+    return {
+      id: String(f.id || ''),
+      title: [f.flight, f.callsign].filter(Boolean).join(' · '),
+      orig: pt(origPos, f.orig),
+      dest: pt(destPos, f.dest),
+      plane: plane && Number.isFinite(plane.lat) && Number.isFinite(plane.lng) ? { lat: plane.lat, lng: plane.lng } : null,
+      landed: !!(f.ended && f.landed),
+    };
   }
   function render() {
     if (onBoard) onBoard(currentModel());
@@ -547,7 +665,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (had && now() - had.at < ETA_CLIENT_TTL_MS) return;
     etaTabs.set(key, { at: now(), etas: had ? had.etas : null });
     const r = await getJson(`/api/fr24/eta/${icao}?dir=${dir}&cs=${cs.map(encodeURIComponent).join(',')}`);
-    if (r && r.ok && r.etas) etaTabs.set(key, { at: now(), etas: r.etas });
+    if (r && r.ok && r.etas) etaTabs.set(key, { at: now(), etas: r.etas, pos: r.pos || null });
     else if (r && r.reason === 'unavailable') etaOff = true;
     render();
   }
@@ -622,6 +740,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     detail = null;
     if (focus) { drop(focus); focus = null; }
     clearRoute();
+    report(null);
     if (onBoard) onBoard(null);
   }
   // I17: a row still in the air asks where the plane is now (one locate), pans there and opens its card on the map; a
@@ -635,21 +754,25 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const inAir = !(row.ended && row.landed);
     const g = gateOf.get(String(id));
     const gateLine = g ? [gateText(g, lang)] : [];
-    detail = [...flightCardLines({ flight: row, icao: boardIcao, lang }), ...gateLine];
+    // v0.62.985 (I2): the board's own ETA for this row, already fetched for the tab; no request of its own.
+    const eta = (etaTabs.get(`${boardIcao}:${tab}`) || {}).etas?.[String(id)] || null;
+    detail = [...flightCardLines({ flight: row, icao: boardIcao, lang, eta }), ...gateLine];
     clearRoute();
+    report(selOf(row));
     if (!inAir) { render(); return; }
     if (!row.callsign) { detail = [...detail, ft('locate.none', lang)]; render(); return; }
     render();
     const r = await getJson(`/api/fr24/locate/${encodeURIComponent(row.callsign)}`);
     const p = r && r.ok && r.plane && Number.isFinite(r.plane.lat) && Number.isFinite(r.plane.lng) ? r.plane : null;
     if (!p) { detail = [...detail, ft(r && r.ok ? 'locate.none' : errKey(r), lang)]; render(); return; }
-    detail = [...flightCardLines({ flight: row, plane: p, icao: boardIcao, lang }), ...gateLine];
+    detail = [...flightCardLines({ flight: row, plane: p, icao: boardIcao, lang, eta }), ...gateLine];
+    report(selOf(row, { plane: p }));
     if (focus) drop(focus);
     focus = makePlane({ ...p, id: p.id || row.id }, true);
     const pos = { lat: p.lat, lng: p.lng };
     if (map && typeof map.panTo === 'function') map.panTo(pos);
     const iw = infoWin();
-    if (iw) { iw.setContent(flightCardHtml({ flight: row, plane: p, icao: boardIcao, lang })); iw.setPosition(pos); iw.open({ map }); }
+    if (iw) { iw.setContent(flightCardHtml({ flight: row, plane: p, icao: boardIcao, lang, eta })); iw.setPosition(pos); iw.open({ map }); }
     render();
     if (!onGround(p)) await drawRoute(row.id, p);
   }
@@ -697,7 +820,15 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
       iw.open({ map });
     }
     const landed = r && r.ok && r.flight && r.flight.ended && r.flight.landed;
-    if (at && !landed && !onGround(live)) await drawRoute(id, at, r && r.ok ? r : null);
+    openId = String(id);
+    if (r && r.ok && r.flight) report(selOf({ id, ...r.flight }, { origPos: r.origPos, destPos: r.destPos, plane: at }));
+    // v0.62.985 (I2, I8): the arrival time needs FR24's ETA: the board's if it has this flight, else one call for this
+    // callsign, kept 5 minutes. The card is shown first and gains the lines when the answer comes.
+    const etaP = r && r.ok && r.flight && !landed ? etaFor(r.flight, String(id), live) : null;
+    const routeP = at && !landed && !onGround(live) ? drawRoute(id, at, r && r.ok ? r : null) : null;
+    const eta = etaP ? await etaP : null;
+    if (eta && iw && openId === String(id)) iw.setContent(flightCardHtml({ flight: r.flight, plane: live, icao: planesIcao || boardIcao, lang, eta }));
+    if (routeP) await routeP;
   }
 
   async function init() {
@@ -721,6 +852,8 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   function closeInfo() {
     if (info) info.close();
     clearRoute();
+    openId = null;
+    report(null);
   }
   function destroy() {
     clearPlanes();
@@ -732,6 +865,8 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     planesIcao = null;
     planesData = null;
     if (info) info.close();
+    openId = null;
+    report(null);
     enabled = false;
   }
 
