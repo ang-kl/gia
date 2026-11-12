@@ -71,11 +71,11 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
 | ID | Assumption | Status | Note |
 |----|------------|--------|------|
 | A1 | Safe fixes everywhere, plus vitest and vite majors; Sentry, the Telegram library and adm-zip are not upgraded | confirmed | Operator: "Safe updates + dev-tool majors" |
-| A2 | If a dev-tool major cannot be made to pass tests and builds without changing app behaviour, that one upgrade is dropped and reported, not forced | pending | My reading of "fix"; a FLOW ALERT is raised if it happens |
-| A3 | Existing tests may need mechanical changes for vitest 5 (API renames); each is quoted in the journal (F7). No assertion is weakened | pending | |
-| A4 | `doc/third-party.yaml` is a new file in the shape of `.vibe-journal/examples/soleat-gia/third-party.yaml.example` | pending | |
-| A5 | v0.62.986, one PR on `claude/handover-july-11-49uzvf` carrying the held `[AMD-336]`; Claude Code merges once CI is green | pending | Standing "merge when green" for this arc; say otherwise at the PR |
-| A6 | No vault snapshot for v0.62.985 in this PR | pending | The vault is about to be reworked (next spec) |
+| A2 | If a dev-tool major cannot be made to pass tests and builds without changing app behaviour, that one upgrade is dropped and reported, not forced | confirmed | Operator, 12-11 '26: "Drop that upgrade and report" |
+| A3 | Existing tests may need mechanical changes for vitest 5 (API renames); each is quoted in the journal (F7). No assertion is weakened | confirmed | Operator, 12-11 '26: "Confirm both" |
+| A4 | `doc/third-party.yaml` is a new file in the shape of `.vibe-journal/examples/soleat-gia/third-party.yaml.example` | confirmed | Operator, 12-11 '26: "Confirm both" |
+| A5 | v0.62.986, one PR on `claude/handover-july-11-49uzvf` carrying the held `[AMD-336]`; Claude Code merges once CI is green | confirmed | Operator, 12-11 '26: "Yes, merge when green" |
+| A6 | No vault snapshot for v0.62.985 in this PR | confirmed | Operator, 12-11 '26: "Yes, skip it" |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
