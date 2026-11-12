@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22  # v0.62.986: vitest 5 needs Node >=22.12; Railway itself stays on Node 20.20 (engines >=20)
           cache: npm
       - name: Diagnostics
         run: |
@@ -140,7 +140,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22  # v0.62.986: vitest 5 needs Node >=22.12; Railway itself stays on Node 20.20 (engines >=20)
           cache: npm
       - name: Diagnostics
         run: echo "node $(node --version) | npm $(npm --version)"
@@ -157,7 +157,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22  # v0.62.986: vitest 5 needs Node >=22.12; Railway itself stays on Node 20.20 (engines >=20)
           cache: npm
       - name: Diagnostics
         run: echo "node $(node --version) | npm $(npm --version)"

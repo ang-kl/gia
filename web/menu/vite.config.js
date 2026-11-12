@@ -13,6 +13,8 @@ import rootPkg from '../../package.json' with { type: 'json' };
 // stale (0.60.4) and the local-import approach silently rotted.
 export default defineConfig({
   plugins: [react()],
+  // v0.62.986 — vite 8 (Rolldown): web/_shared has no node_modules; resolve react from this app (one React).
+  resolve: { dedupe: ['react', 'react-dom'] },
   base: '/app/menu/',
   build: {
     outDir: path.resolve(__dirname, '..', '..', 'public', 'menu'),

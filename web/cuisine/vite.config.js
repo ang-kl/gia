@@ -12,6 +12,8 @@ import rootPkg from '../../package.json' with { type: 'json' };
 // the v0.60.50 fix already applied to web/menu/vite.config.js.
 export default defineConfig({
   plugins: [react()],
+  // v0.62.986 — vite 8 (Rolldown): web/_shared has no node_modules; resolve react from this app (one React).
+  resolve: { dedupe: ['react', 'react-dom'] },
   base: '/app/cuisine/',
   build: {
     outDir: path.resolve(__dirname, '..', '..', 'public', 'cuisine'),

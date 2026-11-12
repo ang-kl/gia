@@ -10,6 +10,8 @@ import rootPkg from '../../package.json' with { type: 'json' };
 // public/clipboard so the bot serves at /app/clipboard/.
 export default defineConfig({
   plugins: [react()],
+  // v0.62.986 — vite 8 (Rolldown): web/_shared has no node_modules; resolve react from this app (one React).
+  resolve: { dedupe: ['react', 'react-dom'] },
   base: '/app/clipboard/',
   build: {
     outDir: path.resolve(__dirname, '..', '..', 'public', 'clipboard'),

@@ -11,6 +11,8 @@ import pkg from './package.json' with { type: 'json' };
 // /api/oversight/stats endpoint.
 export default defineConfig({
   plugins: [react()],
+  // v0.62.986 — vite 8 (Rolldown): web/_shared has no node_modules; resolve react from this app (one React).
+  resolve: { dedupe: ['react', 'react-dom'] },
   base: '/app/oversight/',
   build: {
     outDir: path.resolve(__dirname, '..', '..', 'public', 'oversight'),

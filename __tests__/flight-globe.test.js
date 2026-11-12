@@ -191,4 +191,15 @@ describe('I6 — the chip shows only while a flight is selected', () => {
     expect(hawker).toBeGreaterThan(-1);
     expect(globe).toBeGreaterThan(hawker);
   });
+  // v0.62.986 — spec 2026-11-12-safe-updates-globe-chunk-docs-985 (I4): the chip's test lives in its own small file,
+  // so the panel's static imports no longer pull the projection and great-circle code into the first bundle.
+  it('the panel imports nothing from flight-globe.js at load; the chip test comes from globe-available.js', async () => {
+    const src = fs.readFileSync(path.join(ROOT, 'web/transport/src/components/MrtMapPanel.jsx'), 'utf8');
+    expect(src).not.toMatch(/^import [^;]*['"][^'"]*flight-globe\.js['"]/m);
+    expect(src).toMatch(/^import \{ globeAvailable \} from ['"]\.\.\/lib\/globe-available\.js['"];?$/m);
+    const small = fs.readFileSync(path.join(ROOT, 'web/transport/src/lib/globe-available.js'), 'utf8');
+    expect(small).not.toMatch(/^import /m);               // nothing else rides in with it
+    const { globeAvailable: g2 } = await import('../web/transport/src/lib/globe-available.js');
+    expect(g2).toBe(globeAvailable);                      // flight-globe.js re-exports the same function
+  });
 });
