@@ -10,6 +10,10 @@ import rootPkg from '../../package.json' with { type: 'json' };
 // local one — see web/cuisine/vite.config.js).
 export default defineConfig({
   plugins: [react()],
+  // v0.62.986 — vite 8 (Rolldown) resolves a bare import from the importing file's own folder upward, and
+  // web/_shared/ has no node_modules, so `import … from 'react'` there failed. dedupe resolves react and react-dom
+  // from this app's root instead, which is also what keeps one React instance in the bundle.
+  resolve: { dedupe: ['react', 'react-dom'] },
   base: '/app/transport/',
   build: {
     outDir: path.resolve(__dirname, '..', '..', 'public', 'transport'),

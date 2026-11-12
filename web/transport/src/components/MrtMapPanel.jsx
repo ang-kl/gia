@@ -68,7 +68,7 @@ import { addRunItem, removeRunItem, runnableStation, stationsToLines, trainResum
 import { createStopBusesLayer } from '../lib/stop-buses.js';
 import { createFr24Layer, ft as fr24T } from '../lib/fr24-layer.js';
 // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (I6): the flight globe and its land data load only when opened.
-import { globeAvailable } from '../lib/flight-globe.js';
+import { globeAvailable } from '../lib/globe-available.js';
 const FlightGlobe = lazy(() => import('./FlightGlobe.jsx'));
 import { initData } from '../tg.js';
 

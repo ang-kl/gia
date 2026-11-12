@@ -14,10 +14,10 @@ const RAD = Math.PI / 180;
 
 const okPt = (p) => !!p && Number.isFinite(p.lat) && Number.isFinite(p.lng);
 
-// I6: the 🌐 Globe chip is offered only for a selected flight whose two airports have positions.
-export function globeAvailable(sel) {
-  return !!sel && okPt(sel.orig) && okPt(sel.dest);
-}
+// I6: the 🌐 Globe chip is offered only for a selected flight whose two airports have positions. v0.62.986: the
+// function lives in globe-available.js so the map panel can import it without this file; re-exported here unchanged.
+import { globeAvailable } from './globe-available.js';
+export { globeAvailable };
 
 export function unit(p) {
   const lo = p.lng * RAD;

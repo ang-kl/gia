@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22  # v0.62.986: runs npm test, and vitest 5 needs Node >=22.12
       # The repository is private (observed 17-10 '26), so an anonymous fetch fails with
       # "could not read Username". The job's read-only token is handed to THIS step
       # only, as a one-shot header; persist-credentials stays false, so the tests and

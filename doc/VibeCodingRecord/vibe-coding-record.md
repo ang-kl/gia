@@ -1,21 +1,21 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-11-09 from a snapshot of all 1895 pull requests (#1–#1923).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-11-12 from a snapshot of all 1899 pull requests (#1–#1927).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1895 total — 1884 merged, 11 closed without merge.
+- **PRs:** 1899 total — 1888 merged, 11 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1923 · 2026-11-09 01:31:15+00:00 · _v0.62.982: Michelin Guide Kuala Lumpur & Penang 2027 in the Malaysia table_
+- **Latest:** #1927 · 2026-11-11 22:02:41+00:00 · _v0.62.985: FR24 without the caption bar, arrival time in the destination's zone, a flight globe, "On the ground"_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1302 |
+| feature | 1305 |
 | fix | 256 |
-| docs | 121 |
+| docs | 122 |
 | copy | 72 |
 | refactor | 50 |
 | prompt-tune | 47 |
@@ -27,10 +27,10 @@
 | Area | PRs |
 |---|--:|
 | Cuisine Picker | 676 |
-| Docs / vault | 318 |
+| Docs / vault | 319 |
 | Hawker NEA | 136 |
-| Language / i18n | 92 |
-| Transport / carpark | 90 |
+| Language / i18n | 93 |
+| Transport / carpark | 92 |
 | Recognised lists | 80 |
 | Core / misc | 74 |
 | Search / free-text | 62 |
@@ -1947,6 +1947,10 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1921 | merged | 2026-11-06 03:22:07+00:00 | 0.62.979 | feature | Transport / carpark | Add: R-17 - a station not open yet shows its card and starts no trains | Register № 226, R-17: "A not-yet-open station can be tapped into the 🚇 drawer, and its lines' trains then run." Operator: "build the R-17 guard, in one PR." Spec: `doc/Feature/2026-11-05-r17-unopened-station-no-trains.spec.md`, with… | 9 files — TMA:transport, tests, doc, package | transport | tests; doc/vault |
 | 1922 | merged | 2026-11-08 14:26:33+00:00 | 0.62.981 | feature | Transport / carpark | Add: FR24 - Show planes survives a double tap; ETA for the board's own flights; Changi pin at Terminal 1 | FR24 spec amendments 10 and 11, from the operator's tests of v0.62.979 on iPhone and on Telegram Desktop. | 9 files — index.js, fr24.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
 | 1923 | merged | 2026-11-09 01:31:15+00:00 | 0.62.982 | feature | Recognised lists | Add: Michelin Guide Kuala Lumpur & Penang 2027 in the Malaysia table | The MICHELIN Guide Kuala Lumpur & Penang 2027 (announced 04-11 '26): 1 two-star, 9 one-star, 60 Bib Gourmand, 70 awards; KL 1/7/26, George Town 0/2/34. | 10 files — MY-michelin.js, michelin-city-manifest.js, michelin-data.js, tests, doc, package | — | tests; doc/vault |
+| 1924 | merged | 2026-11-09 09:32:10+00:00 | 0.62.982 | docs | Docs / vault | Docs current to v0.62.982 + vault snapshot v0.62.982 | Spec: `doc/Feature/2026-11-09-docs-and-vault-v0-62-982.spec.md`, approved. | 2641 files — tests, doc, vault, ci, root-docs, public/, scripts/ | — | legal; tests; doc/vault |
+| 1925 | merged | 2026-11-09 11:37:29+00:00 | 0.62.983 | feature | Language / i18n | Add: LTA's "Ter" means Terminal, not Terrace | Spec: `doc/Feature/2026-11-09-lta-ter-is-terminal.spec.md`, approved. | 9 files — index.js, sg-address.js, tests, doc, package | — | Redis/state; tests; doc/vault |
+| 1926 | merged | 2026-11-09 13:14:59+00:00 | 0.62.984 | feature | Transport / carpark | Add: today's first and last bus at the tapped stop, in the bus route strip | Spec: `doc/Feature/2026-11-09-bus-first-last-in-route-strip.spec.md`, approved. | 11 files — index.js, transport.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
+| 1927 | merged | 2026-11-11 22:02:41+00:00 | 0.62.985 | feature | Transport / carpark | Add: FR24 without the caption bar, arrival time in the destination's zone, a flight globe, "On the ground" | Spec: `doc/Feature/2026-11-11-fr24-globe-arrival-tz.spec.md` (approved, sha `a18b585e`). | 22 files — fr24.js, TMA:transport, tests, doc, data, package, root-docs, scripts/ | transport | tests; doc/vault |
 
 ---
 

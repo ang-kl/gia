@@ -111,7 +111,8 @@ describe('repo security posture — the half that is checkable from inside the r
       }
     }
     expect(hits, `credential-shaped strings committed: ${hits.join(', ')}`).toEqual([]);
-  });
+    // v0.62.986 — vitest 5 times out a synchronous test (vitest 2 never did); this scan took ~110 s in a full run.
+  }, 300_000);
 
   it('⚠ no user location survives anywhere in the tracked tree', () => {
     // R-4, closed 04-09 '26. The bot logged `[set-location] chat=… → <lat>,<lon>`
@@ -144,7 +145,8 @@ describe('repo security posture — the half that is checkable from inside the r
       if (PAIR.test(src)) hits.push(f);          // the FILE, never the coordinate
     }
     expect(hits, `user coordinates still tracked in: ${hits.join(', ')}`).toEqual([]);
-  });
+    // v0.62.986 — explicit ceiling for vitest 5, which times out synchronous tests; assertions unchanged.
+  }, 300_000);
 
   it('the location scan can actually fire — D-204, on a synthetic pin', () => {
     // A pin in the Java Sea, belonging to nobody, at the precision that matters.
