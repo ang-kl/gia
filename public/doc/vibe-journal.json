@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-09",
-  "count": 1895,
+  "generated": "2026-11-12",
+  "count": 1899,
   "records": [
     {
       "pr": 1,
@@ -54507,6 +54507,138 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 1924,
+      "status": "merged",
+      "merged": "2026-11-09 09:32:10+00:00",
+      "day": "2026-11-09",
+      "version": "0.62.982",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Docs current to v0.62.982 + vault snapshot v0.62.982",
+      "approach": "Spec: `doc/Feature/2026-11-09-docs-and-vault-v0-62-982.spec.md`, approved.",
+      "codeImpact": "2641 files — tests, doc, vault, ci, root-docs, public/, scripts/",
+      "modules": [
+        "ci",
+        "root-docs",
+        "tests",
+        "doc",
+        "public/",
+        "scripts/",
+        "vault"
+      ],
+      "nFiles": 2641,
+      "tmas": [],
+      "impactTags": [
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "Docs current to v0.62.982 + vault snapshot v0.62.982",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1925,
+      "status": "merged",
+      "merged": "2026-11-09 11:37:29+00:00",
+      "day": "2026-11-09",
+      "version": "0.62.983",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: LTA's \"Ter\" means Terminal, not Terrace",
+      "approach": "Spec: `doc/Feature/2026-11-09-lta-ter-is-terminal.spec.md`, approved.",
+      "codeImpact": "9 files — index.js, sg-address.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "sg-address.js"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.983: LTA's \"Ter\" means Terminal, not Terrace",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1926,
+      "status": "merged",
+      "merged": "2026-11-09 13:14:59+00:00",
+      "day": "2026-11-09",
+      "version": "0.62.984",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: today's first and last bus at the tapped stop, in the bus route strip",
+      "approach": "Spec: `doc/Feature/2026-11-09-bus-first-last-in-route-strip.spec.md`, approved.",
+      "codeImpact": "11 files — index.js, transport.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "transport.js",
+        "TMA:transport"
+      ],
+      "nFiles": 11,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.984: today's first and last bus at the tapped stop, in the bus route strip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1927,
+      "status": "merged",
+      "merged": "2026-11-11 22:02:41+00:00",
+      "day": "2026-11-11",
+      "version": "0.62.985",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: FR24 without the caption bar, arrival time in the destination's zone, a flight globe, \"On the ground\"",
+      "approach": "Spec: `doc/Feature/2026-11-11-fr24-globe-arrival-tz.spec.md` (approved, sha `a18b585e`).",
+      "codeImpact": "22 files — fr24.js, TMA:transport, tests, doc, data, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "data",
+        "doc",
+        "fr24.js",
+        "package",
+        "scripts/",
+        "TMA:transport"
+      ],
+      "nFiles": 22,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.985: FR24 without the caption bar, arrival time in the destination's zone, a flight globe, \"On the ground\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ],
   "sessionReplies": [

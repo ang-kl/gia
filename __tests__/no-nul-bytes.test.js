@@ -81,7 +81,9 @@ describe('no source file contains a literal NUL byte', () => {
       'a literal NUL makes git treat the file as BINARY, so its diffs become unreviewable. '
       + 'Use the escape backslash-u-0000 in live source; frozen exceptions must match their original blob exactly.',
     ).toEqual([]);
-  });
+    // v0.62.986 — vitest 5 times out a synchronous test (vitest 2 never did); this whole-tree scan took 54.7 s in a
+    // full staged run. An explicit ceiling, assertions unchanged.
+  }, 300_000);
 
   it('historical exceptions cannot exempt live, new or altered files', () => {
     const bad = Buffer.from('const sentinel = ' + NUL + ';');
