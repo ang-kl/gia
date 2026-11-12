@@ -7,6 +7,8 @@ scope:
   - "package.json"
   - "package-lock.json"
   - "vitest.config.js"
+  - ".github/workflows/ci.yml"
+  - ".github/workflows/vault-verify.yml"
   - "web/*/package.json"
   - "web/*/package-lock.json"
   - "web/*/vite.config.js"
@@ -100,6 +102,28 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
   manifest), so it gets its own spec after this one, written once the verifier has been read end to end.
 - Major upgrades of `@sentry/node`, `node-telegram-bot-api` and `adm-zip`.
 - The `holidays.js` fallback (dropped by the operator, 12-11 '26).
+
+## Amendment 1 · 12-11 '26 09:10 SGT · Node 22 in CI for vitest 5
+
+- **Why.** vitest 5.1.0 declares `engines.node: ^22.12.0 || ^24.0.0 || >=26.0.0`, and CI runs Node 20
+  (`.github/workflows/ci.yml:26,143,160`; `vault-verify.yml:41`). Raised as FLOW ALERT F5; the operator chose, verbatim
+  from the options offered: *"vitest 5 + vite 8, and move CI to Node 22"*.
+- **Scope added:** `.github/workflows/ci.yml` and `.github/workflows/vault-verify.yml`, the two workflows that run
+  vitest; their `node-version` moves from 20 to 22. No other workflow changes.
+- **Production is unchanged.** Railway builds with Node **20.20.2**, read from the last deploy's build log
+  (`package.json > engines > node (>=20)`, 11-11 '26 22:18 UTC). vite 8 declares `^20.19.0 || >=22.12.0`, so the
+  Mini App builds on Railway still satisfy it; vitest does not run on Railway. `engines` stays `>=20`.
+
+| ID | Assumption | Status | Note |
+|----|------------|--------|------|
+| A7 | CI's `node-version` 20 → 22 in `ci.yml` and `vault-verify.yml` only; Railway keeps Node 20.20.2 | confirmed | Operator: "vitest 5 + vite 8, and move CI to Node 22" |
+
+| ID | Maxim | Scope | Limit | Contrary | Check |
+|----|-------|-------|-------|----------|-------|
+| I7 | The production runtime Node is unchanged | Railway | none | `engines` changed, or a Railway build on another Node | `package.json` `engines` diff empty; the next deploy's build log names Node 20.x |
+| I8 | Every workflow that runs vitest runs a Node vitest supports | CI | none | a vitest job on Node 20 | grep of the two workflows; CI green on the PR |
+
+Scope (amendment): `.github/workflows/ci.yml`, `.github/workflows/vault-verify.yml`.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
