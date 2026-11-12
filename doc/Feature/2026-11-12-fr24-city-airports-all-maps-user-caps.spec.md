@@ -34,8 +34,9 @@ verify: ""
 Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` (standing exception, `[AMD-242]`).
 
 ## Intent
-- Outcome: (1) the ⋮ menu's ✈️ Airports ▾ lists the airports of the city the reader is in, then Changi and Seletar;
-  tapping one jumps the map there, shows its pin and opens its board; (2) this works on the Train, Cuisine and Hawker
+- Outcome: (1) the ⋮ menu's ✈️ Airports ▾ lists the airports of the city the reader is in (international first,
+  then domestic, up to 150 km out), then Changi and Seletar, then any other known city on request; tapping one jumps
+  the map there, shows its pin and opens its board; (2) this works on the Train, Cuisine and Hawker
   maps, with every Flightradar24 feature (board, planes, flight card with arrival time, globe, gates); (3) each
   reader other than the owner has a daily credit cap of 500, with warnings at 50 %, 70 %, 80 % and 90 %, so that a
   later switch to public use is safe. The switch itself is **not** part of this work.
@@ -72,12 +73,15 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
     but the owner, so it is exercised the day the variable is switched; switching it needs FR24's terms read (R-18)
     and a separate `APPROVE` for the production variable.
   - Approving this spec accepts this UNDERSTANDING as well as the table below.
-- GAPS: none after the operator's answers of 12-11 '26.
+- GAPS: A1c (how "international" is decided) and A9 (how many per city), both offered twice without an answer;
+  recommended answers are written in and marked pending.
 
 ## Assumptions
 | ID | Assumption | Status | Note |
 |----|------------|--------|------|
-| A1 | The list: airports within 60 km of the reader's location that have an IATA code, nearest first, then Changi and Seletar under "Singapore" (each airport once) | confirmed | Operator: "Your city first, then SG" |
+| A1 | The list: the reader's city's airports, then Changi and Seletar under "Singapore" (each airport once), then "Other cities ▸" opening any of the 152 known cities' airports, so the reader can jump to any city from anywhere | confirmed | Operator: "Your city first, then SG"; then *"all cities"* (12-11 '26) |
+| A1b | A city's airports are those with an IATA code within **150 km** (was 60 km), because tourists fly into airports that far out; every listed airport shows its distance | confirmed | Operator, 12-11 '26: *"if the airport is far, still list it as this program is for tourists regardless of 100-150 km away"*. Measured: all 152 cities then have at least one (Savannakhet → KOP, 91 km) |
+| A1c | **International before domestic**, decided by OurAirports' size rank (large, then medium, then small), nearest first within each rank, with a short cited override list for large airports that are domestic in practice (e.g. Osaka Itami); the number of airports nobody could check is reported | pending | Operator asked for *"prioritise for international airport then domestic"*; no field states it (Itami is named "International" and is domestic; Suvarnabhumi is not named "International" and is the main gateway). Offered three rules twice; not yet chosen. This is the recommended one |
 | A2 | A tap pans the map to the airport, shows its ✈ pin and opens its board | confirmed | Operator: "Jump, pin and open board" |
 | A3 | Every FR24 feature works for every listed airport; a 500-credit daily cap per reader (owner uncapped) with warnings at 50 %, 70 %, 80 %, 90 % | confirmed | Operator: "500 credits. indicate to users if used up 50%, 70%, 80%, 90%" |
 | A4 | Train, Cuisine and Hawker maps | confirmed | Operator: "Train, Cuisine and Hawker" |
@@ -85,13 +89,13 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
 | A6 | A reader's day is the Singapore calendar day; cache hits cost the reader nothing; the cap blocks only new FR24 calls, answering `quota` | confirmed | Operator, 12-11 '26: "Confirm both" |
 | A7 | `FR24_PUBLIC` stays unset in this PR; going public is a later step after R-18, with its own `APPROVE` | confirmed | Operator: "Build with per-user limits, then public" |
 | A8 | The warning is one line on the open board ("You have used 50 % of today's flight data"), shown when a threshold is crossed; at 100 % the board says so and offers nothing that would call FR24 | confirmed | Operator, 12-11 '26: "Confirm" |
-| A9 | At most 4 city airports in the list | confirmed | Operator, 12-11 '26: "Confirm both". The most any known city has within 60 km is 4 |
+| A9 | At most **5** airports per city (international first, then domestic) | pending | Was "at most 4" for the 60 km radius, confirmed by the operator; at 150 km cities have up to 12 (Hiroshima), so the cap needs a fresh answer. 5 is the recommended one |
 | A10 | v0.62.987, one PR on `claude/handover-july-11-49uzvf` carrying the held `[AMD-338]`; Claude Code merges once CI is green | confirmed | Operator, 12-11 '26: "Confirm both" |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
 |----|-------|-------|-------|----------|-------|
-| I1 | The list is the reader's city first, then Singapore | Airports ▾ | ≤ 4 city airports | Changi listed twice, an airport without IATA, a far airport | `fr24-city-airports.test.js`: Jakarta → HLP, CGK, then WSSS, WSSL; Singapore → WSSS, WSSL once; Tokyo excludes Chofu |
+| I1 | The list is the reader's city first (international first), then Singapore, then any other city on request | Airports ▾ | ≤ 5 per city, ≤ 150 km | Changi listed twice, an airport without IATA, a domestic airport above an international one, a city with an empty list | `fr24-city-airports.test.js`: Jakarta → CGK before HLP, then WSSS, WSSL; Osaka → KIX before ITM; Singapore → WSSS, WSSL once; Savannakhet → KOP 91 km; every one of the 152 cities non-empty |
 | I2 | A tap jumps, pins and opens the board | three maps | none | a board for the wrong airport, or no pan | `fr24-city-airports.test.js`: layer pans to the airport's position and opens `board/<icao>` |
 | I3 | The server accepts exactly the table's IATA airports | `fr24.js` | none | an arbitrary code reaching FR24 | `fr24.test.js`: WIII and RJTT accepted; `ZZZZ` and a code without IATA answer `badcode`, no FR24 call |
 | I4 | A non-owner cannot spend more than 500 credits per SGT day | `fr24.js` | owner exempt | the 501st credit spent; a cache hit charged | `fr24-user-caps.test.js` |
