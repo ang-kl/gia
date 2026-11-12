@@ -41,9 +41,11 @@
     "redis": "^4.6.10"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "pino-pretty": "^11.0.0",
     "playwright-core": "^1.62.1",
     "tz-lookup": "^6.1.25",
-    "vitest": "^2.0.0"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
   }
 }

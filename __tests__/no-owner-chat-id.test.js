@@ -73,7 +73,9 @@ describe('the owner chat id is not in the tree', () => {
     expect(scanned, 'the scan read no files — it is not measuring anything').toBeGreaterThan(500);
     expect(candidates, 'no digit runs found at all — the extractor is broken').toBeGreaterThan(500);
     expect([...new Set(hits)], 'the owner chat id is back in these files').toEqual([]);
-  });
+    // v0.62.986 — vitest 5 times out a SYNCHRONOUS test (vitest 2 never did), and this whole-tree scan reads every
+    // tracked file: up to ~110 s under a full parallel run. An explicit ceiling, not a weaker assertion.
+  }, 300_000);
 
   it('the digest pins are real sha256 digests, and one of them matches a known input', () => {
     for (const d of FORBIDDEN) expect(d).toMatch(/^[0-9a-f]{64}$/);
