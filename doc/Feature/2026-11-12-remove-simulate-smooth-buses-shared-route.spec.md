@@ -69,18 +69,18 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
     deliberately different and pinned by `map-overlays-copies.test.js`, so the route layer moves to
     `web/_shared/lib/bus-route-layer.js` rather than into those copies.
   - Approving this spec accepts this UNDERSTANDING as well as the table below.
-- GAPS: B2, B3, B5 below.
+- GAPS: none after the operator's answers of 14-11 '26 (B2, B3, B5, B7).
 
 ## Assumptions
 | ID | Assumption | Status | Note |
 |----|------------|--------|------|
 | B1 | Simulate is removed from Train, Hawker and Cuisine: the toggle, the caption strip, the run drawer's 🚇 half, the station-tap start, and the code | confirmed | Operator: "Remove Simulate everywhere" |
-| B2 | "Code" includes **deleting** `train-sim.js`, `train-sim.json`, `scripts/build-train-sim.js` and the shared re-export and controller (gate G2, destructive); the history stays in git and the vault | pending | |
-| B3 | A station tap then does what it did before Simulate existed: selects the station and opens its card; nothing new is added in its place | pending | |
+| B2 | "Code" includes **deleting** `train-sim.js`, `train-sim.json`, `scripts/build-train-sim.js` and the shared re-export and controller (gate G2, destructive); the history stays in git and the vault | confirmed | Operator, 14-11 '26: *"Confirm both"* (G2 answered yes) |
+| B3 | A station tap then does what it did before Simulate existed: selects the station and opens its card; nothing new is added in its place | confirmed | Operator, 14-11 '26: *"Confirm both"* |
 | B4 | Buses glide between readings: along the route in the route view, straight to the next reading in the stop view; no extra LTA calls; a bus that has not moved stays put | confirmed | Operator: "Smooth bus movement" (plan № 5,092 ¶E·2) |
-| B5 | Also in this PR: the bus-positions cache window from 20 s to 35 s (the 30 s refresh currently misses it every time), and the refresh stops when the stop bubble closes | pending | Plan № 5,092 ¶E·3, ¶E·5 step 1; not explicitly chosen |
+| B5 | Also in this PR: the bus-positions cache window from 20 s to 35 s (the 30 s refresh currently misses it every time), and the refresh stops when the stop bubble closes | confirmed | Plan № 5,092 ¶E·3, ¶E·5 step 1. Operator, 14-11 '26: *"Confirm both"* |
 | B6 | Hawker and Cuisine get the route view (tap a service in a stop bubble → route, live buses, strip with first and last bus) | confirmed | Operator: "Move the bus route view into the shared code and add it to Hawker and Cuisine" |
-| B7 | v0.62.988, its own PR after the airports PR; Claude Code merges once CI is green | pending | |
+| B7 | v0.62.988, its own PR after the airports PR; Claude Code merges once CI is green | confirmed | Operator, 14-11 '26: *"Confirm both"* |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
