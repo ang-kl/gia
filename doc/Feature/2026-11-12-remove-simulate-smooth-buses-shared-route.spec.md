@@ -80,7 +80,7 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
 | B4 | Buses glide between readings: along the route in the route view, straight to the next reading in the stop view; no extra LTA calls; a bus that has not moved stays put | confirmed | Operator: "Smooth bus movement" (plan № 5,092 ¶E·2) |
 | B5 | Also in this PR: the bus-positions cache window from 20 s to 35 s (the 30 s refresh currently misses it every time), and the refresh stops when the stop bubble closes | confirmed | Plan № 5,092 ¶E·3, ¶E·5 step 1. Operator, 14-11 '26: *"Confirm both"* |
 | B6 | Hawker and Cuisine get the route view (tap a service in a stop bubble → route, live buses, strip with first and last bus) | confirmed | Operator: "Move the bus route view into the shared code and add it to Hawker and Cuisine" |
-| B7 | v0.62.988, its own PR after the airports PR; Claude Code merges once CI is green | confirmed | Operator, 14-11 '26: *"Confirm both"* |
+| B7 | v0.62.989, its own PR after the airports PR; Claude Code merges once CI is green | confirmed | Operator, 14-11 '26: *"Confirm both"*. Renumbered 15-11 '26; the row read *"v0.62.988"*. Operator, 15-11 '26, asked to fix two bugs first with *"the Simulate and bus work (then v0.62.989)"*: *"Fix first, merge when green (Recommended)"* |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |

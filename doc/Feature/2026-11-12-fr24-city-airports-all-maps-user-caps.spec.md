@@ -89,7 +89,7 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
 | A7 | `FR24_PUBLIC` stays unset in this PR; going public is a later step after R-18, with its own `APPROVE` | confirmed | Operator: "Build with per-user limits, then public" |
 | A8 | The warning is one line on the open board ("You have used 50 % of today's flight data"), shown when a threshold is crossed; at 100 % the board says so and offers nothing that would call FR24 | confirmed | Operator, 12-11 '26: "Confirm" |
 | A9 | At most **5** airports per city (international first, then domestic) | confirmed | Was "at most 4" for the 60 km radius; at 150 km cities have up to 12 (Hiroshima). Operator, 14-11 '26: *"Up to 5"* |
-| A10 | v0.62.987, one PR on `claude/handover-july-11-49uzvf` carrying the held `[AMD-338]`; Claude Code merges once CI is green | confirmed | Operator, 12-11 '26: "Confirm both" |
+| A10 | v0.62.988, one PR on `claude/handover-july-11-49uzvf`, after the two bug fixes of 15-11 '26 (v0.62.987); Claude Code merges once CI is green | confirmed | Operator, 12-11 '26: "Confirm both". Renumbered 15-11 '26; the row read *"v0.62.987, one PR … carrying the held `[AMD-338]`"*. Operator, 15-11 '26, asked to fix the bugs first with *"the airports work (then v0.62.988)"*: *"Fix first, merge when green (Recommended)"*. `[AMD-338]` now rides the bug-fix PR (D-210) |
 
 ## Invariants
 | ID | Maxim | Scope | Limit | Contrary | Check |
