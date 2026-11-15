@@ -1,13 +1,13 @@
 {
   "name": "soleat",
-  "version": "0.62.986",
+  "version": "0.62.987",
   "private": true,
   "license": "UNLICENSED",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "vitest run",
-    "test:render": "node scripts/render-smoke.mjs",
+    "test:render": "node scripts/render-smoke.mjs && node scripts/cuisine-deeplink-boot.mjs",
     "test:watch": "vitest",
     "build": "npm run build:cuisine && npm run build:menu && npm run build:hawker && npm run build:transport && npm run build:oversight && npm run build:about && npm run build:clipboard",
     "build:about": "cd web/about && npm install --no-audit --no-fund && npm run build",

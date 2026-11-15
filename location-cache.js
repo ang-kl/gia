@@ -119,6 +119,13 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
     if (typeof opts.country === 'string' && /^[A-Z]{2}$/i.test(opts.country)) {
       payload.country = opts.country.toUpperCase();
     }
+    // v0.62.987 — spec 2026-11-15-chat-place-opens-cuisine-and-bold-tag, D2 / K3. A write made from the CHAT (/l, the
+    // picker, a shared pin, a recent place) says so. It carries no device id, so it lands on the account's record
+    // only, and until this version a phone that already had a slot of its own never saw it (getUserLocation below
+    // reads the slot first): the operator set a hotel in Johor Bahru with /l and the Cuisine app was told the phone's
+    // old Singapore record. Passed ONLY by the bot's chat handlers; a Mini App route never passes it, so a pick made
+    // on one phone still cannot reach another.
+    if (opts.fromChat === true) payload.fromChat = true;
   }
   // v0.61.206 — operator's repeated bug: share-pin from outside SG
   // (e.g. Padang Tengku Pahang, lat 4.21) was cached with no region
@@ -161,24 +168,45 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   if (deviceId) await redis.setEx(`${key}:dev:${deviceId}`, LOC_TTL, serialized);
 }
 
-// getUserLocation(redis, chatId, deviceId?) — when a device token is
-// given, read that device's slot first and fall back to the chatId-level
-// key (so a fresh device seeds from the last-known, then diverges).
-async function getUserLocation(redis, chatId, deviceId) {
-  if (!redis.isOpen) await redis.connect();
-  const dev = sanitizeDeviceId(deviceId);
-  let cached = null;
-  if (dev) cached = await redis.get(`loc:${hashChatId(chatId)}:dev:${dev}`);
-  if (!cached) cached = await redis.get(`loc:${hashChatId(chatId)}`);
-  if (!cached) return null;
+// v0.62.987 — D2 / K3: which of the two records a phone is given. Its own slot, unless the account's record was set
+// in chat (`fromChat`) AFTER that slot was written. Pure, so the test calls the rule itself. Both times are stamped by
+// this server (setAt, in setUserLocation), so no phone's clock enters the comparison.
+//   - no slot                                        -> the account's record (a new phone seeds from it; unchanged)
+//   - account record set in chat, newer than the slot -> the account's record (the place the reader just set)
+//   - anything else                                  -> the slot (another phone's pick, or an automatic write,
+//                                                       never displaces it)
+function pickSavedRecord(deviceRecord, accountRecord) {
+  if (!deviceRecord) return accountRecord || null;
+  if (!accountRecord) return deviceRecord;
+  const newer = Number.isFinite(accountRecord.setAt) && Number.isFinite(deviceRecord.setAt)
+    && accountRecord.setAt > deviceRecord.setAt;
+  return (accountRecord.fromChat === true && newer) ? accountRecord : deviceRecord;
+}
+
+function parseSavedRecord(raw) {
+  if (!raw) return null;
   try {
-    const parsed = JSON.parse(cached);
+    const parsed = JSON.parse(raw);
     // Backwards-compat for pre-v0.30.2 entries without setAt.
     if (parsed && typeof parsed === 'object' && !parsed.setAt) parsed.setAt = null;
     return parsed;
   } catch {
     return null;
   }
+}
+
+// getUserLocation(redis, chatId, deviceId?) — when a device token is
+// given, read that device's slot first and fall back to the chatId-level
+// key (so a fresh device seeds from the last-known, then diverges).
+// v0.62.987 — and a place set in chat after the slot was written wins over the slot (pickSavedRecord above).
+async function getUserLocation(redis, chatId, deviceId) {
+  if (!redis.isOpen) await redis.connect();
+  const dev = sanitizeDeviceId(deviceId);
+  const accountKey = `loc:${hashChatId(chatId)}`;
+  if (!dev) return parseSavedRecord(await redis.get(accountKey));
+  const deviceRecord = parseSavedRecord(await redis.get(`${accountKey}:dev:${dev}`));
+  const accountRecord = parseSavedRecord(await redis.get(accountKey));
+  return pickSavedRecord(deviceRecord, accountRecord);
 }
 
 // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours. The one rule for the saved place lives in
@@ -207,7 +235,25 @@ async function resolveCuisineLaunchAnchor(cached, now = Date.now()) {
   const validCoord = Number.isFinite(cached.lat) && Number.isFinite(cached.lng)
     && Math.abs(cached.lat) > 0.001 && Math.abs(cached.lng) > 0.001;
   if (!validCoord) return null;
-  return { lat: cached.lat, lng: cached.lng, region: cached.region || null };
+  // v0.62.987 — K4: the name travels too, so the app shows the place the chat line names. A locked place always has
+  // a label (isLocked requires one).
+  const label = typeof cached.label === 'string' ? cached.label.trim() : '';
+  return { lat: cached.lat, lng: cached.lng, region: cached.region || null, ...(label ? { label } : {}) };
+}
+
+// v0.62.987 — K4: what the /cuisine command adds to the Mini App's link for a locked saved place: lat, lng, region
+// and the name as `place` (the app reads at most 80 characters of it: lib/state.js readOverridesFromHash). An
+// explicit @location argument has already put its own lat in the params and wins; nothing is added then. Returns the
+// URLSearchParams it was given. Lives here, not in index.js, so the test can call it.
+const LAUNCH_PLACE_MAX = 80;
+function applyLaunchAnchorToParams(params, anchor) {
+  if (!anchor || params.has('lat')) return params;
+  params.set('lat', String(anchor.lat));
+  params.set('lng', String(anchor.lng));
+  if (anchor.region && !params.has('region')) params.set('region', String(anchor.region));
+  const name = typeof anchor.label === 'string' ? anchor.label.trim().slice(0, LAUNCH_PLACE_MAX) : '';
+  if (name && !params.has('place')) params.set('place', name);
+  return params;
 }
 
 // The chat line's "today 4:10 PM" / "yesterday 4:10 PM" / "30 Oct 12:00 PM" (Singapore time).
@@ -276,6 +322,8 @@ module.exports = {
   inferCountryFromCoords,
   setUserLocation,
   getUserLocation,
+  pickSavedRecord,             // v0.62.987
+  applyLaunchAnchorToParams,   // v0.62.987
   getLocationAgeMinutes,
   describeSavedPlace,          // v0.62.965
   resolveCuisineLaunchAnchor,  // v0.62.965

@@ -513,15 +513,19 @@ const STRINGS = {
   // (< 5 eateries OR average rating < 4.0). Sent ahead of the
   // automatic nearby fan-out so the user understands why we're
   // showing extras without them tapping the button.
-  'place.autoNearbyIntro':     { en: '_Slim pickings at <b>{place}</b> — here are the top-rated eateries nearby:_',
-                                 fr: '_Peu d’options à <b>{place}</b> — voici les mieux notés à proximité :_' ,
-                            id: '_Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_',
-                            ru: '_Выбор в <b>{place}</b> невелик — вот лучшие заведения поблизости:_',
-                            de: '_Magere Auswahl bei <b>{place}</b> — hier sind die bestbewerteten Restaurants in der Nähe:_',
-                            zh: '_<b>{place}</b> 的选择不多 — 以下是附近评分最高的餐馆：_',
-                            ja: '_<b>{place}</b> は選択肢が少なめです — 近隣のおすすめ飲食店はこちらです:_',
-                            es: '_Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:_',
-                            ko: '_<b>{place}</b>에는 선택지가 적습니다 — 근처에서 평점이 높은 음식점입니다:_'
+  // v0.62.987 — sent as HTML (index.js sends it with parse_mode 'HTML'). Until this version the sentence was wrapped
+  // in Markdown underscores with the place in <b>, and sent as Markdown, so Telegram printed "<b>Johor Bahru</b>"
+  // (operator screenshot, 15-11 '26). One style per string: <i> for the sentence, <b> for the place. Wording and
+  // punctuation are as shipped; only the wrappers changed. __tests__/auto-nearby-intro-html.test.js holds this.
+  'place.autoNearbyIntro':     { en: '<i>Slim pickings at <b>{place}</b> — here are the top-rated eateries nearby:</i>',
+                                 fr: '<i>Peu d’options à <b>{place}</b> — voici les mieux notés à proximité :</i>' ,
+                            id: '<i>Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:</i>',
+                            ru: '<i>Выбор в <b>{place}</b> невелик — вот лучшие заведения поблизости:</i>',
+                            de: '<i>Magere Auswahl bei <b>{place}</b> — hier sind die bestbewerteten Restaurants in der Nähe:</i>',
+                            zh: '<i><b>{place}</b> 的选择不多 — 以下是附近评分最高的餐馆：</i>',
+                            ja: '<i><b>{place}</b> は選択肢が少なめです — 近隣のおすすめ飲食店はこちらです:</i>',
+                            es: '<i>Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:</i>',
+                            ko: '<i><b>{place}</b>에는 선택지가 적습니다 — 근처에서 평점이 높은 음식점입니다:</i>'
                           },
   // v0.61.124 — "outside the zone" header for precinct anchors
   // (Marina Bay, Chinatown, etc.) where the polygon exclusion filters

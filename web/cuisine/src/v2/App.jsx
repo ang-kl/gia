@@ -990,7 +990,28 @@ export default function App() {
   // v0.58.18: dropped client-side radius state — the slider was
   // removed per Human Lead. Server falls back to its region defaults
   // (50 km SG / 18 km JB) when the search body has no `radius`.
-  const initialOverrides = (typeof window !== 'undefined') ? readOverridesFromHash() : null;
+  // v0.62.987 — spec 2026-11-15-chat-place-opens-cuisine-and-bold-tag, D1 / K2. The chat link is read ONCE per page
+  // load and kept. It used to be re-read from the address on every render, and `writeToHash` (lib/state.js) rewrites
+  // the address after the first paint WITHOUT lat/lng, so from the second render on this was null: the start-up
+  // location check's "this is a chat link, skip" guard never held, the check moved the app to the phone, and the
+  // anchor-and-phone check then discarded the results the place's own search had returned. Operator, 15-11 '26:
+  // "/l Hyatt Place Johor Bahru Paradigm Mall … it doesn't run the first 12 around" it.
+  const initialOverridesRef = useRef(undefined);
+  if (initialOverridesRef.current === undefined) {
+    initialOverridesRef.current = (typeof window !== 'undefined') ? (readOverridesFromHash() || null) : null;
+    // A link that carries a place is a deliberate, LOCKED pick from the first render: the bot links a saved place
+    // only while it is locked (location-cache.js resolveCuisineLaunchAnchor), and an @location argument is typed by
+    // the reader. So the 20-second follow and the start-up check leave it alone without waiting for a server answer.
+    if (initialOverridesRef.current?.location) {
+      explicitPickRef.current = true;
+      anchorLockedRef.current = true;
+    }
+  }
+  const initialOverrides = initialOverridesRef.current;
+  // v0.62.987 — true while the place on screen is still the chat link's own (no pick made in the app since). The
+  // post-search re-push (D791) stands down for it: the app did not choose this place, the chat did, and a re-push
+  // from this phone would turn the account's record into a phone's pick, which other phones do not read (D2).
+  const linkPickRef = useRef(!!initialOverridesRef.current?.location);
   // v0.58.10: location anchor (LocationField pick OR bot-supplied
   // override). Threaded into the copy-syntax payload so the emitted
   // /cuisine command can deep-link the recipient back to the same
@@ -1977,7 +1998,11 @@ export default function App() {
       if (userLocSource && userLocSource !== 'serverCache' && !cancelled) {
         try {
           const r = await fetchUserLocation();
-          if (r?.region) applyRegionFromAnchor(r.region);
+          // v0.62.987 — K2: a chat link that states its own region keeps it. This read exists for links that carry
+          // NO region (v0.61.203); applied unconditionally, it put the phone's own record's region over the link's
+          // (a 🇸🇬 flag on a Johor Bahru place) whenever the server answered with a different record.
+          const linkHasRegion = userLocSource === 'hash' && !!initialOverrides?.location?.region;
+          if (r?.region && !linkHasRegion) applyRegionFromAnchor(r.region);
           // v0.61.205 — track precinctId for the OTHER pill flag swap.
           if (r?.precinctId) setAnchorPrecinctId(r.precinctId);
           // v0.62.32 — Arrival Plate on initData/GPS boots too.
@@ -2574,6 +2599,16 @@ export default function App() {
       try {
         const r = await fetchUserLocation();
         if (!r || !isValidCoord(r.lat, r.lng)) return;
+        // v0.62.987 — FINDING, deliberately NOT changed here ([AMD-339], reported to the operator). The line above
+        // throws on every run: `isValidCoord` is a const of the mount effect (declared about 840 lines up, inside
+        // another useEffect) and is not in scope in this one. The ReferenceError lands in the catch at the bottom,
+        // which swallows it, so since v0.61.186 (27-05 '26) this refresh has read the server and applied NOTHING.
+        // Measured in a scratch build with the catch made to speak: "ReferenceError: isValidCoord is not defined",
+        // three times in three calls. The production log of 15-11 '26 shows fourteen of these reads inside 50 ms.
+        // Making it work would switch on about fifty lines that have never run on a phone (they move the anchor,
+        // the region and the country), which is a change of behaviour for the operator to choose, not a side effect
+        // of this fix. For the chat-link open this fix is about, an inert refresh is the safe side: it cannot move
+        // the place. A guard written for it here would be a guard on code that never runs.
         setUserLoc({ lat: r.lat, lng: r.lng });
         // v0.61.266 — mirror the v0.61.266 tryServerCache fix on the
         // visibility-refresh path. Without this, a user who switches
@@ -3045,6 +3080,10 @@ export default function App() {
   async function reassertPickAfterSearch(snap, searched = null) {
     try {
       if (!explicitPickRef.current) return;
+      // v0.62.987 — D2: the place came from the chat link and no pick has been made in the app since. There is
+      // nothing of this phone's to re-assert, and a re-push would rewrite the account's record as this phone's pick,
+      // after which other phones would stop being given the place set in chat.
+      if (linkPickRef.current) return;
       const a = locationAnchorRef.current;
       if (!a || !(a.name || '').trim() || !Number.isFinite(a.lat) || !Number.isFinite(a.lng)) return;
       // v0.62.x — operator (AU › Canberra reset): only re-push when the live
@@ -3880,6 +3919,7 @@ export default function App() {
 
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
+      linkPickRef.current = false;   // v0.62.987 — a pick made in the app: the place is no longer the chat link's
       setBackTo(null);   // v0.62.965 — any pick retires the "↩ Back to" chip
       // v0.62.33 — operator: "i switch from putrajaya to Hanoi, the what to
       // try here is still the old dishes … the card should be wipe clean."
