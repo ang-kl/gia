@@ -374,7 +374,7 @@
   "key": "place.autoNearbyIntro",
   "lang": "id",
   "before": "Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_",
-  "after": "_Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_",
+  "after": "<i>Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:</i>",
   "why": "The opening italic marker was dropped while the closing one survived, so Telegram rendered a stray underscore."
  },
  {
@@ -738,7 +738,7 @@
   "key": "place.autoNearbyIntro",
   "lang": "ru",
   "before": "_Выбор невелик. <b>{place}</b> — вот лучшие рестораны поблизости:_",
-  "after": "_Выбор в <b>{place}</b> невелик — вот лучшие заведения поблизости:_",
+  "after": "<i>Выбор в <b>{place}</b> невелик — вот лучшие заведения поблизости:</i>",
   "why": "Split one sentence into two and left {place} stranded after a full stop."
  },
  {
@@ -1326,7 +1326,7 @@
   "key": "place.autoNearbyIntro",
   "lang": "zh",
   "before": "_选择寥寥无几<b>{place}</b> — 以下是附近评分最高的餐厅：",
-  "after": "_<b>{place}</b> 的选择不多 — 以下是附近评分最高的餐馆：_",
+  "after": "<i><b>{place}</b> 的选择不多 — 以下是附近评分最高的餐馆：</i>",
   "why": "The closing italic marker was missing and \"选择寥寥无几<b>{place}</b>\" put the place name after the comment about it."
  },
  {
@@ -1816,7 +1816,7 @@
   "key": "place.autoNearbyIntro",
   "lang": "ja",
   "before": "_選択肢が少ない<b>{place}</b> — 近隣のおすすめ飲食店はこちらです:_",
-  "after": "_<b>{place}</b> は選択肢が少なめです — 近隣のおすすめ飲食店はこちらです:_",
+  "after": "<i><b>{place}</b> は選択肢が少なめです — 近隣のおすすめ飲食店はこちらです:</i>",
   "why": "\"選択肢が少ない<b>{place}</b>\" puts the place name after the comment about it."
  },
  {
@@ -2383,7 +2383,7 @@
   "key": "place.autoNearbyIntro",
   "lang": "es",
   "before": "_Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:",
-  "after": "_Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:_",
+  "after": "<i>Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:</i>",
   "why": "The closing italic marker was dropped, leaving an unbalanced emphasis run."
  },
  {
