@@ -84,6 +84,24 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
         }
       }
     } catch { /* malformed cache — fall through to the write */ }
+    // v0.62.988 — spec 2026-11-21-chat-place-kept-per-phone, L4. The check above reads the ACCOUNT's record, which is
+    // whatever was written last by anyone. With two phones that is not the record THIS phone is given: after phone A
+    // writes an unnamed position, the account's record is no longer a locked place, and phone B's automatic save
+    // sailed through over the chat place (or over B's own locked pick) that B was still showing. So the guard also
+    // holds when the record this phone would be given is a locked place. It only ever refuses MORE automatic
+    // writes, never fewer; a deliberate write is not touched by either check.
+    if (deviceId) {
+      try {
+        const given = await getUserLocation(redis, chatId, deviceId);
+        if (given && typeof given.label === 'string' && given.label.trim()) {
+          const { isLocked } = await anchorAge();
+          if (isLocked(given, Date.now())) {
+            console.log(`[location-cache] D787 label-guard: kept this device's "${given.label.slice(0, 40)}" over an ambient write`);
+            return { kept: true, label: given.label };
+          }
+        }
+      } catch { /* malformed cache — fall through to the write */ }
+    }
   }
   // v0.30.2: stamp setAt so callers can compute staleness for the
   // 15-min "your location is old, refresh?" reminder.
@@ -166,6 +184,12 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   const serialized = JSON.stringify(payload);
   await redis.setEx(key, LOC_TTL, serialized);
   if (deviceId) await redis.setEx(`${key}:dev:${deviceId}`, LOC_TTL, serialized);
+  // v0.62.988 — L1: a place set in chat is ALSO kept under its own key, which no app write touches. v0.62.987 kept
+  // the chat mark only on the account's record above, and every app write replaces that record: phone A's pick
+  // erased the mark, and phone B, which had picked nothing, went back to its own older record (review finding on
+  // #1929, reproduced). getUserLocation compares a phone's slot with THIS record. /forgetme erases it
+  // (user-data.js hashedKeys).
+  if (payload.fromChat === true) await redis.setEx(`${key}:chat`, LOC_TTL, serialized);
 }
 
 // v0.62.987 — D2 / K3: which of the two records a phone is given. Its own slot, unless the account's record was set
@@ -199,14 +223,21 @@ function parseSavedRecord(raw) {
 // given, read that device's slot first and fall back to the chatId-level
 // key (so a fresh device seeds from the last-known, then diverges).
 // v0.62.987 — and a place set in chat after the slot was written wins over the slot (pickSavedRecord above).
+// v0.62.988 — the place set in chat is read from its OWN key (`loc:<hash>:chat`), not from the account's record,
+// which the next app write on any phone replaces. So for a phone:
+//   - its slot, unless the chat place is newer                    (L1, L2)
+//   - no slot: the chat place when there is one                    (L3)
+//   - neither: the account's record, as a new phone always seeded  (v0.61.363)
+// With no device (the bot's own reads) nothing changes: the account's last record (L5).
 async function getUserLocation(redis, chatId, deviceId) {
   if (!redis.isOpen) await redis.connect();
   const dev = sanitizeDeviceId(deviceId);
   const accountKey = `loc:${hashChatId(chatId)}`;
   if (!dev) return parseSavedRecord(await redis.get(accountKey));
   const deviceRecord = parseSavedRecord(await redis.get(`${accountKey}:dev:${dev}`));
-  const accountRecord = parseSavedRecord(await redis.get(accountKey));
-  return pickSavedRecord(deviceRecord, accountRecord);
+  const chatRecord = parseSavedRecord(await redis.get(`${accountKey}:chat`));
+  if (deviceRecord || chatRecord) return pickSavedRecord(deviceRecord, chatRecord);
+  return parseSavedRecord(await redis.get(accountKey));
 }
 
 // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours. The one rule for the saved place lives in

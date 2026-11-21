@@ -121,6 +121,11 @@ function seedEverything() {
     `buddy-day:${CHAT}:2026-09-02`,
     // hashed encoding — one sha256, truncated to 16 hex, shared by all six
     `loc:${H}`,
+    // v0.62.988 (F7, an ADDITION, quoted in [AMD-341]): the place last set in chat, and the per-device location
+    // records that had existed since v0.61.363 and were never seeded here, so nothing noticed /forgetme left them.
+    `loc:${H}:chat`,
+    `loc:${H}:dev:phoneA`,
+    `loc:${H}:dev:phoneB`,
     `loc:pending:${H}`,
     `proc:${H}`,
     `seen:${H}`,

@@ -89,6 +89,7 @@ function hashedKeys(chatId) {
   const h = hashChatId(chatId);
   return [
     `loc:${h}`,
+    `loc:${h}:chat`,         // v0.62.988 — the place last set in chat (location-cache.js), kept apart from app writes
     `loc:pending:${h}`,
     `proc:${h}`,
     `seen:${h}`,             // last-activity epoch — drives the wake-from-idle prompt
@@ -100,7 +101,12 @@ function hashedKeys(chatId) {
 // Families that need a SCAN. Every pattern terminates the chatId with `:` or end-of-string, so
 // erasing 100000001 cannot reach 1000000019 — see the header.
 function scanPatterns(chatId) {
+  const h = hashChatId(chatId);
   return [
+    // v0.62.988 — the per-device location records (location-cache.js, since v0.61.363). They were never listed: a
+    // /forgetme left them to expire by themselves within 24 hours. Operator, 21-11 '26: "erase them at once". The
+    // hash is a fixed 16 hex characters followed by ':dev:', so this cannot reach another account's records.
+    `loc:${h}:dev:*`,
     `card:${chatId}:*`,               // the clipboard cards themselves (PERSIST when favourited)
     `card_locs:${chatId}:*`,          // which drawers each card sits in
     `cab:${chatId}:*`,                // the whole cabinet tree: cabinets, drawers, :default
