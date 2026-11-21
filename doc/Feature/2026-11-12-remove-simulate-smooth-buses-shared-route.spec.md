@@ -93,6 +93,17 @@ Version: 0.1. Date: 12 November 2026 (Asia/Singapore). Location: `doc/Feature/` 
 | J6 | The run drawer keeps its 🚌 half | three maps | none | the bus runs lost with the trains | `run-drawer.test.js` adjusted under F7 |
 | J7 | Full suite, seven builds and render check green; nine locales | repo | none | — | `npm test`; `npm run build`; `scripts/render-smoke.mjs` |
 
+## Acceptance criteria
+Added 21-11 '26: the section was missing and the approval gate refused the spec for it. Nothing above is changed;
+each line restates an invariant already in the table.
+- [ ] No Simulate toggle, caption or simulated train on any of the three maps; the code and data files are deleted → J1
+- [ ] A station tap still selects the station and opens its card → J2
+- [ ] Buses glide along the route in the route view and straight in the stop view; a bus that has not moved stays put → J3
+- [ ] No more LTA arrival calls than today; the cache window is 35 s; the refresh stops when the stop bubble closes → J4
+- [ ] Tapping a service in a stop bubble on Hawker and Cuisine draws its route, live buses and the strip → J5
+- [ ] The run drawer keeps its 🚌 half → J6
+- [ ] Changed tests quoted in the Journal (F7); new tests red first; suite, seven builds and render checks green → J7
+
 ## Out of scope
 - Flightradar24 (its own spec, `2026-11-12-fr24-city-airports-all-maps-user-caps`).
 - Removing the run drawer itself, or bus features not named above.
