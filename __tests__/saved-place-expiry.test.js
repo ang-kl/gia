@@ -82,7 +82,9 @@ describe('I4 — the D787 guard refuses an automatic write over a LOCKED place a
 
 describe('I6 on the server — the /cuisine link carries the saved place only while locked', () => {
   it('locked → the anchor with its region; unlocked, unlabelled, invalid, or missing → null', async () => {
-    expect(await resolveCuisineLaunchAnchor({ ...KYOTO, setAt: NOW - 10 * 60 * 1000 }, NOW)).toEqual({ lat: KYOTO.lat, lng: KYOTO.lng, region: 'OTHER' });
+    // v0.62.987 (F7, quoted in [AMD-339]): the anchor now carries the place's name too, so the link can show it.
+    // Was: toEqual({ lat: KYOTO.lat, lng: KYOTO.lng, region: 'OTHER' }).
+    expect(await resolveCuisineLaunchAnchor({ ...KYOTO, setAt: NOW - 10 * 60 * 1000 }, NOW)).toEqual({ lat: KYOTO.lat, lng: KYOTO.lng, region: 'OTHER', label: KYOTO.label });
     expect(await resolveCuisineLaunchAnchor({ ...KYOTO, setAt: NOW - 19 * H }, NOW)).toBeNull();
     expect(await resolveCuisineLaunchAnchor({ lat: SG.lat, lng: SG.lng, setAt: NOW - 60 * 1000 }, NOW)).toBeNull();
     expect(await resolveCuisineLaunchAnchor({ ...KYOTO, lat: 0, lng: 0, setAt: NOW }, NOW)).toBeNull();
@@ -93,7 +95,16 @@ describe('I6 on the server — the /cuisine link carries the saved place only wh
     expect(src).toMatch(/preResolvedAnchor = await resolveCuisineLaunchAnchor\(cached/);
     expect(src).not.toMatch(/CUISINE_FRESH_LOC_MS/);
     // Explicit @location arguments still win over the cached anchor.
-    expect(src).toMatch(/if \(preResolvedAnchor && !params\.has\('lat'\)\)/);
+    // v0.62.987 (F7, quoted in [AMD-339]): this was a source pin on the handler's own `if`,
+    //   expect(src).toMatch(/if \(preResolvedAnchor && !params\.has\('lat'\)\)/);
+    // The rule moved into location-cache.js applyLaunchAnchorToParams so it can be CALLED, which is the stronger
+    // check: the pin below says the handler delegates, and the call says what the rule does.
+    expect(src).toMatch(/applyLaunchAnchorToParams\(params,\s*preResolvedAnchor\)/);
+    const explicit = lc.applyLaunchAnchorToParams(new URLSearchParams('lat=1.3&lng=103.8'), { lat: KYOTO.lat, lng: KYOTO.lng, region: 'OTHER', label: KYOTO.label });
+    expect(explicit.toString()).toBe('lat=1.3&lng=103.8');
+    const cached = lc.applyLaunchAnchorToParams(new URLSearchParams(''), { lat: KYOTO.lat, lng: KYOTO.lng, region: 'OTHER', label: KYOTO.label });
+    expect(cached.get('lat')).toBe(String(KYOTO.lat));
+    expect(cached.get('region')).toBe('OTHER');
   });
   it('the reply names the place and its age, and says so when the lock has expired', () => {
     const src = code('index.js');

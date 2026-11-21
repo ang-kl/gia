@@ -92,10 +92,16 @@ describe('index.js wires both call sites (comment-masked)', () => {
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/[^\n]*/g, '$1');
 
   it('/location <place> stores the country with the OTHER anchor', () => {
-    expect(code).toMatch(/setUserLocation\(redis, chatId, lat, lng, \{\s*region: 'OTHER',\s*label,\s*country: countryCode\s*\}\)/);
+    // v0.62.987 (F7, quoted in [AMD-339]): the write is now also marked as set in chat. Was:
+    //   /setUserLocation\(redis, chatId, lat, lng, \{\s*region: 'OTHER',\s*label,\s*country: countryCode\s*\}\)/
+    // What this test is about (the country is stored) is asserted exactly as before; `fromChat: true` follows it.
+    expect(code).toMatch(/setUserLocation\(redis, chatId, lat, lng, \{\s*region: 'OTHER',\s*label,\s*country: countryCode,\s*fromChat: true\s*\}\)/);
   });
 
   it('the recent-location pick builds its opts with locationOptsFromRecent', () => {
-    expect(code).toMatch(/setUserLocation\(redis, chatId, entry\.lat, entry\.lng, locationOptsFromRecent\(entry\)\)/);
+    // v0.62.987 (F7, quoted in [AMD-339]): the opts are still built by locationOptsFromRecent; the write adds the
+    // chat mark beside them. Was:
+    //   /setUserLocation\(redis, chatId, entry\.lat, entry\.lng, locationOptsFromRecent\(entry\)\)/
+    expect(code).toMatch(/setUserLocation\(redis, chatId, entry\.lat, entry\.lng, \{ \.\.\.locationOptsFromRecent\(entry\), fromChat: true \}\)/);
   });
 });

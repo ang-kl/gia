@@ -46,6 +46,7 @@ const {
   touchLastSeen,
   describeSavedPlace,          // v0.62.965 — the 6-hour lock, stated to the Mini Apps
   resolveCuisineLaunchAnchor,  // v0.62.965 — the /cuisine link carries a place only while locked
+  applyLaunchAnchorToParams,   // v0.62.987 — and its name
   describeSavedPlaceAge        // v0.62.965 — "today 4:10 PM" / "yesterday …" for the reply line
 } = require('./location-cache');
 // v0.62.530 — resolveLang hoisted to a single top-level import (was re-required
@@ -1760,13 +1761,9 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
 
     // Don't overwrite a tokeniser-supplied @location with the cached
     // anchor — explicit args win.
-    if (preResolvedAnchor && !params.has('lat')) {
-      params.set('lat', String(preResolvedAnchor.lat));
-      params.set('lng', String(preResolvedAnchor.lng));
-      if (preResolvedAnchor.region && !params.has('region')) {
-        params.set('region', String(preResolvedAnchor.region));
-      }
-    }
+    // v0.62.987 — K4: the link now carries the place's NAME as well (`place=`), so the app shows what the reply
+    // line below names instead of a reverse-geocoded street. The rule moved to location-cache.js so a test calls it.
+    applyLaunchAnchorToParams(params, preResolvedAnchor);
 
     let url = `https://${webhookDomain}/app/cuisine`;
     const finalHash = params.toString();
@@ -2795,7 +2792,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   try {
     const coded = resolveCodedLocation(text);
     if (coded) {
-      await setUserLocation(redis, chatId, coded.lat, coded.lng);
+      await setUserLocation(redis, chatId, coded.lat, coded.lng, { fromChat: true });   // v0.62.987 — D2: set in chat
       await persistExplicitLocale(coded.lat, coded.lng);   // v0.62.197 — also set userlocale: mode
       // v0.61.197 — recent-locations LRU push.
       addRecentLocation(redis, chatId, { lat: coded.lat, lng: coded.lng, label: coded.label }).catch(() => {});
@@ -2848,7 +2845,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         await safeSend(chatId, "Geocoding result missing coordinates.");
         return;
       }
-      await setUserLocation(redis, chatId, lat, lng);
+      await setUserLocation(redis, chatId, lat, lng, { fromChat: true });   // v0.62.987 — D2: set in chat
       await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode (SG gate)
       // v0.61.197 — recent-locations LRU push.
       addRecentLocation(redis, chatId, {
@@ -2898,10 +2895,13 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     // v0.62.938 — store the country too. Without it resolveRegionCode read
     // this OTHER record as 'SG' and the free-text anchor fell back to the
     // Singapore geocoder (Codex P1 on #1870, [AMD-232]).
+    // v0.62.987 — D2: marked as set in chat, so a phone that already has a slot of its own reads this place next
+    // (location-cache.js pickSavedRecord). This is the write behind the operator's "/l Hyatt Place …" of 15-11 '26.
     await setUserLocation(redis, chatId, lat, lng, {
       region: 'OTHER',
       label,
-      country: countryCode
+      country: countryCode,
+      fromChat: true
     });
     await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode
     // v0.61.197 — recent-locations LRU push.
@@ -3511,7 +3511,7 @@ bot.on('callback_query', async (q) => {
         }
         // v0.62.938 — opts built by recent-locations.js so an OTHER entry's
         // country survives the re-pick (it was dropped here before).
-        await setUserLocation(redis, chatId, entry.lat, entry.lng, locationOptsFromRecent(entry));
+        await setUserLocation(redis, chatId, entry.lat, entry.lng, { ...locationOptsFromRecent(entry), fromChat: true });   // v0.62.987 — D2
         // Bubble to top of LRU.
         addRecentLocation(redis, chatId, entry).catch(() => {});
         const flag = entry.country ? (findCountryPref(entry.country)?.flag || '🌍') : '📍';
@@ -4011,7 +4011,8 @@ bot.on('callback_query', async (q) => {
           region: p.region,
           radiusCapM: p.radiusCapM || null,
           label: p.label,
-          precinctId: p.id
+          precinctId: p.id,
+          fromChat: true   // v0.62.987 — D2: the chat picker
         });
         const { tn: tnLP } = require('./i18n');
         const capNote = p.radiusCapM
@@ -4242,7 +4243,7 @@ bot.on('callback_query', async (q) => {
         // accepted. (Still no structured addressComponents; the Menu TMA can
         // re-set for the richer pill.)
         await setUserLocation(redis, chatId, offer.lat, offer.lng,
-          (offer.street && String(offer.street).trim()) ? { label: String(offer.street).trim() } : {});
+          { ...((offer.street && String(offer.street).trim()) ? { label: String(offer.street).trim() } : {}), fromChat: true });   // v0.62.987 — D2
         await redis.del(`wake2:offer:${chatId}`).catch(() => {});
         await safeSend(chatId,
           tn('wake2.currentApplied', cbLang, { street: escapeHtmlForTelegram(offer.street || '') }),
@@ -4464,7 +4465,7 @@ bot.on('location', async (msg) => {
         hadPriorLocation = !!(prior && Number.isFinite(prior.lat) && Number.isFinite(prior.lng));
       } catch { /* non-fatal — treat as first share */ }
       try {
-        await setUserLocation(redis, msg.chat.id, lat, lng);
+        await setUserLocation(redis, msg.chat.id, lat, lng, { fromChat: true });   // v0.62.987 — D2: a pin shared in chat
         console.log(`[location] setUserLocation OK chatId=${msg.chat.id} lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} elapsed=${Date.now() - locStartMs}ms`);
       }
       catch (err) {
@@ -11603,7 +11604,7 @@ bot.on('message', async (msg) => {
         await setPendingMeal(redis, msg.chat.id, pending); // §4 stay locked in original intent
         return;
       }
-      await setUserLocation(redis, msg.chat.id, place.lat, place.lng);
+      await setUserLocation(redis, msg.chat.id, place.lat, place.lng, { fromChat: true });   // v0.62.987 — D2: typed in chat
       await safeSend(msg.chat.id, `Centred on ${place.name}.`);
       if (resolved?.kind === 'cuisine') {
         await runCuisineFlow(msg.chat.id, place.lat, place.lng, resolved.cuisineType);
@@ -12391,8 +12392,11 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
       if (weak) {
         try {
           const { tn: trnAuto } = require('./i18n');
+          // v0.62.987 — K1: sent as HTML. The string wrapped the sentence in Markdown underscores and the place in
+          // <b>, and this said 'Markdown', so Telegram printed the tags (operator screenshot, 15-11 '26). The nine
+          // strings are now <i>…<b>{place}</b>…</i>; placeEsc was already HTML-escaped.
           await bot.sendMessage(chatId, trnAuto('place.autoNearbyIntro', lang, { place: placeEsc }), {
-            parse_mode: 'Markdown', disable_web_page_preview: true
+            parse_mode: 'HTML', disable_web_page_preview: true
           });
         } catch (err) { console.warn('[place] auto-nearby intro send failed:', err.message); }
         await runNearbyAlternatives(chatId, {
