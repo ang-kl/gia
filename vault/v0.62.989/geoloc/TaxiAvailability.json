@@ -1,0 +1,152 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Data.gov.sg APIs",
+    "description": "\"APIs for People\"",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.data.gov.sg/v1"
+    }
+  ],
+  "paths": {
+    "/transport/taxi-availability": {
+      "get": {
+        "summary": "Get locations of available taxis in Singapore",
+        "description": "- Retrieved every 30 seconds from LTA's Datamall.\n- The response is a valid **GeoJSON** which you could insert into a mapping tool like Leaflet\n- As LTA does not provide any kind of metadata, the timestamp provided in the response is the scrape time\n- We recommend that this endpoint be called every minute\n- Use the `date_time` parameter to retrieve the latest available data at that moment in time\n",
+        "tags": ["Transport"],
+        "parameters": [
+          {
+            "name": "date_time",
+            "in": "query",
+            "description": "YYYY-MM-DD[T]HH:mm:ss (SGT)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+    "name": "x-api-key",
+    "in": "header",
+    "description": "API key for higher rate limits (optional)",
+    "required": false,
+    "schema": {
+      "type": "string"
+    }
+  }
+        ],
+        "responses": {
+          "200": {
+            "description": "Taxi availability information",
+            "content": {
+              "application/vnd.geo+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxiLocations"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TaxiLocations": {
+        "type": "object",
+        "description": "A GeoJSON representing the locations of available taxis in Singapore",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Determines the type of the GeoJSON object"
+          },
+          "crs": {
+            "type": "object",
+            "description": "The coordinate reference system used"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "geometry": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["MultiPoint"]
+                    },
+                    "coordinates": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "description": "A position (longitude, latitude)",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                },
+                "properties": {
+                  "type": "object",
+                  "description": "Additional meta-data from Data.gov.sg",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "description": "Time of acquisition of data from LTA's Datamall",
+                      "format": "date-time"
+                    },
+                    "taxi_count": {
+                      "type": "integer",
+                      "description": "Total number of available taxis"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error information",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-api-key"
+    }
+    
+  }
+  }
+}

@@ -1,0 +1,5200 @@
+{
+	"type" : "FeatureCollection",
+	"name" : "TAXISTOP",
+	"features" : [
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76126529128727, 1.4218628884465494 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11841,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "54887F33E1B836ED",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81921337785315, 1.2715503430449682 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11842,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "A87378AA22708379",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84632089692072, 1.321696066030441 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11843,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "570FAEB605451028",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84156586332135, 1.325126533214679 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11844,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "61093D27E12865AB",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84405249232994, 1.3172544129607746 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11845,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BC0CAFF9291B3F31",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84357241334747, 1.3196293018978424 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11846,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "D101F27D2D65C207",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85984747374374, 1.2915306521565282 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11847,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8EA9970EF9C655CC",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8586562687013, 1.2953470294104337 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11848,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1467501B5DA69AE0",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8595076176349, 1.2949812847511308 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11849,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "279D39E236929F82",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85787255668603, 1.2916193731189822 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11850,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C4FDE16A89652999",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86059501792623, 1.2928349642673533 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11851,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2A2E4E0E7AB9177C",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8206047105026, 1.2646303319744019 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11852,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "D4C7E590B9D790CE",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83369620418068, 1.3536717511465555 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11853,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6456437DEE4452F3",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83375199611261, 1.354077774581849 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11854,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "22C1458F55E1CAB7",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83917496406382, 1.2811021857864695 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11855,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "56ACF749913DC44B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84459064483929, 1.2807866726642614 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11856,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "25235998DC1B98C9",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85512943626163, 1.2754603797964719 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11857,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "94B1A905597A2573",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81835762503142, 1.277881008612875 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11858,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "FFE74E6CC252B359",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84714044131064, 1.2747472559161213 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11859,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "145783EE8A7E31D3",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81597729293227, 1.322623322184149 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11860,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "10A23094C408167D",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8474827797942, 1.2991695766677902 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11861,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "571EA2650661F5B4",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8448975569491, 1.2981527673496938 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11862,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "36BFEECC1FABCAED",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84395289727503, 1.2970185515476678 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11863,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "3D9C61E3CABD072C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85095803540223, 1.3029468411650158 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11864,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FC8115C9B42858BC",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85266923448572, 1.2999940876040077 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11865,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "CCFED7AB9DB12093",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85040522423, 1.2961803046183886 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11866,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "9BB6E0A6C54414EF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8491558842865, 1.297708994049594 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11867,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "5B6493D078338FE0",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84931927400979, 1.2974623193814747 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11868,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "C446DABAA22401E4",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85259323469501, 1.2957233585189976 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11869,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "58C380E907058C44",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85629138791818, 1.2898216220096566 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11870,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "275C6536E2AE4226",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85694531363085, 1.2928037227020022 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11871,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "123951A60C87EA86",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85371846341329, 1.2933390633495776 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11872,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "54370EB68DA6DA55",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84928148514659, 1.2942069527223519 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11873,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "AFB68F92311B1C4C",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80942338257019, 1.2734836842032216 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11874,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1D17450DF20F55F3",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.98511744263551, 1.3394746541261013 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11875,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "681BC68C863E62AA",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.98834319997937, 1.3143707175852453 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11876,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "58FAABBE8F1ED613",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85218281989039, 1.298072849764267 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11877,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "0EDDE7924207B8BD",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83935078475379, 1.349417417182872 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11878,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "9645210F3C2BC594",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8527368133487, 1.2973095960500118 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11879,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "B014B3409CE18343",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85701965996786, 1.297163950297508 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11880,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "01471915A5E16D48",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85541348488132, 1.296237688300776 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11881,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "9B9F23D111E839A4",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85560853240268, 1.3000094084931337 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11882,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "08FC8F92CCF2599C",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92401355576322, 1.3380996306502488 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11883,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0DA70EF42442D5CF",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8012149894951, 1.440947182944543 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11944,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6F064E3BAF67CBDF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88462548471412, 1.3595594868912044 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11945,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8469023EC929BF65",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8530554499657, 1.3042962905248539 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11946,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "BFC6134988E41062",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85549606510038, 1.3058672836054988 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11947,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C13485D9B4B941BC",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85607880852888, 1.3036375500240684 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11948,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6CB074AEA9E1954A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85260668105907, 1.3033839482811596 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11949,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "F4119459174CA2BF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84063941963372, 1.2803808523957603 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11950,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F0F81276D2A56D75",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84183242707641, 1.2788666542006175 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11951,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1EC8955E9CA6C1AB",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84090245805969, 1.2820397698178416 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11952,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7E7E9AD4BEF46F50",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84469936211542, 1.287395488698286 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11953,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "9A872B6CD85F8C66",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84197931931197, 1.2840205018984523 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11954,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FF9E8C1F82668807",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84482146995764, 1.2855368880879552 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11955,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "E4EEC24FD4168957",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92967066744322, 1.3054920257148626 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11956,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "31870371323665C5",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84319923830289, 1.2854049010491568 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11957,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "D6863E581A470534",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.9902847068521, 1.3611460814107983 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11958,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "252A434724D9F9D3",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.98854137906943, 1.3558243928995208 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11959,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "3EB95E817B6C7FB1",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82490613711342, 1.2741317838616835 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11960,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0CC4FDC7881E17C7",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78507718493502, 1.4363504268426424 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11961,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "D6A532AE3EBDC6DA",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74297927548851, 1.3322947926452071 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11962,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "95ECF38F55C589CC",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8940527522707, 1.3147523904592295 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11963,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "15470581BE230842",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79544367107731, 1.3100549499366438 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11964,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "A63EAB140B71389D",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7515031995743, 1.3588114085322949 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11965,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "82BDB4842D945C7F",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82315929002678, 1.265104882642763 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11966,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F8AA4063F4A20703",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8357897528965, 1.3162919901528443 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11967,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "DA88DEED90632916",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.853220659256, 1.3124914982201774 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11968,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "93A7B275FF89DE59",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85359089147293, 1.3126297590203624 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11969,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "E0A33B7C0495A802",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94565574515751, 1.3272759203710804 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11927,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "BDF732B173A26FD0",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88386821468626, 1.3258772791421762 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11928,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "A5A0CC6BB943521A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88314337565694, 1.3274122524002288 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11929,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "A9D8DAD2030E1AC6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84419544362818, 1.292300893420134 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11930,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "79CA7906FC4E9297",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84432681026048, 1.292869698543215 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11931,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BB8C417DBE1DDAD5",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93827191366094, 1.3457808750122524 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11932,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "D59AC6E3330A497E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93913800885599, 1.3449097215350365 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11933,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "3F4E3B45424D59AF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.850444549982, 1.2991357141873596 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11934,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "A2146A06889BBB9B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.9091256667402, 1.3347384444121437 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11935,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "89C01F2AE43E283B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90845441885698, 1.334916457491812 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11936,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0FA8622606453886",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.954490055446, 1.3563666056154235 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11937,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8C8553A332833307",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89892862121991, 1.3298966109802606 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11938,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5812DD08693B6743",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91873116235517, 1.3344413905948105 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11939,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "C639E8F0583DD3AE",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89969113206838, 1.329985645903871 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11940,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "4C20CA37F7AC999A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91817831946449, 1.3351287442327509 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11941,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "2E3B4277E6054235",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85142159410441, 1.2927885596442747 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11942,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "EDF67F5E30092D8C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88847197482333, 1.3261852555511597 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11943,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "09FBAA2F6B444082",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89526831767945, 1.3926325409703142 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11970,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "424E6C86AD396CD2",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8564241758992, 1.2989324320471853 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11971,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "9569B3B74F2DE764",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84608162754357, 1.2962400119812354 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11972,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "91BD61308F4C787A",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85668662838123, 1.2923792298471186 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11973,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "693CD3C07D1A584B",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85237672446651, 1.3015005218531708 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11974,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "2C119CB916389B28",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85059232559603, 1.2802027892236931 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11975,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "B21FDEFDF1ACCE6E",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87291049032486, 1.3508927418415795 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11976,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BBB3FA5CA6DC37EF",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85379659663948, 1.2856319273524746 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11977,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "DACA04E7F89E6958",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81442508993995, 1.3214682020518793 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11978,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BA8F5473488DF1E4",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.9012428885912, 1.3852932855883024 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11979,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "913B7EF119A4AAE0",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90503713034562, 1.3022323340179145 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11980,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7C6427E8423989A1",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85034776109264, 1.291943805364123 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11981,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "E6FEA93AEB0D8D62",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85139630264432, 1.290980846699995 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11982,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "796473CEA5732F53",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84947475294116, 1.2918193723050673 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11983,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "23B2FB0A578EFC51",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86140081422724, 1.3033173472761832 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11984,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FB3296A7DBA63187",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86353843238678, 1.2998029739635535 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11985,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8F2A08B28FE891C6",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86494882285272, 1.302936878559962 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11986,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BDF1323A87CB784C",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7618430580628, 1.3791347183957483 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11987,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "9F1ECEC7481DACCA",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.63699925141152, 1.3406935956518005 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11988,
+				"TYPE_CD" : null,
+				"TYPE_CD_DE" : null,
+				"INC_CRC" : "9C820C6B",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85040727596088, 1.2911254488514214 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11989,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "7BFB24BFE0CDE8E5",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85290662450063, 1.294475761367676 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11990,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "E9079DEAA31F64C5",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84818547119593, 1.2943564690100782 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11991,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "26FC72275888B45D",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8416966539256, 1.2817544193978399 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11992,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2831E85B7C7B2508",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83997480281833, 1.302682718590502 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11993,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "4DBD7CBFACC59FB6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.96154628447735, 1.341339887062151 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11994,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "817E943DB6CB2C8A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.96134299295161, 1.3419957267897336 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11995,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "903CAAF26C2A5394",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90220616361627, 1.4055080358579812 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11996,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "A88D06B1AE844D16",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92546940511451, 1.3311255688539632 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11997,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "AB2EFFCD67D5CE90",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93895918983897, 1.3121716594173927 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11998,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "18EDD8FE08B3973B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83734139873121, 1.313754453849099 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11999,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "CB7129850B7BEFB6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77572261866295, 1.3431914237600746 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12000,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "508B3305902F7794",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87414234873438, 1.3494520121848252 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12001,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B91F2E75224480FA",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84958784057075, 1.305434685475732 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12002,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7E9679CF233BDBAF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84523359136753, 1.300542381520804 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12003,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1CAA1E8232BC9F79",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81580456304121, 1.3226435398418321 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12004,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "7D298B3E92E73C96",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.66025602851462, 1.31891371616426 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12005,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7436D4F012CDB443",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.63982480857213, 1.3295249911547324 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12006,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F9FD325E3D7AD35C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.6595050111036, 1.318960322164183 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12007,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "45ED0EEA96E77256",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.63742963887337, 1.3412850034768349 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12008,
+				"TYPE_CD" : null,
+				"TYPE_CD_DE" : null,
+				"INC_CRC" : "3EE28830",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.63963391587382, 1.3302877046602133 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12009,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0D007448640C3450",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.64954416913125, 1.3209629745859772 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12010,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1AF26D15D6090EC5",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84981683864346, 1.3066453344193196 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12011,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "958F912D83A364A6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76136492065561, 1.3788173898746972 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12012,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C9750C6D732D8712",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85316614399616, 1.3034151037967336 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12013,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "3C4961B468F13AA7",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90897667624323, 1.3048819892493948 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12014,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5FBFEE3C155644B6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8633765653752, 1.3183367005072466 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12015,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "999C2F6CEC8FEA9E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88495496327522, 1.3833157974510064 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12016,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "733646F3E415D88C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86286964275433, 1.307895984759342 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12017,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "E937B9D8069F655B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86261868214679, 1.3067473125999012 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12018,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "6D3091BEA08B002E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8549559831386, 1.3227475083687956 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12019,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "E9D494719722F48E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85080126794651, 1.3246919233540126 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12020,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "82B15CF248A66E70",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82983543476603, 1.4431720071788263 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12021,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BDC00D2D32E37929",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78726623535916, 1.4372003207424116 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12022,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8386F2AB6538496B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7889701789194, 1.436260649568428 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12023,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0D69B75AB201BE7B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91239366772945, 1.320735357290707 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12024,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FBF8ABBDE966A460",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88768853221059, 1.3080751659670085 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12025,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "85D83E9DF685D10E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8334791655384, 1.363641382608297 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12026,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "0F6A1F2CD9B33FB0",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83242452551124, 1.3627828512875744 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12027,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "0444454FD506E628",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83545211960497, 1.3856402672423234 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12028,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "52D10C9933C1C1D8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.837809298321, 1.3847673978730577 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12029,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "ABB6C111776438A0",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83782677534502, 1.3831871869396237 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12030,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "D10CBE2E95F6DAA1",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8356615285005, 1.3858298443826935 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12031,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "EDA2E1611F96C53F",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84039779278906, 1.3381418206749756 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12032,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FCF21EE66507749B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8395440547994, 1.3369475291577166 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12033,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5E8BCF9220C4D3C8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84066751529893, 1.337957599921774 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12034,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "480B7777E51965A5",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8397395772774, 1.337215437599572 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12035,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2C8007844B1731D1",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83692167715904, 1.372934835442345 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12036,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "5E709E919DE083D8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83666706207497, 1.3713828707626732 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12037,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "1F5FA824EB19F6B7",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82009999608717, 1.3073054179261305 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12038,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "38EDF0AF9AB07722",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.6976283953459, 1.3377596622817287 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12039,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "66A0C1E9972C2E6E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8502686444318, 1.2984373178762325 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12040,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "22CE16A1A5B87BD8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78825365572875, 1.3064538995587283 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12041,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "DDADDBADB92E718A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83590378239307, 1.3046418198392036 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12042,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "527477D49A7F96BD",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84751022401122, 1.3105592183961887 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12043,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "DA9C6118C0178B6D",
+				"FMEL_UPD_D" : "20240107100413"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.845270402745, 1.2823909378649276 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12044,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7ED905E0EE6AF7A7",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84625118974597, 1.282478991083891 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12045,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "63A35B0AD7FC7EC5",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84404613573005, 1.2828723702192883 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12046,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "06B53EF1F2A9EE6A",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84894628666137, 1.2818478260373556 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12047,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B1DB8DE39D55DA4D",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84875808793312, 1.2802256045491154 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12048,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "065BD3091A07FC22",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89318615767743, 1.382652394118907 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12049,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "3C7DB5D29098FA8C",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84797316273009, 1.2789390614553378 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12050,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "CD22C98082113C2D",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83305775428218, 1.4170903833849942 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12051,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "3A5C73A1303EE420",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84775624368977, 1.3514987084950836 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12052,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "870DD3856F499F52",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84815353170139, 1.3517653380338597 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12053,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "07E80E61C9B3FE92",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84973141719887, 1.3311969101542354 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12054,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C26C3C4C29F0B0A0",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84610027517994, 1.3410677711192298 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12055,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "727713B1F1F59EAE",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85037082612398, 1.3342005798265284 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12056,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1C12E8697C069F32",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83108274736082, 1.3549665150737806 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12057,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5E24AD14DD938066",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86192175708693, 1.3197871439421087 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12058,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FFE57A2D3BA89ECA",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79049765201214, 1.3066683340446712 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12059,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "9D0884F68684DD00",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83775535565522, 1.3119231462668195 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12060,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B3B19BB7D913F5EA",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85161331172854, 1.2818282613336747 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12061,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F7D5F6FE7C63C12E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85161331172854, 1.2818282613336747 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12062,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F7D5F6FE7C63C12E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.72047917646327, 1.3444157655284854 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12063,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "91F05EB3B54D6419",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83042696022979, 1.3051464387323513 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12064,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "4FB782670741F384",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81738053137482, 1.2890492542708396 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12065,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BA77A7F54402770B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82415533132455, 1.305217003813287 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12066,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F8E53F4772556ACF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82263955903727, 1.2999192958964474 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12067,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2F8C12788F7460D3",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8168784392976, 1.2828562490830022 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12068,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "3B4B8DE8B87A614F",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80536312258162, 1.2952440883095107 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12069,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "59ECDAC77142C4CF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79899384022255, 1.3021171184465832 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12070,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "70D3D3C660F1F36E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8347488994654, 1.288864650033885 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12071,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8CD6F9CF56C7303D",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93148889564235, 1.3244798405355753 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12072,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6F7F78C1722B1638",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74059301224105, 1.3335484232685701 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12073,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "02D1E71EFA5B8061",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87052108606659, 1.339024583061607 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12074,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "9F2A310C0C5DDF1E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83676157893618, 1.4293660975913998 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12075,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "481D1A784BB342AA",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84700019651481, 1.3336458466058656 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12076,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7BD4F9BF0F221842",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.67847221093534, 1.3275831962790217 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12077,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C82B7A9A18EF684C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87581155528459, 1.3013468024541646 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12078,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "343E35CEF8C1E626",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7779321953896, 1.3115607022598403 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12079,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "EBCE0422A88FB450",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89522819709269, 1.390703766915051 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12080,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B372AB7AD0D630A4",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81910263403906, 1.4480482216458321 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12081,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "8E20DB657ED6C06B",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89430856312944, 1.3147168028812024 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12082,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "875039D0260EF9A8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.73257954485453, 1.3425990348204475 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12083,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BC4182E8E3DC5B06",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78128779048195, 1.2836909159714438 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12084,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "71132AC1BCFDF7F5",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84495582249002, 1.2907261547992848 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12085,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "45CB8150E0186025",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.67845012028486, 1.3307523001460788 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12086,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1436C6D1498DAA2F",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91485512819406, 1.305170065008105 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12087,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "A032676CEC9D7819",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86215290272102, 1.2706600645076684 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12088,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "EC3241D4BF638D7D",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87712416434614, 1.3546385436046624 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12089,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "DB6AFD6D6670EDE6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84498812427108, 1.291143781294109 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12090,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "8A06704110FE90E4",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89307870734906, 1.3189451396236014 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12091,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "46D321B47FF6CC60",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87062941932574, 1.3533562210889774 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12092,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6F1291731982C609",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7737313309097, 1.4324113857870657 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12093,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "61DAD273C971DD98",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89182093873053, 1.3182563968740746 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12094,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "826FE4B16D5AC06A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8743151778273, 1.3506601837660113 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12095,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F6203FE078E17EFD",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89292392538496, 1.382494291755816 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12096,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2F8DEF5A363187A0",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92950658283915, 1.3236386148421848 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12097,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C2B47A02582C2537",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88065725850589, 1.3422542453940098 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12098,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6F690065BA7DADC7",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86461704401214, 1.351512152298926 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12099,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "AC3A1E9AE55A251E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85290888584868, 1.2833770452756033 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12100,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "CBEE078145043A85",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88731684333986, 1.319160498135801 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12101,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "64142DF6E7F8FA70",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78595195429877, 1.3177509898765758 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12102,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5F75C83E28344931",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85546179087815, 1.2984431893331296 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12103,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "19A5CCE0B83A1D41",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8831561784209, 1.3160129996730145 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12104,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6159BE6DF70D3393",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.70662360251853, 1.3382983675744442 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12105,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6CE193F2EB261E4F",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83923900423062, 1.30037806524621 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12106,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7153ADF9AAC92509",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83712645233727, 1.3144961281979854 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12107,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "CE3DC051EB0DDC84",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92937784659168, 1.3241580762238663 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12108,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "52DFAD42FAC5FF57",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74418666367662, 1.3316916020520995 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12109,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8B1D1FD0E0C82D95",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.875431710681, 1.3009747930790372 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12110,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "F5F9D01D5C3F0871",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80809876471895, 1.3261848397615639 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12111,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "3EA34534E1D11DB8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8075298325757, 1.3257437056455008 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12112,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "695C3B8FB6B185B3",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85602969959858, 1.310866691725846 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12113,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "F51C471861B49771",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85488663810007, 1.3110192121364004 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12114,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "99BC8E79C22C6403",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85161791906982, 1.3052521480361619 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12115,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "57DF339AE7CB811A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83758646031477, 1.3122005179320795 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12116,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "101BA8BDC284CBE3",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84429832159495, 1.2862725143670835 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12117,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "6C77D6E58D33E612",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78514039131326, 1.4479243344614066 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12118,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F91EC197B8EBC3F2",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82025381565852, 1.2762190295948068 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12119,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "42A8F70081280AB5",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7967751932208, 1.331018855388538 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12120,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "C42180DFC5453470",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84612897196605, 1.2757013662030343 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12121,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7F474C24079D93B7",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84490405385492, 1.2737038532112888 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12122,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "5B9CA46DF88061C6",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84268337017491, 1.27417995437108 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12123,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "10D24EDA2A7245CC",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84331728077285, 1.2750522409303016 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12124,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "45796D568DCD7D48",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84380157815694, 1.2734484309200875 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12125,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "73F92477123F2168",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.70706793983504, 1.3209806288313795 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12126,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2E1991E5DFEA0F44",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82784643821789, 1.2866507963194684 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12127,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "718514BA05974ECD",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84404001880512, 1.2892045685876306 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12128,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "EB3F8AE1A4234EB3",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8474267878324, 1.2867777223460686 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12129,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "4489B93DAE7C2874",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84889378165411, 1.2879690751959827 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12130,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "D9D10BC533413F35",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84761638654503, 1.284911879987113 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12131,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "020865BFA6ADC637",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84881017669257, 1.2868865672499419 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12132,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "8BB92959D8A8A3BD",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84667327810483, 1.2834696419730718 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12133,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "A59D3BC6ADC5DD5A",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85210791256308, 1.285191906314129 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12134,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "140C905748A951D3",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85119809392111, 1.2882331679858545 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12135,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "36B02755DC903F06",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85123893252933, 1.2834513177018165 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12136,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "B543BD0674FB1DBA",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8527368155567, 1.2842047629215922 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12137,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "FAE3261817301109",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85027349447732, 1.2844134202343436 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12138,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "552DF193FE6498D2",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8268866841338, 1.3064691975997824 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12139,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "ABF52AE51B209F32",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8527484593673, 1.2935305593966835 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12140,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F93142ACD722FB40",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85376630110123, 1.2942598193637098 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12141,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "F42445437F78F801",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83267552054228, 1.2847383588899812 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12142,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F60C53DB33781551",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94522406345608, 1.3524140735746224 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12143,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FD474743DDE7D0E7",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82120345722072, 1.265877892851516 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12144,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7B045616AF29A9D2",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90137701558206, 1.3038436259449542 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12145,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "E0BE0C101C1814B1",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80730586512594, 1.3173843614777883 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12146,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6D0B03128470721D",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.72520265846217, 1.3500986403784918 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12147,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "307ECEE725AA820B",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82909396616671, 1.3071920683037084 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12148,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "39D62ABE8F9E7F1B",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94956739702432, 1.3727286844484428 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12149,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "2EF39B94ED17B145",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8484908846427, 1.2859352469741792 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12150,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "C64AD978612C45D4",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83408565440867, 1.2781810474719897 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12151,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "CAA6B9EF7C04CD0E",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78797302375092, 1.3117799888435961 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12152,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "489D29578CCF7AA7",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84096275648433, 1.3025802702378155 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12153,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "3B227F069F2022B3",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83976693293212, 1.3011604615816739 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12154,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "6336808653AB4F6D",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86445147193542, 1.4190073419975013 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12155,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "00155C5816FE8846",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85977957624522, 1.2671269569505001 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12156,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "9AB2E6714AD94B66",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84982154797373, 1.2820269806284117 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12157,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "606AC8D9DA5CE734",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78162218588108, 1.283261005978507 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12158,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "DCE42F93986A5C82",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84883854862058, 1.282649782215856 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12159,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "BA4546C3B300DCD2",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84435826600266, 1.2812605364817682 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12160,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1B8D913684BD9C8F",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84744594402218, 1.2814089772597006 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12161,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "26BA4F94EBFC40BC",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86933978222667, 1.3316146163145517 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12162,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B166F5D6409E8F9E",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8262859109853, 1.3199192080515612 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12163,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "9ABCFF3B967B07C1",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77581146038744, 1.342183734625281 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12164,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "A120B0B259EE91F5",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74752327132452, 1.397157075253511 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12165,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5C96E45E12407A12",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77888328840271, 1.338643631433018 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12166,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "A5FB59D8C52E716D",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82453209563582, 1.4417741322318858 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12167,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "304E1E427FF999A9",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86893718668297, 1.3325427514802621 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12168,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "21C4C858B75C9746",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7791632806007, 1.3114026600615736 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12169,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "7405EEFFE0386ED1",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.9529113147584, 1.3423103217932382 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12170,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "622D0B44C2E7F941",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7654787776003, 1.3141168934451932 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12171,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "50C16081148975C6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8292054826256, 1.3719155066113464 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12172,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C239634884787E78",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79050437445866, 1.404724086305526 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12173,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "458CEF7781E7E38A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80136201435168, 1.2864300912136222 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12174,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "3CA7E9F9605F197E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78372206455548, 1.298292020377882 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12175,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "36B37D042F56DA0C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79800704530034, 1.3024088988724865 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12176,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "297E27ED98403622",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7069182811669, 1.338952937704394 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12177,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5F12DC1ACC34A10E",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80351320665594, 1.2881985059663252 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12178,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "75D7F2D0E0FA7D6A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84925517779097, 1.2988390677557644 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12179,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "D35B08F2161F4BEE",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82512533747823, 1.293348039464782 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12180,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "727C29B392C55CE7",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94870323918548, 1.3723940554884064 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12181,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2DD55DE031CF1580",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8976910459851, 1.3176735114950127 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12182,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "79C48186EC7ACC73",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.98687036851864, 1.38969082814645 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12183,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "84F7790BB49ADDCC",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88921887087523, 1.3086041373309476 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12184,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "AC4CFFE340A80E9A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94605516146592, 1.3267115064144979 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12185,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0A0A58FDD1C40AE8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8496895992145, 1.3005592978855025 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12186,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "D1B1B2FF1466DABB",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87702678385197, 1.3038016528281127 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12187,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C9F5EE1A76FE2755",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90269183462699, 1.4048779993809208 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12188,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C425B85BB9DF34FF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83548727972236, 1.3043625171215882 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12189,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BD4FAC65C5D05E45",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83764404147298, 1.303434338541722 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12190,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "84C1B4DD7D366D63",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83618317194133, 1.3037928859949963 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12191,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "4AA8C6F183846C9D",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83380050922302, 1.3041940873016893 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12192,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0DCC573C1EDC1617",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83334835525274, 1.3074080061717595 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12193,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "4692767F9E80017C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83559456688516, 1.3071613242874736 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12194,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "5663629A7C5C15D1",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8368234856004, 1.301573952033669 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12195,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "2AB22495B2D3D080",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8344143756175, 1.3023053592535885 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12196,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F681AB60779DEFD2",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83580373745373, 1.302023072557292 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12197,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "0699B3DE9CDF1853",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83287025309677, 1.3037658805299268 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12198,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "DB46FB180624BEEE",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84239320921778, 1.299804524869842 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12199,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "5451649880D199FD",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80640593365828, 1.2945212291827153 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12200,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "14CBC6DE1981E1E9",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76722047891522, 1.362544488709076 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12201,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "1D6EFFB255039C0C",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76415093514042, 1.3702772275766009 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12202,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "0B3A7B409A932970",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76762002932907, 1.3625159082495 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12203,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "406DCB5259D939AD",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94260723119925, 1.354386361828771 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12204,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "BDFE4BEC66444D0D",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78307109620283, 1.3363257356336962 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12205,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "57DA30B6C2082DBB",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.96140846680224, 1.3340340807121303 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12206,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "4EBAC0E62933977A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8711598638458, 1.3214668867461303 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12207,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B44EE0B7434067B1",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78324178393552, 1.335773114741389 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12208,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "BDCB1EDC70621929",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93339493366724, 1.3366099195230992 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12209,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1011F6EBE8914CBF",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.70711564304575, 1.3383345856832882 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12210,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "18E2E76944DD780A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88458958900563, 1.3599104297257703 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12211,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "66C9C0F2B0A090CC",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89292071987961, 1.3714819558508757 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11884,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "63EAB0C5163719E6",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89599810419448, 1.3926583411405118 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11885,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2D9ED2D253F98A3A",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82989110694807, 1.4589468233492437 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11886,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "63F43C94D65D70A0",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84577282989514, 1.2913328440665537 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11887,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C31683A17660B026",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76225576518675, 1.4256142747538958 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11888,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "7BE960CD76DB1753",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84527457306241, 1.2917067208455355 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11889,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "D9720A889FF8E29F",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84405195789427, 1.2842945256073344 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11890,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F5BD22DC7946CA8E",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84377367986292, 1.2859775489297427 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11891,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B6EB929970CFCD46",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8432736325575, 1.2834529132272896 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11892,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "269509BF66D6EC5B",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84814026483636, 1.288963893715081 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11893,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "FD842E5B051A804A",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84748175616389, 1.2884304605851344 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11894,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "CA908DC277BE3F9A",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84215224468696, 1.2886363037348871 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11895,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "509B71A222DBEFE8",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84623041492608, 1.2888054205578945 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11896,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B6C230A37892CAA5",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84748262451701, 1.2773738771250411 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11897,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "9034C1358F741914",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84890080568682, 1.2774352110421143 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11898,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "BD1E62EDA2EA3B68",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84984287642499, 1.2790525234168126 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11899,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "E7AF9B2991DD6F30",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84939464987215, 1.2796239772855824 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11900,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "658470D325885A4E",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84850179375732, 1.2781383589847646 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11901,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "6571B72508EC66BF",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85556005917176, 1.2766423195241485 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11902,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "A954266C7BE691B3",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84508740238881, 1.2783688643469766 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11903,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B82D967BD841B220",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92259120005724, 1.3082027207601667 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11904,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "B53CEB8CE0E0017C",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84373707209579, 1.2778773017404186 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11905,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "50F2C1C2BB31436C",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89511370046898, 1.3172343763261112 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11906,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C457BC0C0D021665",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84316531295174, 1.2778439320358002 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11907,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C4EDD6DEC1A55FAE",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84421537975601, 1.2787575552221757 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11908,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "938038D99248C4AD",
+				"FMEL_UPD_D" : "20240107100425"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84208872513015, 1.300976141387593 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11909,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "780E4AE296E93B46",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84041061355053, 1.3003436674124775 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11910,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "A5BC359BE1278253",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84891002391603, 1.284303428349566 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11911,
+				"TYPE_CD" : "TPD",
+				"TYPE_CD_DE" : "TAXI PICK UP / DROP OFF",
+				"INC_CRC" : "D3E852BA4CA1D509",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83513373311067, 1.4286786174477102 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11912,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "9A5B91DEB354F0E8",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84324796992288, 1.2758717070940735 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11913,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "EC2C133085D89DC6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87213795826526, 1.3047040848790097 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11914,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1DA941A68A547372",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79297332876948, 1.3100619353190908 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11915,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "80FB278848098336",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8511251505112, 1.2999872819260245 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11916,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "C3988EFDADFD63E4",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8521767424197, 1.281127866411927 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11917,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "AE684F759F57A7F6",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84384133223539, 1.2788026393826533 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11918,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "3F4703A971D41551",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76960056136515, 1.4436521729317318 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11919,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "FF1C8E2FB9E5573A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.986763221114, 1.3550802077894084 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11920,
+				"TYPE_CD" : "TSTOP",
+				"TYPE_CD_DE" : "TAXI STOP",
+				"INC_CRC" : "27E0A487D7069161",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84437087813446, 1.3821143733399341 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11921,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "69B996D1EF2B09F3",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84939250239788, 1.3699244736639942 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11922,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "F01C6CDC90F96CD9",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82026858184275, 1.4493856107165666 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11923,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2A4ECA0AE6AE410A",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84913682065147, 1.3507516234168224 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11924,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1E0665A5046CD37F",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93304286729641, 1.336361133679267 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11925,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "1F5DF23893BD0B57",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.96092184621853, 1.3359329350659286 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11926,
+				"TYPE_CD" : "TSTAND",
+				"TYPE_CD_DE" : "TAXI STAND",
+				"INC_CRC" : "2394FE0DAC5689C1",
+				"FMEL_UPD_D" : "20240107100426"
+			}
+		}
+	]
+}

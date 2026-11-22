@@ -1,0 +1,94 @@
+# doc/third-party.yaml — v0.62.986 (12-11 '26). Spec: doc/Feature/2026-11-12-safe-updates-globe-chunk-docs-985.spec.md.
+#
+# The third parties Soleat calls or whose data it ships, in the shape of
+# .vibe-journal/examples/soleat-gia/third-party.yaml.example (read by .vibe-journal/lib/parsers/third-party.mjs:
+# `apis` and `integrations`; datasets are listed as integrations of kind "dataset"). Environment variable NAMES only,
+# each found in the code on 12-11 '26 (git grep); never a value. Licence lines are as each source states them.
+# This file did not exist before v0.62.986; it starts with what the v0.62.975-985 arc added and the long-standing
+# services, and is added to, not rewritten (AU-1).
+
+apis:
+  - name: Flightradar24 API (Explorer plan)
+    vendor: Flightradar24
+    purpose: Movements board, planes near Changi / Seletar, flight summary, flown path, gates, ETA by callsign (with altitude and ground speed since v0.62.985). Owner-only unless FR24_PUBLIC=1.
+    key_env_var: FLIGHTRADER24_API_TOKEN
+    docs_url: https://fr24api.flightradar24.com
+    status: active
+    notes: Monthly credit budget FR24_MONTHLY_CREDIT_BUDGET (default 25000). Explorer terms unread (Register R-18).
+
+  - name: LTA DataMall
+    vendor: LTA Singapore
+    purpose: Bus arrivals, bus routes (first and last bus per stop), bus stops, MRT alerts, carparks.
+    key_env_var: LTA_ACCOUNT_KEY
+    docs_url: https://datamall.lta.gov.sg/content/datamall/en.html
+    status: active
+
+  - name: Google Maps Platform (Maps JavaScript, Places, Geocoding, Routes / Directions)
+    vendor: Google
+    purpose: The Mini App maps, venue lookup, geocoding, walking times, bus-route road shapes.
+    key_env_var: GOOGLE_MAPS_API_KEY
+    docs_url: https://developers.google.com/maps
+    status: active
+
+  - name: Claude API
+    vendor: Anthropic
+    purpose: Natural-language search, narration and grounding.
+    key_env_var: ANTHROPIC_API_KEY
+    docs_url: https://docs.anthropic.com
+    status: active
+    notes: Operator, 12-11 '26 — ANTHROPIC_API_KEY is not set on Railway.
+
+  - name: Gemini API
+    vendor: Google
+    purpose: Legacy and fallback model calls.
+    key_env_var: GEMINI_API_KEY
+    docs_url: https://ai.google.dev/gemini-api/docs
+    status: active
+    notes: The key name is in the code (gemini-client.js); how often it is called was not measured for this file.
+
+integrations:
+  - name: Telegram Bot API and Mini Apps
+    kind: messaging
+    purpose: The primary surface — bot commands and the seven Mini Apps.
+    docs_url: https://core.telegram.org/bots/api
+    status: active
+
+  - name: Redis (Railway managed)
+    kind: data store
+    purpose: Caches, per-chat state, usage counters.
+    docs_url: https://redis.io/docs
+    status: active
+    notes: REDIS_URL.
+
+  - name: Railway
+    kind: hosting
+    purpose: The Express server and Redis; deploys main. Builds with Node 20.20.2 (engines >=20).
+    docs_url: https://docs.railway.com
+    status: active
+
+  - name: OurAirports airports.csv
+    kind: dataset
+    purpose: Airport names, IATA codes, cities and positions in data/airport-names.json (scripts/build-airport-names.js). Refreshed 11-11 '26.
+    docs_url: https://ourairports.com/data/
+    status: active
+    notes: Licence as the source states it, "All data is released to the Public Domain".
+
+  - name: tz-lookup 6.1.25
+    kind: dataset
+    purpose: Each airport's IANA time zone from its coordinates, at build time only (devDependency); written as `z` in data/airport-names.json.
+    docs_url: https://github.com/darkskyapp/tz-lookup
+    status: active
+    notes: CC0-1.0 (npm registry licence field).
+
+  - name: Natural Earth 1:110m land via world-atlas 2.0.2
+    kind: dataset
+    purpose: Coastlines and land dots of the Train map's flight globe (data/land-110m.json -> scripts/build-globe-land.mjs -> web/transport/src/data/globe-land.json).
+    docs_url: https://github.com/topojson/world-atlas
+    status: active
+    notes: Natural Earth data public domain; world-atlas ISC (Michael Bostock). Notice kept in data/land-110m.LICENSE.txt.
+
+  - name: data.gov.sg (NEA, MOM holidays, LTA and other open datasets)
+    kind: dataset
+    purpose: Weather and lightning, public holidays, hawker centres, MRT exits, carpark availability and other open data.
+    docs_url: https://data.gov.sg
+    status: active

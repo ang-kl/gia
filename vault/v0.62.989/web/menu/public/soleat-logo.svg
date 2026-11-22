@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  soleat brand mark — v0.37.0 polish.
+  Concept: a single tine of a fork curving into a rice-bowl/leaf — a
+  monogram of "solo" + "eat" + "Singapore sanctuary." The tine is the
+  vertical stroke; the bowl is the rounded base; the leaf-tip on the
+  upper right hints at the sanctuary connotation that runs through
+  every Sanctuary-read in the bot.
+
+  For a designer iteration, prompt:
+    "Minimalist single-color logo: a fork tine curving into a rice
+     bowl with a small leaf accent at the rim, for a solo-dining
+     concierge bot called 'soleat', Singapore vibe, vector, flat,
+     no text, brand-ready"
+-->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="none">
+  <defs>
+    <linearGradient id="bowl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3390ec" />
+      <stop offset="1" stop-color="#2476c4" />
+    </linearGradient>
+  </defs>
+  <!-- Rice bowl: rounded half-circle base. -->
+  <path
+    d="M 14 36
+       Q 14 50 26 52
+       L 38 52
+       Q 50 50 50 36 Z"
+    fill="url(#bowl)" />
+  <!-- Steam/leaf accent above the bowl rim, right side. -->
+  <path
+    d="M 38 30
+       C 36 26 38 22 42 22
+       C 44 26 42 30 38 30 Z"
+    fill="#3390ec" fill-opacity="0.6" />
+  <!-- Fork tine: single vertical stem rising through bowl into the air. -->
+  <line x1="32" y1="54" x2="32" y2="14"
+    stroke="#3390ec" stroke-width="3.5" stroke-linecap="round" />
+  <!-- Tine tip: small split denoting the fork's single tine vs spoon. -->
+  <line x1="32" y1="14" x2="28.5" y2="10"
+    stroke="#3390ec" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="32" y1="14" x2="35.5" y2="10"
+    stroke="#3390ec" stroke-width="2.5" stroke-linecap="round" />
+</svg>

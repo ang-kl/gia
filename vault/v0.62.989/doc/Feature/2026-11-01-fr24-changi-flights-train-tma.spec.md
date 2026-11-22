@@ -1,0 +1,578 @@
+---
+flow: spec
+title: "Flightradar24 at Changi and Seletar: our own airport pins, a recent-movements board, and the planes around it (Train Mini App pilot, Explorer plan)"
+act: "directive"
+force: "MUST"
+scope:
+  - "fr24.js"
+  - "index.js"
+  - "scripts/build-airport-names.js"
+  - "data/airport-names.json"
+  - "web/transport/src/lib/fr24-layer.js"
+  - "web/transport/src/components/MrtMapPanel.jsx"
+  - "__tests__/fr24.test.js"
+  - "__tests__/fr24-layer.test.js"
+  - "__tests__/bot-handler-guard.test.js"
+  - "web/transport/src/components/Fr24Board.jsx"
+  - "web/transport/src/App.jsx"
+  - "web/transport/src/lib/train-sim.js"
+  - "web/_shared/components/SimCaptionStrip.jsx"
+  - "web/_shared/components/MapControls.jsx"
+  - "__tests__/train-sim.test.js"
+  - "package.json"
+  - "doc/Feature/2026-11-01-fr24-changi-flights-train-tma.spec.md"
+  - "doc/Journal/journal-0_62_798-26_08_26-2019.md"
+  - "doc/.serial-state.yml"
+verify: ""
+---
+
+# Flightradar24 at Changi, piloted in the Train Mini App
+
+Version: 0.1. Date: 1 November 2026 (Asia/Singapore). Location: `doc/Feature/` (standing exception).
+
+## Intent
+- Outcome:
+  - The Train Mini App's map shows our own ✈️ pins for Changi and Seletar.
+  - Tapping a pin opens a **board** in the style of a departures board, with Departures and Arrivals tabs. It lists
+    that airport's 20 most recent actual take-offs or landings from Flightradar24, plus the flights currently in the
+    air, labelled as actual times, not the schedule.
+  - From the board, "Show planes" draws the planes flying to or from that airport nearby. They move smoothly between
+    updates and are labelled with Flightradar24 and the time of the reading.
+  - Tapping a plane, or a board row, shows its flight: number, airline, from, to, aircraft, take-off time, and for
+    arrivals an estimated landing time.
+  - Nothing is fetched until a pin is tapped.
+  - **Owner-only at first (C12).** Only the operator's own Telegram account sees the pins and can call the routes,
+    until the operator has read FR24's Explorer terms and sets `FR24_PUBLIC=1` on Railway. Everyone else sees the
+    Train map exactly as today.
+- Force: MUST.
+  - Operator, 01-11 '26: *"write the FR24 spec, with FLIGHTRADER24_API_TOKEN. I just paid $9 basic plan. I don't
+    need to know the plane in and out, unless I click on the plan[e]. tell me what information you can show and
+    superior than what flightrader24 can do"*.
+  - The operator's screenshot shows **Explorer, "Your current plan"**: 60,000 monthly credits during FR24's
+    double-credits offer (30,000 after 31-12-26), a response limit of 20, a request rate limit of 10, and 30 days of
+    history.
+- Done when:
+  - `fr24.test.js` and `fr24-layer.test.js` pass;
+  - the suite is green and the Train app builds;
+  - a headless render of the built Train app, with the FR24 routes stubbed, shows the two pins, the board after a pin
+    tap (both tabs), the planes after "Show planes", and the plane card after a plane tap;
+  - one real call through the deployed server returns planes. Only production holds the key.
+
+## Interpretation
+- UNDERSTANDING (measured 01-11, read-only):
+  - **The key.** Railway's Soleat project, service `gia4lunch`, production, has a variable named
+    **`FLIGHTRADER24_API_TOKEN`** (renamed by the operator from `..._KEY` on 01-11 '26, re-read after). Values are
+    redacted to this session.
+  - **The API**, from FR24's OpenAPI file downloaded from the docs page, and from its docs and pricing pages
+    rendered in a browser:
+    - Base `https://fr24api.flightradar24.com/api`. Headers `Authorization: Bearer <token>` and
+      `Accept-Version: v1`.
+    - `GET /live/flight-positions/light` takes `bounds` (N,S,W,E), `airports` (`both:`/`inbound:`/`outbound:` plus a
+      code) and `limit`. It returns per flight: `fr24_id`, `hex`, `callsign`, `lat`, `lon`, `track`, `alt`, `gspeed`,
+      `vspeed`, `squawk`, `timestamp`, `source`. **6 credits per flight returned**; an empty answer costs 1.
+    - `GET /flight-summary/light` takes either:
+      - `flight_ids` (up to 15); or
+      - `flight_datetime_from` and `flight_datetime_to` (by `first_seen`, at most 14 days), with `airports`
+        (`inbound:`/`outbound:` plus a code), `sort` (`asc`/`desc`) and `limit`.
+
+      It returns `flight`, `callsign`, `operating_as`, `painted_as`, `type`, `reg`, `orig_icao`, `dest_icao`,
+      `datetime_takeoff`, `datetime_landed`, `first_seen`, `last_seen` and `flight_ended`. **1 credit per live flight,
+      2 per flight ended within 30 days.**
+    - `GET /static/airports/{code}/light` returns name, IATA and ICAO for **1 credit**. `GET /usage` reports usage.
+      Both are on Explorer.
+    - **Explorer has no** Airports full, no live-positions count and no flight-summary count (the operator's
+      screenshot).
+    - Storage rule: FR24 data may be kept **at most 30 days**.
+  - **What FR24 does not provide:** scheduled times, terminals, gates, delays or boarding status. This feature
+    shows none of them.
+  - **Changi's own website is not a usable source.** Its "Conditions of access of website" (CAG's by-laws and
+    conditions-of-use page, read 01-11 '26) allow a download "only for your own personal and non-commercial use",
+    and forbid you to "modify, reformat, copy, reproduce, display, distribute, publish … store in any information
+    retrieval system … without written permission from Changi Airport Group". So a T1-T4 board with schedules,
+    gates and check-in rows is **not built**. The operator, asked, chose the FR24 movements board instead.
+  - **The Train map** (`MrtMapPanel.jsx`) has no airport marker today. It already has the Changi Airport MRT
+    station (CG2) and the "Outside now" route (`/api/weather/outside`), which works for any point.
+- **Choices this spec makes (approving it accepts them; say if any should change):**
+  - C1 — **Train Mini App only, Google map only, Changi (WSSS) and Seletar (WSSL).**
+    - Each airport gets **our own pin**: a round pin with a white ✈️ and a label under it, "Changi" or "Seletar", in
+      the reader's language. It uses a neutral slate colour shared by neither airport's brand, and is visible at every
+      zoom.
+    - Operator, 01-11 '26: *"our own pins"*. The airport logos are **not** used: they are Changi Airport Group's
+      trademarks, and Changi's website terms forbid reproducing its material without written permission (measured
+      on its conditions of use, 01-11).
+    - Tapping either pin works as C2-C5 describe, with that airport's code. Other airports are out of scope.
+  - C2 — **Nothing is fetched until a pin is tapped** (operator: "unless I click").
+    - Tapping a pin opens that airport's board (C10).
+    - The board's **"Show planes"** button asks the server for planes **near that airport flying to or from it**
+      (`bounds` of about 60 × 60 km around it, plus `airports=both:WSSS` or `both:WSSL`), at most 20, which is
+      Explorer's response limit. Overflights are excluded.
+    - Tapping the button again hides them.
+  - C10 — **The movements board**, chosen by the operator 01-11 '26 (*"FR24 movements board"*) in place of a T1-T4
+    board.
+    - A card styled like a departures board: dark, with amber monospace text. It has **Departures** and
+      **Arrivals** tabs.
+    - **Departures:** `flight-summary/light` with `airports=outbound:<code>`, `first_seen` in the last 3 hours,
+      `sort=desc`, `limit=20`. Columns:
+      - take-off time, SGT;
+      - destination (FR24's airport name and code);
+      - flight number;
+      - aircraft type;
+      - status: "In the air" while `flight_ended` is false, "Landed hh:mm" when it has landed.
+    - **Arrivals:** the same call with `airports=inbound:<code>`. Columns:
+      - landed time, SGT, or "In the air";
+      - origin;
+      - flight number;
+      - aircraft type.
+    - The header says what this is: "Recent departures · Flightradar24 · actual times, not the schedule". The
+      footer says: "No terminals, gates or check-in rows: Flightradar24 does not publish them."
+    - The Arrivals tab is fetched only when it is opened. A board row opens the same flight card as a plane (C3).
+    - **Cost:** at most 40 credits a tab (20 flights at 2). Airport names cost nothing (C11). One airport opened with
+      both tabs, plus planes, costs at most 200 credits (40 + 40 + 120).
+  - C11 — **Airport names from OurAirports, not FR24.**
+    - FR24's airport lookup is one call per airport, and Explorer allows 10 calls a minute, so a 20-row board could
+      not name its rows.
+    - Instead, `scripts/build-airport-names.js` builds `data/airport-names.json` (server side only) from OurAirports'
+      `airports.csv`. Its data page says *"All data is released to the Public Domain"* (read 01-11 '26).
+    - The table keeps only airports with scheduled service and an ICAO code: ICAO → name, IATA code and city, in
+      English.
+    - A code missing from the table is shown as the code itself, never guessed.
+    - The table's `_meta` records the source file's sha256 and download date. The 12.7 MB CSV is not committed;
+      OurAirports updates it daily, so a rebuild tomorrow can differ.
+    - `fr24.js` makes no FR24 airport calls at all.
+  - C3 — **Tapping a plane shows its flight card**:
+    - flight number and callsign;
+    - airline (ICAO code, and its name when FR24's airline lookup has it);
+    - from → to, as city and IATA code from the OurAirports table (C11), otherwise the ICAO code;
+    - aircraft type and registration;
+    - take-off time in Singapore time;
+    - altitude and speed.
+
+    For a plane **inbound to Changi**, "≈ lands in N min" is **our estimate** from its distance and ground speed. It
+    is labelled "estimate", because FR24's light data carries no ETA.
+  - C4 — **Smooth movement at no extra cost.**
+    - Between readings, each plane is moved forward once a second from its last speed and heading.
+    - Movement stops after 2 minutes, and the caption reads "positions as of HH:MM:SS".
+    - A ↻ in the caption fetches again.
+    - There is no automatic polling.
+  - C5 — **Labelled honestly.**
+    - The caption reads "Flightradar24 · positions as of 15:42:10 SGT, moved by estimate between updates", in 9
+      locales.
+    - Plane markers are a small ✈ rotated to the heading, in grey.
+  - C6 — **Server and key.**
+    - New `fr24.js` and three routes, each taking WSSS or WSSL only:
+      - `GET /api/fr24/board/:icao?dir=dep|arr` for the board;
+      - `GET /api/fr24/airport/:icao` for the planes;
+      - `GET /api/fr24/flight/:id` for one flight.
+    - The token is read from **`FLIGHTRADER24_API_TOKEN`** only. The operator renamed it from `..._KEY` on 01-11 '26,
+      and Railway was re-read the same day: only `..._TOKEN` exists.
+    - The token never reaches the client. Without one, the routes answer `{ ok: false, reason: 'nokey' }` and the
+      marker says "Flight data unavailable".
+  - C7 — **Spending guards, because every call costs credits:**
+    - **Shared cache:** each board tab for 5 min; planes for 60 s; a flight's details for 10 min. Many readers
+      tapping in the same minutes cost one call. Nothing from FR24 is kept past its cache, well inside the 30-day rule.
+    - **Rate guard:** at most 8 FR24 requests a minute server-wide (Explorer allows 10). Past that, the last cached
+      answer is served, or `reason: 'busy'`.
+    - **Monthly budget guard:** credits are counted from what each answer returned: 6 per plane; 1 per live flight
+      summary and 2 per ended one; 1 per empty answer. The total is held per calendar month in Redis. At
+      **25,000** (env `FR24_MONTHLY_CREDIT_BUDGET`) the routes answer `reason: 'budget'` until the month turns.
+    - A 402 from FR24 ("insufficient credits") is treated the same way.
+  - C8 — **An owner-only `/fr24usage` command.** It calls FR24's `/usage` from the server and replies with credits
+    used and left, plus our own monthly count. It works only in `TELEGRAM_OWNER_CHAT_ID`'s chat and is not added to
+    the public command menu.
+  - C9 — **What Soleat adds beyond what FR24's own API gives** (the operator asked):
+    - **Changi's weather from NEA:** the card shows "⚡ Lightning within 5 km of Changi" or heavy rain from the
+      existing Outside-now route at the airport's point, with NEA and the reading time. Lightning near the airport
+      is a common cause of ground delays, and FR24 does not carry NEA's readings.
+    - **Getting there:** a link on the card focuses the Changi Airport MRT station (CG2) on the same map, with its
+      exits, taxi stands and bus stops, and the simulated trains if they are on.
+    - **Singapore time and the reader's language.** The card chrome is in 9 locales and every time is in SGT.
+      Airline and airport names come from FR24 in English.
+    - **Inside Telegram, one tap,** with no separate app. Spending is capped so it never surprises the operator's
+      bill.
+    - Stated plainly, because the operator asked for "superior": **FR24's own app shows far more aviation data**
+      than this, including schedules, gates, history and playback, much of it from sources outside the API. What
+      Soleat can do better is put the airport in Singapore context: weather, getting there and language.
+  - C12 — **Owner-only until the operator opens it** (operator, 05-11 '26: *"owner-only first"*).
+    - Every FR24 route (`board`, `airport`, `flight`) and a new `GET /api/fr24/access` require verified Telegram
+      `initData` (`requireInitDataFromBodyOrHeader`, the `x-telegram-init-data` header). The verified user id is
+      checked with `owner-gate.js`'s `isOwnerChat` (a private chat's id is the user's id).
+    - Access is granted when the user is the owner, **or** when the env `FR24_PUBLIC` is exactly `'1'`. It is closed
+      by default: with `TELEGRAM_OWNER_CHAT_ID` unset, with `SKIP_INIT_DATA_AUTH` set (no user), or with any other
+      value of `FR24_PUBLIC`.
+    - A caller without access gets `403 { ok: false, reason: 'owner-only' }`, and **no FR24 request and no credit
+      count happen** for it.
+    - The client asks `/api/fr24/access` once when the map loads (a Soleat call, not an FR24 one; it costs no
+      credits) and draws the two ✈️ pins only when `enabled` is true. A non-owner sees no pin, no button and no
+      string from this feature.
+    - Opening it to everyone later is one Railway variable, `FR24_PUBLIC=1`, set by the operator after reading FR24's
+      terms; no code change. The spending guards (C7) apply either way.
+  - Ships as **v0.62.975**, or the next free version.
+- GAPS: none open. A3 and A4 are settled below.
+
+## Assumptions
+| ID | Assumption | Status | Note |
+|----|------------|--------|------|
+| A1 | Nothing is fetched until a pin is tapped; a pin opens the movements board; planes show only on "Show planes"; details on tapping a plane or row | corrected | First read as "no arrivals/departures list". The operator then asked for a board "like the attached" and, told Changi's site cannot be used, chose *"FR24 movements board"* (01-11 '26) |
+| A2 | The code reads `FLIGHTRADER24_API_TOKEN` | confirmed | Operator, 01-11 '26: *"i change from FLIGHTRADER24_API_KEY to FLIGHTRADER24_API_TOKEN"*. Re-read in Railway the same day: only `_TOKEN` is present (value redacted) |
+| A3 | Explorer's terms allow showing this data to Soleat's users | corrected | Still unread: on 04-11 '26 FR24's terms URL answered 404, flightradar24.com's terms 403, and the API pages rendered no text. Operator, 05-11 '26, chose *"owner-only first"*: the feature is gated to the owner (C12) until the operator reads the terms and sets `FR24_PUBLIC=1` |
+| A4 | The key is active on Explorer | corrected | Operator, 05-11 '26: *"Cannot click on the pin, therefore cannot confirm"*, and only production holds the key. Treated as unknown until deploy: Railway shows exactly one FR24 variable, `FLIGHTRADER24_API_TOKEN` (names only, read 05-11 '26; no Sandbox token, which the spec never uses). Proved after deploy by the owner's `/fr24usage` reply; if the key fails, the routes answer "Flight data unavailable" |
+
+## Invariants
+| ID | Maxim | Scope | Limit | Contrary | Check |
+|----|-------|-------|-------|----------|-------|
+| I1 | The token never leaves the server | `fr24.js`, `index.js`, client | none | a token in a response or the bundle | `fr24.test.js`: responses contain no token; no FR24 URL or env name in `web/` |
+| I2 | Nothing is fetched until a pin is tapped; Arrivals only when its tab opens; planes only on "Show planes"; no polling | `fr24-layer.js`, `MrtMapPanel.jsx` | none | credits spent with nobody looking | `fr24-layer.test.js`: no fetch on mount, no `setInterval` fetch |
+| I3 | Cached answers are reused (board tabs 5 min, planes 60 s, flight 10 min); failures are not cached | `fr24.js` | storage ≤ 30 days | the same minute paid twice | `fr24.test.js` with a fake fetch and cache |
+| I4 | At most 8 FR24 calls a minute, and none past the monthly budget or after a 402 | `fr24.js` | counted, not FR24's own figure | an overrun of the plan | `fr24.test.js`: the 9th call in a minute and the call past the budget are not made |
+| I5 | Requests are well-formed: base, both headers, bounds around the tapped airport, `airports=both:WSSS` or `both:WSSL`, `limit=20`; only those two codes are accepted | `fr24.js` | Explorer limits | a request FR24 rejects, or overflights | `fr24.test.js` inspects the URL and headers built |
+| I6 | Labels are honest: FR24 and the reading time are on screen while planes are; an ETA is marked as an estimate | `fr24-layer.js` | none | a moved-by-estimate plane read as a live one | `fr24-layer.test.js` |
+| I7 | Dead reckoning moves a plane along its heading by speed × time, and stops after 2 minutes | `fr24-layer.js` | an estimate | planes drifting forever | `fr24-layer.test.js` |
+| I8 | Every new string exists in 9 locales | `fr24-layer.js` | none | an English fallback | test |
+| I9 | `/fr24usage` answers only in the owner's chat | `index.js` | none | usage leaked to anyone | `fr24.test.js` |
+| I11 | The board request is well-formed: `flight-summary/light`, `airports=outbound:` or `inbound:` the tapped code, a 3-hour `first_seen` window, `sort=desc`, `limit=20` | `fr24.js` | Explorer limits | the wrong direction, or an unbounded query | `fr24.test.js` |
+| I12 | The board never claims what FR24 lacks: it says "actual times, not the schedule"; it shows no terminal, gate or check-in column; it uses no airport or airline logo | `fr24-layer.js` | none | a board read as Changi's official one | `fr24-layer.test.js` |
+| I13 | Airport names come only from the OurAirports table: `_meta` names the source and its sha256; the builder's filter, called on sample rows, keeps scheduled-service airports with an ICAO code only; WSSS and WSSL resolve; an unknown code shows as itself; `fr24.js` never calls FR24's airport endpoint | `build-airport-names.js`, `airport-names.json`, `fr24.js` | English names | a guessed city, or a credit spent on a name | `fr24.test.js` |
+| I14 | Only the owner reaches FR24 unless `FR24_PUBLIC` is exactly `'1'`: a non-owner, an unverified caller, or a missing owner id gets `403 owner-only` with no FR24 request and no credit counted; the client draws no pin when `/api/fr24/access` says `enabled: false` | `fr24.js`, `index.js`, `fr24-layer.js`, `MrtMapPanel.jsx` | closed by default | FR24 data shown to users before its terms are read | `fr24.test.js`: the access decision called for owner / non-owner / no owner id / no user / `FR24_PUBLIC` values, and a non-owner route call makes zero fake-fetch calls; `fr24-layer.test.js`: no pin when disabled |
+| I10 | The suite passes; the Train app builds; Cuisine and Hawker are unchanged | suite, build | none | a broken Train map | `npm test`; `vite build` for transport; `git diff --stat` within scope |
+
+## Acceptance criteria
+- [ ] Tests written first and red → I1-I9, I11-I14
+- [ ] `fr24.js` and the routes, `/fr24usage`, `fr24-layer.js`, and the pins, board, planes, card and caption → I1-I9,
+      I11, I12
+- [ ] Mutations, each proved applied and restored, all caught:
+  - the token put in a response;
+  - a fetch on mount;
+  - the cache removed;
+  - the rate guard removed;
+  - the budget guard removed;
+  - `airports=both:WSSS` dropped;
+  - the caption removed;
+  - the ETA "estimate" label dropped;
+  - `/fr24usage` answering a non-owner;
+  - the board asking `outbound:` for Arrivals;
+  - the "actual times, not the schedule" label removed;
+  - the owner check removed from the routes;
+  - `FR24_PUBLIC` accepted as any truthy value instead of exactly `'1'`;
+  - the pins drawn when `/api/fr24/access` says `enabled: false`.
+- [ ] Headless render of the built Train app with stubbed routes: both pins, the board with both tabs, the planes
+      after "Show planes", and the card after a plane tap; and, with `/api/fr24/access` stubbed to `enabled: false`,
+      no pin at all
+- [ ] Full suite green; Train build; `package.json` bumped
+- [ ] After deploy, with the operator's word: one real tap, and `/fr24usage`, read back
+
+## Out of scope
+- A per-terminal (T1-T4) board, schedules, gates, check-in rows and boarding status. FR24 has none of them, and
+  Changi's website terms forbid reusing its board without written permission.
+- Airport and airline logos (trademarks).
+- Other airports, the Cuisine and Hawker maps, and the bot's chat.
+- Flight tracks (40 credits a flight), history, and live positions "full" (8 a flight).
+- Storing any FR24 data longer than its caches above.
+
+## Amendments (before approval)
+- **05-11 '26, amendment 1.** The operator's answers to A3 and A4: *"owner-only first"* added C12, I14, three
+  mutations and a disabled-state render; A3 and A4 set to `corrected`; the version moved from v0.62.962 (long since
+  used) to v0.62.975. Before that, the operator tapped Google's own terminal labels on the Train map and found them
+  dead: they are base-map POIs, ignored on purpose since v0.60.85 (`MrtMapPanel.jsx`, `clickableIcons: false`), and
+  this feature's ✈️ pins do not exist until it is built.
+- **05-11 '26, amendment 2** (FLOW ALERT F3 during Execution; operator chose *"Amend + re-approve (Recommended)"*).
+  Approved at sha 1401ba25; this amendment voids that approval and asks for it again.
+  - **Scope + `__tests__/bot-handler-guard.test.js`.** Its line 57 pins the count of top-level `bot.onText`
+    registrations at 34; `/fr24usage` (C8) is the 35th. The pin moves 34 → 35 with a comment, and the edit is quoted
+    in the journal as an existing-test edit (F7). The new handler carries its own try/catch, which the same file
+    requires.
+  - **C8 corrected.** FR24's `GET /usage?period=30d` returns, per endpoint, `request_count` and `credits` used (the
+    OpenAPI file's `UsageLogSummary`). It reports no credits LEFT. The reply therefore shows FR24's 30-day credits
+    used (total and per endpoint) and our own calendar-month count against `FR24_MONTHLY_CREDIT_BUDGET`, with what
+    is left of that budget, labelled as our count.
+  - **C3 corrected.** The airline is shown as its ICAO code (`operating_as`, else `painted_as`). FR24's airline
+    lookup is one request and one credit per airline, so it is not called, for the reason C11 gives for airports.
+  - **C12 corrected.** `isOwnerChat` opens to every user when `TELEGRAM_OWNER_CHAT_ID` is unset and
+    `GIA_ALLOW_UNOWNED_ADMIN=1`, which C12 forbids. The check uses the same module's `decideOwner` with no opt-in, so
+    an unset owner id is always closed. The same strict check gates `/fr24usage` (I9).
+  - **Where I14 is tested.** The gate and the dispatch live in `fr24.js` (`handle()`), so the test calls it with a
+    fake fetch and counts calls; the `index.js` routes only verify `initData`, call `handle()` and send its status
+    and body.
+- **05-11 '26, amendment 3** (operator, 05-11 '26, on the first build's screenshots: *"Is this the best layout for the
+  Arrival/Departure dashboard? can it be another overlay of liquid glass cards strip (w scrollbar) and list (w
+  scrollbar), like the Cuisine.TMA . If there click on the flight, it will show more on the pin where is it flying now
+  or landed now. The NEA for lighting keep it short"*; then, asked, *"Strip + list toggle"*, *"In-air only"*,
+  *"Into #1918 before merge"*, and for the side note *"Reason only when idle"*). Approved at sha 3b819c13; this
+  amendment voids that approval and asks for it again.
+  - **C10 revised: the board is a glass overlay, not a map popup.** A pin tap opens `Fr24Board.jsx` in the bottom
+    dock where the station carousel sits (`App.jsx`, the fixed `z-[38]` dock); while it is open the carousel is not
+    rendered, and its ✕ brings the carousel back. Its header row: the airport, Departures / Arrivals, a Strip / List
+    toggle, "Show planes", ✕. **Strip** (the default): a horizontal snap row of glass cards, one flight each (time,
+    place, flight, aircraft, status), with a visible scrollbar. **List**: a vertical glass list, at most about 40 % of
+    the screen high, with a visible scrollbar. Both read the same data, so switching costs nothing. The "actual
+    times, not the schedule" label and the "no terminals or gates" line stay, each one short line. The InfoWindow
+    board (`boardHtml`) is removed; the pins, planes, caption and flight card on the map stay.
+  - **C3 revised, flight tap ("In-air only").** Tapping a flight that is still in the air asks a new route,
+    `GET /api/fr24/locate/:callsign`: `live/flight-positions/light?callsigns=<cs>&limit=1` (6 credits, 1 if empty),
+    behind the same gate, cache (60 s), rate and budget guards. The map pans to the plane, draws it, and opens its
+    card there. A flight that has landed opens its card only, with no request and no map move. A flight with no
+    callsign, or not found live, says so in one line.
+  - **C9 revised.** NEA lightning is one short line: "⚡ ≤ 5 km · 13:57" (in nine locales).
+  - **Side note, the simulated-trains strip (all three apps, one model).** `simStripModel` returns nothing while
+    trains run (the "Simulated" button already says what they are), and while none run only the reason, one line:
+    "No trains running now", "Paused: service disruption", "No timetable for this line", "Pick a line to see its
+    trains", none mentioning "simulated". A tapped train's bubble still says it is simulated. `App.jsx` and the
+    shared `SimCaptionStrip.jsx` render nothing when the model is empty. This reverses part of
+    `2026-11-02-train-sim-caption-in-header-band.spec.md` C2 ("the caption always"); `train-sim.test.js` is edited
+    to match and quoted in the journal (F7).
+  - **New invariants.**
+    - I15: the board renders in the bottom dock and the carousel does not while it is open; ✕ restores it; Strip
+      and List read the same rows and switching makes no request. Check: `fr24-layer.test.js` (the board model and
+      the layer's board state) and a source check of `App.jsx` and `Fr24Board.jsx` (`overflow-x-auto` with snap for
+      the strip, `overflow-y-auto` for the list).
+    - I16: locate is well-formed and guarded: `callsigns=<cs>&limit=1`, a callsign must match `[A-Z0-9]{2,8}`,
+      cached 60 s, 403 for a non-owner with no request. Check: `fr24.test.js`.
+    - I17: an in-air row tap makes exactly one locate request and moves the map; a landed row tap makes none.
+      Check: `fr24-layer.test.js`.
+    - I18: the sim strip model is empty while running and one reason line otherwise, in nine locales, with no
+      "simulat" in any reason. Check: `train-sim.test.js`.
+  - **New mutations:** the carousel left rendered under the board; a landed tap fetching; locate without the owner
+    gate; the strip model returning the caption while running.
+- **05-11 '26, amendment 4** (operator, 05-11 '26, on the List view: *"can this card as shown in attachment be two
+  columns, use the emoji ✈️ "air" "🛬 landed " " 🛫departed""*; asked which layout, *"Each row in three columns -
+  left time + place, right flight, centre aircraft and status. allow user to sort by time or flight code or airline
+  code"*; on terminals, after Wikipedia was checked live and found to carry no airline-to-terminal table, *"okay keep
+  with FR24 as it is but Singapore Changi Airport (SIN)'s terminal and gate assignments are managed dynamically by
+  Changi Airport's ground operations and are usually only confirmed about two hours before arrival (or right at the
+  gate upon landing)"*). Approved at sha d657307d; this amendment voids that approval and asks for it again.
+  - **No terminals.** The board stays one list per airport. The footer keeps saying Flightradar24 does not publish
+    terminals or gates; the operator's note is why a guessed terminal would mislead.
+  - **List rows in three columns:** left, the time over the place; centre, the aircraft over the status; right, the
+    flight number. The Cards view shows the same three facts.
+  - **Emoji:** 🛫 before a take-off time (a departure's time; an arrival still in the air shows its take-off from the
+    origin), 🛬 before a landing time, and the status reads "✈️ In the air" or "🛬 Landed 13:31", in nine locales.
+  - **Sort:** Time (newest first, as now), Flight (A to Z by flight number) or Airline (A to Z by airline code, then
+    time), as chips on the board. Sorting is on the rows already held and makes no request.
+  - **Invariant I19:** the three sorts order the rows as stated, keep every row, and make no request; the row model
+    carries the emoji in `time` and `status`; the list row has three columns. Check: `fr24-layer.test.js`.
+  - **Mutations:** a sort that drops a row; the airline sort ignoring the airline; the emoji dropped from the
+    status.
+- **05-11 '26, amendment 5** (operator, 05-11 '26: *"remove the two buttons - "changi" and "seletar" overlay, i want
+  user to select from the dropdown vertical three dots at the side called airports"*). Approved at sha 8e322f09; this
+  amendment voids that approval and asks for it again.
+  - **No airport pins on the map.** C1's two ✈️ pins are removed. (In the headless screenshots the harness had
+    gathered them into a box at the top left; on a real map they sat on the two airports. Either way they go.)
+  - **"✈️ Airports" in the ⋮ menu instead**, using the menu's existing row-with-▾ form (the same one the 🌳 Park
+    row uses for its loops; `MapControls.jsx` is unchanged). The row appears only for a reader with access (C12):
+    `init()` still asks `/api/fr24/access` once, and a reader without access never sees the row.
+  - **Tapping the row** opens the Changi board (☑️ while a board is open) and tapping it again closes it. **Its ▾**
+    lists Changi and Seletar and opens the one picked; the open one is marked. The shared menu enables a ▾ list only
+    while its row is on, so the first pick of Seletar is: tap the row (Changi opens), then ▾, Seletar.
+  - The board's ✕ also turns the row off. Planes, the caption, the flight tap and the card are unchanged.
+  - **Invariant I20:** no airport marker is ever drawn; the menu row exists only with access; picking an airport
+    from the list opens that airport's board, with exactly one board request; the row's state follows the board.
+    Check: `fr24-layer.test.js` (the layer draws no marker before or after init; `openBoard` from the pick) and a
+    source check of `MrtMapPanel.jsx` (the `airports` row is added only when `fr24Enabled`, with a submenu).
+  - **Mutations:** a pin drawn again; the row shown without access; the pick opening the wrong airport.
+- **05-11 '26, amendment 6** (operator, 05-11 '26: *"include … FR24's API file has a "flight events" endpoint. if
+  about to land 100 minutes before, poll for flight events endpoint once, if doesnt have poll every 5-10 minutes until
+  is confirmed then dont poll to save cost. let me know the cost. note that airport card show poll only if user click
+  on the airport to see"*; told that FR24 records a gate only once the plane reaches it, they chose *"100 min before,
+  as asked"* and *"Gate + terminal by letter"*). Amendments 5 and 6 are approved together.
+  - **Gate polling, only while an airport board is open** (closing it, or leaving the app, stops it). The flights
+    polled are the open airport's Arrivals rows that are still in the air, plus rows that landed in the last 60
+    minutes, without a gate yet: at most 15, one request,
+    `historic/flight-events/light?flight_ids=<up to 15>&event_types=gate_arrival` (new route
+    `GET /api/fr24/gates/:icao?ids=…`, behind the same owner gate, rate and budget guards; cached 5 minutes). The
+    first poll is when the Arrivals tab first shows such rows; then **every 7 minutes** (inside the operator's 5-10);
+    a flight leaves the set once its gate is found, or 60 minutes after landing without one, and polling stops when
+    the set is empty. FR24's light flight summaries carry no ETA, so "100 minutes before landing" is applied as
+    "every Arrivals row still in the air": the board only lists flights first seen in the last 3 hours.
+  - **Cost** (FR24's credit table: 1 credit for an empty answer, 2 per event returned): about 14 polls per 100
+    minutes the board stays open, about 1 credit each while no gate has arrived, plus 2 credits per gate found. **About
+    35 credits per 100 minutes of an open board**; an hour a day is about 600 credits a month, against the
+    25,000-credit budget. Counted by the same monthly guard.
+  - **Shown:** an Arrivals row and its detail gain "Gate B5"; and "T3" when the gate's letter is in a **sourced**
+    table. Only rows with a source are filled: **G and H → Terminal 4** (Wikipedia, "Infrastructure of Changi
+    Airport", Terminal 4 section: "Gates G1 to G21 and Gates H1 to H8", read 05-11 '26). Letters A to F have no source
+    reachable from the build (Wikipedia's text names no other terminal's gates, and OpenStreetMap's Overpass API
+    refused the connection twice); until a source is added, those gates show the gate code without a terminal. No
+    letter is guessed.
+  - **Not verifiable before deploy:** whether Explorer includes `historic/flight-events`, and how often a Changi
+    arrival carries a gate (FR24: "can be null"). If the route answers 402/403 or never returns a gate, the board
+    shows no gate and polling stops after the first answer that says the endpoint is unavailable.
+  - **Invariant I21:** gate polling runs only while a board is open; one request per poll with at most 15 ids and
+    `event_types=gate_arrival`; every 7 minutes; a flight leaves the set when its gate is found or 60 minutes after
+    landing; polling stops when the set is empty, when the board closes, and after an "unavailable" answer; a
+    terminal is shown only for a sourced letter. Check: `fr24.test.js` (the request, the cache, the gate parsing,
+    the letter table) and `fr24-layer.test.js` (fake timers: the schedule, the stops, no poll with the board
+    closed).
+  - **Mutations:** polling with the board closed; a found gate polled again; more than 15 ids in one request; an
+    unsourced letter given a terminal; polling continuing after an "unavailable" answer.
+- **05-11 '26, amendment 7** (operator, 05-11 '26 16:16, on production v0.62.975 with a screenshot of the ⋮ menu's
+  Airports ▾ list showing Changi and Seletar greyed out: *"cannot click the airport for details"*). Approved at sha
+  ca436288; this amendment voids that approval and asks for it again.
+  - **The defect, as shipped:** the shared `MapControls.jsx` enables a row's ▾ entries only while the row is ticked
+    (`disabled={!on}`), which amendment 5 named as a limitation ("tap the row first"). On a phone it reads as broken:
+    the operator opened ▾ first and could pick nothing.
+  - **The fix:** a submenu may opt in with `pickWhenOff: true`, and its entries are then tappable whether or not the
+    row is ticked. Only the Airports submenu sets it; the 🌳 Park submenu, and every other app's menu, behave exactly
+    as before (no flag, no change). Picking Changi or Seletar opens that board and ticks the row; the row tap still
+    opens Changi or closes the open board.
+  - **Scope + `web/_shared/components/MapControls.jsx`** (shared by the Train, Hawker, Cuisine and Clipboard maps; the
+    change is opt-in, so they are unaffected).
+  - **Invariant I22:** with `pickWhenOff` an entry is enabled while its row is off; without it (Park) an entry stays
+    disabled while its row is off; the Airports submenu sets the flag and Park does not. Check: a source test of
+    `MapControls.jsx` and both submenus, and the render of the built Train app: open ⋮, open ▾ with the row unticked,
+    tap Seletar, the Seletar board opens.
+  - **Mutation:** the flag ignored (entries disabled again while the row is off).
+- **05-11 '26, amendment 8** (operator, 05-11 '26 16:58, on production v0.62.975 with a screenshot of a located flight,
+  RPC9968 over Sabah, its card covering the plane: *"you should have the plane icon from FR24 and show the route in
+  dotted"*; then, asked, **"Both"** for the route and **"Own yellow plane"** for the icon). Approved at sha e82447d8;
+  this amendment voids that approval and asks for it again.
+  - **The plane:** every plane marker (the "Show planes" set and a located flight) becomes our own SVG of a top-down
+    airliner, yellow with a dark outline (amber with a thicker outline for the flight picked on the board), turned to
+    the plane's `track`. No FR24 artwork or logo is used: their icon is their work. The text glyph `✈` is retired
+    because on iOS it draws as the colour emoji ✈️, which ignores the colour and already points up-right, so a turn
+    of `track - 90°` points it the wrong way (inferred from how iOS draws the glyph; the SVG removes the question).
+  - **The route, for the one flight whose card is open while it is in the air:**
+    - the flown path, from FR24 `GET /api/flight-tracks?flight_id=` (40 credits per returned flight, about $0.012),
+      drawn as a **dotted** line from take-off to the plane. One request per tap; cached 2 minutes per id, inside the
+      monthly budget, owner-only like every other route (C12). Down-sampled on the server to at most 300 points.
+    - a fainter **dashed** great-circle line from the plane to the destination airport, when the destination is
+      known. 0 credits: the airport table gains each airport's coordinates (rounded to 4 decimals) from the same
+      OurAirports file, so `/api/fr24/flight/:id` returns `origPos` / `destPos` without a further request.
+    - if FR24 refuses the track (403, not on the plan) or it is empty, the dotted line falls back to a great-circle
+      line from the origin airport to the plane, and the card says nothing it cannot back.
+    - both lines are removed when the card closes, when another flight's card opens, when the board closes and on
+      teardown. A landed flight draws no route.
+  - **New route:** `/api/fr24/track/:id` in `index.js`, behind the same initData check and `fr24Route` as the rest.
+  - **Rebuild:** `data/airport-names.json` from a fresh download of `airports.csv` (OurAirports updates it daily, so
+    the sha256 in `_meta` changes and a few names may too); `_meta.fields` gains `p: [lat, lng]`.
+  - **Invariant I23:** a plane marker is an SVG turned by `track` (not a text glyph), yellow, amber when picked.
+    Check: `fr24-layer.test.js` on the marker element; render of the built Train app.
+  - **Invariant I24:** a route is drawn only for an in-air flight whose card is open: a dotted flown path and, with a
+    known destination, a dashed line on to it; every line is removed on card close, another card, board close and
+    destroy; a landed flight draws none. Check: `fr24-layer.test.js` with a fake `Polyline`; render.
+  - **Invariant I25:** the track costs one request per id per 2 minutes, counted against the budget, owner-only, at
+    most 300 points; a 403 answers `unavailable` and the client falls back to the origin line. Check: `fr24.test.js`.
+  - **Invariant I26:** the airport table carries coordinates for WSSS and WSSL within 0.01° of their published
+    positions, and `/api/fr24/flight/:id` returns `destPos` for a known destination and none for an unknown one.
+    Check: `fr24.test.js`.
+  - **Mutations:** a line left behind after the card closes; a route drawn for a landed flight; the track fetched
+    twice inside the cache window; more than 300 points sent; the plane drawn unrotated; the fallback skipped on 403.
+- **05-11 '26, amendment 9** (operator, 05-11 '26 17:49, on production with screenshots of the Arrivals list showing
+  `--:--` on every in-air row, and the map near Changi: *"missing timings for arrival, or should they be show yet. and
+  the changi and seletar airports, place, using small google pin with airplane inside and word "Changi" below it"*;
+  then, asked, **"First-seen time, free"** and pins **"Only with Airports on"**). Approved at sha 306f76c0; this
+  amendment voids that approval and asks for it again.
+  - **Why `--:--`:** a row in the air shows its take-off time, and FR24's flight summary returned no
+    `datetime_takeoff` for those flights (it can first see a plane already airborne); a landing time exists only after
+    landing. Nothing was lost by the board.
+  - **The time, free:** the server keeps `first_seen` on each row (`firstSeen`). A row in the air with no take-off
+    time shows when FR24 first saw it, marked as such ("seen 16:20" in the nine locales), instead of `--:--`. With
+    neither, `--:--` stays. No new request and no credit: `first_seen` is already in the answer.
+  - **The pins (this revises amendment 5's "no pins" for the open board only):** while an airport board is open (the
+    ✈️ Airports row ticked), a small Google pin is drawn at Changi and at Seletar: Google's standard pin
+    (`PinElement`, or a classic marker where Advanced Markers are missing) with a plain ✈ glyph inside and the
+    airport's name in the reader's language below it. No logo. Tapping a pin opens that airport's board (or switches
+    to it). Both pins go when the board closes, and on teardown. A reader without access sees no pin, as before.
+  - **Invariant I27:** a row in the air with no take-off shows its first-seen time with the "seen" mark; one with a
+    take-off shows the take-off; one with neither shows `--:--`; the server row carries `firstSeen`. Check:
+    `fr24-layer.test.js` on `boardModel`, `fr24.test.js` on the row shape.
+  - **Invariant I28 (replaces I20's "no airport marker is ever drawn"):** no pin while no board is open; two pins (WSSS,
+    WSSL) while one is, each with ✈ and its name; a pin tap opens that board; closing the board and destroy remove
+    both; no pin without access. Check: `fr24-layer.test.js` with the fake map; render of the built Train app.
+  - **Mutations:** pins left after the board closes; pins drawn with no board open; a pin tap opening the wrong
+    airport; first-seen shown when a take-off exists; first-seen shown without its mark.
+  - **Revision, 05-11 '26 18:40, before approval** (operator, on production v0.62.977 at 18:38 with a screenshot of the
+    Changi map and the Departures cards all `--:--`: *"i still cannot click on changi airport, is the google pin for
+    airports always there"* and *"the timing still have --:-- these are meaningless to users"*; then, asked,
+    **"Always, tap opens board"** and **"Real ETA, 8 credits each"**). This revision replaces two decisions above:
+    - *"while an airport board is open (the ✈️ Airports row ticked), a small Google pin is drawn"* → the two pins are
+      drawn **always** for a reader with access (from the moment `init` says so), and tapping one opens that board.
+      The T2 / T3 icons in the screenshot are Google's own base-map icons, which the Train map makes untappable
+      (`clickableIcons: false`, `MrtMapPanel.jsx:617`); that setting is not changed.
+    - *"A row in the air with no take-off time shows when FR24 first saw it"* → a row in the air shows FR24's
+      **estimated arrival**:
+      - new server call `etas(icao, dir)` → `GET /api/live/flight-positions/full?airports=<inbound|outbound>:<icao>
+        &limit=20`, read for each flight's `eta`; cached 5 minutes per airport and direction; 8 credits per returned
+        flight (1 for an empty answer), so at most 160 credits per tab load; owner-only; a 403 is `unavailable`.
+        New route `/api/fr24/eta/:icao?dir=` behind the same initData check.
+      - the phone asks for it once a tab has loaded and has at least one row in the air, at most once per 5 minutes
+        per tab, and never while no board is open.
+      - row time, in order of what exists: **Arrivals** in the air → `🛬 ≈HH:MM` (ETA at Singapore), else `🛫` take-off,
+        else `seen HH:MM` (first seen, free, already in the answer), else `--:--`. **Departures** in the air → `🛫`
+        take-off, else `🛬 ≈HH:MM` (ETA at the destination), else `seen HH:MM`, else `--:--`. Landed rows unchanged.
+        The `≈` marks every estimate.
+    - **Added, from the same screenshot:** a plane tapped with no flight details showed a card titled `✈️✈️` with only
+      "Altitude 0 ft · 1 kt" and drew an orange dotted line. Now the card is titled with the plane's callsign, or "No
+      flight details" in the reader's language, with one ✈; and no route is drawn for a plane on the ground (altitude
+      ≤ 0 ft or ground speed < 50 kt).
+    - **Scope + `__tests__/fr24.test.js` and `index.js` already listed; no new path.**
+    - **Invariants:** I27 now reads "the row time follows the order above, every estimate marked `≈`; the server row
+      carries `firstSeen`". I28 now reads "two pins (WSSS, WSSL) for a reader with access from `init`, each with ✈
+      and its name; a tap opens that board; destroy removes both; no pin without access". **I29:** the ETA call is
+      one request per airport and direction per 5 minutes, counted at 8 a flight, owner-only, made only with a board
+      open and an in-air row on it. **I30:** a plane with no details gets a single-✈ card with its callsign or "No
+      flight details"; a plane on the ground draws no route.
+    - **Mutations, added:** ETA fetched with no in-air row; ETA fetched twice inside 5 minutes; ETA preferred over a
+      known take-off on Departures; a route drawn for a plane on the ground; the doubled ✈ title.
+    - **Cost, stated before approval:** up to 160 credits per tab load with 20 flights in the air, typically 40-120;
+      the monthly budget of 25,000 covers roughly 150-600 tab loads before the ETA call starts answering `budget`.
+- **06-11 '26, amendment 10** (operator, 06-11 '26 17:35, on production v0.62.979 with a screenshot of the Changi
+  Arrivals strip - "seen 17:19 · 7C2623 Seoul (ICN) · In the air", "seen 17:17 · SQ183 Ho Chi Minh City (SGN) · In the
+  air" - and a ground card for TR538: *"why arent these planes on the ground. my phone time is 17:23 but plane shows
+  arrive 17:29"* and *"i cannot see the yellow planes even though is defaulted on"*). Approved at sha b67c6217; this
+  amendment voids that approval and asks for it again.
+  - **Measured, Railway http log 09:23:27-09:24:07Z (17:23:27-17:24:07 SGT), the operator's iPhone:** `access`,
+    `board/WSSS` (dep), `eta/WSSS`, `locate/TGW538`, `board/WSSS` (arr), `eta/WSSS`, `gates/WSSS`, `locate/SIA183`, then
+    **`airport/WSSS` twice, 5 ms apart** (09:24:07.004 and .009). One button, one handler (`MrtMapPanel.jsx`
+    `onPlanes`), so the second is a duplicate click event; nothing in `togglePlanes` stops a second call while the first
+    is in flight.
+  - **Why no yellow planes (inferred from the log, not from FR24's answer):** those were the 8th and 9th FR24 calls
+    inside 37 seconds; `fr24.js` allows 8 a minute (`RATE_PER_MIN`), so the 9th answers `busy`, and `fetchPlanes` treats
+    any not-ok answer as "no planes" (`planesData = null; clearPlanes()`), wiping the planes the 8th had just drawn.
+  - **Why `seen 17:19` on a Seoul flight:** FR24's `first_seen` is when it first picked the plane up, normally at the
+    origin gate - so for these two rows it is roughly when they left Seoul and Ho Chi Minh City, a few minutes earlier;
+    they are hours from Changi. The label "seen" does not say that.
+  - **Why no `≈` arrival time on them (inferred):** the ETA call asks for `airports=inbound:WSSS&limit=20` - any 20 of
+    the live flights heading to Changi, in FR24's order, not the ones on the board. The rows shown are the most
+    recently first-seen, which a 20-of-many sample usually misses.
+  - **The fix:**
+    - `togglePlanes` ignores a second call while a planes request is in flight; a `busy` (or `budget`) answer to a
+      refresh keeps the planes already drawn and says so in the caption, instead of clearing them.
+    - the ETA call asks FR24 for the board's own in-air flights by callsign (`callsigns=<up to 15>`, the rows shown),
+      not "any 20 to Changi"; same price (8 credits per flight returned), now spent only on rows the reader sees. Route
+      `/api/fr24/eta/:icao?dir=&cs=` (callsigns checked against `CALLSIGN`, at most 15, sorted for the cache key).
+    - the free fallback reads `🛫 ≈17:19` ("left about 17:19", the time FR24 first saw it) instead of `seen 17:19`.
+  - **Not changed:** a Departures row whose plane is still at the gate reads "In the air" until FR24 marks it; the
+    board has no position for it until a tap locates it (the TR538 card showed 0 ft · 0 kt). Stated, not fixed.
+  - **Invariant I31:** at most one planes request in flight; a `busy` / `budget` refresh keeps the planes drawn.
+    **I32:** the ETA request names exactly the in-air rows' callsigns (≤ 15, none when there are none) and the board's
+    `≈` times come from it. **I33:** the fallback text is `🛫 ≈HH:MM` in the nine locales, never "seen". Checks:
+    `fr24-layer.test.js`, `fr24.test.js`.
+  - **Mutations:** a double toggle making two requests; `busy` clearing the planes; the ETA call without `callsigns`;
+    more than 15 callsigns; the fallback without `≈`.
+- **07-11 '26, amendment 11** (operator, 07-11 '26 15:42 SGT, Train Mini App on Telegram Desktop, v0.62.979, zoom 18
+  over Changi T2 / T3, no airport pin in view: *"Why the Airport doesn't have a pin like we stated"*; then, asked,
+  **"At the terminals"**). Approved at sha 97598b6a; this amendment voids that approval and asks for it again.
+  - **Measured:** the Railway http log shows the desktop app asked `/api/fr24/access` at 07:41:13Z (200; the answer
+    body is not logged). The pins are drawn at `FR24_AIRPORTS`, OurAirports' airport reference point - for Changi
+    1.35019, 103.994003, between the runways, **1,002 m** from Changi Airport MRT (CG2, 1.3573, 103.9885 in
+    `data/mrt-coords.json`). At zoom 18 that is outside the screenshot.
+  - **The fix:** the pins move to where people look; the planes' search box does not (`fr24.js` `AIRPORTS` and the
+    client `FR24_AIRPORTS` stay on the reference point).
+    - **Changi** → LTA bus stop **95029**, "Changi Airport Ter 1", beside Jewel: 1.36106, 103.99081 (production
+      `/api/transport/station-context`, read 07-11 '26). The terminal stops 95109 (T3) and 95129 (T2) were the other
+      candidates; their middle lands on CG2's own pin, so T1 / Jewel is used.
+    - **Seletar** → **stays on its reference point**, 1.41555, 103.86673. Measured: no LTA stop names the passenger
+      terminal (the nearest named ones are 68149 "ST Aerospace" and 68139 "Youth Flying Club"), and no other source
+      for the terminal building was found, so nothing better than the reference point can be stated. This departs
+      from "Seletar pin at its passenger terminal" in the question asked, and is put here for the operator to accept
+      or reject at approval.
+  - **Found on the way, not fixed here:** the bus-stop expander renders LTA's "Ter" as "Terrace" (`sg-address.js:21`
+    `ter: 'Terrace'`, and `web/_shared/lib/sg-terms-i18n.js:63`), so the Changi stops read "Changi Airport Terrace 1".
+    At an airport "Ter" is "Terminal". Its own spec, if wanted.
+  - **Invariant I34:** the Changi pin is within 30 m of 1.36106, 103.99081 and at least 800 m from the reference
+    point; the Seletar pin is on the reference point; `FR24_AIRPORTS` and the server's `AIRPORTS` are unchanged.
+    Check: `fr24-layer.test.js`.
+  - **Mutation:** the Changi pin put back on the reference point.
+
+## Evidence
+Filled at the end: INVARIANTS REPORT, verify output, PR link.
+Editing this file after approval voids the approval; append amendments and ask for APPROVE again.

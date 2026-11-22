@@ -20,6 +20,9 @@ export const CURRENT_SNAPSHOTS = new Map([
   // v0.62.982 (09-11 '26, spec doc/Feature/2026-11-09-docs-and-vault-v0-62-982.spec.md): the third current snapshot,
   // made the same way from main at 67b19509. The two pins above are unchanged.
   ['v0.62.982', { source: '67b19509de041b50efd87fee8507b160788c679f', tree: '509e40f817b81524f03bfea4e6614909bba7db38' }],
+  // v0.62.989 (22-11 '26, spec doc/Feature/2026-11-22-docs-and-vault-v0-62-989.spec.md): the fourth current snapshot,
+  // made the same way from main at 41a7b1a0. The three pins above are unchanged.
+  ['v0.62.989', { source: '41a7b1a011ada1636387b608a8684cac22fa9f00', tree: 'dd774624c3c8ca7e94e877f0ca2085c22ca19b5a' }],
 ]);
 export function versionFolders() {
   return [...EXPECTED_FOLDERS, ...CURRENT_SNAPSHOTS.keys()].sort((x,y)=>x.localeCompare(y,undefined,{numeric:true}));

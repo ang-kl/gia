@@ -68,7 +68,7 @@ integrations:
 
   - name: OurAirports airports.csv
     kind: dataset
-    purpose: Airport names, IATA codes, cities and positions in data/airport-names.json (scripts/build-airport-names.js). Refreshed 11-11 '26.
+    purpose: Airport names, IATA codes, cities and positions in data/airport-names.json (scripts/build-airport-names.js). Refreshed 11-11 '26. From v0.62.989 also each airport's size rank (`r`, from the `type` column), which orders the Airports menu; the same 11-11 '26 file.
     docs_url: https://ourairports.com/data/
     status: active
     notes: Licence as the source states it, "All data is released to the Public Domain".
