@@ -40,7 +40,7 @@ function dropCountry(area) {
   return parts.join(',').replace(/[\s,]+$/, '');            // + tidy any trailing comma/space
 }
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, isShort = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, isShort = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null, folded = false, onUnfold = null }) {
   // v0.62.562 — O-54 Hawker parity: the OPAQUE-vs-glass surface can be driven by
   // card VISIBILITY (Hawker's carousel: the cards fully in the focus band are
   // opaque, the two half-peeking end cards are glass), independent of which card
@@ -459,7 +459,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
          a fixed (12rem) or measured height: a collapsed card is as tall as its collapsed rows (the details still
          render only when expanded, below). The SHORT tier keeps its fixed 7.5rem — the operator ruled it must not
          change. Spec doc/Feature/2026-10-30-cuisine-cards-natural-height.spec.md. */
-      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'leading-snug gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded && isShort ? 'h-[7.5rem] overflow-hidden' : ''} ${horizontal ? (glassEff ? 'bg-tg-card/40 liquid-glass' : 'liquid-glass-focus') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
+      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'leading-snug gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded && !folded && isShort ? 'h-[7.5rem] overflow-hidden' : ''} ${horizontal ? (glassEff ? 'bg-tg-card/40 liquid-glass' : 'liquid-glass-focus') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
       style={horizontal && !glassEff
         ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' }
         : undefined}>
@@ -487,7 +487,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           strip "Likely serves {term} {dish|dessert|drink}". If a strip is already
           drawn above (the cuisine "Nearby Flavours" one) these stack below it,
           each ~0.5px smaller. */}
-      {Array.isArray(dishHints) && dishHints.filter(Boolean).map((term, i) => {
+      {!folded && Array.isArray(dishHints) && dishHints.filter(Boolean).map((term, i) => {
         const txt = likelyServesText(term, lang);
         if (!txt) return null;
         const firstFlush = i === 0 && venue.matchTier !== 'alternate';
@@ -570,6 +570,10 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               ].filter(Boolean).join(' · ')}
             </div>
           )}
+          {/* v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, D (Register R-21): FOLDED, while a map
+              card is open, the card stops here: tab, band, name, guide line and cuisine line above, the details
+              button below. Everything from the durian note to the address guide waits for the map card to close. */}
+          {!folded && (<>
           {/* v0.61.255 — operator: "For Durian Pastry, if the
               resturant/eateries is not Durian per se, but a note in
               the ResultCard that small font size below the
@@ -754,6 +758,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               </div>
             );
           })()}
+          </>)}
 
           {/* v0.62.124 — collapse toggle. Collapsed = identity + meta + price +
               🍲 Try (above); everything below is revealed on expand. A focused/
@@ -761,8 +766,18 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               doesn't fire the card's onTap (map focus / future carousel). */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-            aria-expanded={expanded}
+            onClick={(e) => {
+              e.stopPropagation();
+              // v0.62.991 - D: on a folded card the button opens the card: its details open, and onUnfold closes the
+              // map card (which unfolds the strip) and selects it.
+              if (folded) {
+                setExpanded(true);
+                if (onUnfold) onUnfold(venue.placeId);
+                return;
+              }
+              setExpanded(!expanded);
+            }}
+            aria-expanded={expanded && !folded}
             aria-controls={detailsId}
             className={`self-start px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-[11px] text-tg-accent/70 font-medium active:scale-95 transition-transform ${horizontal ? 'mt-1' : 'mt-1.5'}`}
           >
@@ -772,8 +787,8 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
                 baked into the i18n value (where it lived in all 8 locales, 16
                 strings, free to drift apart) — one source, aria-hidden so the
                 accessible name stays the words alone. */}
-            <span aria-hidden className="mr-0.5">{expanded ? '▾' : '▸'}</span>
-            {expanded
+            <span aria-hidden className="mr-0.5">{expanded && !folded ? '▾' : '▸'}</span>
+            {expanded && !folded
               ? tr('card.detailsLess', lang)
               : tr('card.detailsMore', lang)}
           </button>
@@ -782,7 +797,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               display:contents keeps the wrapper out of layout entirely (the
               children stay direct flex items of the card, byte-for-byte the
               same rendering as the old bare fragment). */}
-          {expanded && (<div id={detailsId} style={{ display: 'contents' }}>
+          {expanded && !folded && (<div id={detailsId} style={{ display: 'contents' }}>
           {/* v0.62.588 — the address row moved OUT of the collapsible section to be
               always visible above the boundary (operator: address on the collapsed
               card). It no longer renders here. */}

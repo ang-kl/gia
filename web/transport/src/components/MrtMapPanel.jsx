@@ -58,6 +58,8 @@ import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interact
 import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
+// v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, C: a tap on Google's own bus-stop icon.
+import { handleIconTap } from '../../../_shared/lib/base-icon-stop.js';
 // v0.62.990 — spec doc/Feature/2026-11-12-remove-simulate-smooth-buses-shared-route.spec.md, B1-B3: the simulated
 // trains of v0.62.961-v0.62.979 are removed, with their toggle, caption, station list and timetable; a station tap
 // selects the station and opens its card, as it did before.
@@ -534,7 +536,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       // Prior (superseded): cameraControl:true @ LEFT_BOTTOM, kept since v0.61.89.
       disableDefaultUI: true,
       zoomControl: false,
-      clickableIcons: false,
+      // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, C: Google's icons are tappable again, so a
+      // bus-stop icon can open OUR stop card (handleIconTap, in the map click below). Google's own popup is stopped.
+      clickableIcons: true,
       cameraControl: false,
       keyboardShortcuts: true,
       // v0.62.102 — operator: the embedded map hung when zoomed out far (world
@@ -599,7 +603,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       inspectLayerRef.current?.clear();
     };
     window.__giaMapInfoClose = closeInfo;
-    mapRef.current.addListener('click', closeInfo);
+    // v0.62.991 - C: a tap on a Google bus-stop icon opens our stop card; any other tap closes, as before.
+    mapRef.current.addListener('click', (e) => {
+      closeInfo();
+      handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at));
+    });
     mapRef.current.addListener('click', () => fr24Ref.current?.closeInfo());
     if (stations) renderPins(stations);
     // v0.62.975 — the Flightradar24 layer: every request goes to our own /api/fr24/* routes with this reader's

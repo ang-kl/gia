@@ -251,6 +251,9 @@ export default function App() {
   // the panel also reports a drawn bus route, for the route strip (B6).
   const [stopBuses, setStopBuses] = useState(null);
   const [busRoute, setBusRoute] = useState(null);
+  // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, D (Register R-21): while a map card is open
+  // (station, bus stop, flight, ...), the eatery cards fold to frame 1's mini card so they stop covering it.
+  const [mapCardOpen, setMapCardOpen] = useState(false);
   const resumeLines = (stopBuses?.resume || []).map((o) => busResumeText({ ...o, nowMs: Date.now(), lang }));
   // v0.62.831 — O-345 (b), the operator's choice: the loading overlay paints before any
   // interaction, so it is the one surface that can show the PREVIOUS device locale's
@@ -734,6 +737,12 @@ export default function App() {
   useEffect(() => { setWidenActive(false); }, [JSON.stringify(state.cuisines || [])]);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
+  // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, D: "details, review & links" on a folded mini
+  // card closes the map card (which unfolds the strip) and selects that eatery; the card opens its own details.
+  const unfoldCard = (pid) => {
+    if (typeof window !== 'undefined' && typeof window.__giaMapCardsClose === 'function') window.__giaMapCardsClose();
+    setFocusedPlaceId(pid);
+  };
   // v0.62.138 — operator: results DEFAULT to the horizontal floating card strip
   // (ResultDrawer) over the map; the vertical list (page ResultPanel) is hidden
   // until the user toggles to 'vertical'. 'horizontal' | 'vertical'.
@@ -5188,6 +5197,7 @@ export default function App() {
       <MapPanel
         onBusRouteChange={setBusRoute}
         onStopBusesChange={setStopBuses}
+        onMapCardChange={setMapCardOpen}
         pronunciations={venueSay}
         /* v0.62.892 — tells MapPanel this mount is a locale-reload restore, so it
            does not read the re-hydrated `venues` as a brand-new search and throw
@@ -5322,6 +5332,8 @@ export default function App() {
           basisClass={drawerBasisClass}
           glassPeek={isWide}
           isShort={vp.isShort}
+          folded={mapCardOpen}
+          onUnfold={unfoldCard}
         />
       )}
 

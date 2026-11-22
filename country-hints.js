@@ -104,6 +104,13 @@ const HINTS = Object.freeze([
   { country: 'MM', patterns: [
     /\byangon\b/i, /\bmandalay\b/i, /\bmyanmar\b/i, /\bnaypyidaw\b/i,
     /\bbagan\b/i
+  ]},
+  // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, A. Singapore was never a hint because it was
+  // the default, so once a saved preference was another country nothing typed could bring /l back: "Mandarin Gallery
+  // Singapore" still searched Malaysia. Listed LAST, so every entry above keeps its place in a tie (e.g. "SG Mall KL"
+  // stays MY: "kl" and "sg" are the same length and KL comes first).
+  { country: 'SG', patterns: [
+    /\bsingapore\b/i, /\bsg\b/i
   ]}
 ]);
 
