@@ -95,7 +95,14 @@ describe('index.js wires both call sites (comment-masked)', () => {
     // v0.62.987 (F7, quoted in [AMD-339]): the write is now also marked as set in chat. Was:
     //   /setUserLocation\(redis, chatId, lat, lng, \{\s*region: 'OTHER',\s*label,\s*country: countryCode\s*\}\)/
     // What this test is about (the country is stored) is asserted exactly as before; `fromChat: true` follows it.
-    expect(code).toMatch(/setUserLocation\(redis, chatId, lat, lng, \{\s*region: 'OTHER',\s*label,\s*country: countryCode,\s*fromChat: true\s*\}\)/);
+    // v0.62.991 (F7, spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, Amendment 1, approved 22-11 '26). Was:
+    //   /setUserLocation\(redis, chatId, lat, lng, \{\s*region: 'OTHER',\s*label,\s*country: countryCode,\s*fromChat: true\s*\}\)/
+    // `country: countryCode` was the country SEARCHED, and that was the operator's 🇲🇾-on-Mandarin-Gallery bug: Google
+    // found a Singapore place while the preference was MY, and the record said Malaysia. The country stored is now the
+    // one the place is IN, read from the answer; placeSaveFields turns it into the OTHER anchor and its country, and
+    // location-result-country.test.js calls it for both cases. This assertion now reads that wiring.
+    expect(code).toMatch(/placeSaveFields\(\{ requested: countryCode, found: require\('\.\/pipeline'\)\.extractCountryCode\(top\.addressComponents\) \}\)/);
+    expect(code).toMatch(/setUserLocation\(redis, chatId, lat, lng, \{ \.\.\.saveOptions\(saved, label\), fromChat: true \}\)/);
   });
 
   it('the recent-location pick builds its opts with locationOptsFromRecent', () => {

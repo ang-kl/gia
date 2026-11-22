@@ -187,6 +187,8 @@ export const LOCALE_STASH = {
     // v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, Amendment 1: `trains` went with Simulate;
     // `busRoute` is the route strip's state, and like the stop view it is not kept across a reload.
     busRoute: 'what the map is showing now; a language reload is a reload, and nothing here is kept across one',
+    // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, D and Amendment 1: the eatery-card fold.
+    mapCardOpen: 'whether a map card is open now; no map card is open after a language reload, and the fold follows the card',
     stopBuses: 'what the map is animating now; a language reload is a reload, and nothing here is kept across one',
     visibleVenues: 'derived from the map viewport once it renders',
     fitPins: 'one-shot fit request; the camera is restored instead',
