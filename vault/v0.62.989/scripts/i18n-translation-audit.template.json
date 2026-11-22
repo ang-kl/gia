@@ -1,0 +1,210 @@
+{
+  "job": {
+    "id": "i18n-audit-zh-2026-08-19-001",
+    "source_lang": "en",
+    "target_lang": "zh-CN",
+    "domain": "Singapore F&B discovery — Telegram bot replies, inline-keyboard buttons, and Mini-App UI chrome",
+    "product": "Soleat / Gia4lunch",
+    "created_at": "2026-08-19T10:20:00Z",
+    "engines": {
+      "translate": "google-translate-v3",
+      "audit": "gemini-2.5-pro"
+    },
+    "_comment": "One file per target language. google_translation MUST be filled by a real Cloud Translation v3 call before Gemini sees the file — if the same model both translates and audits, the audit only catches errors it does not itself share."
+  },
+
+  "glossary": {
+    "_comment": "do_not_translate is a hard mechanical rule. preferred is grounded in strings already shipped in web/cuisine/src/v2/lib/i18n.js — the Mini App and the bot must not diverge.",
+
+    "do_not_translate": [
+      "/cuisine", "/hidden", "/cost", "/location", "/transport", "/language",
+      "/l", "/s", "/ver", "/log", "/oversight", "/share", "/buddy", "/privacy",
+      "Soleat", "Gia", "Gia4lunch", "Google", "Google Places", "Google Maps",
+      "Telegram", "Michelin", "Bib Gourmand", "MRT", "LRT",
+      "laksa", "char kway teow", "kopi", "kopi-o", "kaya toast", "mee siam",
+      "mee soto", "satay", "hokkien mee", "popiah", "rojak", "prata",
+      "roti john", "nasi lemak", "otah", "kueh", "chendol", "ice kachang",
+      "kway teow", "char siew", "teh tarik",
+      "{n}", "{q}", "{cap}", "{mins}", "{usd}", "{soft}", "{hard}", "{place}",
+      "{km}", "{time}", "{dish}", "{name}", "{note}", "{label}", "{area}",
+      "{shown}", "{total}", "{year}", "{start}", "{end}"
+    ],
+
+    "preferred": {
+      "_comment": "Target-language column. Swap this whole object per language file.",
+      "Singapore": "新加坡",
+      "Johor Bahru": "新山",
+      "Michelin": "米其林",
+      "Bib Gourmand": "必比登",
+      "MRT line": "地铁线",
+      "hawker centre": "小贩中心",
+      "halal": "清真",
+      "vegetarian": "素食",
+      "open now": "营业中",
+      "closed": "已打烊",
+      "newly opened": "新开张",
+      "eatery": "餐馆",
+      "review": "评价",
+      "rating": "评分"
+    }
+  },
+
+  "items": [
+    {
+      "id": "hours.openNow",
+      "source": "Open now",
+      "context": "Status on a venue card, meaning the eatery is currently within its trading hours. Not 'open' in the sense of unlocked or available.",
+      "kind": "label",
+      "max_chars": 12,
+      "parse_mode": "none",
+      "repo_translation": "营业中",
+
+      "google_translation": "营业中",
+
+      "gemini_audit": {
+        "verdict": "pass",
+        "severity": "none",
+        "corrected": null,
+        "back_translation": "In business / currently trading",
+        "meaning_preserved": true,
+        "issues": [],
+        "glossary_violations": [],
+        "fits_max_chars": true,
+        "confidence": "high",
+        "notes": "Matches the shipped Mini-App wording exactly, so bot and TMA agree."
+      }
+    },
+
+    {
+      "id": "freetext.transportRedirect",
+      "source": "🚆 For trains, buses, and getting around Singapore, tap /transport. This chat searches for food and eateries.",
+      "context": "Sent when someone types a transport question into the food-search chat. /transport is a literal Telegram command the user must tap or type.",
+      "kind": "message",
+      "max_chars": 200,
+      "parse_mode": "none",
+      "repo_translation": null,
+
+      "google_translation": "🚆 有关火车、巴士和在新加坡出行的信息，请点按 /运输。此聊天搜索食物和餐馆。",
+
+      "gemini_audit": {
+        "verdict": "fail",
+        "severity": "high",
+        "corrected": "🚆 查询地铁、巴士和新加坡出行，请点按 /transport。此聊天用于搜索美食和餐馆。",
+        "back_translation": "🚆 For information about trains, buses and getting around Singapore, please tap /transport [rendered as the Chinese word for 'transport']. This chat searches for food and restaurants.",
+        "meaning_preserved": false,
+        "issues": [
+          {
+            "type": "command_translated",
+            "detail": "/transport became /运输. Telegram will not recognise it, so the one action the message exists to offer is dead. The command is literal input, not a word."
+          },
+          {
+            "type": "domain_term_mistranslated",
+            "detail": "'trains' rendered as 火车 (inter-city rail). In Singapore the user means the MRT — 地铁."
+          }
+        ],
+        "glossary_violations": ["/transport"],
+        "fits_max_chars": true,
+        "confidence": "high",
+        "notes": "The back_translation is what exposes the command break — the Chinese reads perfectly well right up to the point where nothing happens when you tap it."
+      }
+    },
+
+    {
+      "id": "crowd.high",
+      "source": "🔴 busy",
+      "context": "Crowd indicator on a venue card: many diners there right now. Not 'busy' as in occupied, unavailable, or hard at work.",
+      "kind": "label",
+      "max_chars": 10,
+      "parse_mode": "none",
+      "repo_translation": "🔴 拥挤",
+
+      "google_translation": "🔴 忙碌",
+
+      "gemini_audit": {
+        "verdict": "warn",
+        "severity": "medium",
+        "corrected": "🔴 拥挤",
+        "back_translation": "🔴 busy / occupied (a person with much to do)",
+        "meaning_preserved": false,
+        "issues": [
+          {
+            "type": "domain_term_mistranslated",
+            "detail": "忙碌 describes a person having a lot to do. The card means the place is crowded with diners."
+          },
+          {
+            "type": "inconsistent_with_shipped",
+            "detail": "The Mini App already renders this concept as 拥挤. Two surfaces would label the same signal differently in one session."
+          }
+        ],
+        "glossary_violations": [],
+        "fits_max_chars": true,
+        "confidence": "high",
+        "notes": "Adopting the shipped wording resolves both issues at once."
+      }
+    },
+
+    {
+      "id": "bot.ratelimit",
+      "source": "⏳ You've hit the limit of {cap} requests per 15 minutes. Try again in ~{mins} min.",
+      "context": "Refusal sent when a user exceeds the per-chat rate limit. {cap} is the ceiling, {mins} the whole minutes until the fixed window rolls over.",
+      "kind": "message",
+      "max_chars": 160,
+      "parse_mode": "none",
+      "repo_translation": null,
+
+      "google_translation": "⏳ 您已达到每 15 分钟 {上限} 次请求的限制。请在约 {分钟} 分钟后重试。",
+
+      "gemini_audit": {
+        "verdict": "fail",
+        "severity": "high",
+        "corrected": "⏳ 您已达到每 15 分钟 {cap} 次请求的上限。请在约 {mins} 分钟后重试。",
+        "back_translation": "⏳ You have reached the limit of {上限} requests per 15 minutes. Please retry in about {分钟} minutes.",
+        "meaning_preserved": true,
+        "issues": [
+          {
+            "type": "placeholder_damaged",
+            "detail": "{cap} → {上限} and {mins} → {分钟}. The substitution keys no longer match, so the user is shown the literal braces instead of the numbers — the only two facts the message carries."
+          }
+        ],
+        "glossary_violations": ["{cap}", "{mins}"],
+        "fits_max_chars": true,
+        "confidence": "high",
+        "notes": "Prose is fine; the message is still broken. Placeholder damage is invisible in review unless you check the braces character by character."
+      }
+    },
+
+    {
+      "id": "place.nearbyHeader",
+      "source": "✨ <b>Top {n} eateries near {place}</b> (within {km} km, ranked by rating · Michelin · rarity · crowd)",
+      "context": "Header above a fan-out list of nearby eateries. Sent with parse_mode HTML.",
+      "kind": "message",
+      "max_chars": 200,
+      "parse_mode": "HTML",
+      "repo_translation": null,
+
+      "google_translation": null,
+
+      "gemini_audit": {
+        "verdict": "unreviewed",
+        "severity": null,
+        "corrected": null,
+        "back_translation": null,
+        "meaning_preserved": null,
+        "issues": [],
+        "glossary_violations": [],
+        "fits_max_chars": null,
+        "confidence": null,
+        "notes": "Seed state, shipped in the template on purpose. An item that has not been through Cloud Translation must stay visibly unjudged rather than default to pass."
+      }
+    }
+  ],
+
+  "summary": {
+    "_comment": "Filled by the auditor at the end. Counts must add up to items.length — a total that does not reconcile means something was skipped silently.",
+    "total": 5,
+    "pass": 1,
+    "warn": 1,
+    "fail": 2,
+    "unreviewed": 1
+  }
+}

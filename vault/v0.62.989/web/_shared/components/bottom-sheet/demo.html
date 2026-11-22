@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Gia bottom sheet — harness</title>
+<!--
+  Standing harness for web/_shared/components/bottom-sheet/.
+
+  Not shipped to users: it is how the sheet is exercised without a live
+  Telegram client, and what the Playwright smoke drives. The "map" behind it is
+  a CSS gradient with a coarse grid, standing in for a Google Maps canvas — its
+  only job is to prove the sheet stays legible over an arbitrary background and
+  that the scrim/scroll lock stop the map moving under a drag.
+
+  Serve it over http (ES modules will not load over file://):
+    node -e "require('http').createServer((q,s)=>{const f=require('fs');const p='.'+q.url.split('?')[0];s.end(f.readFileSync(p))}).listen(8099)"
+-->
+<link rel="stylesheet" href="./bottom-sheet.css" />
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    color: var(--tg-theme-text-color, #0f172a);
+    background: var(--tg-theme-bg-color, #fff);
+  }
+  /* Stand-in for the map layer. Deliberately NO z-index: an explicit z-index on
+     a full-bleed map wrapper creates a stacking context that traps fixed
+     overlays inside it (this repo has shipped that bug three times). */
+  #map {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 1px, transparent 1px 48px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 1px, transparent 1px 48px),
+      linear-gradient(150deg, #cfe3c8, #a9c7e8 55%, #e8dfc6);
+  }
+  #bar { position: fixed; top: 12px; left: 12px; display: flex; gap: 8px; }
+  #bar button {
+    font: inherit; padding: 8px 12px; border-radius: 10px; cursor: pointer;
+    border: 1px solid rgba(0,0,0,.18); background: #fff; color: #111;
+  }
+  .row { padding: 12px 0; border-bottom: 1px solid rgba(128,128,128,.22); }
+  .row b { display: block; font-size: 14px; }
+  .row span { font-size: 12px; opacity: .7; }
+</style>
+</head>
+<body>
+  <div id="map" aria-hidden="true"></div>
+
+  <div id="bar">
+    <button id="btn-open" type="button">Open sheet</button>
+    <button id="btn-dark" type="button">Toggle dark</button>
+  </div>
+
+  <script type="module">
+    import { createBottomSheet } from './bottom-sheet.js';
+
+    const list = document.createElement('div');
+    for (let i = 1; i <= 30; i += 1) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<b>Station ${i}</b><span>Open now · 3 exits · 2 bus stops</span>`;
+      list.appendChild(row);
+    }
+
+    const sheet = createBottomSheet({
+      title: 'Nearby stations',
+      onClose: (reason) => { document.title = `closed:${reason}`; }
+    });
+    sheet.setContent(list);
+
+    document.getElementById('btn-open').addEventListener('click', () => sheet.open());
+    document.getElementById('btn-dark').addEventListener('click', () => {
+      const root = sheet.element;
+      const next = root.getAttribute('data-scheme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-scheme', next);
+      document.documentElement.style.setProperty('--tg-theme-bg-color', next === 'dark' ? '#17212b' : '#ffffff');
+      document.documentElement.style.setProperty('--tg-theme-text-color', next === 'dark' ? '#f5f5f5' : '#0f172a');
+      document.documentElement.style.setProperty('--tg-theme-hint-color', next === 'dark' ? '#708499' : '#8b95a1');
+    });
+
+    // Exposed for the Playwright smoke.
+    window.__giaSheet = sheet;
+  </script>
+</body>
+</html>

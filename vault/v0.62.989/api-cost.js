@@ -1,0 +1,297 @@
+// api-cost.js — v0.61.307
+//
+// Lightweight API-spend tracker. Records Gemini token usage + Google
+// Maps request counts into Redis hashes keyed by UTC date so the
+// /cost owner command (mirrors /ver gating) can summarise daily and
+// multi-day spend without external dashboards.
+//
+// Redis key shapes:
+//   api-cost:<YYYY-MM-DD>:gemini:<model>  — hash { count, in_tokens, out_tokens, total_tokens }
+//   api-cost:<YYYY-MM-DD>:maps:<endpoint> — hash { count }
+//
+// TTL: 60 days per key. Recording is fire-and-forget (all errors
+// swallowed) — instrumentation must NEVER fail the underlying call.
+//
+// Rate card (USD) is a static snapshot of public Google pricing as of
+// 2026; refresh periodically. Numbers used by getCostSummary to
+// estimate spend — actual billing lives in the Google dashboards.
+
+'use strict';
+
+const TTL_S = 60 * 24 * 60 * 60;
+
+// USD per 1,000 tokens (Gemini) and USD per request (Maps).
+const PRICES = Object.freeze({
+  gemini: {
+    // v0.62.722 — rates read off https://ai.google.dev/gemini-api/docs/pricing
+    // on 21-08 '26 (paid tier, text input). The 2.5 rows are RETAINED even
+    // though Google now 404s those models for new callers: Redis still holds
+    // per-day receipts stamped with those names, and /cost must keep pricing
+    // history correctly rather than re-label it as an estimate.
+    'gemini-3.7-flash':      { in: 0.75 / 1e6, out: 3.75 / 1e6 },
+    'gemini-3.6-flash':      { in: 0.75 / 1e6, out: 3.75 / 1e6 },
+    'gemini-3.5-flash':      { in: 1.50 / 1e6, out: 9.00 / 1e6 },
+    'gemini-3.5-flash-lite': { in: 0.30 / 1e6, out: 2.50 / 1e6 },
+    'gemini-3.1-flash-lite': { in: 0.25 / 1e6, out: 1.50 / 1e6 },
+    'gemini-2.5-pro':        { in: 1.25 / 1e6, out: 5.00 / 1e6 },
+    'gemini-2.5-flash':      { in: 0.30 / 1e6, out: 2.50 / 1e6 },
+    'gemini-2.5-flash-lite': { in: 0.10 / 1e6, out: 0.40 / 1e6 },
+    // Alias: routes to whatever Google calls current-gen flash, so it is
+    // priced at the current flash tier rather than at a frozen number.
+    'gemini-flash-latest':   { in: 0.75 / 1e6, out: 3.75 / 1e6 }
+  },
+  maps: {
+    // USD per request — Google Maps Platform 2026 pricing.
+    searchText:        0.032,
+    searchNearby:      0.032,
+    placeAutocomplete: 0.00283,
+    placeDetails:      0.017,
+    placeResolve:      0.017,
+    geocode:           0.005,
+    reverseGeocode:    0.005,
+    // v0.62.71x — Routes API computeRouteMatrix, billed per ELEMENT
+    // (origins × destinations), not per request. travel-times.js calls
+    // it once per mode (TRANSIT, DRIVE) with a 1×N matrix (1 origin ×
+    // N candidate venues) — recordMapsCall(redis, 'routes', N) passes
+    // the element count explicitly. Google's Compute Route Matrix
+    // "Essentials" SKU (the tier a plain DRIVE/TRANSIT-without-
+    // TRAFFIC_AWARE_OPTIMAL matrix falls into) is volume-tiered at
+    // $2-$7 per 1,000 elements; $0.005/element is a mid-range point
+    // estimate pending an exact-tier confirmation from the Cloud
+    // Console billing export — refresh when that's available.
+    routes:            0.005,
+    // v0.62.718 — Cloud Translation v2/v3, billed per CHARACTER at $20 per
+    // million (first 500k/month free, which this workload sits inside).
+    // i18n-translate.js passes the character count explicitly, mirroring how
+    // 'routes' passes an element count rather than a request count.
+    translate:         20 / 1e6
+  }
+});
+
+function _today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function _normaliseModel(m) {
+  if (!m || typeof m !== 'string') return 'unknown';
+  // Strip any suffix Google adds (e.g. '-001', '-latest' kept as-is).
+  return m.toLowerCase().replace(/^google\//, '');
+}
+
+async function _connect(redis) {
+  if (!redis) return false;
+  if (!redis.isOpen) {
+    try { await redis.connect(); } catch { return false; }
+  }
+  return true;
+}
+
+async function recordGeminiUsage(redis, model, usage) {
+  if (!(await _connect(redis))) return false;
+  const m = _normaliseModel(model);
+  const key = `api-cost:${_today()}:gemini:${m}`;
+  try {
+    await redis.hIncrBy(key, 'count', 1);
+    const inT = Number(usage?.promptTokenCount) || 0;
+    const outT = Number(usage?.candidatesTokenCount) || 0;
+    const totT = Number(usage?.totalTokenCount) || (inT + outT);
+    if (inT > 0) await redis.hIncrBy(key, 'in_tokens', inT);
+    if (outT > 0) await redis.hIncrBy(key, 'out_tokens', outT);
+    if (totT > 0) await redis.hIncrBy(key, 'total_tokens', totT);
+    await redis.expire(key, TTL_S);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+async function recordMapsCall(redis, endpoint, count = 1) {
+  if (!(await _connect(redis))) return false;
+  if (!endpoint || typeof endpoint !== 'string') return false;
+  const n = Number.isFinite(count) && count > 0 ? Math.round(count) : 1;
+  const key = `api-cost:${_today()}:maps:${endpoint}`;
+  try {
+    await redis.hIncrBy(key, 'count', n);
+    await redis.expire(key, TTL_S);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function _dateKey(daysAgo) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - daysAgo);
+  return d.toISOString().slice(0, 10);
+}
+
+// v0.62.719 — an unpriced model used to return 0, silently. The first real
+// production /cost reading (2026-08-19) showed 1 Gemini call, 2,519 in / 172
+// out, at "~$0.0000". The Redis key was
+// `api-cost:2026-08-19:gemini:gemini-3.1-flash-lite` — a name that appears
+// nowhere in this repo, so it can only have come from GEMINI_MODEL at the
+// moment that call ran. That is a HISTORICAL record, not the current config:
+// the operator reports the var now reads gemini-2.5-flash-lite, which IS in
+// PRICES, so calls made after the change price correctly. Both facts hold.
+// v0.62.722 postscript: gemini-3.1-flash-lite turned out to be a real, current,
+// and CHEAPER model ($0.25/$1.50) — it is now in PRICES. The 2026-08-19 receipt
+// was not an anomaly to be explained away; it was the only direct evidence in
+// the system of a model that actually worked in this project.
+//
+// The defect is independent of which model it was: any name outside PRICES
+// costed out at exactly zero, and spend-guard.js:93 sums gemini.totalUsd +
+// maps.totalUsd — so the circuit breaker went blind to Gemini spend the moment
+// anyone set GEMINI_MODEL to something the table had not heard of. That is the
+// exact failure Phase A existed to prevent, and a model rename is a normal
+// operational act, not an edge case.
+//
+// Under-counting is the dangerous direction for a spend brake, so an unknown
+// model is priced at a known-expensive flash tier and FLAGGED rather than
+// zeroed. v0.62.719 declined to invent gemini-3.x rates on the grounds that
+// this file could not verify them; v0.62.722 verified them against Google's
+// published pricing page and added the real numbers above, so the fallback is
+// once again reserved for genuinely unknown names. It is raised to the 3.x
+// flash tier because that is now the expensive end of the table.
+//
+// KNOWN EXPIRY: gemini-3.6/3.7-flash are $0.75/$3.75 "through December 31,
+// 2026" and $1.50/$7.50 from January 1, 2027. This table has no notion of a
+// dated rate, so from 2027 those two rows UNDER-count by half until edited —
+// the dangerous direction. Register item; revisit before year end.
+const FALLBACK_GEMINI_RATE = Object.freeze({ in: 1.50 / 1e6, out: 9.00 / 1e6 });
+
+// Returns { usd, estimated } — estimated true when the model was not in PRICES.
+function _geminiUsd(model, hash) {
+  const known = PRICES.gemini[model];
+  const rate = known || FALLBACK_GEMINI_RATE;
+  const inT = Number(hash.in_tokens) || 0;
+  const outT = Number(hash.out_tokens) || 0;
+  return { usd: inT * rate.in + outT * rate.out, estimated: !known };
+}
+
+// Same shape, same reasoning: a new Maps endpoint must not read as free.
+const FALLBACK_MAPS_RATE = 0.032;   // the priciest known per-request SKU
+
+function _mapsUsd(endpoint, count) {
+  const known = PRICES.maps[endpoint];
+  const rate = known != null ? known : FALLBACK_MAPS_RATE;
+  return { usd: Number(count) * rate, estimated: known == null };
+}
+
+// Aggregate the last `days` days into a single summary object.
+// Returns: {
+//   days, since, until,
+//   gemini: { totalCalls, totalInTokens, totalOutTokens, totalUsd,
+//             byModel: { <model>: { count, in_tokens, out_tokens, usd } } },
+//   maps:   { totalCalls, totalUsd, byEndpoint: { <ep>: { count, usd } } }
+// }
+async function getCostSummary(redis, days = 1) {
+  if (!(await _connect(redis))) return null;
+  const d = Math.max(1, Math.min(60, Number(days) || 1));
+  const datesAgo = [];
+  for (let i = 0; i < d; i++) datesAgo.push(_dateKey(i));
+  const dates = datesAgo.slice().reverse();
+
+  const gemini = { totalCalls: 0, totalInTokens: 0, totalOutTokens: 0, totalUsd: 0, byModel: {}, unpricedModels: new Set() };
+  const maps = { totalCalls: 0, totalUsd: 0, byEndpoint: {}, unpricedEndpoints: new Set() };
+
+  for (const date of dates) {
+    // Gemini hashes
+    try {
+      const pattern = `api-cost:${date}:gemini:*`;
+      for await (const key of redis.scanIterator({ MATCH: pattern, COUNT: 50 })) {
+        const model = key.split(':').pop();
+        const h = await redis.hGetAll(key).catch(() => null);
+        if (!h) continue;
+        const entry = gemini.byModel[model] || { count: 0, in_tokens: 0, out_tokens: 0, usd: 0, estimated: false };
+        entry.count += Number(h.count) || 0;
+        entry.in_tokens += Number(h.in_tokens) || 0;
+        entry.out_tokens += Number(h.out_tokens) || 0;
+        const g = _geminiUsd(model, h);
+        entry.usd += g.usd;
+        if (g.estimated) { entry.estimated = true; gemini.unpricedModels.add(model); }
+        gemini.byModel[model] = entry;
+      }
+    } catch { /* scan failed — partial summary still useful */ }
+    // Maps hashes
+    try {
+      const pattern = `api-cost:${date}:maps:*`;
+      for await (const key of redis.scanIterator({ MATCH: pattern, COUNT: 50 })) {
+        const endpoint = key.split(':').pop();
+        const h = await redis.hGetAll(key).catch(() => null);
+        if (!h) continue;
+        const count = Number(h.count) || 0;
+        const entry = maps.byEndpoint[endpoint] || { count: 0, usd: 0, estimated: false };
+        entry.count += count;
+        const mu = _mapsUsd(endpoint, count);
+        entry.usd += mu.usd;
+        if (mu.estimated) { entry.estimated = true; maps.unpricedEndpoints.add(endpoint); }
+        maps.byEndpoint[endpoint] = entry;
+      }
+    } catch { /* same */ }
+  }
+
+  for (const e of Object.values(gemini.byModel)) {
+    gemini.totalCalls += e.count;
+    gemini.totalInTokens += e.in_tokens;
+    gemini.totalOutTokens += e.out_tokens;
+    gemini.totalUsd += e.usd;
+  }
+  for (const e of Object.values(maps.byEndpoint)) {
+    maps.totalCalls += e.count;
+    maps.totalUsd += e.usd;
+  }
+
+  // Sets do not survive JSON, and this object is passed around as data.
+  gemini.unpricedModels = [...gemini.unpricedModels];
+  maps.unpricedEndpoints = [...maps.unpricedEndpoints];
+
+  return { days: d, since: dates[0], until: dates[dates.length - 1], gemini, maps };
+}
+
+// Format a getCostSummary() return as Markdown for Telegram. Compact
+// table when there are few entries; falls back to "no data" when both
+// providers are empty.
+function formatCostSummary(summary) {
+  if (!summary) return '⚠️ /cost: redis offline.';
+  const { days, since, until, gemini, maps } = summary;
+  const window = days === 1 ? `today (${since})` : `${since} → ${until} (${days} d)`;
+  if (gemini.totalCalls === 0 && maps.totalCalls === 0) {
+    return `💸 *API spend* — ${window}\n\n_No tracked calls in window._`;
+  }
+  const lines = [`💸 *API spend* — ${window}`, ''];
+  if (gemini.totalCalls > 0) {
+    lines.push(`*Gemini* — ${gemini.totalCalls.toLocaleString()} calls · ~$${gemini.totalUsd.toFixed(4)}`);
+    lines.push(`  in: ${gemini.totalInTokens.toLocaleString()} tok · out: ${gemini.totalOutTokens.toLocaleString()} tok`);
+    for (const [model, e] of Object.entries(gemini.byModel)) {
+      lines.push(`  • \`${model}\` — ${e.count} · ${e.in_tokens.toLocaleString()} in · ${e.out_tokens.toLocaleString()} out · ~$${e.usd.toFixed(4)}${e.estimated ? ' ⚠️ est.' : ''}`);
+    }
+    lines.push('');
+  }
+  if (maps.totalCalls > 0) {
+    lines.push(`*Maps* — ${maps.totalCalls.toLocaleString()} req · ~$${maps.totalUsd.toFixed(4)}`);
+    for (const [ep, e] of Object.entries(maps.byEndpoint)) {
+      lines.push(`  • \`${ep}\` — ${e.count} · ~$${e.usd.toFixed(4)}${e.estimated ? ' ⚠️ est.' : ''}`);
+    }
+    lines.push('');
+  }
+  // An unpriced model or endpoint used to read as $0.0000, which made the
+  // spend guard blind to it. Say so loudly instead — a silent zero in a spend
+  // report is the one number nobody questions.
+  const unpriced = [...(gemini.unpricedModels || []), ...(maps.unpricedEndpoints || [])];
+  if (unpriced.length) {
+    lines.push(`⚠️ *Not in the rate card:* ${unpriced.map((u) => `\`${u}\``).join(', ')}`);
+    lines.push(`  Costed at a fallback rate, so the total is an over-estimate, not $0. Add real rates to \`PRICES\` in \`api-cost.js\`.`);
+    lines.push('');
+  }
+  lines.push(`_Static rate card; actual spend on Google Cloud / AI Studio dashboards._`);
+  return lines.join('\n');
+}
+
+module.exports = {
+  PRICES,
+  TTL_S,
+  recordGeminiUsage,
+  recordMapsCall,
+  getCostSummary,
+  formatCostSummary
+};

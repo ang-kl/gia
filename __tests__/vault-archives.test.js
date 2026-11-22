@@ -26,14 +26,26 @@ describe('current snapshots',()=>{
     expect(s.tree).toMatch(/^[0-9a-f]{40}$/);
     expect(new Set([CURRENT_VAULT_TREE,CURRENT_SNAPSHOTS.get('v0.62.948').tree,s.tree]).size).toBe(3);
   });
-  it('holds exactly three current snapshots, none sanitised nor historical',()=>{
-    expect([...CURRENT_SNAPSHOTS.keys()]).toEqual(['v0.62.937','v0.62.948','v0.62.982']);
+  // Spec doc/Feature/2026-11-22-docs-and-vault-v0-62-989.spec.md (I1, I3): v0.62.989 joins as a fourth; the pins for
+  // the three before it stay exactly as they were, only the set and the folder count grow (three → four, 30 → 31).
+  it('keeps v0.62.982 pinned exactly as before',()=>{
+    expect(CURRENT_SNAPSHOTS.get('v0.62.982')).toEqual({source:'67b19509de041b50efd87fee8507b160788c679f',tree:'509e40f817b81524f03bfea4e6614909bba7db38'});
+  });
+  it('adds v0.62.989 from main at 41a7b1a0, with its own pinned tree',()=>{
+    const s=CURRENT_SNAPSHOTS.get('v0.62.989');
+    expect(s.source).toBe('41a7b1a011ada1636387b608a8684cac22fa9f00');
+    expect(s.tree).toMatch(/^[0-9a-f]{40}$/);
+    expect(new Set([CURRENT_VAULT_TREE,CURRENT_SNAPSHOTS.get('v0.62.948').tree,CURRENT_SNAPSHOTS.get('v0.62.982').tree,s.tree]).size).toBe(4);
+  });
+  it('holds exactly four current snapshots, none sanitised nor historical',()=>{
+    expect([...CURRENT_SNAPSHOTS.keys()]).toEqual(['v0.62.937','v0.62.948','v0.62.982','v0.62.989']);
     for(const v of CURRENT_SNAPSHOTS.keys()){ expect(ALLOWED_SANITISED.has(v)).toBe(false); expect(EXPECTED_FOLDERS.has(v)).toBe(false); }
   });
-  it('expects 30 version folders in all',()=>{
-    expect(versionFolders().length).toBe(30);
+  it('expects 31 version folders in all',()=>{
+    expect(versionFolders().length).toBe(31);
     expect(versionFolders()).toContain('v0.62.948');
     expect(versionFolders()).toContain('v0.62.982');
+    expect(versionFolders()).toContain('v0.62.989');
   });
 });
 

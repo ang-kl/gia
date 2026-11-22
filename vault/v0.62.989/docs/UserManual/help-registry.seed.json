@@ -1,0 +1,230 @@
+{
+  "status": "seed",
+  "description": "Initial contextual help mapping for the Soleat User Manual. Stable help IDs should be reviewed before TMA integration.",
+  "items": [
+    {
+      "helpId": "help.soleat.overview.welcome",
+      "title": "Welcome to Soleat",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#1-welcome-to-soleat",
+      "surface": "general",
+      "contentType": "overview"
+    },
+    {
+      "helpId": "help.soleat.overview.who-for",
+      "title": "Who Soleat Is For",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#2-who-soleat-is-for",
+      "surface": "general",
+      "contentType": "overview"
+    },
+    {
+      "helpId": "help.soleat.overview.why-different",
+      "title": "Why Soleat Is Different",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#3-why-soleat-is-different",
+      "surface": "general",
+      "contentType": "overview"
+    },
+    {
+      "helpId": "help.soleat.getting-started",
+      "title": "Getting Started",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#6-getting-started",
+      "surface": "general",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.menu.overview",
+      "title": "Soleat Menu Overview",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#8-soleat-menu-overview",
+      "surface": "menu",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.commands.overview",
+      "title": "Command Overview",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#9-command-overview",
+      "surface": "telegram-chat",
+      "contentType": "reference"
+    },
+    {
+      "helpId": "help.soleat.location.overview",
+      "title": "Location, Countries, Cities, and Saved Locations",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#10-location-countries-cities-and-saved-locations",
+      "surface": "location",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.location.country-city-saved",
+      "title": "Country, City, and Saved Location Flow",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#106-country--city--saved-location-flow",
+      "surface": "location",
+      "contentType": "workflow-help"
+    },
+    {
+      "helpId": "help.soleat.language.food-meaning",
+      "title": "Languages, Local Food Names, and Search Meaning",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#11-languages-local-food-names-and-search-meaning",
+      "surface": "search",
+      "contentType": "concept-help"
+    },
+    {
+      "helpId": "help.soleat.search.overview",
+      "title": "Food Search Overview",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#12-food-search-overview",
+      "surface": "search",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.cuisine.overview",
+      "title": "Cuisine Search",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#13-cuisine-search",
+      "surface": "cuisine",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.cuisine.what-to-try",
+      "title": "Use what-to-try guidance",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#134-use-what-to-try-guidance",
+      "surface": "cuisine",
+      "contentType": "concept-help"
+    },
+    {
+      "helpId": "help.soleat.results.eatery-card",
+      "title": "Eatery Cards",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#14-eatery-cards",
+      "surface": "results",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.results.hide-card",
+      "title": "Hide weak cards",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#144-hide-weak-cards",
+      "surface": "results",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.map.overview",
+      "title": "Google Map View",
+      "manualPath": "docs/UserManual/en/03-sections-15-to-18.md#15-google-map-view",
+      "surface": "map",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.map.layers",
+      "title": "Map layers and buttons",
+      "manualPath": "docs/UserManual/en/03-sections-15-to-18.md#152-map-layers-and-buttons",
+      "surface": "map",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.recognised.overview",
+      "title": "Recognised Venues and Curated Food Sources",
+      "manualPath": "docs/UserManual/en/03-sections-15-to-18.md#16-recognised-venues-and-curated-food-sources",
+      "surface": "recognised",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.hidden.overview",
+      "title": "Hidden Gems",
+      "manualPath": "docs/UserManual/en/03-sections-15-to-18.md#17-hidden-gems",
+      "surface": "hidden-gems",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.meal-options.overview",
+      "title": "Set Meals and Practical Meal Options",
+      "manualPath": "docs/UserManual/en/03-sections-15-to-18.md#18-set-meals-and-practical-meal-options",
+      "surface": "search",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.meal-options.opening-hours",
+      "title": "Check opening hours",
+      "manualPath": "docs/UserManual/en/03-sections-15-to-18.md#183-check-opening-hours",
+      "surface": "search",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.hawker.overview",
+      "title": "Singapore Hawker Centres & Food Centres",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#19-singapore-hawker-centres--food-centres",
+      "surface": "hawker",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.transport.overview",
+      "title": "Singapore Train Network / Transport",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#20-singapore-train-network--transport",
+      "surface": "transport",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.transport.station-exits",
+      "title": "Singapore Train Station Exits",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#21-singapore-train-station-exits",
+      "surface": "transport",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.transport.bus-information",
+      "title": "Singapore Bus Information",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#22-singapore-bus-information",
+      "surface": "transport",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.carpark.overview",
+      "title": "Singapore Car Parks",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#23-singapore-car-parks",
+      "surface": "carpark",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.weather.overview",
+      "title": "Weather",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#24-weather",
+      "surface": "weather",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.sketchbook.overview",
+      "title": "Sketchbook / Clipboard",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#25-sketchbook--clipboard",
+      "surface": "clipboard",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.sketchbook.structure",
+      "title": "Catch-all, Cabinet, Drawer, and Card",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#253-catch-all-cabinet-drawer-and-card",
+      "surface": "clipboard",
+      "contentType": "concept-help"
+    },
+    {
+      "helpId": "help.soleat.search.tips",
+      "title": "Search Tips",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#26-search-tips",
+      "surface": "search",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.troubleshooting.common-problems",
+      "title": "Common Problems",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#27-common-problems",
+      "surface": "general",
+      "contentType": "troubleshooting"
+    },
+    {
+      "helpId": "help.soleat.privacy.overview",
+      "title": "Privacy, Data, and User Control",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#28-privacy-data-and-user-control",
+      "surface": "general",
+      "contentType": "reference"
+    },
+    {
+      "helpId": "help.soleat.support.limitations",
+      "title": "Support and Limitations",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#29-support-and-limitations",
+      "surface": "general",
+      "contentType": "reference"
+    }
+  ]
+}
