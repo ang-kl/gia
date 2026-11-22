@@ -150,6 +150,37 @@ describe('J3, J4 — the route view: buses glide along the line and stay on it; 
     expect(live(made)).toHaveLength(1);                           // the same marker moved; none was redrawn
     layer.stop();
   });
+  it('on a bend the bus follows the road round the corner, never the shortcut across it', async () => {
+    // The straight road above cannot tell "along the route" from "in a straight line"; a corner can. East 2.2 km, then
+    // north: 500 m before the corner to 550 m after it. The chord between them passes about 270 m off the road.
+    const BEND = [[LAT, 103.80], [LAT, 103.82], [LAT + 0.02, 103.82]];
+    const track = measure(BEND.map(([lat, lng]) => ({ lat, lng })));
+    const r1 = [[LAT, 103.8155]];
+    const r2 = [[LAT + 0.005, 103.82]];
+    const calls = [];
+    let n = 0;
+    const fetchJson = async (u) => {
+      calls.push(u);
+      if (u.includes('/bus-route?')) return u.endsWith('direction=2') ? null : { stops: [{ code: '1', name: 'W', lat: LAT, lng: 103.80, seq: 1 }, { code: '2', name: 'N', lat: LAT + 0.02, lng: 103.82, seq: 2 }], shape: BEND, shapeSource: 'directions' };
+      const r = n++ === 0 ? r1 : r2;
+      return { buses: r.map(([lat, lng]) => ({ lat, lng, minutes: 3, nextStop: 'N', nextStopCode: '2' })), readAt: Date.now() };
+    };
+    const { made, gmaps } = fakeGmaps();
+    const layer = createBusRouteLayer({}, gmaps, { fetchJson, now: () => Date.now(), schedule: (f) => setTimeout(f, 100), cancel: clearTimeout, lang: 'en' });
+    await layer.show('10', '1');
+    const [m] = live(made);
+    await vi.advanceTimersByTimeAsync(ROUTE_REFRESH_MS + GLIDE_MS / 2);
+    const mid = locate(track, m.position);
+    expect(mid.off).toBeLessThan(1);
+    await vi.advanceTimersByTimeAsync(GLIDE_MS / 2 + 200);
+    for (const p of m.moves) expect(locate(track, p).off, JSON.stringify(p)).toBeLessThan(1);
+    // it went along the east leg, then up the north leg: round the corner, not across it
+    const east = m.moves.findIndex((p) => Math.abs(p.lat - LAT) < 1e-9 && p.lng > 103.818);
+    const north = m.moves.findIndex((p) => Math.abs(p.lng - 103.82) < 1e-9 && p.lat > LAT + 0.001);
+    expect(east).toBeGreaterThanOrEqual(0);
+    expect(north).toBeGreaterThan(east);
+    layer.stop();
+  });
   it('a bus that has not moved stays put', async () => {
     const r = [[LAT, 103.83]];
     const { made, layer } = harness([r, r, r, r]);
