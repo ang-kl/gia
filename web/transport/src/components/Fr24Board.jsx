@@ -86,6 +86,9 @@ export default function Fr24Board({ model, onTab, onView, onSort, onPlanes, onCl
       </div>
       <div className="mt-0.5 text-[10px] text-tg-hint truncate" title={model.header}>{model.header}</div>
       {model.wx && <div className="text-[11px] font-semibold text-amber-600">{model.wx}</div>}
+      {/* v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A8, I5): one line when a reader crosses
+          50, 70, 80 or 90 % of today's flight data, and at the cap the line that says it is used up. */}
+      {model.usage && <div className="text-[11px] font-semibold text-amber-700" data-fr24-usage role="status">{model.usage}</div>}
       {/* Sort on the left, Cards / List on the right: one row, so the header row above stays one line (amendment 4's
           first render wrapped it with all five chips there). */}
       <div className="mt-1 flex items-center gap-1 flex-wrap">
@@ -103,7 +106,7 @@ export default function Fr24Board({ model, onTab, onView, onSort, onPlanes, onCl
         ))}
       </div>
 
-      {model.state !== 'ok' && <div className="py-3 text-[12px]">{model.message}</div>}
+      {model.state !== 'ok' && model.message && <div className="py-3 text-[12px]">{model.message}</div>}
       {model.state === 'ok' && model.view === 'strip' && (
         <div className="mt-1 flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1.5" style={thin} data-fr24-view="strip">
           {rows.map((r) => <FlightCard key={r.id} r={r} labels={model.labels} selected={r.id === model.selectedId} onSelect={onSelect} />)}
@@ -122,8 +125,11 @@ export default function Fr24Board({ model, onTab, onView, onSort, onPlanes, onCl
       )}
 
       <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-        <button type="button" onClick={onPlanes}
-          className="px-2.5 py-1 rounded-full bg-amber-400 text-gray-900 text-[11px] font-semibold">✈ {model.planesLabel}</button>
+        {/* v0.62.989 (A8): no planes button once the reader's day is used up. */}
+        {model.planesLabel && (
+          <button type="button" onClick={onPlanes}
+            className="px-2.5 py-1 rounded-full bg-amber-400 text-gray-900 text-[11px] font-semibold">✈ {model.planesLabel}</button>
+        )}
         {model.getThere && (
           <button type="button" onClick={onGetThere} className="text-[11px] underline text-tg-link">{model.getThere}</button>
         )}

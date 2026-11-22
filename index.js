@@ -19339,6 +19339,10 @@ async function cacheBotUsername() {
     app.get('/api/fr24/track/:id', requireInitDataFromBodyOrHeader, fr24Route('track', (req) => ({ id: req.params.id })));
     // v0.62.978 — FR24 spec amendment 9 (I29): estimated arrivals for one tab's live flights (8 credits a flight, 5 min).
     app.get('/api/fr24/eta/:icao', requireInitDataFromBodyOrHeader, fr24Route('eta', (req) => ({ icao: req.params.icao, dir: req.query.dir, cs: String(req.query.cs || '') })));
+    // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (I1): the ⋮ menu's Airports list near a
+    // point (?lat=&lng=) or for one known city (?city=). From the OurAirports table only: no FR24 request, no credits,
+    // same owner-only gate. A repeated parameter arrives as an array and is refused as a bad point or city.
+    app.get('/api/fr24/airports-near', requireInitDataFromBodyOrHeader, fr24Route('near', (req) => ({ lat: req.query.lat, lng: req.query.lng, city: req.query.city })));
 
     app.get('/api/transport/stations', (_req, res) => {
       try {

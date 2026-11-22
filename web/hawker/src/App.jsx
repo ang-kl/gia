@@ -950,6 +950,7 @@ export default function App() {
       <div className="fixed inset-0 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
         {active && (
           <HawkerMapPanel onTrainsChange={setTrains} onStopBusesChange={setStopBuses} centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill
+            readerLoc={outsideLoc}
             onCentreTap={onCentreTap}
             expanded={collapsible ? mapExpanded : null}
             onToggleExpand={collapsible ? () => withViewTransition(() => setMapExpanded(false)) : null} />
@@ -1103,6 +1104,7 @@ export default function App() {
       {active && (
         <div className="px-2 pb-1.5 shrink-0">
           <HawkerMapPanel onTrainsChange={setTrains} onStopBusesChange={setStopBuses} centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
+            readerLoc={outsideLoc}
             onCentreTap={onCentreTap}
             expanded={mapExpanded} onToggleExpand={() => withViewTransition(() => setMapExpanded(true))} />
         </div>
@@ -1154,6 +1156,7 @@ export default function App() {
       {active && (
         <div className="absolute inset-0">
           <HawkerMapPanel onTrainsChange={setTrains} onStopBusesChange={setStopBuses} centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
+            readerLoc={outsideLoc}
             fill onCentreTap={onCentreTap} />
         </div>
       )}

@@ -157,9 +157,14 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+// v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A5): the Airports menu's point when the app has
+// no device location for the reader.
+const SG_POINT = { lat: 1.3521, lng: 103.8198 };
+
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, headerPx = null, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null, publicHolidays = null, onFr24BoardChange = null }) {
+// v0.62.989 — `readerLoc`: the device location App already has (startLocationSync), for the Airports menu (A5).
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, headerPx = null, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null, publicHolidays = null, onFr24BoardChange = null, readerLoc = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -216,6 +221,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // Amendment 5: whether this reader may see the ✈️ Airports menu row, and which airport's board is open (or null).
   const [fr24Enabled, setFr24Enabled] = useState(false);
   const [fr24Open, setFr24Open] = useState(null);
+  // v0.62.989 (A1, A5): the layer reads the reader's point when the Airports ▾ opens, and asks for a re-render when
+  // its list arrives or changes view.
+  const pointRef = useRef(SG_POINT);
+  pointRef.current = readerLoc || SG_POINT;
+  const [, setFr24MenuTick] = useState(0);
   const fr24StationsRef = useRef(null);
   // Amendment 3: the board is App's (the bottom dock); the layer hands it up with the actions that drive it.
   const onFr24BoardChangeRef = useRef(onFr24BoardChange);
@@ -697,6 +707,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         lang: langRef.current,
         fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() } }).then((r) => r.json()).catch(() => null),
         onState: (s) => setFr24State(s && s.planes ? s : null),
+        getPoint: () => pointRef.current,
+        onMenu: () => setFr24MenuTick((n) => n + 1),
         onFlight: (f) => { setFr24Flight(f || null); if (!f) setGlobeOpen(false); },
         onBoard: (m) => { setFr24Open(m ? m.icao : null); onFr24BoardChangeRef.current?.(m ? {
           model: m,
@@ -1205,14 +1217,17 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
     { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
-    // v0.62.975 — FR24 spec amendment 5 (I20): "✈️ Airports", like the 🌳 Park row: the row opens Changi's board
-    // (☑️ while a board is open) and its ▾ lists Changi and Seletar. Only for a reader with access (C12).
+    // v0.62.975 — FR24 spec amendment 5 (I20): "✈️ Airports", like the 🌳 Park row (☑️ while a board is open). Only
+    // for a reader with access (C12).
+    // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A1, A2): its ▾ lists the airports near the
+    // reader, then Changi and Seletar, then "Other cities ▸"; a pick jumps there, pins it and opens its board. The
+    // rows and the picks are the layer's, shared with the Cuisine and Hawker maps.
     ...(fr24Enabled ? [{ key: 'airports', icon: '✈️', label: fr24T('menu.airports', lang), submenu: {
       label: fr24T('menu.pick', lang),
       heading: fr24T('menu.airports', lang),
-      items: () => ['WSSS', 'WSSL'].map((c) => ({ key: c, label: fr24T(`pin.${c}`, lang), active: fr24Open === c })),
-      onPick: (c) => fr24Ref.current?.openBoard(c),
-      // Amendment 7 (I22): Changi / Seletar are tappable with the row unticked; picking one ticks it.
+      items: () => fr24Ref.current?.menuRows() || [],
+      onPick: (k) => fr24Ref.current?.menuPick(k),
+      // Amendment 7 (I22): an airport is tappable with the row unticked; picking one ticks it.
       pickWhenOff: true,
     } }] : []),
   ];
@@ -1324,7 +1339,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         top={controlTops.rowTop}
         layers={{ ...(overlayLayers || {}), simTrains: simOn, airports: !!fr24Open, globe: !!globeOpen }}
         onToggleLayer={(key) => (key === 'airports'
-          ? (fr24Open ? fr24Ref.current?.closeBoard() : fr24Ref.current?.openBoard('WSSS'))
+          ? (fr24Open ? fr24Ref.current?.closeBoard() : fr24Ref.current?.openDefault())
           : key === 'globe' ? setGlobeOpen((g) => (g ? false : 'card'))
           : key === 'simTrains' ? (simOn ? stopAllTrains() : setSimOn(true)) : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]

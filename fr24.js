@@ -20,16 +20,43 @@
 // The token is read from FLIGHTRADER24_API_TOKEN only, sent only in the Authorization header, and never placed in an
 // answer, a log line or the client bundle (I1).
 
+// v0.62.989 — spec doc/Feature/2026-11-12-fr24-city-airports-all-maps-user-caps.spec.md (A1-A11, I1-I9):
+//   - any airport in data/airport-names.json with an IATA code is accepted, not just Changi and Seletar (I3);
+//   - airportsMenu(lat, lng) / cityAirports(name): the ⋮ menu's ✈️ Airports list, from the table alone (I1);
+//   - each reader other than the owner may spend at most 500 credits per Singapore day (I4). The worst case of a
+//     call is reserved before it leaves and the difference given back after, so two calls at once cannot both
+//     squeeze under the cap; a cache hit costs the reader nothing. Every capped answer carries `usage` (I5).
+// Access is unchanged (I6): owner-only unless FR24_PUBLIC is exactly '1'.
+
 'use strict';
 
+const crypto = require('crypto');
 const { decideOwner } = require('./owner-gate');
 
 const BASE = 'https://fr24api.flightradar24.com/api';
-// From data/airport-names.json's source (OurAirports), WSSS and WSSL rows.
+// From data/airport-names.json's source (OurAirports), WSSS and WSSL rows. Since v0.62.989 these are the
+// "Singapore" section of the Airports menu, and their reference points still centre the planes box.
 const AIRPORTS = Object.freeze({
   WSSS: Object.freeze({ lat: 1.35019, lng: 103.994003 }),
   WSSL: Object.freeze({ lat: 1.41555, lng: 103.86673 }),
 });
+// v0.62.989 (A1b, A9): a city's airports are those with an IATA code within 150 km, at most 5.
+const NEAR_KM = 150;
+const NEAR_MAX = 5;
+// v0.62.989 (A1c): international before domestic. No field in OurAirports says which an airport is (Itami is named
+// "International" and is domestic; Suvarnabhumi is not, and is Bangkok's main gateway), so the order is the table's
+// size rank, nearest first within a rank, and these airports, which OurAirports ranks large but which have no
+// scheduled international passenger service, rank with the medium ones. Each row names what was read. Every other
+// large airport is taken as international without having been checked one by one; the journal reports how many.
+const DOMESTIC_IN_PRACTICE = Object.freeze({
+  RJOO: 'Wikipedia, "Itami Airport", read 22-11 \'26 (search excerpt): domestic flights only since Kansai International Airport opened in 1994, despite the "International" in its name.',
+  RJOS: 'Wikipedia, "Tokushima Airport", Airlines and destinations, read 22-11 \'26 (search excerpt): All Nippon Airways and Japan Airlines to Tokyo-Haneda, J-Air to Fukuoka; no scheduled international route in the table.',
+  WIHH: 'Wikipedia, "Halim Perdanakusuma International Airport", read 22-11 \'26 (search excerpt): designated international, but it primarily handles domestic flights; its international flights are mostly cargo and non-commercial.',
+});
+// v0.62.989 (A3, A6): the per-reader daily cap and the points at which the board says how much is used.
+const USER_DAILY_CAP = 500;
+const USAGE_STEPS = Object.freeze([50, 70, 80, 90]);
+const USER_TTL_S = 2 * 24 * 3600;       // a day's counter outlives its day by one, then Redis drops it
 const LIMIT = 20;                       // Explorer's response limit
 const BOX_HALF_KM = 30;                 // C2: about 60 x 60 km around the airport
 const BOARD_WINDOW_MS = 3 * 3600 * 1000;
@@ -120,8 +147,93 @@ function monthKeySgt(nowMs) {
 }
 const isoSec = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z');
 
+// v0.62.989 (I3): the airports a request may name: Changi and Seletar, and any table airport with an IATA code and a
+// position. Own properties only, so '__proto__' and 'constructor' are not airports.
+const ICAO_RE = /^[A-Z0-9]{4}$/;
+const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+function isKnownAirport(icao) {
+  if (typeof icao !== 'string' || !ICAO_RE.test(icao)) return false;
+  if (own(AIRPORTS, icao)) return true;
+  const t = table();
+  return own(t, icao) && !!t[icao].i && !!airportPos(icao);
+}
+// The reference point a request is built around: Changi's and Seletar's as before, else the table's.
+function posOf(icao) {
+  if (typeof icao === 'string' && own(AIRPORTS, icao)) return AIRPORTS[icao];
+  return airportPos(icao);
+}
+function sgtDay(nowMs) {
+  return new Date(nowMs + SGT_MS).toISOString().slice(0, 10);
+}
+function hashId(id) {
+  return crypto.createHash('sha256').update(String(id)).digest('hex').slice(0, 16);
+}
+
+// ── v0.62.989 (I1): the Airports menu, from the table alone ─────────────────────────────────────────────────────
+function kmBetween(a, b) {
+  const r = Math.PI / 180;
+  const h = Math.sin(((b.lat - a.lat) * r) / 2) ** 2
+    + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(((b.lng - a.lng) * r) / 2) ** 2;
+  return 2 * 6371.0088 * Math.asin(Math.sqrt(h));
+}
+// "Soekarno-Hatta International Airport" → "Soekarno-Hatta"; "Darwin International Airport / RAAF Darwin" → "Darwin".
+function shortName(n) {
+  const s = String(n || '').split(' / ')[0].replace(/\s+International\s+Airport$/i, '').replace(/\s+Airport$/i, '').trim();
+  return s || String(n || '');
+}
+let IATA_LIST = null;
+function iataAirports() {
+  if (!IATA_LIST) {
+    IATA_LIST = Object.keys(table()).filter(isKnownAirport).map((icao) => {
+      const e = table()[icao];
+      const p = posOf(icao);
+      const domestic = own(DOMESTIC_IN_PRACTICE, icao);
+      const order = e.r === 1 && !domestic ? 1 : e.r === 1 ? 2 : (e.r || 4);
+      return { icao, iata: e.i, name: e.n, short: shortName(e.n), city: e.c || null, lat: p.lat, lng: p.lng, order, intl: order === 1 };
+    });
+  }
+  return IATA_LIST;
+}
+const withKm = (a, at) => ({ ...a, km: Math.round(kmBetween(at, a)) });
+// The airports within NEAR_KM of a point: international (order 1) first, then by rank, nearest first, at most 5.
+function nearAirports(lat, lng, { km = NEAR_KM, max = NEAR_MAX } = {}) {
+  const at = { lat: Number(lat), lng: Number(lng) };
+  if (!Number.isFinite(at.lat) || !Number.isFinite(at.lng)) return [];
+  return iataAirports()
+    .map((a) => ({ a, d: kmBetween(at, a) }))
+    .filter((x) => x.d <= km)
+    .sort((x, y) => x.a.order - y.a.order || x.d - y.d)
+    .slice(0, max)
+    .map((x) => ({ ...x.a, km: Math.round(x.d) }));
+}
+let CITIES = null;
+function cities() {
+  if (!CITIES) {
+    try { CITIES = require('./city-centroids.js').CITY_CENTROIDS || {}; } catch { CITIES = {}; }
+  }
+  return CITIES;
+}
+// A1: near the reader, then Changi and Seletar under Singapore (each airport once), then every known city, nearest
+// first, for "Other cities".
+function airportsMenu(lat, lng) {
+  const at = { lat: Number(lat), lng: Number(lng) };
+  const near = nearAirports(at.lat, at.lng);
+  const seen = new Set(near.map((a) => a.icao));
+  const singapore = Object.keys(AIRPORTS).filter((c) => !seen.has(c))
+    .map((c) => iataAirports().find((a) => a.icao === c)).filter(Boolean).map((a) => withKm(a, at));
+  const list = Object.entries(cities())
+    .map(([name, c]) => ({ name, country: c.country || null, km: Math.round(kmBetween(at, c)) }))
+    .sort((a, b) => a.km - b.km || a.name.localeCompare(b.name));
+  return { near, singapore, cities: list };
+}
+function cityAirports(name) {
+  const c = typeof name === 'string' && own(cities(), name) ? cities()[name] : null;
+  if (!c) return null;
+  return { city: name, country: c.country || null, airports: nearAirports(c.lat, c.lng) };
+}
+
 function boundsFor(icao) {
-  const a = AIRPORTS[icao];
+  const a = posOf(icao);
   const dLat = BOX_HALF_KM / KM_PER_DEG;
   const dLng = BOX_HALF_KM / (KM_PER_DEG * Math.cos((a.lat * Math.PI) / 180));
   return [a.lat + dLat, a.lat - dLat, a.lng - dLng, a.lng + dLng].map((v) => v.toFixed(3)).join(',');
@@ -163,13 +275,50 @@ function rowOf(r) {
 }
 
 // request(url, headers) → Promise<{ status, data }>. cache: a Redis client (get / setEx / incrBy / expire) or null.
-function createFr24({ token = '', request, cache = null, now = Date.now, budget = DEFAULT_BUDGET } = {}) {
+function createFr24({ token = '', request, cache = null, now = Date.now, budget = DEFAULT_BUDGET, userCap = USER_DAILY_CAP } = {}) {
   const memory = new Map();      // key → { exp, value }
   const last = new Map();        // key → { at, value }: the last good answer, for a busy minute
   const inflight = new Map();
   const sent = [];               // request times inside the last minute
   let memSpent = new Map();      // month → credits, when there is no shared cache
   let blockedMonth = null;       // a 402 stops requests until this month has passed
+  const memUser = new Map();     // v0.62.989: `fr24:user:<hash>:<day>` → credits, mirrored like memSpent
+
+  // ── v0.62.989 (I4): the reader's day, keyed on a hash of the Telegram id, never the id ─────────────────────────
+  const userKey = (id) => `fr24:user:${hashId(id)}:${sgtDay(now())}`;
+  async function userSpent(id) {
+    const k = userKey(id);
+    if (cache) {
+      try { const v = await cache.get(k); if (v != null) return Number(v) || 0; } catch { /* fall through */ }
+    }
+    return memUser.get(k) || 0;
+  }
+  async function bump(k, n) {
+    const m = (memUser.get(k) || 0) + n;
+    memUser.set(k, m);
+    let total = null;
+    if (cache) {
+      try {
+        const v = await cache.incrBy(k, n);
+        if (v != null && Number.isFinite(Number(v))) total = Number(v);
+        await cache.expire(k, USER_TTL_S);
+      } catch { /* memory holds it */ }
+    }
+    return total == null ? m : total;
+  }
+  // Hold the call's worst case; null when holding it would pass the cap (and nothing stays held).
+  async function reserve(who, worst) {
+    if (memUser.size > 5000) { const day = sgtDay(now()); for (const k of memUser.keys()) if (!k.endsWith(`:${day}`)) memUser.delete(k); }
+    const k = userKey(who.id);
+    const total = await bump(k, worst);
+    if (total > userCap) { await bump(k, -worst); return null; }
+    return { k, held: worst };
+  }
+  // Give back what the call did not cost (all of it when it failed); add the excess if it cost more.
+  async function settle(hold, actual) {
+    if (!hold || actual === hold.held) return;
+    await bump(hold.k, actual - hold.held);
+  }
 
   const cacheGet = async (key) => {
     if (cache) {
@@ -206,7 +355,9 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
   };
 
   // One FR24 request, behind every guard. `cost(data)` is what the answer cost; `shape(data)` is our answer.
-  async function call(key, ttl, url, cost, shape, { on403 = 'nokey' } = {}) {
+  // v0.62.989 (I4): `who` is a capped reader ({ id }) or null (the owner); `worst` is the most the answer can cost.
+  // A cache hit, or joining a request already in flight, costs the reader nothing.
+  async function call(key, ttl, url, cost, shape, { on403 = 'nokey', who = null, worst = 0 } = {}) {
     if (!token) return { ok: false, reason: 'nokey' };
     const hit = await cacheGet(key);
     if (hit) return hit;
@@ -214,22 +365,28 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     const p = (async () => {
       if (blockedMonth && blockedMonth === monthKeySgt(now())) return { ok: false, reason: 'budget' };
       if ((await spent()) >= budget) return { ok: false, reason: 'budget' };
+      const hold = who ? await reserve(who, worst) : null;
+      if (who && !hold) return { ok: false, reason: 'quota' };
       const t = now();
       while (sent.length && t - sent[0] >= 60 * 1000) sent.shift();
-      if (sent.length >= RATE_PER_MIN) return staleOf(key) || { ok: false, reason: 'busy' };
+      if (sent.length >= RATE_PER_MIN) { await settle(hold, 0); return staleOf(key) || { ok: false, reason: 'busy' }; }
       sent.push(t);
       let res;
       try {
         res = await request(url, { Authorization: `Bearer ${token}`, 'Accept-Version': 'v1', Accept: 'application/json' });
       } catch {
+        await settle(hold, 0);
         return { ok: false, reason: 'error' };
       }
       const status = res && res.status;
+      if (status !== 200 || !res.data) await settle(hold, 0);
       if (status === 402) { blockedMonth = monthKeySgt(now()); return { ok: false, reason: 'budget' }; }
       if (status === 429) return staleOf(key) || { ok: false, reason: 'busy' };
       if (status === 403) return { ok: false, reason: on403 };
       if (status !== 200 || !res.data) return { ok: false, reason: status === 401 ? 'nokey' : 'error' };
-      await addSpent(cost(res.data));
+      const c = cost(res.data);
+      await addSpent(c);
+      await settle(hold, c);
       const out = { ok: true, source: 'Flightradar24', readAt: isoSec(t), ...shape(res.data) };
       await cachePut(key, ttl, out);
       return out;
@@ -240,16 +397,19 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
 
   const listOf = (d) => (Array.isArray(d && d.data) ? d.data : []);
 
-  async function planes(icao) {
-    if (!Object.prototype.hasOwnProperty.call(AIRPORTS, icao)) return { ok: false, reason: 'badcode' };
+  // v0.62.989 (I4): each method takes the capped reader last (null for the owner) and states its worst case: what
+  // FR24 would charge for the fullest answer the request allows.
+  async function planes(icao, who = null) {
+    if (!isKnownAirport(icao)) return { ok: false, reason: 'badcode' };
     const url = `${BASE}/live/flight-positions/light?bounds=${boundsFor(icao)}&airports=both:${icao}&limit=${LIMIT}`;
     return call(`fr24:planes:${icao}`, TTL_S.planes, url,
       (d) => creditsForPlanes(listOf(d).length),
-      (d) => ({ icao, planes: listOf(d).map(planeOf).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng)) }));
+      (d) => ({ icao, planes: listOf(d).map(planeOf).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng)) }),
+      { who, worst: creditsForPlanes(LIMIT) });
   }
 
-  async function board(icao, dir) {
-    if (!Object.prototype.hasOwnProperty.call(AIRPORTS, icao)) return { ok: false, reason: 'badcode' };
+  async function board(icao, dir, who = null) {
+    if (!isKnownAirport(icao)) return { ok: false, reason: 'badcode' };
     if (dir !== 'dep' && dir !== 'arr') return { ok: false, reason: 'baddir' };
     if (!token) return { ok: false, reason: 'nokey' };
     const t = now();
@@ -258,10 +418,11 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       + `&flight_datetime_to=${isoSec(t)}&airports=${side}:${icao}&sort=desc&limit=${LIMIT}`;
     return call(`fr24:board:${icao}:${dir}`, TTL_S.board, url,
       (d) => creditsForSummary(listOf(d)),
-      (d) => ({ icao, dir, rows: listOf(d).map(rowOf) }));
+      (d) => ({ icao, dir, rows: listOf(d).map(rowOf) }),
+      { who, worst: 2 * LIMIT });
   }
 
-  async function flight(id) {
+  async function flight(id, who = null) {
     const fid = String(id || '');
     if (!FLIGHT_ID.test(fid)) return { ok: false, reason: 'badid' };
     const url = `${BASE}/flight-summary/light?flight_ids=${fid}`;
@@ -271,14 +432,15 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
         const r = listOf(d)[0];
         if (!r) return { flight: null, origPos: null, destPos: null };
         return { flight: rowOf(r), origPos: airportPos(r.orig_icao), destPos: airportPos(r.dest_icao_actual || r.dest_icao) };
-      });
+      },
+      { who, worst: 2 });
   }
 
   // Amendment 9 revised (I29), amendment 10 (I32): id → eta for the board's own in-air flights, asked by callsign
   // (at most 15, sorted, so the order does not matter to the cache). Was "any 20 flights to or from the airport",
   // which missed the rows on the board.
-  async function etas(icao, dir, callsigns) {
-    if (!Object.prototype.hasOwnProperty.call(AIRPORTS, icao)) return { ok: false, reason: 'badcode' };
+  async function etas(icao, dir, callsigns, who = null) {
+    if (!isKnownAirport(icao)) return { ok: false, reason: 'badcode' };
     if (dir !== 'dep' && dir !== 'arr') return { ok: false, reason: 'baddir' };
     const list = [...new Set(Array.isArray(callsigns) ? callsigns.map(String) : [])].sort();
     if (!list.length || list.length > ETA_MAX || !list.every((c) => CALLSIGN.test(c))) return { ok: false, reason: 'badcallsign' };
@@ -299,13 +461,13 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
         }
         return { icao, dir, etas: out, pos };
       },
-      { on403: 'unavailable' });
+      { on403: 'unavailable', who, worst: ETA_CREDITS * list.length });
   }
 
   // Amendment 8 (I25): the flown path, for the dotted line. The schema documents an object { fr24_id, tracks }; an
   // array of those is read the same way. A 403 is "not on this plan" (`unavailable`): the phone then draws the line
   // from the origin airport instead.
-  async function track(id) {
+  async function track(id, who = null) {
     const fid = typeof id === 'string' ? id : '';
     if (!FLIGHT_ID.test(fid)) return { ok: false, reason: 'badid' };
     const url = `${BASE}/flight-tracks?flight_id=${fid}`;
@@ -320,14 +482,14 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
           .map((t) => [Number(t.lat.toFixed(5)), Number(t.lon.toFixed(5))]);
         return { id: fid, points: downsample(pts) };
       },
-      { on403: 'unavailable' });
+      { on403: 'unavailable', who, worst: TRACK_CREDITS });
   }
 
   // Amendment 6 (I21): the gate each flight reached, from FR24's flight events. One request for up to 15 flights,
   // filtered to gate_arrival; cached 5 minutes per SET of ids (sorted, so the order does not matter). A 403 is read as
   // "this plan does not include the endpoint" (`unavailable`), which tells the phone to stop polling.
-  async function gates(icao, ids) {
-    if (!Object.prototype.hasOwnProperty.call(AIRPORTS, icao)) return { ok: false, reason: 'badcode' };
+  async function gates(icao, ids, who = null) {
+    if (!isKnownAirport(icao)) return { ok: false, reason: 'badcode' };
     const list = [...new Set(Array.isArray(ids) ? ids.map(String) : [])];
     if (!list.length || list.length > GATES_MAX || !list.every((x) => FLIGHT_ID.test(x))) return { ok: false, reason: 'badids' };
     const url = `${BASE}/historic/flight-events/light?flight_ids=${list.join(',')}&event_types=gate_arrival`;
@@ -342,11 +504,13 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
         }
         return { icao, gates: out };
       },
-      { on403: 'unavailable' });
+      // Worst case: two gate events a flight (FR24 charges 2 per event; a flight normally reaches one gate). If FR24
+      // ever returns more, the reader is charged what it cost.
+      { on403: 'unavailable', who, worst: 2 * 2 * list.length });
   }
 
   // Amendment 3 (C3 revised): where one flight is now, by callsign, for a board row still in the air.
-  async function locate(callsign) {
+  async function locate(callsign, who = null) {
     const cs = typeof callsign === 'string' ? callsign : '';
     if (!CALLSIGN.test(cs)) return { ok: false, reason: 'badcallsign' };
     const url = `${BASE}/live/flight-positions/light?callsigns=${cs}&limit=1`;
@@ -355,7 +519,8 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
       (d) => {
         const p = listOf(d).map(planeOf).find((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng));
         return { callsign: cs, plane: p || null };
-      });
+      },
+      { who, worst: creditsForPlanes(1) });
   }
 
   // The owner's usage: not cached, not budget-guarded (FR24 charges nothing for it), but rate-guarded.
@@ -376,23 +541,49 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     return { ok: true, period: '30d', endpoints, total: endpoints.reduce((s, e) => s + e.credits, 0) };
   }
 
-  return { planes, board, flight, track, etas, locate, gates, usage, spent, budget: () => budget, month: () => monthKeySgt(now()) };
+  return {
+    planes, board, flight, track, etas, locate, gates, usage, spent, budget: () => budget, month: () => monthKeySgt(now()),
+    userSpent, userCap: () => userCap,
+  };
 }
 
+// v0.62.989 (I5): what a capped reader has used today, for the board's line. pct is whole percent, at most 100.
+function usageOf(used, cap) {
+  const u = Math.max(0, Number(used) || 0);
+  return { used: u, cap, pct: Math.min(100, Math.floor((u * 100) / cap)) };
+}
+const coord = (v, lim) => v !== undefined && v !== null && String(v).trim() !== ''
+  && Number.isFinite(Number(v)) && Math.abs(Number(v)) <= lim;
+
 // The routes' one entry point: the access gate, then the call. Returns { status, body } for index.js to send.
-async function handle(svc, { kind, icao, dir, id, callsign, ids, cs, userId, env = process.env } = {}) {
+async function handle(svc, { kind, icao, dir, id, callsign, ids, cs, lat, lng, city, userId, env = process.env } = {}) {
   if (kind === 'access') return { status: 200, body: { ok: true, enabled: hasAccess(userId, env) } };
-  if (!['board', 'airport', 'flight', 'locate', 'gates', 'track', 'eta'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
+  if (!['board', 'airport', 'flight', 'locate', 'gates', 'track', 'eta', 'near'].includes(kind)) return { status: 404, body: { ok: false, reason: 'notfound' } };
   if (!hasAccess(userId, env)) return { status: 403, body: { ok: false, reason: 'owner-only' } };
+  // v0.62.989 (I1): the Airports menu comes from the table; FR24 is never asked and nothing is charged.
+  if (kind === 'near') {
+    if (city !== undefined && city !== null && String(city) !== '') {
+      const c = cityAirports(String(city));
+      return c ? { status: 200, body: { ok: true, ...c } } : { status: 400, body: { ok: false, reason: 'badcity' } };
+    }
+    if (!coord(lat, 90) || !coord(lng, 180)) return { status: 400, body: { ok: false, reason: 'badpoint' } };
+    return { status: 200, body: { ok: true, ...airportsMenu(Number(lat), Number(lng)) } };
+  }
+  // v0.62.989 (I4): everyone but the owner is capped. The id comes from verified initData (index.js).
+  const who = isOwner(userId, env) ? null : { id: String(userId == null ? '' : userId) };
   let body;
-  if (kind === 'board') body = await svc.board(icao, dir);
-  else if (kind === 'airport') body = await svc.planes(icao);
-  else if (kind === 'locate') body = await svc.locate(callsign);
-  else if (kind === 'track') body = await svc.track(id);
-  else if (kind === 'eta') body = await svc.etas(icao, dir, String(cs || '').split(',').filter(Boolean));
-  else if (kind === 'gates') body = await svc.gates(icao, String(ids || '').split(',').filter(Boolean));
-  else body = await svc.flight(id);
+  if (kind === 'board') body = await svc.board(icao, dir, who);
+  else if (kind === 'airport') body = await svc.planes(icao, who);
+  else if (kind === 'locate') body = await svc.locate(callsign, who);
+  else if (kind === 'track') body = await svc.track(id, who);
+  else if (kind === 'eta') body = await svc.etas(icao, dir, String(cs || '').split(',').filter(Boolean), who);
+  else if (kind === 'gates') body = await svc.gates(icao, String(ids || '').split(',').filter(Boolean), who);
+  else body = await svc.flight(id, who);
   const bad = body && ['badcode', 'baddir', 'badid', 'badcallsign', 'badids'].includes(body.reason);
+  // A copy: a cached answer is shared by every reader, so one reader's usage must never be written into it.
+  if (who && body && typeof svc.userSpent === 'function') {
+    body = { ...body, usage: usageOf(await svc.userSpent(who.id), typeof svc.userCap === 'function' ? svc.userCap() : USER_DAILY_CAP) };
+  }
   return { status: bad ? 400 : 200, body };
 }
 
@@ -434,4 +625,7 @@ module.exports = {
   airportName, tokenFrom, budgetFrom, monthKeySgt, boundsFor, creditsForPlanes, creditsForSummary,
   hasAccess, createFr24, handle, usageReply, forServer, GATE_TERMINALS, terminalForGate,
   airportPos, downsample, TRACK_TTL_S, TRACK_MAX, TRACK_CREDITS, ETA_TTL_S, ETA_CREDITS, ETA_MAX,
+  // v0.62.989
+  NEAR_KM, NEAR_MAX, DOMESTIC_IN_PRACTICE, USER_DAILY_CAP, USAGE_STEPS, isKnownAirport, nearAirports, airportsMenu,
+  cityAirports, shortName, sgtDay, usageOf,
 };

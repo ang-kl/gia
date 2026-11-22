@@ -61,10 +61,22 @@ function keepRow(r) {
   return ICAO.test(String(r.icao_code || '').trim());
 }
 
+// v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A1c, A11): OurAirports' size rank, so the
+// Airports menu can list a city's large airports before its medium and small ones. 1 large, 2 medium, 3 small,
+// 4 anything else (heliport, seaplane base). It says how big an airport is, not whether it is international; the few
+// large airports that are domestic in practice are a cited list in fr24.js.
+const RANKS = Object.freeze({ large_airport: 1, medium_airport: 2, small_airport: 3 });
+function rankOf(type) {
+  const k = String(type || '').trim();
+  return Object.prototype.hasOwnProperty.call(RANKS, k) ? RANKS[k] : 4;
+}
+
 function entryOf(r) {
   const e = { n: String(r.name || '').trim() };
   const iata = String(r.iata_code || '').trim();
   if (IATA.test(iata)) e.i = iata;
+  // Left out when the file has no type column at all (nothing is guessed); an empty type ranks 4.
+  if (r.type !== undefined) e.r = rankOf(r.type);
   const city = String(r.municipality || '').trim();
   if (city) e.c = city;
   // v0.62.977 — FR24 amendment 8 (I26): the position, rounded to 4 decimals (about 11 m), for the dashed line from a
@@ -105,13 +117,13 @@ function buildTable(csvText, { downloaded = null } = {}) {
       downloaded,
       kept: 'scheduled_service = yes and a 4-character icao_code',
       count: Object.keys(sorted).length,
-      fields: { n: 'name', i: 'IATA code', c: 'city (municipality)', p: '[lat, lng], 4 decimals', z: 'IANA time zone (tz-lookup 6.1.25, from p)' },
+      fields: { n: 'name', i: 'IATA code', r: 'size rank: 1 large, 2 medium, 3 small, 4 heliport or seaplane base (OurAirports type)', c: 'city (municipality)', p: '[lat, lng], 4 decimals', z: 'IANA time zone (tz-lookup 6.1.25, from p)' },
     },
     airports: sorted,
   };
 }
 
-module.exports = { parseCsv, keepRow, entryOf, buildTable, SOURCE_URL };
+module.exports = { parseCsv, keepRow, entryOf, buildTable, rankOf, SOURCE_URL };
 
 if (require.main === module) {
   const src = process.argv[2];

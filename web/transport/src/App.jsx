@@ -741,6 +741,9 @@ export default function App() {
             onTrainsChange={setTrains}
             onStopBusesChange={setStopBuses}
             onFr24BoardChange={setFr24Board}
+            // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A5): the Airports menu lists the
+            // airports near the reader's device location, else Singapore's.
+            readerLoc={outsideLoc}
             publicHolidays={data?.publicHolidays || []}
           />
         </div>

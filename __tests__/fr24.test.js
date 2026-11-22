@@ -88,9 +88,11 @@ describe('I5 — the planes request', () => {
     const [n, s] = qs(calls[0].url).get('bounds').split(',').map(Number);
     expect((n + s) / 2).toBeCloseTo(fr24.AIRPORTS.WSSL.lat, 2);
   });
-  it('only WSSS and WSSL are accepted: anything else is refused before any request', async () => {
+  // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (I3): the whitelist is now the table's airports
+  // with an IATA code, so EGLL (Heathrow) is accepted; ZZZZ takes its place as the unknown code.
+  it('only known airports are accepted: anything else is refused before any request', async () => {
     const { svc, calls } = svcWith();
-    for (const bad of ['WSAP', 'wsss', 'EGLL', '', null, 'WSSS,EGLL']) {
+    for (const bad of ['WSAP', 'wsss', 'ZZZZ', '', null, 'WSSS,EGLL']) {
       expect(await svc.planes(bad)).toMatchObject({ ok: false, reason: 'badcode' });
       expect(await svc.board(bad, 'dep')).toMatchObject({ ok: false, reason: 'badcode' });
     }
@@ -529,7 +531,7 @@ describe('I21 — gate_arrival events: one request, at most 15 ids, terminals on
     expect(await svc.gates('WSSS', sixteen)).toMatchObject({ ok: false, reason: 'badids' });
     expect(await svc.gates('WSSS', [])).toMatchObject({ ok: false, reason: 'badids' });
     expect(await svc.gates('WSSS', ['../usage'])).toMatchObject({ ok: false, reason: 'badids' });
-    expect(await svc.gates('EGLL', ['3b000001'])).toMatchObject({ ok: false, reason: 'badcode' });
+    expect(await svc.gates('ZZZZ', ['3b000001'])).toMatchObject({ ok: false, reason: 'badcode' });   // v0.62.989 (I3): was EGLL
     expect(calls).toHaveLength(0);
     await svc.gates('WSSS', ['3b000001', '3b000001']);
     expect(qs(calls[0].url).get('flight_ids')).toBe('3b000001');
@@ -571,12 +573,14 @@ describe('I21 — gate_arrival events: one request, at most 15 ids, terminals on
 describe('I14 — the routes in index.js', () => {
   const src = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8')
     .split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
-  it('the eight FR24 routes each verify Telegram initData before fr24Route', () => {
-    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign', 'gates/:icao', 'track/:id', 'eta/:icao']) {
+  // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (I1): a ninth route, airports-near, behind the
+  // same initData check and the same owner-only gate.
+  it('the nine FR24 routes each verify Telegram initData before fr24Route', () => {
+    for (const r of ['access', 'board/:icao', 'airport/:icao', 'flight/:id', 'locate/:callsign', 'gates/:icao', 'track/:id', 'eta/:icao', 'airports-near']) {
       const rx = new RegExp(`app\\.get\\('/api/fr24/${r.replace('/', '\\/')}', requireInitDataFromBodyOrHeader, fr24Route\\(`);
       expect(src, r).toMatch(rx);
     }
-    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(8);
+    expect((src.match(/app\.get\('\/api\/fr24\//g) || []).length).toBe(9);
   });
   it('the user id handed to handle() is the verified one, req.tg.user.id, and nothing from the query', () => {
     expect(src).toMatch(/handle\(fr24Service\(\), \{ kind, \.\.\.pick\(req\), userId: req\.tg\?\.user\?\.id \}\)/);
@@ -748,7 +752,7 @@ describe('I29 / I32 — the ETA call asks for the board\'s own flights by callsi
   });
   it('a bad airport, direction, no callsign, a bad one or more than 15 is refused before any request', async () => {
     const { svc, calls } = svcWith();
-    expect((await svc.etas('EGLL', 'arr', CS)).reason).toBe('badcode');
+    expect((await svc.etas('ZZZZ', 'arr', CS)).reason).toBe('badcode');   // v0.62.989 (I3): was EGLL
     expect((await svc.etas('WSSS', 'x', CS)).reason).toBe('baddir');
     for (const bad of [[], null, ['sia183'], ['SIA 1'], Array.from({ length: 16 }, (_, i) => `SIA${i + 10}`)]) {
       expect((await svc.etas('WSSS', 'arr', bad)).reason, JSON.stringify(bad)).toBe('badcallsign');
