@@ -87,6 +87,8 @@ const {
 // Override the SG default when "Times Square KL", "Bangkok",
 // "Putrajaya", etc. appears in the query.
 const { detectCountryHint } = require('./country-hints');
+// v0.62.991 - /l saves and shows the country the place is in (spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, A).
+const { LOCATION_SEARCH_FIELD_MASK, placeSaveFields, saveOptions, recentEntry } = require('./location-result-country');
 // v0.62.896 — one mapping from the reader's app language to the Places `languageCode`,
 // replacing six hand-written `lang === 'fr' ? 'fr' : 'en'` ternaries. See that module's
 // header for what asking Places for Korean COSTS — it returns one language, not both.
@@ -2871,7 +2873,9 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': process.env.GOOGLE_MAPS_API_KEY,
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
+          // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, A: + places.addressComponents, so the
+          // reply and the record carry the country the place is IN (location-result-country.js). Same price tier.
+          'X-Goog-FieldMask': LOCATION_SEARCH_FIELD_MASK
         },
         timeout: 8000
       }
@@ -2897,22 +2901,17 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     // Singapore geocoder (Codex P1 on #1870, [AMD-232]).
     // v0.62.987 — D2: marked as set in chat, so a phone that already has a slot of its own reads this place next
     // (location-cache.js pickSavedRecord). This is the write behind the operator's "/l Hyatt Place …" of 15-11 '26.
-    await setUserLocation(redis, chatId, lat, lng, {
-      region: 'OTHER',
-      label,
-      country: countryCode,
-      fromChat: true
-    });
+    // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, A. The search country is only a BIAS: with
+    // the preference at MY, "/l mandarin gallery" found the Singapore mall and was saved and shown as 🇲🇾 Malaysia.
+    // The country the place is IN now decides the record, the recent entry and the flag; a Singapore place is saved
+    // as the Singapore branch saves it. The preference itself is not touched (A8).
+    const saved = placeSaveFields({ requested: countryCode, found: require('./pipeline').extractCountryCode(top.addressComponents) });
+    await setUserLocation(redis, chatId, lat, lng, { ...saveOptions(saved, label), fromChat: true });
     await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode
     // v0.61.197 — recent-locations LRU push.
-    addRecentLocation(redis, chatId, {
-      lat, lng,
-      label,
-      country: countryCode,
-      region: 'OTHER'
-    }).catch(() => {});
+    addRecentLocation(redis, chatId, recentEntry(saved, { lat, lng, label })).catch(() => {});
     await safeSend(chatId,
-      `📍 Location saved: ${country?.flag || ''} ${label}${top.formattedAddress && top.formattedAddress !== label ? `\n${top.formattedAddress}` : ''}`,
+      `📍 Location saved: ${saved.flag} ${label}${top.formattedAddress && top.formattedAddress !== label ? `\n${top.formattedAddress}` : ''}`,
       { reply_markup: { remove_keyboard: true } }
     );
   } catch (err) {

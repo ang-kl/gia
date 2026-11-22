@@ -42,6 +42,8 @@ import { createStopBusesLayer } from '../../../_shared/lib/stop-buses.js';
 // board and globe, through the one-line re-exports in web/_shared. Owner-only until FR24_PUBLIC=1, as on Train.
 import { createFr24Layer, ft as fr24T } from '../../../_shared/lib/fr24-layer.js';
 import { globeAvailable } from '../../../_shared/lib/globe-available.js';
+// v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, C: a tap on Google's own bus-stop icon.
+import { handleIconTap } from '../../../_shared/lib/base-icon-stop.js';
 import Fr24Board from '../../../_shared/components/Fr24Board.jsx';
 const FlightGlobe = lazy(() => import('../../../_shared/components/FlightGlobe.jsx'));
 // A5: the Airports menu's point when the app has no device location for the reader.
@@ -458,7 +460,10 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       zoomControl: false,
       // v0.61.18 — suppress Google's native POI/transit info cards so a
       // station tap hits our overlay marker, not Google's own popup.
-      clickableIcons: false,
+      // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, C: the icons are tappable again, because
+      // the operator tapped a Google bus-stop icon and nothing happened. Google's popup is still never shown: every
+      // icon tap is stopped in the map click below (handleIconTap), and a bus stop opens OUR stop card instead.
+      clickableIcons: true,
       // v0.61.89 — streamline: all three TMA maps share one options block.
       // v0.62.134 — operator (17-06 '26): remove Google's native camera
       // control (the +/pan-arrows/tilt cluster) from every TMA — it duplicated
@@ -496,7 +501,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       // restore is removed) — leave the map wherever the user left it.
     };
     window.__giaMapInfoClose = closeInfo;
-    mapRef.current.addListener('click', closeInfo);
+    // v0.62.991 - C: a tap on a Google bus-stop icon opens our stop card; any other tap closes, as before.
+    mapRef.current.addListener('click', (e) => {
+      closeInfo();
+      handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at));
+    });
     // v0.62.989 (I7): a tap on the empty map closes a flight card, as on Train.
     mapRef.current.addListener('click', () => fr24Ref.current?.closeInfo());
     if (!fr24Ref.current) {

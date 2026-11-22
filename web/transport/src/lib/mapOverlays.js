@@ -802,6 +802,10 @@ import { placeSecondLine } from '../../../_shared/lib/sg-place-text.js';
 import { policeSecondLine, hospitalSecondLine, localiseHoursLine, poiTerm, poiLabel } from '../../../_shared/lib/poi-i18n.js';
 // v0.62.967 — a bus service's route and the buses on it (spec 2026-11-02-bus-route-and-live-buses-train-tma).
 import { createBusRouteLayer as createSharedBusRouteLayer } from '../../../_shared/lib/bus-route-layer.js';
+// v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold: B (station stops stay 3 minutes), C (Google's
+// bus-stop icons open our stop card) and D (the card watcher behind the Cuisine eatery-card fold).
+import { createStopLinger, watchInfoWindow } from '../../../_shared/lib/stop-linger.js';
+import { nearestStop } from '../../../_shared/lib/base-icon-stop.js';
 import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createPcnLayer, fetchPcn, parkMeta, parkVisible, mapBounds, PARK_FILL_OPACITY } from '../../../_shared/lib/pcn-layer.js';
 export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
@@ -1420,6 +1424,26 @@ export function createOverlayController(map, googleMaps, opts) {
   // station's per-exit nearest bus stops, drawn on a station tap even
   // when the Bus Stop overlay is off, cleared when the card closes.
   let stationBusPins = [];
+  // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, B. "Cleared when the card closes" no longer: the
+  // stops stay 3 minutes after the card closes (operator, 22-11 '26), and go sooner only by the four approved rules.
+  // The linger is held while one of these stops has its bubble open, which the card watcher below can tell.
+  const stopLinger = createStopLinger({
+    onExpire: () => clearStationBusStops(),
+    isHeld: () => stationBusPins.includes(cardWatch.anchor()),
+  });
+  // v0.62.991 - D. Every card this overlay shows goes through `info`; the watcher reports it open or closed, so the
+  // Cuisine eatery cards can fold while one is up (onCardChange, below), and tells the linger when a bubble closes.
+  const cardListeners = new Set();
+  const cardWatch = watchInfoWindow(info, {
+    onChange: (open) => { for (const f of cardListeners) f(open); },
+    onClose: () => stopLinger.bubbleClosed(),
+  });
+  // v0.62.991 - C. The pin drawn when a Google bus-stop icon is tapped (openStopAt); it goes with the next close.
+  let iconStopPins = [];
+  function clearIconStopPins() {
+    for (const m of iconStopPins) m.map = null;
+    iconStopPins = [];
+  }
   // v0.61.82 — CR-6: the same idea for the station's exits — pins drawn
   // on a station tap even when the Exit overlay is off, so the card's
   // "Exit #" links can always force-render + flash their target pin.
@@ -1695,7 +1719,8 @@ export function createOverlayController(map, googleMaps, opts) {
   function exitStationDetail() {
     detailStation = null;
     info.close();
-    clearStationBusStops();
+    // v0.62.991 - B: the stops stay; their 3 minutes start. The exit labels still go with the card.
+    stopLinger.close();
     clearStationExitPins();
 
     if (layers.train) applyVisibility('train');
@@ -1711,6 +1736,7 @@ export function createOverlayController(map, googleMaps, opts) {
     const s = item.station;
     if (detailStation && detailStation.name === s.name) {
       exitStationDetail();
+      stopLinger.clear();   // v0.62.991 - B: the same station tapped again takes its stops away at once
       return;
     }
     detailStation = s;
@@ -1750,6 +1776,7 @@ export function createOverlayController(map, googleMaps, opts) {
   }
   function showStationBusStops(rec) {
     clearStationBusStops();
+    stopLinger.show();   // v0.62.991 - B: this card replaces any lingering stops, and no timer runs while it is open
     if (layers.busstop && layers.busstop.visible) return;
     const seen = new Set();
     for (const ex of (Array.isArray(rec.exits) ? rec.exits : [])) {
@@ -2570,10 +2597,34 @@ export function createOverlayController(map, googleMaps, opts) {
     // tap-out) reverts the tapped station's marker from the forced full
     // pill back to its zoom-tier mode (square / code chip).
     closeInfo() {
+      clearIconStopPins();   // v0.62.991 - C: the pin a Google-icon tap drew
       if (detailStation) { exitStationDetail(); return; }
       info.close();
-      clearStationBusStops();
+      // v0.62.991 - B: this second clear is why the stops vanished even after the first one was fixed: a map tap ends
+      // the station view and THEN reaches here. Lingering stops stay; any other station stops still go.
+      if (!stopLinger.armed()) clearStationBusStops();
       clearStationExitPins();
+    },
+    // v0.62.991 - D: tell a listener when this overlay's card opens or closes (the Cuisine eatery cards fold meanwhile).
+    onCardChange(fn) { cardListeners.add(fn); return () => cardListeners.delete(fn); },
+    // v0.62.991 - C: a tap on Google's own bus-stop icon (base-icon-stop.js) opens our stop card on the LTA stop within
+    // 20 m, from the catalogue already fetched for the Bus Stop layer. False when no stop is that close.
+    async openStopAt(at) {
+      if (destroyed) return false;
+      let data;
+      try { data = await fetchBusStops(); } catch { return false; }
+      const b = nearestStop((data && data.busstops) || [], at);
+      if (!b || destroyed) return false;
+      const marker = new AdvancedMarkerElement({
+        position: { lat: b.lat, lng: b.lng },
+        content: busTierNode(busTier(map.getZoom?.() || 0), b.code),
+        gmpClickable: true
+      });
+      marker.addListener('click', () => openBusInfo(map, info, b, marker));
+      marker.map = map;
+      iconStopPins.push(marker);
+      openBusInfo(map, info, b, marker);
+      return true;
     },
     async setLayer(name, visible) {
       if (destroyed) return;
@@ -2591,7 +2642,7 @@ export function createOverlayController(map, googleMaps, opts) {
       // v0.61.68 — when the Bus Stop overlay turns on, drop the card's
       // transient station bus pins so they don't duplicate the layer.
       // v0.61.82 — CR-6: same for the Exit overlay vs the card's exit pins.
-      if (name === 'busstop' && visible) clearStationBusStops();
+      if (name === 'busstop' && visible) stopLinger.clear();   // v0.62.991 - B: also ends any linger
       if (name === 'exits' && visible) clearStationExitPins();
       applyVisibility(name);
       // v0.61.111 — auto-frame the map to the attractions when the
@@ -2655,8 +2706,10 @@ export function createOverlayController(map, googleMaps, opts) {
       destroyed = true;
       detailStation = null;
       detailStations = [];
+      stopLinger.destroy();   // v0.62.991 - B: no timer outlives the map
       clearStationBusStops();
       clearStationExitPins();
+      clearIconStopPins();
       for (const name of Object.keys(layers)) {
         layers[name].visible = false;
         applyVisibility(name);

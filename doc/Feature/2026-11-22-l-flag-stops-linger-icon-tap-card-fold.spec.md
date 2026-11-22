@@ -18,6 +18,7 @@ scope:
   - "web/cuisine/src/v2/App.jsx"
   - "web/cuisine/src/v2/components/ResultDrawer.jsx"
   - "web/cuisine/src/v2/components/ResultCard.jsx"
+  - "web/cuisine/src/v2/lib/state.js"
   - "__tests__/**"
   - "package.json"
   - "package-lock.json"
@@ -173,6 +174,33 @@ operator's request ("4. one spec").
 - Any v0.63 platform work.
 - A check on a real phone: headless renders only, so the look on a phone stays Not Verifiable until the operator
   opens it.
+
+## Amendment 1 · 22-11 '26 (one path added to scope, one existing test pin changed; needs APPROVE again)
+- **Why.** The full suite after the build: 7,136 passed and 4 failed, each an existing test pinning an exact code shape
+  this release changes. Two were fixed inside the approved scope, without touching those tests:
+  - `chat-place-reaches-devices.test.js` (K3) reads every chat `setUserLocation` call for a literal `fromChat: true`.
+    The /l call now writes it at the call: `{ ...saveOptions(saved, label), fromChat: true }`.
+  - `cuisine-card-natural-height.test.js` (I2) reads `isShort ? 'h-[7.5rem] overflow-hidden'`. The condition now
+    reads `... && !folded && isShort ? ...`; same logic.
+- **Two cannot be fixed inside the approved scope:**
+  - **F3.** `locale-restore-coherence.test.js` (I7) requires every `useState` in the Cuisine `App.jsx` to be listed
+    once in `LOCALE_STASH` in `web/cuisine/src/v2/lib/state.js`. Part D adds the state `mapCardOpen`. **Change:**
+    `scope:` gains `web/cuisine/src/v2/lib/state.js`, and in it `transient` gains one entry, `mapCardOpen`, with its
+    reason (a map card is never open after a language reload; the fold follows the card). The same change as
+    v0.62.990's Amendment 1 made for `busRoute`.
+  - **F7.** `location-country-persist.test.js:98` pins the old /l call word for word:
+    `setUserLocation(redis, chatId, lat, lng, { region: 'OTHER', label, country: countryCode, fromChat: true })`.
+    `country: countryCode` is the SEARCHED country, which is the defect part A fixes, so the pin cannot hold without
+    undoing A. **Change:** that one assertion reads the new call instead
+    (`placeSaveFields({ requested: countryCode, found: ...extractCountryCode(top.addressComponents) })` and
+    `setUserLocation(redis, chatId, lat, lng, { ...saveOptions(saved, label), fromChat: true })`), with the old
+    regex quoted in the test's own comment, as v0.62.987 did there ([AMD-339]). What the test is about, "the
+    country is stored with the OTHER anchor", is asserted by calling the helper in
+    `location-result-country.test.js`.
+- **I8 is amended accordingly.** Was: "No existing test is edited, and the overlay parity numbers are unchanged
+  (89 / 73 / 65)." Now: no existing test is edited except that one assertion in `location-country-persist.test.js`,
+  its old form quoted in the file; the parity numbers are unchanged.
+- **Nothing else changes.** Intent, parts A to D, A1 to A8 and the acceptance criteria stand as approved.
 
 ## Evidence
 Filled at the end: INVARIANTS REPORT (Passed / Failed / Not Verifiable, each with evidence), verify output, PR link.

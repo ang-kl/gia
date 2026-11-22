@@ -32,7 +32,9 @@ import { useLocale, t } from '../lib/i18n.js';
 // offset only; the first-paint calc() fallback keeps its own historic +2px.
 const STRIP_GAP_PX = 5;
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, stripLiftPx = null, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[min(82%,20rem)]', glassPeek = false, isShort = false }) {
+// v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, D: `folded` (a map card is open) turns every card
+// in the strip, the loop clone too, into frame 1's mini card; `onUnfold` is what its details button calls.
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, stripLiftPx = null, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[min(82%,20rem)]', glassPeek = false, isShort = false, folded = false, onUnfold = null }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -278,6 +280,8 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
                  scroll-centred card via activeId, glass otherwise) so the centred-card
                  opaque look survives the ring being decoupled from activeId above. */
               glass={glassPeek ? (visibleSet.size > 0 ? !visibleSet.has(v.placeId) : false) : (v.placeId !== activeId)}
+              folded={folded}
+              onUnfold={onUnfold}
             />
           </div>
         ))}
@@ -303,6 +307,8 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
                with the measuring pass in v0.62.955.) */
             isShort={isShort}
             autoExpandFocus={false}
+            folded={folded}
+            onUnfold={onUnfold}
           />
         </div>
       </div>
