@@ -27,6 +27,7 @@ scope:
   - "web/cuisine/src/v2/App.jsx"
   - "web/cuisine/src/v2/components/MapPanel.jsx"
   - "web/cuisine/src/v2/lib/mapOverlays.js"
+  - "web/cuisine/src/v2/lib/state.js"
   - "transport.js"
   - "__tests__/**"
   - "package.json"
@@ -111,3 +112,19 @@ each line restates an invariant already in the table.
 ## Evidence
 Filled at the end: INVARIANTS REPORT, verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 · 22-11 '26 (one path added to scope; needs APPROVE again)
+- **Why.** The build found one file the scope above did not list. The Cuisine app keeps a census of its `useState`s
+  in `web/cuisine/src/v2/lib/state.js` (`LOCALE_STASH.transient`), and `__tests__/locale-restore-coherence.test.js`
+  (I7) fails unless every state is listed exactly once. Line 187 lists `trains`, which B1 removes; the route strip of
+  B6 adds a `busRoute` state that is not listed. Measured: the full suite fails exactly these two I7 cases and nothing
+  else in that file.
+- **The change, and the only one:** `scope:` gains `web/cuisine/src/v2/lib/state.js`, and in it the `trains` entry
+  becomes a `busRoute` entry, with its reason (what the map is showing now; a language reload is a reload). Nothing
+  else in this spec changes: Intent, B1 to B7, J1 to J7 and the acceptance criteria stand as approved.
+- **Two answers recorded during the build, for the same audit trail** (they change nothing above):
+  - B5, the meaning of "the refresh stops when the stop bubble closes". Operator, 22-11 '26, choosing among three
+    stated options: *"Pause (Recommended)"*: no stop bubble open, no refresh and no LTA call; listed stops and their
+    buses stay; opening any stop's bubble resumes the refresh for every listed stop.
+  - Two test files that test only the deleted Simulate modules, `__tests__/train-sim.test.js` and
+    `__tests__/station-sim.test.js`. Operator, 22-11 '26: *"Delete both (Recommended)"*.
