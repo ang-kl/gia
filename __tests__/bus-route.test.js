@@ -252,12 +252,16 @@ describe('the server routes, the boot refresh, and the Mini App wiring (source p
     expect(src).toMatch(/transport\.busRouteBuses\(redis, service, direction\)/);
     expect(src).toMatch(/transport\.refreshRoutes\(redis\)/);
   });
+  // v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B6: the layer moved to
+  // web/_shared/lib/bus-route-layer.js; the Train copy keeps a wrapper that hands it this copy's card.
   it('the bubble lists each service as a tap target that calls the route hook with the service and the stop', () => {
     const src = code('web/transport/src/lib/mapOverlays.js');
     expect(src).toMatch(/window\.__giaBusRoute&&window\.__giaBusRoute\(/);
     expect(src).toMatch(/export function createBusRouteLayer\(/);
-    expect(src).toMatch(/setInterval\([^)]*30000\)/);
-    expect(src).toMatch(/visibilitychange/);
+    const layer = code('web/_shared/lib/bus-route-layer.js');
+    expect(layer).toMatch(/setInterval\(refresh, ROUTE_REFRESH_MS\)/);
+    expect(layer).toMatch(/export const ROUTE_REFRESH_MS = 30000;/);
+    expect(layer).toMatch(/visibilitychange/);
   });
   it('the map panel installs the hook, reports the route upward, and clears it on unmount', () => {
     const src = code('web/transport/src/components/MrtMapPanel.jsx');
@@ -266,12 +270,14 @@ describe('the server routes, the boot refresh, and the Mini App wiring (source p
     expect(src).toMatch(/delete window\.__giaBusRoute/);
     expect(code('web/_shared/lib/kept-settings.js')).not.toMatch(/busRoute/);
   });
-  it('the app renders the route strip after the sim caption strip, with ↔ and ✕', () => {
+  // v0.62.990: the sim caption strip is gone (B1); the route strip now follows the resume strip.
+  it('the app renders the route strip after the resume strip, with ↔ and ✕', () => {
     const app = code('web/transport/src/App.jsx');
-    const sim = app.indexOf('<SimCaptionStrip');
+    const resume = app.indexOf('<ResumeStrip');
     const route = app.indexOf('<BusRouteStrip');
-    expect(sim).toBeGreaterThan(-1);
-    expect(route).toBeGreaterThan(sim);
+    expect(app).not.toMatch(/<SimCaptionStrip/);
+    expect(resume).toBeGreaterThan(-1);
+    expect(route).toBeGreaterThan(resume);
     expect(app).toMatch(/onBusRouteChange=\{/);
     const i = app.indexOf('function BusRouteStrip');
     const body = app.slice(i, i + 2200);

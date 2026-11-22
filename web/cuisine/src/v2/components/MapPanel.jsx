@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
+import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex, createBusRouteLayer } from '../lib/mapOverlays.js';
 import { stationName } from '../../../../_shared/lib/mrt-stations-i18n.generated.js';
 import { cachedPronunciation, streetOf, fetchPronunciations } from '../../../../_shared/lib/pronounce-client.js';
 import { initData } from '../../api/tg.js';
@@ -11,7 +11,6 @@ import { pt } from '../../../../_shared/lib/pcn-i18n.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../../_shared/components/MapControls.jsx';
 import { mapsLanguageParam } from '../../../../_shared/lib/gmaps-language.js';
-import { createStationSimController } from '../../../../_shared/lib/station-sim-controller.js';
 import { createStopBusesLayer } from '../../../../_shared/lib/stop-buses.js';
 // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A4, I7): the Train map's Flightradar24 layer,
 // board and globe, through the one-line re-exports in web/_shared. Owner-only until FR24_PUBLIC=1, as on Train.
@@ -179,7 +178,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, onPcnLockChange = null, restorePcnLock = null, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, onTrainsChange = null, onStopBusesChange = null, children }) {
+export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, onPcnLockChange = null, restorePcnLock = null, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, onBusRouteChange = null, onStopBusesChange = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -207,30 +206,32 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
   // A5: the reader's place is where Cuisine searches: the search centre, else the GPS fix, else Singapore.
   const pointRef = useRef(SG_POINT);
   pointRef.current = searchCenter || userLoc || SG_POINT;
-  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C2-C3. The overlay controller's station
-  // tap calls window.__giaStationSim(station) and its bus stop bubble calls window.__giaStopBuses(code, name); the
-  // controller and the stop layer are made on the first tap, once the map exists, and report upward for the header
-  // caption and the footer chips. Both hooks go on unmount, and everything stops with them; nothing is kept.
-  const stationSimRef = useRef(null);
+  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C2-C3. The overlay controller's bus stop
+  // bubble calls window.__giaStopBuses(code, name); the stop layer is made on the first tap, once the map exists, and
+  // reports upward for the footer button. v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route: the
+  // station hook (simulated trains) is removed (B1); a service in the bubble calls window.__giaBusRoute(service, stop),
+  // which draws that service's route with its live buses through the shared layer and reports upward for the header
+  // strip, as on the Train map (B6). Both hooks go on unmount, and everything stops with them; nothing is kept.
   const stopBusesLayerRef = useRef(null);
-  const onTrainsChangeRef = useRef(onTrainsChange);
-  onTrainsChangeRef.current = onTrainsChange;
+  const busRouteRef = useRef(null);
   const onStopBusesChangeRef = useRef(onStopBusesChange);
   onStopBusesChangeRef.current = onStopBusesChange;
+  const onBusRouteChangeRef = useRef(onBusRouteChange);
+  onBusRouteChangeRef.current = onBusRouteChange;
   const runLangRef = useRef(lang);
   runLangRef.current = lang;
   useEffect(() => {
-    window.__giaStationSim = (station) => {
+    window.__giaBusRoute = (service, stopCode) => {
       const map = mapRef.current;
       const gmaps = window.google && window.google.maps;
-      if (!map || !gmaps || !station) return;
-      if (!stationSimRef.current) {
-        stationSimRef.current = createStationSimController(map, gmaps, {
+      if (!map || !gmaps) return;
+      if (!busRouteRef.current) {
+        busRouteRef.current = createBusRouteLayer(map, gmaps, {
           lang: runLangRef.current,
-          onState: (s) => onTrainsChangeRef.current?.(s ? { ...s, remove: (code) => stationSimRef.current?.remove(code), stopAll: () => stationSimRef.current?.stopAll() } : null),
+          onState: (s) => onBusRouteChangeRef.current?.({ ...s, swap: () => busRouteRef.current?.swap(), clear: () => busRouteRef.current?.stop() }),
         });
       }
-      stationSimRef.current.addStation(station);
+      busRouteRef.current.show(String(service), String(stopCode));
     };
     window.__giaStopBuses = (code, name) => {
       const map = mapRef.current;
@@ -245,10 +246,10 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
       stopBusesLayerRef.current.show(String(code), String(name || code));
     };
     return () => {
-      delete window.__giaStationSim;
+      delete window.__giaBusRoute;
       delete window.__giaStopBuses;
-      stationSimRef.current?.stopAll();
-      stationSimRef.current = null;
+      busRouteRef.current?.stop();
+      busRouteRef.current = null;
       stopBusesLayerRef.current?.stopAll();
       stopBusesLayerRef.current = null;
     };

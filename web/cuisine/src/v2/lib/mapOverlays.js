@@ -858,6 +858,7 @@ import { placeSecondLine } from '../../../../_shared/lib/sg-place-text.js';
 import { policeSecondLine, hospitalSecondLine, localiseHoursLine, poiTerm, poiLabel } from '../../../../_shared/lib/poi-i18n.js';
 import { hawkerNameLocal } from '../../../../_shared/lib/hawker-names-i18n.js';
 import { createPcnLayer, fetchPcn, parkMeta, parkVisible, mapBounds, PARK_FILL_OPACITY } from '../../../../_shared/lib/pcn-layer.js';
+import { createBusRouteLayer as createSharedBusRouteLayer } from '../../../../_shared/lib/bus-route-layer.js';
 export { giaToggleStyle } from '../../../../_shared/lib/gia-toggle-style.js';
 
 // v0.61.22 — popup colour palette.
@@ -1248,7 +1249,7 @@ function stationInfoCardHtml(rec, lang) {
 
 // v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min and
 // render each bucket as a service-number list.
-function busArrivalRows(services) {
+function busArrivalRows(services, stopCode) {
   const buckets = [
     { max: 5, label: poiLabel('minLe', _lang, { n: 5 }), svcs: [] },
     { max: 10, label: poiLabel('minLe', _lang, { n: 10 }), svcs: [] },
@@ -1264,10 +1265,28 @@ function busArrivalRows(services) {
   let h = '';
   for (const b of buckets) {
     if (!b.svcs.length) continue;
+    // The localised row is built with a placeholder for the services, then the placeholder is replaced by the tap
+    // targets, so the string table's wording and order hold in every locale.
     h += '<div style="margin-top:5px;color:#1c1c1f;font-weight:600;">- '
-      + escapeHtml(poiLabel('busRow', _lang, { label: b.label, svcs: b.svcs.join(', ') })) + '</div>';
+      + escapeHtml(poiLabel('busRow', _lang, { label: b.label, svcs: '\u0001' })).replace('\u0001', busServiceSpans(b.svcs, stopCode)) + '</div>';
   }
   return h;
+}
+
+// v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma: each service number is a tap target that asks the
+// map panel's hook to draw that service's route and the buses on it (the hook is null-guarded → no-op).
+// v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B6: copied word for word from the Train
+// overlay, so a service in a Hawker or Cuisine stop bubble draws its route too.
+function busServiceSpans(svcs, stopCode) {
+  return svcs.map((svc) => '<span onclick="window.__giaBusRoute&&window.__giaBusRoute(\'' + escapeHtml(String(svc)) + '\',\''
+    + escapeHtml(String(stopCode || '')) + '\')" style="text-decoration:underline;cursor:pointer;">' + escapeHtml(String(svc)) + '</span>').join(', ');
+}
+
+// v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B6: the bus route view lives in
+// web/_shared/lib/bus-route-layer.js, so the Train, Hawker and Cuisine maps run one copy of it; each overlay copy
+// hands it its own card, so the bus bubble matches that map's theme.
+export function createBusRouteLayer(map, gmaps, opts = {}) {
+  return createSharedBusRouteLayer(map, gmaps, { infoCard, ...opts });
 }
 
 // v0.61.64 — bus-stop popup: road name, "Bus Stop №" code, bucketed live
@@ -1296,7 +1315,7 @@ function busInfoHtml(b, services) {
   } else if (!services.length) {
     h += '<div style="color:' + c.fg + ';margin-top:5px;">' + escapeHtml(scLabel('arrivalsNone', _lang)) + '</div>';
   } else {
-    h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
+    h += '<div style="margin-top:3px;">' + busArrivalRows(services, b.code) + '</div>';
   }
   if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
     h += '<div style="margin-top:8px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
@@ -1310,8 +1329,13 @@ function busInfoHtml(b, services) {
 // /api/transport/bus-arrival and refresh the open bubble. v0.61.20 —
 // module-level; map + infoWindow are passed in (was a closure).
 function openBusInfo(map, infoWindow, b, marker) {
-  infoWindow.setContent(busInfoHtml(b, null));
+  // v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B5 (operator, 22-11 '26: "Pause"): the stop
+  // view refreshes only while a stop's bubble is open. The bubble and each card it is given are recorded, so the view
+  // can tell (stopBubbleOpen, stop-buses.js) when the ✕, a map tap or another pin has closed or replaced it.
+  const showStop = (html) => { infoWindow.__giaStopHtml = html; infoWindow.setContent(html); };
+  showStop(busInfoHtml(b, null));
   infoWindow.open(map, marker);
+  if (typeof window !== 'undefined') window.__giaStopBubble = infoWindow;
   // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C3: the stop tap also starts the stop
   // view (every service's coming and going buses) through the map panel's hook; null-guarded.
   if (typeof window !== 'undefined') window.__giaStopBuses&&window.__giaStopBuses(String(b.code), String(b.description || b.code));
@@ -1319,9 +1343,9 @@ function openBusInfo(map, infoWindow, b, marker) {
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => {
       if (!d) return;
-      infoWindow.setContent(busInfoHtml(b, Array.isArray(d.services) ? d.services : []));
+      showStop(busInfoHtml(b, Array.isArray(d.services) ? d.services : []));
     })
-    .catch(() => { infoWindow.setContent(busInfoHtml(b, [])); });
+    .catch(() => { showStop(busInfoHtml(b, [])); });
 }
 
 // v0.61.20 — draw clickable amenity pins (station exits / bus stops /
@@ -1797,9 +1821,8 @@ export function createOverlayController(map, googleMaps, opts) {
   // (openStationCard) — this replaces the old neighbour-detail view.
   function handleStationTap(item) {
     const s = item.station;
-    // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C3: a station tap also starts the
-    // simulated trains on its lines through the map panel's hook; null-guarded, so a no-op where none is installed.
-    if (typeof window !== 'undefined') window.__giaStationSim&&window.__giaStationSim(s);
+    // v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B1/B3: the tap no longer starts simulated
+    // trains (removed); it does what it did before v0.62.970: selects the station and opens its card.
     if (detailStation && detailStation.name === s.name) {
       exitStationDetail();
       return;

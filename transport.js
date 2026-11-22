@@ -856,8 +856,11 @@ async function busRoute(redis, service, direction) {
 // visit only, with a position, each bus once.
 // v0.62.968 — spec 2026-11-03-bus-route-shape-and-buses-cache, C6: one reading per service and direction is shared
 // for 20 seconds, with readAt kept as the time LTA was read (never the time of the cache hit).
+// v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B5: 35 seconds. The views refresh every 30 s,
+// so a 20 s reading had always expired by the next refresh and every refresh read LTA again; at 35 s a refresh (and
+// any other viewer of the same service) can reuse the last reading.
 const BUSES_PREFIX = 'lta:busroute:buses:';
-const BUSES_TTL_S = 20;
+const BUSES_TTL_S = 35;
 
 async function busRouteBuses(redis, service, direction, { http = axios, now = Date.now } = {}) {
   const route = await busRoute(redis, service, direction);

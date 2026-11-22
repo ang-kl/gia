@@ -29,7 +29,7 @@ import { createPortal } from 'react-dom';
 import { openLink, initData } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
-import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
+import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex, createBusRouteLayer } from '../lib/mapOverlays.js';
 import { activeClosure, nextClosure, closureTill, closureFrom, closureKey, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import { pt } from '../../../_shared/lib/pcn-i18n.js';
@@ -37,7 +37,6 @@ import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/t
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../_shared/components/MapControls.jsx';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
-import { createStationSimController } from '../../../_shared/lib/station-sim-controller.js';
 import { createStopBusesLayer } from '../../../_shared/lib/stop-buses.js';
 // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A4, I7): the Train map's Flightradar24 layer,
 // board and globe, through the one-line re-exports in web/_shared. Owner-only until FR24_PUBLIC=1, as on Train.
@@ -150,7 +149,7 @@ function hawkerPinNode(isNew, number, hasBib, closureKind, upcomingKind) {
 }
 
 // v0.62.989 — `readerLoc`: the device location App already has (startLocationSync), for the Airports menu (A5).
-export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null, onCentreTap = null, onTrainsChange = null, onStopBusesChange = null, readerLoc = null }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null, onCentreTap = null, onBusRouteChange = null, onStopBusesChange = null, readerLoc = null }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -166,30 +165,32 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const [, setFr24MenuTick] = useState(0);
   const pointRef = useRef(SG_POINT);
   pointRef.current = readerLoc || SG_POINT;
-  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C2-C3. The overlay controller's station
-  // tap calls window.__giaStationSim(station) and its bus stop bubble calls window.__giaStopBuses(code, name); the
-  // controller and the stop layer are made on the first tap, once the map exists, and report upward for the header
-  // caption and the footer chips. Both hooks go on unmount, and everything stops with them; nothing is kept.
-  const stationSimRef = useRef(null);
+  // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C2-C3. The overlay controller's bus stop
+  // bubble calls window.__giaStopBuses(code, name); the stop layer is made on the first tap, once the map exists, and
+  // reports upward for the footer button. v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route: the
+  // station hook (simulated trains) is removed (B1); a service in the bubble calls window.__giaBusRoute(service, stop),
+  // which draws that service's route with its live buses through the shared layer and reports upward for the header
+  // strip, as on the Train map (B6). Both hooks go on unmount, and everything stops with them; nothing is kept.
   const stopBusesLayerRef = useRef(null);
-  const onTrainsChangeRef = useRef(onTrainsChange);
-  onTrainsChangeRef.current = onTrainsChange;
+  const busRouteRef = useRef(null);
   const onStopBusesChangeRef = useRef(onStopBusesChange);
   onStopBusesChangeRef.current = onStopBusesChange;
+  const onBusRouteChangeRef = useRef(onBusRouteChange);
+  onBusRouteChangeRef.current = onBusRouteChange;
   const runLangRef = useRef(lang);
   runLangRef.current = lang;
   useEffect(() => {
-    window.__giaStationSim = (station) => {
+    window.__giaBusRoute = (service, stopCode) => {
       const map = mapRef.current;
       const gmaps = window.google && window.google.maps;
-      if (!map || !gmaps || !station) return;
-      if (!stationSimRef.current) {
-        stationSimRef.current = createStationSimController(map, gmaps, {
+      if (!map || !gmaps) return;
+      if (!busRouteRef.current) {
+        busRouteRef.current = createBusRouteLayer(map, gmaps, {
           lang: runLangRef.current,
-          onState: (s) => onTrainsChangeRef.current?.(s ? { ...s, remove: (code) => stationSimRef.current?.remove(code), stopAll: () => stationSimRef.current?.stopAll() } : null),
+          onState: (s) => onBusRouteChangeRef.current?.({ ...s, swap: () => busRouteRef.current?.swap(), clear: () => busRouteRef.current?.stop() }),
         });
       }
-      stationSimRef.current.addStation(station);
+      busRouteRef.current.show(String(service), String(stopCode));
     };
     window.__giaStopBuses = (code, name) => {
       const map = mapRef.current;
@@ -204,10 +205,10 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       stopBusesLayerRef.current.show(String(code), String(name || code));
     };
     return () => {
-      delete window.__giaStationSim;
+      delete window.__giaBusRoute;
       delete window.__giaStopBuses;
-      stationSimRef.current?.stopAll();
-      stationSimRef.current = null;
+      busRouteRef.current?.stop();
+      busRouteRef.current = null;
       stopBusesLayerRef.current?.stopAll();
       stopBusesLayerRef.current = null;
     };

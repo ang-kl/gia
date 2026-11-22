@@ -56,11 +56,11 @@ import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import OutsideNowStrip from '../../../_shared/components/OutsideNowStrip.jsx';
-import SimCaptionStrip from '../../../_shared/components/SimCaptionStrip.jsx';
 import FooterRunButtons from '../../../_shared/components/FooterRunButtons.jsx';
 import ResumeStrip from '../../../_shared/components/ResumeStrip.jsx';
-import { aggregateSimStatus } from '../../../_shared/lib/train-sim.js';
 import { busResumeText } from '../../../_shared/lib/run-state.js';
+// v0.62.990 — spec doc/Feature/2026-11-12-remove-simulate-smooth-buses-shared-route.spec.md, B6/J5: the bus route strip.
+import { routeStripModel } from '../../../_shared/lib/bus-route-layer.js';
 import OutsideNowSheet from '../../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../../_shared/lib/use-weather-abroad.js';
@@ -183,6 +183,27 @@ function placeLabel({ lat, lng, name } = {}) {
 // existing refs, scroll handlers, pagination and flash-highlight wiring exactly
 // as they are — the panel does not know it is now inside a sheet. When inactive
 // this is a plain fragment, so horizontal mode is byte-for-byte unchanged.
+// v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B6/J5: the Train map's bus route strip, read
+// from the same model (routeStripModel): while a tapped service's route is drawn it names the service and its last stop,
+// the buses shown, the LTA reading time and the first and last bus at the tapped stop, with ↔ for the other direction
+// and ✕ to clear the route. The state and the two actions come up from the map panel (onBusRouteChange).
+function BusRouteStrip({ state, lang = 'en', className = '' }) {
+  if (!state || !state.active) return null;
+  const m = routeStripModel({ service: state.service, lastStop: state.lastStop, count: state.count, readAt: state.readAt, shapeSource: state.shapeSource, lang, error: !!state.error, hours: state.hours });
+  return (
+    <div role={m.role} data-bus-route={m['data-bus-route']} className={className} style={m.style}>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontWeight: 600 }}>{m.title}</span>
+        {m.sub && <span style={{ display: 'block' }}>{m.sub}</span>}
+      </span>
+      {!state.error && (
+        <button type="button" onClick={() => state.swap?.()} style={{ all: 'unset', cursor: 'pointer', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>{m.swap}</button>
+      )}
+      <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={() => state.clear?.()} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
+    </div>
+  );
+}
+
 function ResultSheetShell({ active, peekPx, label, children }) {
   if (!active) return <>{children}</>;
   return (
@@ -226,11 +247,11 @@ export default function App() {
   // dispatched by LocaleToggle.
   const [lang] = useLocale();
   // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C4-C5: what the map panel reports
-  // about the simulated trains and the stop view, for the header caption and the footer chips.
-  const [trains, setTrains] = useState(null);
+  // about the stop view, for the footer button and the resume strip. v0.62.990: the simulated trains are gone (B1), and
+  // the panel also reports a drawn bus route, for the route strip (B6).
   const [stopBuses, setStopBuses] = useState(null);
-  const trainsStatus = aggregateSimStatus(trains ? trains.lines : []);
-  const resumeLines = [...(trains?.resume || []), ...((stopBuses?.resume || []).map((o) => busResumeText({ ...o, nowMs: Date.now(), lang })))];
+  const [busRoute, setBusRoute] = useState(null);
+  const resumeLines = (stopBuses?.resume || []).map((o) => busResumeText({ ...o, nowMs: Date.now(), lang }));
   // v0.62.831 — O-345 (b), the operator's choice: the loading overlay paints before any
   // interaction, so it is the one surface that can show the PREVIOUS device locale's
   // sentence. Until the server's preference has settled it renders its shell and the
@@ -4941,8 +4962,8 @@ export default function App() {
           </div>
         )}
         <OutsideNowStrip data={outside} abroad={abroad} app="cuisine" lang={lang} onOpen={openOutside} className="-mx-1" />
-        <SimCaptionStrip on={!!trains} status={trainsStatus} lang={lang} className="-mx-1" />
         <ResumeStrip lines={resumeLines} lang={lang} className="-mx-1" />
+        <BusRouteStrip state={busRoute} lang={lang} className="-mx-1" />
       </header>
       <OutsideNowSheet open={outsideOpen} onClose={closeOutside} data={outside} abroad={abroad} app="cuisine" lang={lang} />
 
@@ -5165,7 +5186,7 @@ export default function App() {
           ? { top: headerBottom } : undefined}
       >
       <MapPanel
-        onTrainsChange={setTrains}
+        onBusRouteChange={setBusRoute}
         onStopBusesChange={setStopBuses}
         pronunciations={venueSay}
         /* v0.62.892 — tells MapPanel this mount is a locale-reload restore, so it
@@ -6225,7 +6246,7 @@ export default function App() {
                 className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
               >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
               {/* v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C4: 🚇 and 🚍 just before back / end. */}
-              <FooterRunButtons trains={trains} stopBuses={stopBuses} lang={lang} />
+              <FooterRunButtons stopBuses={stopBuses} lang={lang} />
               <button
                 type="button"
                 onClick={() => {

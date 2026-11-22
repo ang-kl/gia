@@ -159,7 +159,11 @@ describe('I5 — the strip names a part-straight route, in nine locales; the ser
   });
 });
 
-describe('I6 — one LTA reading of a route\'s buses is shared for 20 seconds', () => {
+// v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B5 (operator, 14-11 '26: "Confirm both"): the
+// window is 35 s, not 20 s. Every view refreshes every 30 s, so a 20 s reading had always expired by the next refresh.
+// The three cases below keep what they checked and move the times: shared inside the window (now including a refresh
+// 30 s later), read again once it has passed.
+describe('I6 — one LTA reading of a route\'s buses is shared for 35 seconds (was 20 until v0.62.990)', () => {
   const STOPS = Array.from({ length: 12 }, (_, i) => ({ code: String(60000 + i), lat: 1.31 + i * 0.0027, lng: 103.855 + i * 0.0004, name: `Stop ${i}` }));
   const bus = (lat, lng, minutes) => ({ EstimatedArrival: new Date(Date.now() + minutes * 60000).toISOString(), Load: 'SEA', Type: 'DD', Feature: 'WAB', Latitude: String(lat), Longitude: String(lng), VisitNumber: '1' });
   function ltaHttp() {
@@ -190,7 +194,7 @@ describe('I6 — one LTA reading of a route\'s buses is shared for 20 seconds', 
   afterEach(() => { vi.useRealTimers(); });
   const arrivalCalls = (http) => http.log.filter((l) => l.url.endsWith('/BusArrival')).length;
 
-  it('a second call inside 20 s reads nothing from LTA and returns the same buses and the same readAt', async () => {
+  it('a second call inside 35 s reads nothing from LTA and returns the same buses and the same readAt', async () => {
     const http = ltaHttp();
     const a = await transport.busRouteBuses(redis, '10', 1, { http, now: () => 1234 });
     const n = arrivalCalls(http);
@@ -200,18 +204,22 @@ describe('I6 — one LTA reading of a route\'s buses is shared for 20 seconds', 
     expect(b.readAt).toBe(1234);   // when LTA was read, not when the cache was hit
     expect(b.buses).toEqual(a.buses);
     const e = redis.store.get('lta:busroute:buses:10:1');
-    expect(e.expiresAt).toBeLessThanOrEqual(Date.now() + 20 * 1000 + 50);
-    expect(e.expiresAt).toBeGreaterThan(Date.now() + 20 * 1000 - 2000);
+    expect(e.expiresAt).toBeLessThanOrEqual(Date.now() + 35 * 1000 + 50);
+    expect(e.expiresAt).toBeGreaterThan(Date.now() + 35 * 1000 - 2000);
   });
-  it('after 20 s LTA is read again', async () => {
+  it('the next 30 s refresh still finds it; after 35 s LTA is read again', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-03T00:00:00Z'));
     const http = ltaHttp();
     await transport.busRouteBuses(redis, '10', 1, { http, now: () => 1 });
-    vi.setSystemTime(new Date('2026-11-03T00:00:21Z'));
-    const c = await transport.busRouteBuses(redis, '10', 1, { http, now: () => 2 });
+    vi.setSystemTime(new Date('2026-11-03T00:00:31Z'));
+    const r = await transport.busRouteBuses(redis, '10', 1, { http, now: () => 2 });
+    expect(arrivalCalls(http)).toBe(4);
+    expect(r.readAt).toBe(1);
+    vi.setSystemTime(new Date('2026-11-03T00:00:36Z'));
+    const c = await transport.busRouteBuses(redis, '10', 1, { http, now: () => 3 });
     expect(arrivalCalls(http)).toBe(8);
-    expect(c.readAt).toBe(2);
+    expect(c.readAt).toBe(3);
   });
   it('the cache is per service and direction', async () => {
     const http = ltaHttp();

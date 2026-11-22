@@ -9,10 +9,14 @@ import { createRequire } from 'module';
 import fs from 'fs';
 import path from 'path';
 import { createStub } from './redis-stub.js';
+// v0.62.990 — spec doc/Feature/2026-11-12-remove-simulate-smooth-buses-shared-route.spec.md, B1/J6: Simulate is gone,
+// so the run drawer keeps only its 🚍 half. The train halves below (I2, the train lines of I3, the controller at 02:00,
+// the 🚇 button) went with the code they tested; every bus, stop, string and footer pin is unchanged.
 import {
-  RUN_MAX, RUN_STRINGS, RUN_LOCALES, addRunItem, removeRunItem, stationsToLines, trainResumeAt, formatResume,
-  trainResumeText, busResumeText, OPERATOR_NAMES, runButtonsModel,
+  RUN_MAX, RUN_STRINGS, RUN_LOCALES, addRunItem, removeRunItem, formatResume,
+  busResumeText, OPERATOR_NAMES, runButtonsModel,
 } from '../web/transport/src/lib/run-state.js';
+import * as runStateForAbsence from '../web/transport/src/lib/run-state.js';
 import * as runStateShared from '../web/_shared/lib/run-state.js';
 import * as runStateTrain from '../web/transport/src/lib/run-state.js';
 import { createStopBusesLayer } from '../web/transport/src/lib/stop-buses.js';
@@ -48,46 +52,19 @@ describe('I1 — five of each; a 6th drops the oldest; a repeat moves to newest;
   });
 });
 
-describe('I2 — the trains follow the listed stations', () => {
-  it('the union of their timetabled lines, in the order first met', () => {
-    const st = [{ key: 'Bishan', lines: ['NSL', 'CCL'] }, { key: 'Punggol', lines: ['NEL', 'PLRT'] }, { key: 'City Hall', lines: ['NSL', 'EWL'] }];
-    expect(stationsToLines(st)).toEqual(['NSL', 'CCL', 'NEL', 'EWL']);
-  });
-  it('removing a station removes only the lines no remaining station covers', () => {
-    const st = [{ key: 'Bishan', lines: ['NSL', 'CCL'] }, { key: 'City Hall', lines: ['NSL', 'EWL'] }];
-    expect(stationsToLines(removeRunItem(st, 'City Hall'))).toEqual(['NSL', 'CCL']);
-    expect(stationsToLines(removeRunItem(st, 'Bishan'))).toEqual(['NSL', 'EWL']);
+describe('I2 — v0.62.990: no train half is left in the run state', () => {
+  it('the station-to-line and train-resume helpers are gone, and so are their strings', () => {
+    for (const k of ['stationsToLines', 'trainResumeAt', 'trainResumeText', 'runnableStation']) expect(runStateForAbsence[k], k).toBeUndefined();
+    for (const k of ['train.resume', 'train.disrupted', 'drawer.stations']) expect(RUN_STRINGS[k], k).toBeUndefined();
   });
 });
 
-describe('I3 — when the trains resume, in the operator\'s words', () => {
-  const NSL = { weekday: [330, 1460], weekend: [345, 1460] };
-  const BPL = { weekday: [330, 1439], weekend: [345, 1439] };
-  it('02:00 on a Tuesday: today at 05:30, no date', () => {
+describe('I3 — when the buses resume, in the operator\'s words', () => {
+  it('today: the time alone; another day: the time and the date', () => {
     const now = SGT('2026-11-03T02:00:00');
-    const at = trainResumeAt(NSL, now, []);
-    expect(formatResume(at, now, 'en')).toBe('05:30');
-    expect(trainResumeText({ code: 'NSL', state: 'outOfHours', resumeAt: at, nowMs: now, lang: 'en' })).toBe('NSL Normal train operations will resume at 05:30');
-  });
-  it('02:00 on a Saturday: the weekend first train, 05:45', () => {
-    const now = SGT('2026-11-07T02:00:00');
-    expect(formatResume(trainResumeAt(NSL, now, []), now, 'en')).toBe('05:45');
-  });
-  it('a public holiday uses the weekend time', () => {
-    const now = SGT('2026-11-09T02:00:00');   // a Monday
-    expect(formatResume(trainResumeAt(NSL, now, ['2026-11-09']), now, 'en')).toBe('05:45');
-  });
-  it('after the last train, before midnight: tomorrow, with the date', () => {
-    const now = SGT('2026-11-03T23:59:30');   // BPL's last train is 23:59
-    const at = trainResumeAt(BPL, now, []);
-    expect(formatResume(at, now, 'en')).toBe('05:30, Wed 4 Nov');
-    expect(trainResumeText({ code: 'BPL', state: 'outOfHours', resumeAt: at, nowMs: now, lang: 'en' })).toBe('BPL Normal train operations will resume at 05:30, Wed 4 Nov');
-  });
-  it('a disruption gives LTA\'s own text, never a made-up time; a running line gives nothing', () => {
-    const now = SGT('2026-11-03T12:00:00');
-    expect(trainResumeText({ code: 'EWL', state: 'disrupted', raw: 'No train service between Jurong East and Boon Lay', nowMs: now, lang: 'en' })).toBe('EWL No train service between Jurong East and Boon Lay');
-    expect(trainResumeText({ code: 'EWL', state: 'disrupted', raw: '', nowMs: now, lang: 'en' })).toMatch(/^EWL \S/);
-    expect(trainResumeText({ code: 'EWL', state: 'running', nowMs: now, lang: 'en' })).toBeNull();
+    expect(formatResume(SGT('2026-11-03T05:30:00'), now, 'en')).toBe('05:30');
+    expect(formatResume(SGT('2026-11-04T05:30:00'), SGT('2026-11-03T23:59:30'), 'en')).toBe('05:30, Wed 4 Nov');
+    expect(busResumeText({ operator: 'SMRT', resumeAt: SGT('2026-11-04T06:00:00'), nowMs: SGT('2026-11-03T23:59:30'), lang: 'en' })).toBe('SMRT Buses operations will resume at 06:00, Wed 4 Nov');
   });
   it('the bus line, with the operator\'s name', () => {
     const now = SGT('2026-11-03T02:00:00');
@@ -184,44 +161,6 @@ describe('I4 — first and last bus per route stop; the day type; holidays as Su
   });
 });
 
-// ── the shared controller at 02:00 (added during mutation testing: no test drove the controller out of hours) ──────
-describe('I3 — the Hawker / Cuisine controller at 02:00 draws no trains and reports when they resume', () => {
-  it('City Hall at 02:00 Tuesday: no layer, both lines out of hours, the two resume lines', async () => {
-    const { createStationSimController } = await import('../web/_shared/lib/station-sim-controller.js');
-    const RAW = JSON.parse(read('data/mrt-coords.json'));
-    const STATIONS = Object.entries(RAW).filter(([n]) => !n.startsWith('_')).map(([name, v]) => ({
-      name, lat: Number(v.lat), lng: Number(v.lng), codes: v.codes || [], lines: v.lines || [],
-    })).filter((v) => Number.isFinite(v.lat));
-    const fetchJson = async (u) => {
-      if (u === '/api/transport/stations') return { stations: STATIONS };
-      if (u === '/api/transport/line-paths') return { paths: {} };
-      if (u === '/api/transport/status') return { statusByLine: {}, publicHolidays: [] };
-      throw new Error('unexpected ' + u);
-    };
-    const made = [];
-    class Marker { constructor(o) { Object.assign(this, o || {}); made.push(this); } setMap(m) { this.map = m; } setPosition(p) { this.position = p; } addListener() { return { remove() {} }; } }
-    const gmaps = { Marker, InfoWindow: class { setContent() {} setPosition() {} open() {} close() {} }, SymbolPath: { CIRCLE: 0 }, marker: null };
-    const states = [];
-    vi.useFakeTimers();
-    globalThis.document = { createElement: () => ({ style: {}, setAttribute() {}, addEventListener() {} }) };
-    try {
-      const c = createStationSimController({}, gmaps, { fetchJson, onState: (s) => states.push(s), now: () => SGT('2026-11-03T02:00:00'), lang: 'en' });
-      await c.addStation(STATIONS.find((s) => s.name === 'City Hall'));
-      expect(c.layerCount()).toBe(0);
-      expect(made.filter((m) => m.map)).toHaveLength(0);
-      expect(states.at(-1).lines).toEqual([{ code: 'NSL', state: 'outOfHours' }, { code: 'EWL', state: 'outOfHours' }]);
-      expect(states.at(-1).resume).toEqual([
-        'NSL Normal train operations will resume at 05:30',
-        'EWL Normal train operations will resume at 05:31',
-      ]);
-      c.stopAll();
-    } finally {
-      vi.useRealTimers();
-      delete globalThis.document;
-    }
-  });
-});
-
 // ── the footer row (added during mutation testing: the name pins could not see a row moved out of the footer) ──────
 describe('I6 — the buttons sit IN the footer row, right before its back button', () => {
   it('Train, Cuisine: the next button after <FooterRunButtons is the back / end button, in the same row', () => {
@@ -310,10 +249,17 @@ describe('I1, I5 — the stop layer holds five stops; only the newest is sampled
 });
 
 describe('I6 — the footer buttons, the drawer and the header strip (models and source pins)', () => {
-  it('a button per kind while something is listed, with the count', () => {
-    expect(runButtonsModel({ stations: [{ key: 'a' }, { key: 'b' }], stops: [] })).toEqual({ train: '🚇 2', bus: null });
-    expect(runButtonsModel({ stations: [], stops: [{ code: '1' }] })).toEqual({ train: null, bus: '🚍 1' });
-    expect(runButtonsModel({ stations: [], stops: [] })).toEqual({ train: null, bus: null });
+  it('the 🚍 button while a stop is listed, with the count; never a 🚇 one (v0.62.990, J6)', () => {
+    expect(runButtonsModel({ stops: [{ code: '1' }] })).toEqual({ bus: '🚍 1' });
+    expect(runButtonsModel({ stops: [{ code: '1' }, { code: '2' }] })).toEqual({ bus: '🚍 2' });
+    expect(runButtonsModel({ stops: [] })).toEqual({ bus: null });
+    expect(runButtonsModel({ stations: [{ key: 'a' }], stops: [] })).toEqual({ bus: null });
+  });
+  it('the drawer has only the stops list', () => {
+    const src = code('web/_shared/components/RunDrawer.jsx');
+    expect(src).toMatch(/drawer\.stops/);
+    expect(src).not.toMatch(/trains|drawer\.stations|🚇/);
+    expect(code('web/_shared/components/FooterRunButtons.jsx')).not.toMatch(/trains|🚇/);
   });
   it('the drawer is 70% wide (15% each side), at most 45% tall, scrolls, with a ❌ per row', () => {
     const src = code('web/_shared/components/RunDrawer.jsx');
