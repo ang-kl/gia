@@ -74,6 +74,15 @@ describe.each(Object.keys(COPIES))('%s copy (I5)', (name) => {
     expect(src).not.toMatch(/if \(name === 'busstop' && visible\) clearStationBusStops\(\);/);
   });
 
+  it('a station card closed by its own Exit / Bus Stop link starts the 3 minutes too (Codex review of #1934)', () => {
+    // The link flashes the pin and closes the card itself, without leaving the station view, so without this the
+    // stops stayed until some later tap-out plus 3 minutes, or for good if there was none.
+    const i = src.indexOf('window.__giaStationFocus = (lat, lng, flash) => {');
+    expect(i).toBeGreaterThan(0);
+    const body = src.slice(i, src.indexOf('};', i));
+    expect(body).toMatch(/if \(flash\) \{ info\.close\(\); stopLinger\.close\(\); \}/);
+  });
+
   it('destroy stops the timer', () => {
     const body = inner(src, '    destroy() {');
     expect(body).toMatch(/stopLinger\.destroy\(\);/);

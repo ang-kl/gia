@@ -51,6 +51,10 @@ describe('Cuisine map panel: overlay card or flight card, never the eatery popup
     expect(count(src, 'setOverlayCardOpen'), 'declared once, set only from onCardChange').toBe(2);
   });
 
+  it('offers one close for every map card, the flight card included (Codex review of #1934)', () => {
+    expect(src).toMatch(/window\.__giaMapCardsClose = \(\) => \{ closeInfo\(\); fr24Ref\.current\?\.closeInfo\(\); \};/);
+  });
+
   it('the flight state is declared before the line that reads it', () => {
     expect(src.indexOf('const [fr24Flight, setFr24Flight]')).toBeLessThan(src.indexOf('const mapCardOpen ='));
     expect(src.indexOf('const [overlayCardOpen, setOverlayCardOpen]')).toBeLessThan(src.indexOf('const mapCardOpen ='));
@@ -71,7 +75,9 @@ describe('Cuisine app hands the fold to the strip (I7)', () => {
     const tag = src.slice(i, src.indexOf('/>', i));
     expect(tag).toMatch(/folded=\{mapCardOpen\}/);
     expect(tag).toMatch(/onUnfold=\{unfoldCard\}/);
-    expect(src).toMatch(/const unfoldCard = \(pid\) => \{[\s\S]{0,200}?window\.__giaMapInfoClose\(\);[\s\S]{0,80}?setFocusedPlaceId\(pid\);\s*\};/);
+    // Codex review of #1934: closing only the overlay and eatery cards left a FLIGHT card open, so the strip stayed
+    // folded and the details the reader asked for stayed hidden. The app closes every map card, the flight one too.
+    expect(src).toMatch(/const unfoldCard = \(pid\) => \{[\s\S]{0,200}?window\.__giaMapCardsClose\(\);[\s\S]{0,80}?setFocusedPlaceId\(pid\);\s*\};/);
   });
 
   it('the vertical list does not fold: it is not over the map', () => {

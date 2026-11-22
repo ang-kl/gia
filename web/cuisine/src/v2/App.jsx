@@ -740,7 +740,7 @@ export default function App() {
   // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, D: "details, review & links" on a folded mini
   // card closes the map card (which unfolds the strip) and selects that eatery; the card opens its own details.
   const unfoldCard = (pid) => {
-    if (typeof window !== 'undefined' && typeof window.__giaMapInfoClose === 'function') window.__giaMapInfoClose();
+    if (typeof window !== 'undefined' && typeof window.__giaMapCardsClose === 'function') window.__giaMapCardsClose();
     setFocusedPlaceId(pid);
   };
   // v0.62.138 — operator: results DEFAULT to the horizontal floating card strip

@@ -552,6 +552,9 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
       onInfoCloseRef.current?.();
     };
     window.__giaMapInfoClose = closeInfo;
+    // v0.62.991 - D (Codex review of #1934): every map card, the flight card included. The eatery mini card's details
+    // button uses it; closing only the overlay card left a flight card open and the strip folded.
+    window.__giaMapCardsClose = () => { closeInfo(); fr24Ref.current?.closeInfo(); };
     // v0.62.125 — a tap on the empty map closes the popup AND deselects (exits
     // the result carousel → back to the list). onDeselect is map-click-only, so
     // the in-card ✕ (which also calls closeInfo) doesn't force-exit the carousel.

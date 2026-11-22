@@ -2094,7 +2094,8 @@ export function createOverlayController(map, googleMaps, opts) {
       // first, so the card never hides the pin being flashed.
       window.__giaStationFocus = (lat, lng, flash) => {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-        if (flash) info.close();
+        // v0.62.991 - B (Codex review of #1934): the card closes here too, so its stops' 3 minutes start here too.
+        if (flash) { info.close(); stopLinger.close(); }
         map.panTo({ lat, lng });
         const z = map.getZoom ? map.getZoom() : 0;
         if (z < 17) map.setZoom(17);
