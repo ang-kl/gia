@@ -32,6 +32,35 @@ export const FR24_PINS = Object.freeze({
   WSSS: Object.freeze({ lat: 1.36106, lng: 103.99081 }),
   WSSL: FR24_AIRPORTS.WSSL,
 });
+// v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A1, A2, I1, I2): every other airport the reader
+// can open comes from the server's Airports menu (/api/fr24/airports-near), which carries its position and short
+// name. One registry per page: the three maps never share a page, and an airport's position does not change.
+const KNOWN = new Map();   // icao → { icao, iata, short, lat, lng }
+export function rememberAirports(list) {
+  for (const a of Array.isArray(list) ? list : []) {
+    if (a && typeof a.icao === 'string' && Number.isFinite(a.lat) && Number.isFinite(a.lng)) {
+      KNOWN.set(a.icao, { icao: a.icao, iata: a.iata || null, short: a.short || a.name || a.icao, lat: a.lat, lng: a.lng });
+    }
+  }
+}
+// The reference point for an airport: Changi's and Seletar's as before, else what the server sent.
+export function airportPoint(icao) {
+  if (Object.prototype.hasOwnProperty.call(FR24_AIRPORTS, icao)) return FR24_AIRPORTS[icao];
+  const k = KNOWN.get(icao);
+  return k ? { lat: k.lat, lng: k.lng } : null;
+}
+// The name on a pin, a board and a menu row: the translated name for Changi and Seletar, else the table's short name.
+export function airportLabel(icao, lang = 'en') {
+  if (FR24_STRINGS[`pin.${icao}`]) return ft(`pin.${icao}`, lang);
+  const k = KNOWN.get(icao);
+  return k ? k.short : icao;
+}
+// v0.62.989 (A3, I5): the same thresholds as fr24.js's USAGE_STEPS; a test keeps them equal.
+export const USAGE_STEPS = Object.freeze([50, 70, 80, 90]);
+const MENU_MOVE_KM = 20;          // the menu is asked again once the reader has moved this far
+const MENU_RETRY_MS = 30 * 1000;  // after a failed menu request, wait this long before asking again
+const SG_POINT = Object.freeze({ lat: 1.3521, lng: 103.8198 });
+const WARN_KEY = 'gia.fr24.warned';
 export const DR_MAX_SEC = 120;
 const BOARD_CLIENT_TTL_MS = 5 * 60 * 1000;
 // Amendment 6 (I21): gate polling, only while an airport board is open.
@@ -184,6 +213,30 @@ export const FR24_STRINGS = {
   'menu.pick': { en: 'Pick an airport', fr: 'Choisir un aéroport', id: 'Pilih bandara', ru: 'Выбрать аэропорт', de: 'Flughafen wählen', zh: '选择机场', ja: '空港を選ぶ', es: 'Elegir un aeropuerto', ko: '공항 선택' },
   'btn.close': { en: 'Close', fr: 'Fermer', id: 'Tutup', ru: 'Закрыть', de: 'Schließen', zh: '关闭', ja: '閉じる', es: 'Cerrar', ko: '닫기' },
   'locate.none': { en: 'No live position for this flight right now', fr: 'Pas de position en direct pour ce vol', id: 'Belum ada posisi langsung untuk penerbangan ini', ru: 'Сейчас нет текущей позиции этого рейса', de: 'Gerade keine Live-Position für diesen Flug', zh: '目前没有该航班的实时位置', ja: 'この便の現在位置は今ありません', es: 'Ahora no hay posición en directo de este vuelo', ko: '지금은 이 항공편의 실시간 위치가 없습니다' },
+  // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A1, A8, I5, I9): the Airports menu's sections,
+  // and the board's usage line. {pct} is a threshold (50, 70, 80 or 90), never a running figure.
+  'menu.near': { en: 'Near you', fr: 'Près de vous', id: 'Di dekat Anda', ru: 'Рядом с вами', de: 'In Ihrer Nähe', zh: '您附近', ja: '近くの空港', es: 'Cerca de ti', ko: '내 주변' },
+  'menu.sg': { en: 'Singapore', fr: 'Singapour', id: 'Singapura', ru: 'Сингапур', de: 'Singapur', zh: '新加坡', ja: 'シンガポール', es: 'Singapur', ko: '싱가포르' },
+  'menu.other': { en: 'Other cities', fr: 'Autres villes', id: 'Kota lain', ru: 'Другие города', de: 'Andere Städte', zh: '其他城市', ja: 'ほかの都市', es: 'Otras ciudades', ko: '다른 도시' },
+  'menu.back': { en: 'Back', fr: 'Retour', id: 'Kembali', ru: 'Назад', de: 'Zurück', zh: '返回', ja: '戻る', es: 'Atrás', ko: '뒤로' },
+  'menu.none': { en: 'No airport within 150 km', fr: 'Aucun aéroport à moins de 150 km', id: 'Tidak ada bandara dalam 150 km', ru: 'Нет аэропортов в радиусе 150 км', de: 'Kein Flughafen im Umkreis von 150 km', zh: '150 公里内没有机场', ja: '150 km 以内に空港はありません', es: 'Ningún aeropuerto a menos de 150 km', ko: '150km 이내에 공항이 없습니다' },
+  'usage.warn': {
+    en: 'You have used {pct}% of today’s flight data.', fr: 'Vous avez utilisé {pct} % des données de vol du jour.',
+    id: 'Anda telah memakai {pct}% data penerbangan hari ini.', ru: 'Вы использовали {pct}% данных о рейсах на сегодня.',
+    de: 'Sie haben {pct} % der heutigen Flugdaten genutzt.', zh: '您已使用今日航班数据的 {pct}%。',
+    ja: '本日のフライトデータの {pct}% を使いました。', es: 'Has usado el {pct} % de los datos de vuelos de hoy.', ko: '오늘 항공편 데이터의 {pct}%를 사용했습니다.',
+  },
+  'err.quota': {
+    en: 'Today’s flight data is used up. It resets at midnight, Singapore time.',
+    fr: 'Les données de vol du jour sont épuisées. Remise à zéro à minuit, heure de Singapour.',
+    id: 'Data penerbangan hari ini sudah habis. Diatur ulang tengah malam waktu Singapura.',
+    ru: 'Данные о рейсах на сегодня исчерпаны. Сброс в полночь по сингапурскому времени.',
+    de: 'Die Flugdaten für heute sind aufgebraucht. Zurückgesetzt um Mitternacht Singapurer Zeit.',
+    zh: '今日航班数据已用完，将于新加坡时间午夜重置。',
+    ja: '本日のフライトデータは使い切りました。シンガポール時間の午前 0 時にリセットされます。',
+    es: 'Los datos de vuelos de hoy se han agotado. Se reinician a medianoche, hora de Singapur.',
+    ko: '오늘 항공편 데이터를 모두 사용했습니다. 싱가포르 시간 자정에 초기화됩니다.',
+  },
   'link.mrt': { en: 'Getting there: Changi Airport MRT (CG2)', fr: 'Pour y aller : MRT Changi Airport (CG2)', id: 'Cara ke sana: MRT Changi Airport (CG2)', ru: 'Как добраться: станция MRT Changi Airport (CG2)', de: 'Anreise: MRT Changi Airport (CG2)', zh: '交通：樟宜机场地铁站（CG2）', ja: 'アクセス：MRT チャンギ空港駅（CG2）', es: 'Cómo llegar: MRT Changi Airport (CG2)', ko: '가는 길: MRT 창이 공항역 (CG2)' },
 };
 
@@ -229,7 +282,7 @@ function kmBetween(a, b) {
 
 // C3: our estimate of minutes to landing, from distance and ground speed. FR24's light data has no ETA.
 export function etaMinutes(p, icao) {
-  const a = FR24_AIRPORTS[icao];
+  const a = airportPoint(icao);   // v0.62.989: any airport the reader opened, not only Changi and Seletar
   if (!a || !p || !Number.isFinite(p.lat) || !Number.isFinite(p.lng) || !Number.isFinite(p.gspeed) || p.gspeed < 50) return null;
   return Math.round((kmBetween(p, a) / (p.gspeed * 1.852)) * 60);
 }
@@ -287,7 +340,34 @@ function errKey(data) {
   const r = data && data.reason;
   if (r === 'busy') return 'err.busy';
   if (r === 'budget') return 'err.budget';
+  if (r === 'quota') return 'err.quota';   // v0.62.989 (I5): this reader's day is used up
   return 'err.unavailable';
+}
+
+// v0.62.989 (A1, I1): the ⋮ menu's Airports ▾ rows, as data for MapControls' submenu. `view` is 'main', 'cities', or
+// { city, airports } for one city opened from "Other cities". Headings are rows too (their key starts with "h:"), so
+// the shared menu needs no change; picking one does nothing.
+export function airportMenuRows({ view = 'main', menu = null, lang = 'en', open = null } = {}) {
+  const row = (a) => ({
+    key: a.icao,
+    label: `${a.iata ? `${a.iata} ` : ''}${FR24_STRINGS[`pin.${a.icao}`] ? ft(`pin.${a.icao}`, lang) : (a.short || a.name || a.icao)}${Number.isFinite(a.km) ? ` · ${a.km} km` : ''}`,
+    active: open === a.icao,
+  });
+  const back = { key: 'back', label: `‹ ${ft('menu.back', lang)}` };
+  if (view && typeof view === 'object') {
+    return [back, { key: 'h:city', label: `📍 ${view.city}` }, ...(view.airports || []).map(row)];
+  }
+  if (view === 'cities') {
+    return [back, ...((menu && menu.cities) || []).map((c) => ({ key: `city:${c.name}`, label: c.country ? `${c.name} (${c.country})` : c.name }))];
+  }
+  const near = (menu && menu.near) || [];
+  const sg = (menu && menu.singapore) || [];
+  return [
+    { key: 'h:near', label: `📍 ${ft('menu.near', lang)}` },
+    ...(near.length ? near.map(row) : [{ key: 'h:none', label: ft('menu.none', lang) }]),
+    ...(sg.length ? [{ key: 'h:sg', label: `🇸🇬 ${ft('menu.sg', lang)}` }, ...sg.map(row)] : []),
+    { key: 'other', label: `${ft('menu.other', lang)} ▸` },
+  ];
 }
 // C10 revised (amendment 3) / I12 / I15: the movements board as DATA for Fr24Board.jsx, a glass strip or list in the
 // bottom dock. It never carries a terminal, gate or check-in field; the header says these are actual times, and the
@@ -309,7 +389,9 @@ export function gateText(g, lang = 'en') {
   if (!g || !g.gate) return null;
   return ft('gate.label', lang, { gate: g.gate }) + (g.terminal ? ` · ${g.terminal}` : '');
 }
-export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null, gates = null, etas = null, live = null } = {}) {
+// v0.62.989: `name` titles an airport with no translated pin name; `usage` is the one usage line (I5); `full` means
+// this reader's day is used up, so the board offers nothing that would ask FR24 (A8).
+export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', data = null, lang = 'en', planesOn = false, wx = null, loading = false, selectedId = null, detail = null, gates = null, etas = null, live = null, name = null, usage = null, full = false } = {}) {
   const gateFor = (id) => (gates && typeof gates.get === 'function' ? gates.get(id) : gates && gates[id]) || null;
   const v = VIEWS.includes(view) ? view : 'strip';
   const s = SORTS.includes(sort) ? sort : 'time';
@@ -321,7 +403,8 @@ export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', d
   let message = null;
   let rows = [];
   if (loading) { state = 'loading'; message = ft('board.loading', lang); }
-  else if (!data || !data.ok) { state = 'error'; message = ft(errKey(data), lang); }
+  // v0.62.989: at the cap the usage line already says why, so the tab does not say it twice.
+  else if (!data || !data.ok) { state = 'error'; message = full && data && data.reason === 'quota' ? null : ft(errKey(data), lang); }
   else if (!Array.isArray(data.rows) || !data.rows.length) { state = 'empty'; message = ft('board.empty', lang); }
   else {
     // Amendment 4: 🛫 on a take-off time, 🛬 on a landing time; "✈️ In the air" or "🛬 Landed hh:mm". An arrival still
@@ -359,12 +442,15 @@ export function boardModel({ icao, dir = 'dep', view = 'strip', sort = 'time', d
   return {
     icao, dir, view: v, sort: s, state, message, rows, labels,
     sorts: SORTS.map((x) => ({ sort: x, label: ft(`sort.${x}`, lang), active: x === s })),
-    title: ft(`pin.${icao}`, lang),
+    title: FR24_STRINGS[`pin.${icao}`] ? ft(`pin.${icao}`, lang) : (name || icao),
     header: ft(`board.header.${dir}`, lang),
     footer: ft('board.footer', lang),
     tabs: ['dep', 'arr'].map((d) => ({ dir: d, label: ft(`tab.${d}`, lang), active: d === dir })),
     views: VIEWS.map((x) => ({ view: x, label: ft(`view.${x}`, lang), active: x === v })),
-    planesLabel: ft(planesOn ? 'btn.hide' : 'btn.show', lang),
+    // v0.62.989 (A8): no planes button once the day is used up; planes already drawn can still be hidden.
+    planesLabel: full && !planesOn ? null : ft(planesOn ? 'btn.hide' : 'btn.show', lang),
+    usage: full ? ft('err.quota', lang) : (usage || null),
+    full: !!full,
     closeLabel: ft('btn.close', lang),
     getThere: icao === 'WSSS' ? ft('link.mrt', lang) : null,
     wx: wx || null,
@@ -408,10 +494,50 @@ export function flightCardHtml({ flight = null, plane = null, icao = null, lang 
     + '<br><em style="color:#9CA3AF;font-size:10px">Flightradar24</em></div>';
 }
 
-export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'en', now = () => Date.now(), onState = null, onBoard = null, onFlight = null } = {}) {
+function defaultStorage() {
+  try { if (typeof localStorage !== 'undefined' && localStorage) return localStorage; } catch { /* blocked */ }
+  return null;
+}
+
+// v0.62.989: `getPoint()` is the reader's location for the Airports menu (A5); `onMenu()` asks the panel to re-read
+// menuRows(); `storage` remembers today's last usage warning (A8), so a reopened app does not repeat it.
+export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'en', now = () => Date.now(), onState = null, onBoard = null, onFlight = null, getPoint = null, onMenu = null, storage = defaultStorage() } = {}) {
   const getJson = fetchJson || ((u) => fetch(u).then((r) => r.json()).catch(() => null));
   const AME = gmaps && gmaps.marker && gmaps.marker.AdvancedMarkerElement;
   let lang = lang0;
+  // ── v0.62.989 (I4, I5): this reader's daily usage, from the `usage` every capped answer carries ──────────────
+  // The Singapore day this reader's credits ran out, or null. Codex review of #1931 (P2): a plain flag outlived its
+  // day, so an app left open across midnight kept refusing every request after the server's count had started again.
+  let fullDay = null;
+  let warnStep = 0;           // the threshold the open board's usage line names, until the board closes
+  let warnedMem = null;       // the stored warning, when the page has no storage
+  const sgtDayNow = () => new Date(now() + SGT_MS).toISOString().slice(0, 10);
+  const isFull = () => fullDay !== null && fullDay === sgtDayNow();
+  function warnedToday() {
+    let v = warnedMem;
+    try { if (storage) v = storage.getItem(WARN_KEY); } catch { /* blocked */ }
+    const m = typeof v === 'string' ? v.match(/^(\d{4}-\d{2}-\d{2}):(\d+)$/) : null;
+    return m && m[1] === sgtDayNow() ? Number(m[2]) : 0;
+  }
+  function setWarned(step) {
+    warnedMem = `${sgtDayNow()}:${step}`;
+    try { if (storage) storage.setItem(WARN_KEY, warnedMem); } catch { /* blocked */ }
+  }
+  function noteUsage(r) {
+    if (!r) return;
+    const pct = r.usage && Number.isFinite(r.usage.pct) ? r.usage.pct : null;
+    if (r.reason === 'quota' || (pct != null && pct >= 100)) { fullDay = sgtDayNow(); return; }
+    if (pct == null) return;
+    const step = USAGE_STEPS.filter((s) => s <= pct).pop() || 0;
+    if (step && step > warnedToday()) { setWarned(step); warnStep = step; }
+  }
+  // Every request that can cost credits goes through here: none at all once the day is used up.
+  async function fr24Json(u) {
+    if (isFull()) return { ok: false, reason: 'quota' };
+    const r = await getJson(u);
+    noteUsage(r);
+    return r;
+  }
   let enabled = false;
   let planeMarkers = [];
   let planesData = null;
@@ -469,8 +595,8 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const mine = routeGen;
     if (!id || !plane || !FLIGHT_ID_RE.test(String(id))) return;
     const [t, f] = await Promise.all([
-      getJson(`/api/fr24/track/${encodeURIComponent(id)}`),
-      positions ? Promise.resolve(positions) : getJson(`/api/fr24/flight/${encodeURIComponent(id)}`),
+      fr24Json(`/api/fr24/track/${encodeURIComponent(id)}`),
+      positions ? Promise.resolve(positions) : fr24Json(`/api/fr24/flight/${encodeURIComponent(id)}`),
     ]);
     if (mine !== routeGen) return;
     const at = { lat: plane.lat, lng: plane.lng };
@@ -540,7 +666,10 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!boardIcao) return null;
     const b = boards.get(`${boardIcao}:${tab}`);
     const w = wx.get(boardIcao);
-    return boardModel({ icao: boardIcao, dir: tab, view, sort, data: b ? b.data : null, loading: !b, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf, etas: (etaTabs.get(`${boardIcao}:${tab}`) || {}).etas || null, live: liveNow() });
+    // v0.62.989: a tab never loaded once the day is used up shows the used-up board, not "Loading…" forever.
+    const full = isFull();
+    const data = b ? b.data : (full ? { ok: false, reason: 'quota' } : null);
+    return boardModel({ icao: boardIcao, dir: tab, view, sort, data, loading: !b && !full, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf, etas: (etaTabs.get(`${boardIcao}:${tab}`) || {}).etas || null, live: liveNow(), name: airportLabel(boardIcao, lang), usage: warnStep ? ft('usage.warn', lang, { pct: warnStep }) : null, full });
   }
   // v0.62.985 (I7): fr24_id → { alt, gspeed } from what is already in hand: the planes on the map and the ETA answers.
   // No request of its own.
@@ -564,11 +693,11 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (known) return known;
     const cs = String(f.callsign || (live && live.callsign) || '');
     const icao = planesIcao || boardIcao;
-    if (etaOff || !cs || !FR24_AIRPORTS[icao]) return null;
+    if (etaOff || !cs || !airportPoint(icao)) return null;
     const had = etaOne.get(cs);
     if (had && now() - had.at < ETA_CLIENT_TTL_MS) return had.pending ? await had.pending : had.eta;
     const dir = f.dest && f.dest.code === icao ? 'arr' : 'dep';
-    const pending = getJson(`/api/fr24/eta/${icao}?dir=${dir}&cs=${encodeURIComponent(cs)}`).then((r) => {
+    const pending = fr24Json(`/api/fr24/eta/${icao}?dir=${dir}&cs=${encodeURIComponent(cs)}`).then((r) => {
       if (r && r.reason === 'unavailable') etaOff = true;
       const eta = r && r.ok && r.etas ? (r.etas[id] || Object.values(r.etas)[0] || null) : null;
       const pos = r && r.ok && r.pos ? (r.pos[id] || Object.values(r.pos)[0] || null) : null;
@@ -602,10 +731,12 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const key = `${icao}:${dir}`;
     const b = boards.get(key);
     if (b && b.data && b.data.ok && now() - b.at < BOARD_CLIENT_TTL_MS) return;
-    const data = await getJson(`/api/fr24/board/${icao}?dir=${dir}`);
+    const data = await fr24Json(`/api/fr24/board/${icao}?dir=${dir}`);
     boards.set(key, { at: now(), data: data || { ok: false, reason: 'error' } });
   }
   async function loadWx(icao) {
+    // v0.62.989: the lightning line is NEA's, so Singapore's two airports only; and nothing once the day is used up.
+    if (isFull() || !Object.prototype.hasOwnProperty.call(FR24_AIRPORTS, icao)) return;
     const w = wx.get(icao);
     if (w && now() - w.at < WX_CLIENT_TTL_MS) return;
     const a = FR24_AIRPORTS[icao];
@@ -635,7 +766,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (typeof document !== 'undefined' && document.hidden) return;
     const ids = gateCandidates();
     if (!ids.length) { stopGates(); return; }
-    const r = await getJson(`/api/fr24/gates/${boardIcao}?ids=${ids.join(',')}`);
+    const r = await fr24Json(`/api/fr24/gates/${boardIcao}?ids=${ids.join(',')}`);
     if (r && r.ok && r.gates) {
       for (const [id, g] of Object.entries(r.gates)) {
         if (g && g.gate) gateOf.set(String(id), { gate: String(g.gate), terminal: g.terminal || null });
@@ -647,14 +778,14 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     render();
   }
   function startGates() {
-    if (gatesOff || gateTimer || !boardIcao || !gateCandidates().length) return;
+    if (isFull() || gatesOff || gateTimer || !boardIcao || !gateCandidates().length) return;
     gateTimer = setInterval(pollGates, GATE_POLL_MS);
     pollGates();
   }
 
   // I29: once a tab has loaded with a flight in the air, ask for the ETAs, at most every 5 minutes per tab.
   async function loadEta(icao, dir) {
-    if (!enabled || etaOff || boardIcao !== icao) return;
+    if (!enabled || etaOff || isFull() || boardIcao !== icao) return;
     const b = boards.get(`${icao}:${dir}`);
     const rows = b && b.data && b.data.ok && Array.isArray(b.data.rows) ? b.data.rows : [];
     // I32: the board's own in-air rows, by callsign, at most 15 - not "any 20 flights to Changi".
@@ -664,44 +795,65 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const had = etaTabs.get(key);
     if (had && now() - had.at < ETA_CLIENT_TTL_MS) return;
     etaTabs.set(key, { at: now(), etas: had ? had.etas : null });
-    const r = await getJson(`/api/fr24/eta/${icao}?dir=${dir}&cs=${cs.map(encodeURIComponent).join(',')}`);
+    const r = await fr24Json(`/api/fr24/eta/${icao}?dir=${dir}&cs=${cs.map(encodeURIComponent).join(',')}`);
     if (r && r.ok && r.etas) etaTabs.set(key, { at: now(), etas: r.etas, pos: r.pos || null });
     else if (r && r.reason === 'unavailable') etaOff = true;
     render();
   }
   // I28: a small Google pin with ✈ at each airport, the name below; a tap opens that airport's board.
+  // v0.62.989 (A2, I2): Changi and Seletar are drawn at init as before; any other airport gets its pin when the
+  // reader jumps to it from the Airports menu, and keeps it until the map closes.
   function clearPins() { for (const m of pins) drop(m); pins = []; }
+  const pinPos = (icao) => (Object.prototype.hasOwnProperty.call(FR24_PINS, icao) ? FR24_PINS[icao] : airportPoint(icao));
+  function makePin(icao) {
+    const PE = gmaps && gmaps.marker && gmaps.marker.PinElement;
+    const name = airportLabel(icao, lang);
+    const onTap = () => openBoard(icao);
+    const position = pinPos(icao);
+    let m;
+    if (AME && PE && typeof document !== 'undefined') {
+      const pin = new PE({ glyph: '✈', glyphColor: '#FFFFFF', background: PIN_BLUE, borderColor: '#174EA6', scale: 0.85 });
+      const wrap = document.createElement('div');
+      wrap.setAttribute('data-fr24-pin', icao);
+      Object.assign(wrap.style, { display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', transform: 'translateY(16px)' });
+      wrap.appendChild(pin.element);
+      const label = document.createElement('div');
+      label.textContent = name;
+      Object.assign(label.style, { font: '600 12px/1.2 system-ui, sans-serif', color: '#174EA6', textShadow: '0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff', whiteSpace: 'nowrap', marginTop: '1px' });
+      wrap.appendChild(label);
+      wrap.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); return onTap(); });
+      m = new AME({ map, content: wrap, position, zIndex: 9, title: name });
+      m.fr24LabelEl = label;
+    } else {
+      m = new gmaps.Marker({ map, position, zIndex: 9, title: name, label: { text: '✈', color: '#FFFFFF', fontSize: '13px' } });
+      m.addListener('click', onTap);
+    }
+    m.fr24Pin = icao;
+    return m;
+  }
   function drawPins() {
     clearPins();
-    const PE = gmaps && gmaps.marker && gmaps.marker.PinElement;
-    pins = Object.keys(FR24_AIRPORTS).map((icao) => {
-      const name = ft(`pin.${icao}`, lang);
-      const onTap = () => openBoard(icao);
-      let m;
-      if (AME && PE && typeof document !== 'undefined') {
-        const pin = new PE({ glyph: '✈', glyphColor: '#FFFFFF', background: PIN_BLUE, borderColor: '#174EA6', scale: 0.85 });
-        const wrap = document.createElement('div');
-        wrap.setAttribute('data-fr24-pin', icao);
-        Object.assign(wrap.style, { display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', transform: 'translateY(16px)' });
-        wrap.appendChild(pin.element);
-        const label = document.createElement('div');
-        label.textContent = name;
-        Object.assign(label.style, { font: '600 12px/1.2 system-ui, sans-serif', color: '#174EA6', textShadow: '0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff', whiteSpace: 'nowrap', marginTop: '1px' });
-        wrap.appendChild(label);
-        wrap.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); return onTap(); });
-        m = new AME({ map, content: wrap, position: FR24_PINS[icao], zIndex: 9, title: name });
-        m.fr24LabelEl = label;
-      } else {
-        m = new gmaps.Marker({ map, position: FR24_PINS[icao], zIndex: 9, title: name, label: { text: '✈', color: '#FFFFFF', fontSize: '13px' } });
-        m.addListener('click', onTap);
-      }
-      m.fr24Pin = icao;
-      return m;
-    });
+    pins = Object.keys(FR24_AIRPORTS).map((icao) => makePin(icao));
+  }
+
+  // v0.62.989 (A2, I2): jump, pin and open the board. The map zooms out to the airport only when it is far from
+  // where the map is now, so a tap on Changi from a Singapore map keeps the reader's zoom.
+  async function jumpTo(icao) {
+    if (!enabled) return;
+    const pos = pinPos(icao);
+    if (!pos) return;
+    if (map && typeof map.panTo === 'function') map.panTo(pos);
+    if (map && typeof map.getCenter === 'function' && typeof map.setZoom === 'function') {
+      const c = map.getCenter();
+      const here = c && typeof c.lat === 'function' ? { lat: c.lat(), lng: c.lng() } : c;
+      if (here && Number.isFinite(here.lat) && kmBetween(here, pos) > 30) map.setZoom(11);
+    }
+    if (!pins.some((m) => m.fr24Pin === icao)) pins.push(makePin(icao));
+    await openBoard(icao);
   }
 
   async function openBoard(icao, dir = 'dep') {
-    if (!enabled || !FR24_AIRPORTS[icao]) return;
+    if (!enabled || !airportPoint(icao)) return;
     boardIcao = icao;
     tab = dir;
     selectedId = null;
@@ -735,6 +887,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   }
   function closeBoard() {
     stopGates();
+    warnStep = 0;             // v0.62.989 (I5): the line was shown; a reopened board does not repeat it
     boardIcao = null;
     selectedId = null;
     detail = null;
@@ -762,7 +915,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (!inAir) { render(); return; }
     if (!row.callsign) { detail = [...detail, ft('locate.none', lang)]; render(); return; }
     render();
-    const r = await getJson(`/api/fr24/locate/${encodeURIComponent(row.callsign)}`);
+    const r = await fr24Json(`/api/fr24/locate/${encodeURIComponent(row.callsign)}`);
     const p = r && r.ok && r.plane && Number.isFinite(r.plane.lat) && Number.isFinite(r.plane.lng) ? r.plane : null;
     if (!p) { detail = [...detail, ft(r && r.ok ? 'locate.none' : errKey(r), lang)]; render(); return; }
     detail = [...flightCardLines({ flight: row, plane: p, icao: boardIcao, lang, eta }), ...gateLine];
@@ -780,9 +933,10 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     if (planesLoading) return;
     planesLoading = true;
     let data;
-    try { data = await getJson(`/api/fr24/airport/${icao}`); } finally { planesLoading = false; }
+    try { data = await fr24Json(`/api/fr24/airport/${icao}`); } finally { planesLoading = false; }
     // I31: a busy or over-budget answer to a refresh keeps the planes already drawn, and the caption says why.
-    if (!(data && data.ok) && planesData && planesIcao === icao && data && (data.reason === 'busy' || data.reason === 'budget')) {
+    // v0.62.989: so does a reader's used-up day (`quota`).
+    if (!(data && data.ok) && planesData && planesIcao === icao && data && ['busy', 'budget', 'quota'].includes(data.reason)) {
       planesNote = errKey(data);
       emit();
       return;
@@ -796,7 +950,8 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     render();
   }
   async function togglePlanes(icao = boardIcao) {
-    if (!enabled || !FR24_AIRPORTS[icao]) return;   // a second tap while loading stops in fetchPlanes (I31)
+    if (!enabled || !airportPoint(icao)) return;   // a second tap while loading stops in fetchPlanes (I31)
+    if (isFull() && planesIcao !== icao) return;    // v0.62.989 (A8): no new planes once the day is used up
     if (planesIcao === icao) { planesIcao = null; planesData = null; planesNote = null; clearPlanes(); emit(); render(); return; }
     await fetchPlanes(icao);
   }
@@ -806,7 +961,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   }
   async function openFlight(id, plane = null) {
     if (!enabled || !id) return;
-    const r = await getJson(`/api/fr24/flight/${encodeURIComponent(id)}`);
+    const r = await fr24Json(`/api/fr24/flight/${encodeURIComponent(id)}`);
     const live = plane || (planeMarkers.find((m) => m.fr24Plane === id) || {}).fr24Data || null;
     const html = r && r.ok
       ? flightCardHtml({ flight: r.flight, plane: live, icao: planesIcao || boardIcao, lang })
@@ -816,7 +971,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const at = live ? deadReckon(live, offsetSec + ticks) : null;
     if (iw) {
       iw.setContent(html);
-      iw.setPosition(at || FR24_AIRPORTS[planesIcao || boardIcao || 'WSSS']);
+      iw.setPosition(at || airportPoint(planesIcao || boardIcao || 'WSSS') || FR24_AIRPORTS.WSSS);
       iw.open({ map });
     }
     const landed = r && r.ok && r.flight && r.flight.ended && r.flight.landed;
@@ -841,12 +996,88 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   function setLang(l) {
     lang = l;
     for (const m of pins) {
-      const name = ft(`pin.${m.fr24Pin}`, lang);
+      const name = airportLabel(m.fr24Pin, lang);
       if (m.fr24LabelEl) m.fr24LabelEl.textContent = name;
       if (typeof m.setTitle === 'function') m.setTitle(name); else m.title = name;
     }
     render();
     emit();
+    if (onMenu) onMenu();
+  }
+
+  // ── v0.62.989 (A1, A5, I1, I2): the ⋮ menu's Airports ▾ ─────────────────────────────────────────────────────
+  // Read when the submenu renders, so nothing is fetched until the reader opens it; asked again once the reader has
+  // moved more than 20 km. `menuView` is 'main', 'cities' or one city's { city, airports }.
+  let menu = null;
+  let menuAt = null;
+  let menuLoading = null;
+  let menuFailedAt = null;
+  let menuView = 'main';
+  let cityLoading = null;
+  const point = () => {
+    const p = typeof getPoint === 'function' ? getPoint() : null;
+    return p && Number.isFinite(p.lat) && Number.isFinite(p.lng) ? { lat: p.lat, lng: p.lng } : SG_POINT;
+  };
+  const r2 = (v) => Number(v.toFixed(2));
+  function loadMenu(p) {
+    menuLoading = getJson(`/api/fr24/airports-near?lat=${r2(p.lat)}&lng=${r2(p.lng)}`).then((r) => {
+      if (r && r.ok && Array.isArray(r.near)) {
+        rememberAirports([...r.near, ...(r.singapore || [])]);
+        menu = r;
+        menuAt = p;
+        menuFailedAt = null;
+      } else {
+        menuFailedAt = now();
+      }
+    }).catch(() => { menuFailedAt = now(); }).finally(() => {
+      menuLoading = null;
+      if (onMenu) onMenu();
+    });
+    return menuLoading;
+  }
+  function menuRows() {
+    if (!enabled) return [];
+    const p = point();
+    const stale = !menu || !menuAt || kmBetween(menuAt, p) > MENU_MOVE_KM;
+    const mayRetry = menuFailedAt == null || now() - menuFailedAt >= MENU_RETRY_MS;
+    if (stale && !menuLoading && mayRetry) loadMenu(p);
+    if (!menu) {
+      return [menuFailedAt != null && !menuLoading
+        ? { key: 'h:error', label: ft('err.unavailable', lang) }
+        : { key: 'h:loading', label: ft('board.loading', lang) }];
+    }
+    return airportMenuRows({ view: menuView, menu, lang, open: boardIcao });
+  }
+  // For a test, or a caller that wants the list in hand: resolves once nothing is loading.
+  async function menuReady() {
+    while (menuLoading || cityLoading) await (menuLoading || cityLoading);
+  }
+  async function menuPick(key) {
+    if (!enabled || typeof key !== 'string' || key.startsWith('h:')) return;
+    if (key === 'other') { menuView = 'cities'; if (onMenu) onMenu(); return; }
+    if (key === 'back') { menuView = menuView && typeof menuView === 'object' ? 'cities' : 'main'; if (onMenu) onMenu(); return; }
+    if (key.startsWith('city:')) {
+      const name = key.slice(5);
+      cityLoading = getJson(`/api/fr24/airports-near?city=${encodeURIComponent(name)}`).then((r) => {
+        if (r && r.ok && Array.isArray(r.airports)) {
+          rememberAirports(r.airports);
+          menuView = { city: r.city || name, airports: r.airports };
+        }
+      }).catch(() => {}).finally(() => {
+        cityLoading = null;
+        if (onMenu) onMenu();
+      });
+      await cityLoading;
+      return;
+    }
+    if (airportPoint(key)) await jumpTo(key);
+  }
+  // Ticking the ✈️ Airports row: the reader's first airport when it is not in Singapore (jump there), else Changi's
+  // board as before, with no pan.
+  async function openDefault() {
+    const first = menu && Array.isArray(menu.near) ? menu.near[0] : null;
+    if (first && !Object.prototype.hasOwnProperty.call(FR24_AIRPORTS, first.icao)) return jumpTo(first.icao);
+    return openBoard('WSSS');
   }
   // The map's own click (on empty map) closes every popup; the board closes with them.
   function closeInfo() {
@@ -868,11 +1099,16 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     openId = null;
     report(null);
     enabled = false;
+    menu = null;
+    menuAt = null;
+    menuView = 'main';
   }
 
   return {
     init, openBoard, setTab, setView, setSort, closeBoard, selectFlight, togglePlanes, refresh, openFlight, setLang, closeInfo, destroy,
     pinCount: () => pins.length, openIcao: () => boardIcao, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
     enabled: () => enabled,
+    // v0.62.989
+    jumpTo, openDefault, menuRows, menuPick, menuReady, usageFull: () => isFull(),
   };
 }

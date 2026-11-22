@@ -24,8 +24,9 @@
 // data/hawker-coords.json is populated by scripts/fetch-hawker-coords.js),
 // the panel renders a "coordinates not yet loaded" placeholder.
 
-import React, { useEffect, useRef, useState } from 'react';
-import { openLink } from '../tg.js';
+import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
+import { openLink, initData } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
@@ -38,6 +39,14 @@ import MapControls from '../../../_shared/components/MapControls.jsx';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
 import { createStationSimController } from '../../../_shared/lib/station-sim-controller.js';
 import { createStopBusesLayer } from '../../../_shared/lib/stop-buses.js';
+// v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A4, I7): the Train map's Flightradar24 layer,
+// board and globe, through the one-line re-exports in web/_shared. Owner-only until FR24_PUBLIC=1, as on Train.
+import { createFr24Layer, ft as fr24T } from '../../../_shared/lib/fr24-layer.js';
+import { globeAvailable } from '../../../_shared/lib/globe-available.js';
+import Fr24Board from '../../../_shared/components/Fr24Board.jsx';
+const FlightGlobe = lazy(() => import('../../../_shared/components/FlightGlobe.jsx'));
+// A5: the Airports menu's point when the app has no device location for the reader.
+const SG_POINT = { lat: 1.3521, lng: 103.8198 };
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 12;   // v0.62.132 — default 11->12
@@ -140,10 +149,23 @@ function hawkerPinNode(isNew, number, hasBib, closureKind, upcomingKind) {
   return wrap;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null, onCentreTap = null, onTrainsChange = null, onStopBusesChange = null }) {
+// v0.62.989 — `readerLoc`: the device location App already has (startLocationSync), for the Airports menu (A5).
+export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null, onCentreTap = null, onTrainsChange = null, onStopBusesChange = null, readerLoc = null }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
+  // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A1-A5, I7): Flightradar24, as on the Train map.
+  // The layer asks /api/fr24/access once the map exists; the ⋮ menu's ✈️ Airports row shows only with access. The
+  // board is drawn here, over the centre cards, because this app has no bottom dock to hand it to.
+  const fr24Ref = useRef(null);
+  const [fr24Enabled, setFr24Enabled] = useState(false);
+  const [fr24Open, setFr24Open] = useState(null);
+  const [fr24Board, setFr24Board] = useState(null);
+  const [fr24Flight, setFr24Flight] = useState(null);
+  const [globeOpen, setGlobeOpen] = useState(false);
+  const [, setFr24MenuTick] = useState(0);
+  const pointRef = useRef(SG_POINT);
+  pointRef.current = readerLoc || SG_POINT;
   // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, C2-C3. The overlay controller's station
   // tap calls window.__giaStationSim(station) and its bus stop bubble calls window.__giaStopBuses(code, name); the
   // controller and the stop layer are made on the first tap, once the map exists, and report upward for the header
@@ -474,6 +496,32 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     };
     window.__giaMapInfoClose = closeInfo;
     mapRef.current.addListener('click', closeInfo);
+    // v0.62.989 (I7): a tap on the empty map closes a flight card, as on Train.
+    mapRef.current.addListener('click', () => fr24Ref.current?.closeInfo());
+    if (!fr24Ref.current) {
+      fr24Ref.current = createFr24Layer(mapRef.current, window.google.maps, {
+        lang,
+        fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() || '' } }).then((r) => r.json()).catch(() => null),
+        getPoint: () => pointRef.current,
+        onMenu: () => setFr24MenuTick((n) => n + 1),
+        onFlight: (f) => { setFr24Flight(f || null); if (!f) setGlobeOpen(false); },
+        onBoard: (m) => {
+          setFr24Open(m ? m.icao : null);
+          // "Getting there" focuses a station on the Train map; this map has no station list, so it is left out.
+          setFr24Board(m ? {
+            model: { ...m, getThere: null },
+            onTab: (d) => fr24Ref.current?.setTab(d),
+            onView: (v) => fr24Ref.current?.setView(v),
+            onSort: (x) => fr24Ref.current?.setSort(x),
+            onPlanes: () => fr24Ref.current?.togglePlanes(),
+            onClose: () => fr24Ref.current?.closeBoard(),
+            onSelect: (id) => fr24Ref.current?.selectFlight(id),
+            onGetThere: null,
+          } : null);
+        },
+      });
+      fr24Ref.current.init().then((on) => setFr24Enabled(!!on));
+    }
     // v0.61.89 — troubleshooting: seed + track the bottom-right zoom-level readout.
     setZoomLevel(mapRef.current.getZoom());
     mapRef.current.addListener('zoom_changed', () => {
@@ -511,12 +559,14 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   useEffect(() => {
     const ctrl = overlayControllerRef.current;
     if (ctrl && typeof ctrl.setLang === 'function') ctrl.setLang(lang);
+    fr24Ref.current?.setLang(lang);
   }, [lang]);
   useEffect(() => () => {
     overlayControllerRef.current?.destroy?.();
     ringLayerRef.current?.destroy?.();
     inspectLayerRef.current?.destroy?.();
   }, []);
+  useEffect(() => () => { fr24Ref.current?.destroy(); fr24Ref.current = null; }, []);
 
   // Re-sync markers whenever the centres array or region changes.
   useEffect(() => { syncMarkers(); }, [centres, region]); // eslint-disable-line
@@ -743,7 +793,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const rowToggles = [
     { key: 'train',       icon: '🚉', label: t('layer.train', lang) },
     { key: 'carpark',     icon: '🅿️', label: t('layer.carpark', lang) },
-    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang) }
+    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang) },
+    // v0.62.989 (I7): 🌐 Globe, only while a flight is selected, as on Train.
+    ...(globeAvailable(fr24Flight) ? [{ key: 'globe', icon: '🌐', label: fr24T('globe.chip', lang) }] : [])
   ];
   // v0.62.956 — 🌳 Park ▾: the Park Connector loops, nearest first (spec C9); a row locks that loop and fits
   // the map to it. Empty until Park has been on once, because the layer is fetched then.
@@ -765,7 +817,16 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     { key: 'parks',       icon: '🌳', label: t('layer.parks', lang), submenu: pcnSubmenu },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
-    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) }
+    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
+    // v0.62.989 (A1, A2, I7): ✈️ Airports ▾: the airports near the reader, then Changi and Seletar, then "Other
+    // cities ▸". Rows and picks are the shared layer's.
+    ...(fr24Enabled ? [{ key: 'airports', icon: '✈️', label: fr24T('menu.airports', lang), submenu: {
+      label: fr24T('menu.pick', lang),
+      heading: fr24T('menu.airports', lang),
+      items: () => fr24Ref.current?.menuRows() || [],
+      onPick: (k) => fr24Ref.current?.menuPick(k),
+      pickWhenOff: true,
+    } }] : [])
   ];
 
   return (
@@ -849,10 +910,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
         fill={fill}
-        layers={overlayLayers || {}}
-        onToggleLayer={(key) => onOverlayChange?.({
+        layers={{ ...(overlayLayers || {}), airports: !!fr24Open, globe: !!globeOpen }}
+        onToggleLayer={(key) => (key === 'airports'
+          ? (fr24Open ? fr24Ref.current?.closeBoard() : fr24Ref.current?.openDefault())
+          : key === 'globe' ? setGlobeOpen((g) => (g ? false : 'card'))
+          : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
-        })}
+        }))}
         rowToggles={rowToggles}
         menuToggles={menuToggles}
         lockChip={pcnChip}
@@ -865,6 +929,33 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       />
       {/* v0.62.270 — 🔭 zoom readout removed; the live zoom now shows on the
           Reset button in the top-left nav cluster. */}
+      {/* v0.62.989 (I7): the flight globe card, as on Train; it loads only when opened. */}
+      {globeOpen && globeAvailable(fr24Flight) && (
+        <Suspense fallback={null}>
+          <FlightGlobe
+            flight={fr24Flight}
+            lang={lang}
+            full={globeOpen === 'full'}
+            top={fill ? 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 7.5rem)' : '92px'}
+            onExpand={() => setGlobeOpen('full')}
+            onClose={() => setGlobeOpen(false)}
+          />
+        </Suspense>
+      )}
+      {/* v0.62.989 (I7): the flight board, over the centre cards (z-30) and the footer dock's top edge, in a portal so
+          no map wrapper can clip it; its ✕ brings the cards back. */}
+      {fr24Board && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-x-0 z-[38] pointer-events-none px-3"
+          style={{ bottom: 'calc(3.75rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}>
+          {/* Opaque backing: the board's glass is see-through, and here the centre cards stay behind it (on Train the
+              station carousel is hidden instead). Found by rendering the built app: the cards bled into the rows. */}
+          <div className="mx-auto max-w-md rounded-2xl bg-tg-bg">
+            <Fr24Board model={fr24Board.model} onTab={fr24Board.onTab} onView={fr24Board.onView} onSort={fr24Board.onSort} onPlanes={fr24Board.onPlanes}
+              onClose={fr24Board.onClose} onSelect={fr24Board.onSelect} onGetThere={fr24Board.onGetThere} />
+          </div>
+        </div>,
+        document.body
+      )}
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">
           {t('map.loading', lang)}

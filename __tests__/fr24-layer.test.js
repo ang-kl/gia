@@ -161,12 +161,25 @@ describe('I2 / I14 — fetch only on a tap, and pins only for a reader with acce
     const i = panel.indexOf("key: 'airports'");
     expect(panel.slice(i, panel.indexOf('] : []),', i))).toMatch(/pickWhenOff: true/);
     expect(panel.match(/pickWhenOff/g)).toHaveLength(1);
-    // Park's ▾ (pcnSubmenu) does not opt in, and no other app sets the flag.
+    // Park's ▾ (pcnSubmenu) does not opt in. v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (I7):
+    // the Cuisine and Hawker maps now carry the same ✈️ Airports row, so each sets the flag once, inside that row; no
+    // other file sets it (was: "no other app sets the flag").
+    const ROWS = { 'web/cuisine/src/v2/components/MapPanel.jsx': 1, 'web/hawker/src/components/HawkerMapPanel.jsx': 1 };
     for (const f of ['web/hawker/src', 'web/cuisine/src', 'web/_shared']) {
       const files = fs.readdirSync(path.join(process.cwd(), f), { recursive: true }).filter((n) => /\.jsx?$/.test(n));
       for (const n of files) {
+        const rel = `${f}/${n}`;
         const s = fs.readFileSync(path.join(process.cwd(), f, n), 'utf8');
-        if (!/MapControls\.jsx$/.test(n)) expect(s, `${f}/${n}`).not.toMatch(/pickWhenOff/);
+        if (/MapControls\.jsx$/.test(n)) continue;
+        if (ROWS[rel]) {
+          expect(s.match(/pickWhenOff/g), rel).toHaveLength(ROWS[rel]);
+          const k = s.indexOf("key: 'airports'");
+          expect(s.slice(k, s.indexOf('] : [])', k)), rel).toMatch(/pickWhenOff: true/);
+          const p = s.indexOf('const pcnSubmenu = {');
+          expect(s.slice(p, s.indexOf('};', p)), rel).not.toMatch(/pickWhenOff/);
+        } else {
+          expect(s, rel).not.toMatch(/pickWhenOff/);
+        }
       }
     }
   });
