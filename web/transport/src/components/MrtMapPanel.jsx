@@ -58,13 +58,11 @@ import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interact
 import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
-// v0.62.961 — simulated trains (spec doc/Feature/2026-10-30-simulated-trains-train-tma.spec.md). Built from the
-// operators' published timetable by scripts/build-train-sim.js; no live positions exist to show.
-import trainSim from '../data/train-sim.json';
+// v0.62.990 — spec doc/Feature/2026-11-12-remove-simulate-smooth-buses-shared-route.spec.md, B1-B3: the simulated
+// trains of v0.62.961-v0.62.979 are removed, with their toggle, caption, station list and timetable; a station tap
+// selects the station and opens its card, as it did before.
 // v0.62.967 — a bus service's route and the buses on it, drawn when a service number in a stop's bubble is tapped.
 import { createBusRouteLayer } from '../lib/mapOverlays.js';
-import { createTrainSimLayer, simState, lineGeometry, simT, effectiveSimLines, aggregateSimStatus } from '../lib/train-sim.js';
-import { addRunItem, removeRunItem, runnableStation, stationsToLines, trainResumeAt, trainResumeText } from '../lib/run-state.js';
 import { createStopBusesLayer } from '../lib/stop-buses.js';
 import { createFr24Layer, ft as fr24T } from '../lib/fr24-layer.js';
 // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (I6): the flight globe and its land data load only when opened.
@@ -164,7 +162,7 @@ const SG_POINT = { lat: 1.3521, lng: 103.8198 };
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
 // v0.62.989 — `readerLoc`: the device location App already has (startLocationSync), for the Airports menu (A5).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, headerPx = null, onSimChange = null, onBusRouteChange = null, onTrainsChange = null, onStopBusesChange = null, publicHolidays = null, onFr24BoardChange = null, readerLoc = null }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false, headerPx = null, onBusRouteChange = null, onStopBusesChange = null, onFr24BoardChange = null, readerLoc = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -307,62 +305,6 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
 
   // Stable ref for the InfoWindow CTA closure.
   useEffect(() => { stationsRef.current = stations || []; }, [stations]);
-  // v0.62.961 — "🚆 Simulated" (spec C1-C7). Off by default and held here only, so it resets when the Mini App closes
-  // (C2); it is never written to the kept settings. Trains run on the SELECTED line only, from the published timetable,
-  // and the caption under the toggle row says so whenever the toggle is on (C6).
-  const [simOn, setSimOn] = useState(false);
-  // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C1-C3. A station tap adds its lines here;
-  // the toggle off empties it; with nothing added the toggle runs the focused line, as before. Panel state only:
-  // closing a station card does not touch it, and it is gone when the Mini App closes (C10).
-  // v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C1-C2: the panel keeps the STATIONS tapped (up to five,
-  // oldest out); the lines drawn are the union of their timetabled lines.
-  const [simStations, setSimStations] = useState([]);
-  const simStationsRef = useRef(simStations);
-  simStationsRef.current = simStations;
-  const simLines = stationsToLines(simStations);
-  const [simNow, setSimNow] = useState(() => Date.now());
-  const simLayerRef = useRef(null);
-  const simGeomRef = useRef({});
-  const runLines = effectiveSimLines({ simOn, simLines, focusedCode });
-  const lineStates = runLines.map((code) => ({ code, state: simState({ lineCode: code, status: statusByLine?.[code]?.status ?? null, sim: trainSim, nowMs: simNow }) }));
-  const lineStatesKey = lineStates.map((l) => `${l.code}:${l.state}`).join(',');
-  const simStatus = lineStates.length
-    ? aggregateSimStatus(lineStates)
-    : simState({ lineCode: focusedCode, status: statusByLine?.[focusedCode]?.status ?? null, sim: trainSim, nowMs: simNow });
-  useEffect(() => {
-    if (!simOn) return undefined;
-    const id = setInterval(() => setSimNow(Date.now()), 30000);
-    return () => clearInterval(id);
-  }, [simOn]);
-  // v0.62.966 — spec 2026-11-02-train-sim-caption-in-header-band, C1: the caption now lives in the header, which
-  // App.jsx draws, so the panel reports the toggle and its status upward. The toggle itself stays here (C2 of the
-  // trains spec): local state, never kept.
-  useEffect(() => {
-    onSimChange?.({ on: simOn, status: simStatus });
-  }, [simOn, simStatus]); // eslint-disable-line react-hooks/exhaustive-deps
-  // v0.62.971 — C4-C6: what the footer's 🚇 button and drawer list, and the header's resume lines. A ❌ removes one
-  // station (the last one stops the simulation).
-  const stopAllTrains = () => { setSimStations([]); setSimOn(false); };
-  const stationsKey = simStations.map((x) => x.key).join(',');
-  const resumeLines = lineStates.map((l) => trainResumeText({
-    code: l.code, state: l.state, raw: statusByLine?.[l.code]?.raw || '',
-    resumeAt: l.state === 'outOfHours' && trainSim.lines[l.code] ? trainResumeAt(trainSim.lines[l.code].window, simNow, publicHolidays || []) : null,
-    nowMs: simNow, lang,
-  })).filter(Boolean);
-  const resumeKey = resumeLines.join('|');
-  useEffect(() => {
-    if (!simOn || !lineStates.length) { onTrainsChange?.(null); return; }
-    onTrainsChange?.({
-      stations: simStations,
-      lines: lineStates,
-      resume: resumeLines,
-      remove: (key) => {
-        const next = removeRunItem(simStationsRef.current, key);
-        if (!next.length) stopAllTrains(); else setSimStations(next);
-      },
-      stopAll: stopAllTrains,
-    });
-  }, [simOn, lineStatesKey, stationsKey, resumeKey]); // eslint-disable-line react-hooks/exhaustive-deps
   // v0.62.967 — spec 2026-11-02-bus-route-and-live-buses-train-tma, C4-C7. The bubble's service numbers call
   // window.__giaBusRoute(service, stopCode); the layer is created on the first tap, once the map exists, and reports
   // its state (plus swap / clear) upward so App.jsx can draw the header strip. Cleared on unmount; never kept.
@@ -390,46 +332,6 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       busRouteRef.current = null;
     };
   }, []);
-  useEffect(() => {
-    const map = mapRef.current;
-    const gmaps = window.google?.maps;
-    // v0.62.969 — C3: one layer per line, each drawn only while its own state === 'running'.
-    const drawn = lineStates.filter((l) => l.state === 'running' && trainSim.lines[l.code]);
-    if (!simOn || !drawn.length || !map || !gmaps || !stations) {
-      simLayerRef.current?.forEach((l) => l.stop());
-      simLayerRef.current = null;
-      return undefined;
-    }
-    const coords = {};
-    for (const s of stations) for (const c of (s.codes || [])) if (Number.isFinite(s.lat) && Number.isFinite(s.lng)) coords[c] = { lat: s.lat, lng: s.lng };
-    const nameOf = (code) => {
-      const s = stations.find((x) => (x.codes || []).includes(code));
-      return s ? stationName(s.name, lang) : code;
-    };
-    const layers = drawn.map(({ code }) => {
-      const line = trainSim.lines[code];
-      const key = `${code}:${stations.length}:${linePathsRef.current ? 1 : 0}`;
-      if (!simGeomRef.current[code] || simGeomRef.current[code].key !== key) {
-        simGeomRef.current[code] = { key, geometry: lineGeometry(line.stations, coords, linePathsRef.current?.[code] || []) };
-      }
-      const ctx = { line, geometry: simGeomRef.current[code].geometry, hex: LINES_BY_CODE[code]?.hex || '#555' };
-      const layer = createTrainSimLayer(map, gmaps, () => ctx, {
-        onTap: (tr, pos) => {
-          const iw = infoWindowRef.current;
-          if (!iw || !tr) return;
-          const towards = escapeHtml(simT('towards', lang, { stn: nameOf(tr.terminus) }));
-          const next = tr.next ? `<br>${escapeHtml(simT('next', lang, { stn: nameOf(tr.next), min: Math.max(1, Math.round(tr.nextInSec / 60)) }))}` : '';
-          iw.setContent(infoCard(`<strong>🚆 ${code} · ${towards}</strong>${next}<br><em>${escapeHtml(simT('caption', lang))}</em>`));
-          iw.setPosition(pos);
-          iw.open({ map });
-        },
-      });
-      layer.start();
-      return layer;
-    });
-    simLayerRef.current = layers;
-    return () => { layers.forEach((l) => l.stop()); if (simLayerRef.current === layers) simLayerRef.current = null; };
-  }, [simOn, lineStatesKey, stations, lang]); // eslint-disable-line react-hooks/exhaustive-deps
   // v0.62.969 — spec 2026-11-03-station-and-stop-tap-animations-train-tma, C4-C8. The bubble's stop tap calls
   // window.__giaStopBuses(code, name); the layer shows every service's coming and going buses and reports upward for
   // the footer's 🚌 chip. Cleared on unmount; never kept.
@@ -1068,11 +970,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         // re-targeting the station-detail view) and leaves Overview.
         if (overview) setOverview(false);
         onStationSelect?.(s);
-        // v0.62.979 — R-17: a station not open yet shows its card (with the opening date) but starts no trains.
-        if (runnableStation(s)) {
-          setSimStations((cur) => addRunItem(cur, { key: s.name, name: s.name, lines: s.lines || [] }));
-          setSimOn(true);
-        }
+        // v0.62.990 — B3: the tap no longer starts simulated trains (removed); an unopened station still shows its
+        // card with the date it opens (R-17).
         openStationInfo(s, marker, isFuture, crowdLevel);
       });
       markersRef.current.push(marker);
@@ -1193,8 +1092,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.62.985 — spec 2026-11-11-fr24-globe-arrival-tz (A3, I6): 🌐 Globe, beside Hawker, only while a flight is
     // selected; it opens the small globe card.
     ...(globeAvailable(fr24Flight) ? [{ key: 'globe', icon: '🌐', label: fr24T('globe.chip', lang) }] : []),
-    // v0.62.961 — simulated trains (spec C2): local state, not an overlay layer, so it is never kept across a reopen.
-    { key: 'simTrains',   icon: '🚆', label: simT('toggle', lang) }
+    // v0.62.990 — B1: the simulated-trains toggle that stood here is removed with Simulate.
   ];
   // v0.62.956 — 🌳 Park ▾: the Park Connector loops, nearest first (spec C9); a row locks that loop and fits
   // the map to it. Empty until Park has been on once, because the layer is fetched then.
@@ -1337,11 +1235,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
         top={controlTops.rowTop}
-        layers={{ ...(overlayLayers || {}), simTrains: simOn, airports: !!fr24Open, globe: !!globeOpen }}
+        layers={{ ...(overlayLayers || {}), airports: !!fr24Open, globe: !!globeOpen }}
         onToggleLayer={(key) => (key === 'airports'
           ? (fr24Open ? fr24Ref.current?.closeBoard() : fr24Ref.current?.openDefault())
           : key === 'globe' ? setGlobeOpen((g) => (g ? false : 'card'))
-          : key === 'simTrains' ? (simOn ? stopAllTrains() : setSimOn(true)) : onOverlayChange?.({
+          : onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
         }))}
         rowToggles={rowToggles}
@@ -1354,10 +1252,6 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
-      {/* v0.62.961 — spec C6/I4: whenever the toggle is on, say these are simulated, never live; when none are drawn,
-          also say why. v0.62.966 — the pill that stood here moved into the header band (App.jsx, SimCaptionStrip),
-          beside the weather strip: operator, 02-11 '26, "should be like the weather alert and not a separate like
-          this". The panel reports simOn / simStatus through onSimChange above. */}
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed
           when there is no focused line / station to toggle from.

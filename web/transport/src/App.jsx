@@ -27,8 +27,6 @@ import useOutsideNow from '../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../_shared/lib/use-weather-abroad.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { ot, badgeDot } from '../../_shared/lib/outside-now-i18n.js';
-// v0.62.966 — spec 2026-11-02-train-sim-caption-in-header-band: the simulation caption as a header strip.
-import { simStripModel } from './lib/train-sim.js';
 import Fr24Board from './components/Fr24Board.jsx';
 import { busResumeText } from './lib/run-state.js';
 import FooterRunButtons from '../../_shared/components/FooterRunButtons.jsx';
@@ -243,28 +241,8 @@ function Modal({ title, onClose, children }) {
 //   4. AffectedTicker (horizontal-scroll list of all affected lines)
 //   5. LocationCard (you-are-here + nearest stations)
 //   6. EngineeringList (next 7 days from data/mrt-engineering-closures.md)
-// v0.62.966 — spec doc/Feature/2026-11-02-train-sim-caption-in-header-band.spec.md (C1-C4). While "🚆 Simulated" is
-// on, the caption sits in the header band right after the weather strip, in the same shape (operator, 02-11 '26:
-// "should be like the weather alert and not a separate like this"), with the reason line when nothing is drawn. The
-// ✕ hides it for the session, like the weather strip's (operator: "Yes, a ✕ like the weather strip"); the toggle
-// going off and on brings it back, and a tapped train's bubble still says "simulated", so nothing is ever unlabelled.
-function SimCaptionStrip({ on, status, lang = 'en', className = '' }) {
-  const [hidden, setHidden] = useState(false);
-  useEffect(() => { if (on) setHidden(false); }, [on]);
-  if (!on || hidden) return null;
-  const m = simStripModel({ status, lang });
-  // v0.62.975 — nothing while trains run; one reason line while none do (FR24 spec, amendment 3).
-  if (!m) return null;
-  return (
-    <div role={m.role} data-sim-strip={m['data-sim-strip']} className={className} style={m.style}>
-      <span aria-hidden="true">{m.icon}</span>
-      <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block' }}>{m.lines[0]}</span>
-      </span>
-      <button type="button" aria-label={ot('ui.dismiss', lang)} onClick={() => setHidden(true)} style={{ all: 'unset', cursor: 'pointer', padding: '0 2px 0 4px', fontSize: 14, opacity: 0.7 }}>✕</button>
-    </div>
-  );
-}
+// v0.62.990 — spec doc/Feature/2026-11-12-remove-simulate-smooth-buses-shared-route.spec.md, B1: the simulation caption
+// strip that stood here (v0.62.966) is removed with Simulate.
 
 // v0.62.967 — spec doc/Feature/2026-11-02-bus-route-and-live-buses-train-tma.spec.md, C7. While a bus route is drawn,
 // a strip after the sim caption names the service and its last stop, the buses shown and the LTA reading time, with
@@ -295,12 +273,9 @@ export default function App() {
   // back to the Singapore centroid and the sheet says "Singapore".
   const [outsideLoc, setOutsideLoc] = useState(null);
   useEffect(() => startLocationSync({ durationMs: 0, onLocation: (l) => setOutsideLoc({ lat: l.lat, lng: l.lng }) }), []);
-  // v0.62.966 — what the map panel reports about "🚆 Simulated" (onSimChange): the header strip reads it.
-  const [sim, setSim] = useState({ on: false, status: null });
   // v0.62.967 — what the map panel reports about a drawn bus route (onBusRouteChange): the route strip reads it.
   const [busRoute, setBusRoute] = useState(null);
-  // v0.62.969 — C8: what the footer's run chips show; the panel reports both.
-  const [trains, setTrains] = useState(null);
+  // v0.62.969 — C8: what the footer's run button shows; the panel reports it. (v0.62.990: no trains half any more.)
   const [stopBuses, setStopBuses] = useState(null);
   // v0.62.975 — FR24 spec amendment 3: the flight board the map panel hands up ({ model, actions }), or null.
   const [fr24Board, setFr24Board] = useState(null);
@@ -708,9 +683,8 @@ export default function App() {
         statusByLine={statusByLine}
       />
       <OutsideNowStrip data={outside} abroad={abroad} app="train" lang={lang} onOpen={openOutside} className="-mx-1" />
-      <SimCaptionStrip on={sim.on} status={sim.status} lang={lang} className="-mx-1" />
-      {/* v0.62.971 — C6-C8: when the listed lines and bus operators resume. */}
-      <ResumeStrip lines={[...(trains?.resume || []), ...((stopBuses?.resume || []).map((o) => busResumeText({ ...o, nowMs: Date.now(), lang })))]} lang={lang} className="-mx-1" />
+      {/* v0.62.971 — C6-C8: when the listed bus operators resume. */}
+      <ResumeStrip lines={(stopBuses?.resume || []).map((o) => busResumeText({ ...o, nowMs: Date.now(), lang }))} lang={lang} className="-mx-1" />
       <BusRouteStrip state={busRoute} lang={lang} className="-mx-1" />
     </header>
   );
@@ -736,15 +710,12 @@ export default function App() {
             lang={lang}
             overlayLayers={overlayLayers}
             onOverlayChange={setOverlayLayers}
-            onSimChange={setSim}
             onBusRouteChange={setBusRoute}
-            onTrainsChange={setTrains}
             onStopBusesChange={setStopBuses}
             onFr24BoardChange={setFr24Board}
             // v0.62.989 — spec 2026-11-12-fr24-city-airports-all-maps-user-caps (A5): the Airports menu lists the
             // airports near the reader's device location, else Singapore's.
             readerLoc={outsideLoc}
-            publicHolidays={data?.publicHolidays || []}
           />
         </div>
   );
@@ -976,8 +947,8 @@ export default function App() {
             className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
           >{listAtBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
           )}
-          {/* v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C4: 🚇 and 🚍 just before back. */}
-          <FooterRunButtons trains={trains} stopBuses={stopBuses} lang={lang} />
+          {/* v0.62.971 — spec 2026-11-04-run-drawer-and-operating-hours, C4: 🚍 just before back (v0.62.990: no 🚇). */}
+          <FooterRunButtons stopBuses={stopBuses} lang={lang} />
           <button
             type="button"
             onClick={() => {

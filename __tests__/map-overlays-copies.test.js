@@ -87,9 +87,12 @@ describe('what IS shared, measured and pinned', () => {
       const [a, b, c] = ['transport', 'hawker', 'cuisine'].map((k) => B[k].get(n));
       return a === b && b === c;
     });
+    // v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B6, updated deliberately: Hawker and Cuisine
+    // gained the route view, so createBusRouteLayer (a wrapper round the shared layer) and busServiceSpans are now in
+    // all three (71 → 73), and those two plus busArrivalRows and busInfoHtml are word for word the same (61 → 65).
     expect(names.length, 'total top-level bindings').toBe(89);
-    expect(inAll.length, 'present in all three').toBe(71);
-    expect(identical.length, 'byte-identical across all three').toBe(61);
+    expect(inAll.length, 'present in all three').toBe(73);
+    expect(identical.length, 'byte-identical across all three').toBe(65);
   });
 
   it('the hawker overlay is in transport + cuisine and NOT in hawker — on purpose', () => {

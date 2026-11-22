@@ -6,23 +6,16 @@
 // functions, the server (transport.js) loads this file with a dynamic import() for the bus service hours, and the
 // header strip and the drawer read the messages and labels from here. Strings live here in nine locales, not in the
 // apps' string tables (the Train table's 123 keys are pinned).
-import { SIM_LINES } from './train-sim.js';
+//
+// v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B1-B3: Simulate is removed, so the train half
+// went with it: the station list's lines (stationsToLines), the first-train resume time and line (trainResumeAt,
+// trainResumeText), the unopened-station guard (runnableStation), their three strings and the 🚇 footer button. What
+// is left is the bus half, which the stop view, the header strip and the server's bus hours still use.
 
 export const RUN_MAX = 5;
 export const RUN_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 export const RUN_STRINGS = {
-  'train.resume': {
-    en: '{code} Normal train operations will resume at {when}',
-    fr: '{code} Le service normal des trains reprendra à {when}',
-    id: '{code} Operasi kereta normal akan dilanjutkan pukul {when}',
-    ru: '{code} Обычное движение поездов возобновится в {when}',
-    de: '{code} Der normale Zugbetrieb wird um {when} wieder aufgenommen',
-    zh: '{code} 列车将于 {when} 恢复正常运营',
-    ja: '{code} 通常の列車運行は {when} に再開します',
-    es: '{code} El servicio normal de trenes se reanudará a las {when}',
-    ko: '{code} 열차 정상 운행은 {when}에 재개됩니다',
-  },
   'bus.resume': {
     en: '{op} operations will resume at {when}',
     fr: '{op} reprendra son service à {when}',
@@ -34,11 +27,6 @@ export const RUN_STRINGS = {
     es: '{op} reanudará el servicio a las {when}',
     ko: '{op} 운행은 {when}에 재개됩니다',
   },
-  'train.disrupted': {
-    en: 'service disruption', fr: 'perturbation du service', id: 'gangguan layanan', ru: 'сбой в движении', de: 'Betriebsstörung',
-    zh: '服务中断', ja: '運行障害', es: 'interrupción del servicio', ko: '운행 장애',
-  },
-  'drawer.stations': { en: 'Stations', fr: 'Gares', id: 'Stasiun', ru: 'Станции', de: 'Bahnhöfe', zh: '车站', ja: '駅', es: 'Estaciones', ko: '역' },
   'drawer.stops': { en: 'Bus stops', fr: 'Arrêts de bus', id: 'Halte bus', ru: 'Автобусные остановки', de: 'Bushaltestellen', zh: '巴士站', ja: 'バス停', es: 'Paradas de autobús', ko: '버스 정류장' },
   'drawer.remove': { en: 'Remove', fr: 'Retirer', id: 'Hapus', ru: 'Убрать', de: 'Entfernen', zh: '移除', ja: '削除', es: 'Quitar', ko: '삭제' },
   'drawer.buses': { en: '{n} buses', fr: '{n} bus', id: '{n} bus', ru: 'автобусов: {n}', de: '{n} Busse', zh: '{n} 辆巴士', ja: 'バス {n} 台', es: '{n} autobuses', ko: '버스 {n}대' },
@@ -59,22 +47,8 @@ export function addRunItem(list, item, keyOf = (x) => x.key) {
   while (out.length > RUN_MAX) out.shift();
   return out;
 }
-// v0.62.979 — spec 2026-11-05-r17-unopened-station-no-trains, I1: only a station that is open may start trains. A
-// station still 'future' at the moment of the tap gets its card (which says when it opens) and nothing else.
-export function runnableStation(s) {
-  return !!s && s.status !== 'future';
-}
 export function removeRunItem(list, key, keyOf = (x) => x.key) {
   return (Array.isArray(list) ? list : []).filter((x) => keyOf(x) !== key);
-}
-
-// C1 — the trains follow the listed stations: the union of their timetabled lines, in the order first met.
-export function stationsToLines(stations) {
-  const out = [];
-  for (const s of (Array.isArray(stations) ? stations : [])) {
-    for (const l of (Array.isArray(s.lines) ? s.lines : [])) if (SIM_LINES.includes(l) && !out.includes(l)) out.push(l);
-  }
-  return out;
 }
 
 // Singapore time, from an epoch: the calendar date, the weekday and the minute of the day.
@@ -97,17 +71,6 @@ const dowOf = (iso) => new Date(iso + 'T00:00:00Z').getUTCDay();
 // An epoch for a minute of a Singapore calendar day.
 const atSgt = (iso, minute) => Date.parse(iso + 'T00:00:00Z') - SGT_MS + minute * 60000;
 const isHol = (holidays, iso) => (typeof holidays === 'function' ? !!holidays(iso) : Array.isArray(holidays) && holidays.includes(iso));
-
-// C6 — the next first train for a line's window ({ weekday: [first, last], weekend: [...] }, minutes after midnight).
-// Saturdays, Sundays and public holidays run the weekend timetable.
-export function trainResumeAt(window, nowMs, holidays = []) {
-  const p = sgtParts(nowMs);
-  const kind = (iso, dow) => (dow === 0 || dow === 6 || isHol(holidays, iso) ? 'weekend' : 'weekday');
-  const first = window?.[kind(p.iso, p.dow)]?.[0];
-  if (Number.isFinite(first) && p.minute < first) return atSgt(p.iso, first);
-  const t = dayAfter(p.iso);
-  return atSgt(t, window?.[kind(t, dowOf(t))]?.[0] ?? 330);
-}
 
 // LTA's bus day type for a Singapore calendar day: 0 weekday, 1 Saturday, 2 Sunday; public holidays take Sunday.
 const busDayOf = (holidays, iso, dow) => (dow === 0 || isHol(holidays, iso) ? 2 : dow === 6 ? 1 : 0);
@@ -160,19 +123,12 @@ export function formatResume(atMs, nowMs, lang = 'en') {
   return `${hhmm}, ${date}`;
 }
 
-// C6 — the header line for one train line, or null when it runs.
-export function trainResumeText({ code, state, raw = '', resumeAt = null, nowMs, lang = 'en' }) {
-  if (state === 'outOfHours' && Number.isFinite(resumeAt)) return rt('train.resume', lang, { code, when: formatResume(resumeAt, nowMs, lang) });
-  if (state === 'disrupted') return `${code} ${String(raw || '').trim() || rt('train.disrupted', lang)}`;
-  return null;
-}
-
 export const OPERATOR_NAMES = { SBST: 'SBS Transit', SMRT: 'SMRT Buses', TTS: 'Tower Transit Singapore', GAS: 'Go-Ahead Singapore' };
 export function busResumeText({ operator, resumeAt, nowMs, lang = 'en' }) {
   return rt('bus.resume', lang, { op: OPERATOR_NAMES[operator] || operator, when: formatResume(resumeAt, nowMs, lang) });
 }
 
-// C4 — the two footer buttons, while something is listed.
-export function runButtonsModel({ stations = [], stops = [] } = {}) {
-  return { train: stations.length ? `🚇 ${stations.length}` : null, bus: stops.length ? `🚍 ${stops.length}` : null };
+// C4 — the footer button, while a stop is listed. v0.62.990: the 🚇 one went with Simulate (J6 keeps this one).
+export function runButtonsModel({ stops = [] } = {}) {
+  return { bus: stops.length ? `🚍 ${stops.length}` : null };
 }

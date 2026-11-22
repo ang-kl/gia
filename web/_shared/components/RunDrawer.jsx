@@ -1,25 +1,25 @@
 // RunDrawer.jsx — v0.62.971. Spec: doc/Feature/2026-11-04-run-drawer-and-operating-hours.spec.md, C5.
 //
-// The drawer the 🚇 and 🚍 footer buttons open: it slides up over the map, above the footer, 70% of the screen wide
-// (15% left and right, the width of an eatery card), at most 45% of the screen tall, then it scrolls. One row per
-// station or stop, newest first, each with a tiny ❌. Tapping outside closes it. It is portalled to <body> because the
-// footer's frosted glass (backdrop-filter) would otherwise trap a fixed-position child inside the footer.
+// The drawer the 🚍 footer button opens: it slides up over the map, above the footer, 70% of the screen wide (15% left
+// and right, the width of an eatery card), at most 45% of the screen tall, then it scrolls. One row per bus stop,
+// newest first, each with a tiny ❌. Tapping outside closes it. It is portalled to <body> because the footer's frosted
+// glass (backdrop-filter) would otherwise trap a fixed-position child inside the footer.
+// v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, B1/J6: the stations half went with Simulate;
+// the drawer lists bus stops only.
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { rt } from '../lib/run-state.js';
 
-export default function RunDrawer({ kind, trains, stopBuses, lang = 'en', onClose }) {
+export default function RunDrawer({ stopBuses, lang = 'en', onClose }) {
   const [shown, setShown] = useState(false);
   useEffect(() => { const id = requestAnimationFrame(() => setShown(true)); return () => cancelAnimationFrame(id); }, []);
   if (typeof document === 'undefined') return null;
-  const rows = kind === 'trains'
-    ? (trains?.stations || []).slice().reverse().map((s) => ({ key: s.key, title: s.name || s.key, sub: (s.lines || []).join(' · '), remove: () => trains.remove?.(s.key) }))
-    : (stopBuses?.stops || []).slice().reverse().map((s) => ({ key: s.code, title: s.name || s.code, sub: `${s.code}${Number.isFinite(s.count) ? ' · ' + rt('drawer.buses', lang, { n: s.count }) : ''}`, remove: () => stopBuses.remove?.(s.code) }));
-  const title = kind === 'trains' ? `🚇 ${rt('drawer.stations', lang)}` : `🚍 ${rt('drawer.stops', lang)}`;
+  const rows = (stopBuses?.stops || []).slice().reverse().map((s) => ({ key: s.code, title: s.name || s.code, sub: `${s.code}${Number.isFinite(s.count) ? ' · ' + rt('drawer.buses', lang, { n: s.count }) : ''}`, remove: () => stopBuses.remove?.(s.code) }));
+  const title = `🚍 ${rt('drawer.stops', lang)}`;
   return createPortal(
     <div data-run-drawer-backdrop="" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
       <div
-        data-run-drawer={kind}
+        data-run-drawer="buses"
         role="dialog"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
