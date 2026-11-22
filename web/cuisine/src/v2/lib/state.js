@@ -184,7 +184,9 @@ export const LOCALE_STASH = {
     // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, Amendment 1.
     backTo: 'a one-open way back after the start-up check switched to the phone; a language reload runs the check again',
     // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, Amendment 2.
-    trains: 'what the map is animating now; a language reload is a reload, and nothing here is kept across one',
+    // v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, Amendment 1: `trains` went with Simulate;
+    // `busRoute` is the route strip's state, and like the stop view it is not kept across a reload.
+    busRoute: 'what the map is showing now; a language reload is a reload, and nothing here is kept across one',
     stopBuses: 'what the map is animating now; a language reload is a reload, and nothing here is kept across one',
     visibleVenues: 'derived from the map viewport once it renders',
     fitPins: 'one-shot fit request; the camera is restored instead',
