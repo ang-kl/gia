@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-12",
-  "count": 1899,
+  "generated": "2026-11-22",
+  "count": 1903,
   "records": [
     {
       "pr": 1,
@@ -54639,6 +54639,160 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": true
+    },
+    {
+      "pr": 1928,
+      "status": "merged",
+      "merged": "2026-11-12 05:30:27+00:00",
+      "day": "2026-11-12",
+      "version": "0.62.986",
+      "minor": "0.62",
+      "category": "infra",
+      "area": "Infra / setup",
+      "intent": "dependency fixes (safe + vitest 5 / vite 8, CI on Node 22), globe code out of the first bundle, docs current to v0.62.985",
+      "approach": "Spec: `doc/Feature/2026-11-12-safe-updates-globe-chunk-docs-985.spec.md` (approved after Amendment 1, sha `b0b1dcee`).",
+      "codeImpact": "49 files — vitest.config.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, ci, package, root-docs, .vibe-journal/, public/",
+      "modules": [
+        "ci",
+        ".vibe-journal/",
+        "root-docs",
+        "tests",
+        "doc",
+        "package",
+        "public/",
+        "vitest.config.js",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 49,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.986: dependency fixes (safe + vitest 5 / vite 8, CI on Node 22), globe code out of the first bundle, docs current to v0.62.985",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1929,
+      "status": "merged",
+      "merged": "2026-11-21 01:30:42+00:00",
+      "day": "2026-11-21",
+      "version": "0.62.987",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: a place set in chat opens the Cuisine app on that place, on every phone; the nearby-eateries line shows bold text, not tags",
+      "approach": "## What the operator reported (15-11 '26) 1.",
+      "codeImpact": "19 files — index.js, i18n.js, location-cache.js, TMA:cuisine, tests, doc, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "location-cache.js",
+        "package",
+        "scripts/",
+        "TMA:cuisine"
+      ],
+      "nFiles": 19,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.987: a place set in chat opens the Cuisine app on that place, on every phone; the nearby-eateries line shows bold text, not tags",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1930,
+      "status": "merged",
+      "merged": "2026-11-21 02:29:17+00:00",
+      "day": "2026-11-21",
+      "version": "0.62.988",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Privacy / legal",
+      "intent": "Add: a place set in chat stays each phone's place until that phone picks another; /forgetme erases every location record at once",
+      "approach": "## Why Fixes the review finding on #1929 (P2, `location-cache.js`), which arrived three minutes after that pull request merged and is live in v0.62.987.",
+      "codeImpact": "11 files — location-cache.js, user-data.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "location-cache.js",
+        "package",
+        "user-data.js"
+      ],
+      "nFiles": 11,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.988: a place set in chat stays each phone's place until that phone picks another; /forgetme erases every location record at once",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1931,
+      "status": "merged",
+      "merged": "2026-11-22 02:38:57+00:00",
+      "day": "2026-11-22",
+      "version": "0.62.989",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: airports for the city you are in, on the Train, Cuisine and Hawker maps, with a 500-credit daily cap per reader",
+      "approach": "Spec: `doc/Feature/2026-11-12-fr24-city-airports-all-maps-user-caps.spec.md` (approved 22-11 '26).",
+      "codeImpact": "27 files — index.js, fr24.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, data, package, root-docs, scripts/",
+      "modules": [
+        "root-docs",
+        "tests",
+        "data",
+        "doc",
+        "fr24.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 27,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.989: airports for the city you are in, on the Train, Cuisine and Hawker maps, with a 500-credit daily cap per reader",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ],
   "sessionReplies": [

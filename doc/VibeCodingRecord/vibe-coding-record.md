@@ -1,26 +1,26 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-11-12 from a snapshot of all 1899 pull requests (#1–#1927).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-11-22 from a snapshot of all 1903 pull requests (#1–#1931).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1899 total — 1888 merged, 11 closed without merge.
+- **PRs:** 1903 total — 1892 merged, 11 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1927 · 2026-11-11 22:02:41+00:00 · _v0.62.985: FR24 without the caption bar, arrival time in the destination's zone, a flight globe, "On the ground"_
+- **Latest:** #1931 · 2026-11-22 02:38:57+00:00 · _v0.62.989: airports for the city you are in, on the Train, Cuisine and Hawker maps, with a 500-credit daily cap per reader_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1305 |
+| feature | 1308 |
 | fix | 256 |
 | docs | 122 |
 | copy | 72 |
 | refactor | 50 |
 | prompt-tune | 47 |
+| infra | 24 |
 | test | 24 |
-| infra | 23 |
 
 ### By feature / UX area
 
@@ -28,20 +28,20 @@
 |---|--:|
 | Cuisine Picker | 676 |
 | Docs / vault | 319 |
-| Hawker NEA | 136 |
-| Language / i18n | 93 |
+| Hawker NEA | 137 |
+| Language / i18n | 94 |
 | Transport / carpark | 92 |
 | Recognised lists | 80 |
 | Core / misc | 74 |
 | Search / free-text | 62 |
-| Infra / setup | 59 |
+| Infra / setup | 60 |
 | Weather | 56 |
 | Buddy / sharing | 53 |
 | Menu hub | 48 |
 | /hidden surprise | 47 |
 | Pipeline / discovery | 27 |
 | Maps / geo / location | 23 |
-| Privacy / legal | 21 |
+| Privacy / legal | 22 |
 | /eat /drink flow | 15 |
 | Commands / chat UX | 13 |
 | Oversight / usage stats | 5 |
@@ -1951,6 +1951,10 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1925 | merged | 2026-11-09 11:37:29+00:00 | 0.62.983 | feature | Language / i18n | Add: LTA's "Ter" means Terminal, not Terrace | Spec: `doc/Feature/2026-11-09-lta-ter-is-terminal.spec.md`, approved. | 9 files — index.js, sg-address.js, tests, doc, package | — | Redis/state; tests; doc/vault |
 | 1926 | merged | 2026-11-09 13:14:59+00:00 | 0.62.984 | feature | Transport / carpark | Add: today's first and last bus at the tapped stop, in the bus route strip | Spec: `doc/Feature/2026-11-09-bus-first-last-in-route-strip.spec.md`, approved. | 11 files — index.js, transport.js, TMA:transport, tests, doc, package | transport | tests; doc/vault |
 | 1927 | merged | 2026-11-11 22:02:41+00:00 | 0.62.985 | feature | Transport / carpark | Add: FR24 without the caption bar, arrival time in the destination's zone, a flight globe, "On the ground" | Spec: `doc/Feature/2026-11-11-fr24-globe-arrival-tz.spec.md` (approved, sha `a18b585e`). | 22 files — fr24.js, TMA:transport, tests, doc, data, package, root-docs, scripts/ | transport | tests; doc/vault |
+| 1928 | merged | 2026-11-12 05:30:27+00:00 | 0.62.986 | infra | Infra / setup | dependency fixes (safe + vitest 5 / vite 8, CI on Node 22), globe code out of the first bundle, docs current to v0.62.985 | Spec: `doc/Feature/2026-11-12-safe-updates-globe-chunk-docs-985.spec.md` (approved after Amendment 1, sha `b0b1dcee`). | 49 files — vitest.config.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, ci, package, root-docs, .vibe-journal/, public/ | cuisine+menu+hawker+transport+oversight | tests; doc/vault |
+| 1929 | merged | 2026-11-21 01:30:42+00:00 | 0.62.987 | feature | Language / i18n | Add: a place set in chat opens the Cuisine app on that place, on every phone; the nearby-eateries line shows bold text, not tags | ## What the operator reported (15-11 '26) 1. | 19 files — index.js, i18n.js, location-cache.js, TMA:cuisine, tests, doc, package, root-docs, scripts/ | cuisine | Redis/state; tests; doc/vault |
+| 1930 | merged | 2026-11-21 02:29:17+00:00 | 0.62.988 | feature | Privacy / legal | Add: a place set in chat stays each phone's place until that phone picks another; /forgetme erases every location record at once | ## Why Fixes the review finding on #1929 (P2, `location-cache.js`), which arrived three minutes after that pull request merged and is live in v0.62.987. | 11 files — location-cache.js, user-data.js, tests, doc, package | — | Redis/state; privacy; tests; doc/vault |
+| 1931 | merged | 2026-11-22 02:38:57+00:00 | 0.62.989 | feature | Hawker NEA | Add: airports for the city you are in, on the Train, Cuisine and Hawker maps, with a 500-credit daily cap per reader | Spec: `doc/Feature/2026-11-12-fr24-city-airports-all-maps-user-caps.spec.md` (approved 22-11 '26). | 27 files — index.js, fr24.js, TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, data, package, root-docs, scripts/ | cuisine+hawker+transport | privacy; tests; doc/vault |
 
 ---
 
