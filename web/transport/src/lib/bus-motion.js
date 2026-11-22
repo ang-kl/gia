@@ -36,12 +36,17 @@ export function measure(path) {
 }
 
 // The point of the polyline nearest p: how far along it lies (d) and how far p is from it (off), both in metres.
-export function locate(track, p) {
+// v0.62.990, Codex review of #1933: a route that retraces its road has two equally near points, one on the way out and
+// one on the way back, so the search can be held to a stretch of the line (`from`..`to`, metres along it), and among
+// points within `slack` metres of the nearest it takes the first (`prefer: 'first'`) or the last (`'last'`).
+export function locate(track, p, { from = -Infinity, to = Infinity, slack = 0, prefer = 'first' } = {}) {
   const { pts, cum } = track;
   if (!pts.length) return { d: 0, off: Infinity };
   if (pts.length === 1) return { d: 0, off: distM(pts[0], p) };
-  let best = { d: 0, off: Infinity };
+  const found = [];
   for (let i = 1; i < pts.length; i++) {
+    const seg = cum[i] - cum[i - 1];
+    if (cum[i] < from || cum[i - 1] > to) continue;
     const a = pts[i - 1];
     const b = pts[i];
     // Work in a local flat frame around a, in metres.
@@ -50,11 +55,28 @@ export function locate(track, p) {
     const bx = (b.lng - a.lng) * kx; const by = (b.lat - a.lat) * ky;
     const px = (p.lng - a.lng) * kx; const py = (p.lat - a.lat) * ky;
     const len2 = bx * bx + by * by;
-    const t = len2 > 0 ? Math.max(0, Math.min(1, (px * bx + py * by) / len2)) : 0;
-    const off = Math.hypot(px - bx * t, py - by * t);
-    if (off < best.off) best = { d: cum[i - 1] + (cum[i] - cum[i - 1]) * t, off };
+    let t = len2 > 0 ? Math.max(0, Math.min(1, (px * bx + py * by) / len2)) : 0;
+    if (seg > 0) t = Math.max((from - cum[i - 1]) / seg, Math.min((to - cum[i - 1]) / seg, t));
+    t = Math.max(0, Math.min(1, t));
+    found.push({ d: cum[i - 1] + seg * t, off: Math.hypot(px - bx * t, py - by * t) });
   }
-  return best;
+  if (!found.length) return { d: Math.max(0, Math.min(cum[cum.length - 1], from)), off: Infinity };
+  const least = Math.min(...found.map((f) => f.off));
+  const near = found.filter((f) => f.off <= least + slack);
+  return near.reduce((x, y) => ((prefer === 'last' ? y.d > x.d : y.d < x.d) ? y : x));
+}
+
+// Each stop's distance along the line, in route order: every stop is looked for only after the one before it, so on
+// a road the route drives twice each visit is placed on its own pass.
+export function stopDistances(track, stops, { slack = 15 } = {}) {
+  const out = new Map();
+  let prev = 0;
+  for (const s of [...(stops || [])].filter((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng) && Number.isFinite(Number(x.seq))).sort((a, b) => a.seq - b.seq)) {
+    const at = locate(track, s, { from: prev, slack, prefer: 'first' });
+    prev = at.d;
+    out.set(Number(s.seq), at.d);
+  }
+  return out;
 }
 
 // The point d metres along the polyline (clamped to its ends).

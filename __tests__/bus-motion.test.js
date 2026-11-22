@@ -181,6 +181,42 @@ describe('J3, J4 — the route view: buses glide along the line and stay on it; 
     expect(north).toBeGreaterThan(east);
     layer.stop();
   });
+  // Codex review of #1933 (P2): on a service that goes out and comes back along the same road, the nearest point of
+  // the line is ambiguous; a returning bus projected onto the outbound stretch seems to drive backwards, the matcher
+  // refuses it, and its marker is replaced, which is the jump this release removes. The bus's next stop settles it.
+  it('a loop that retraces its road: a returning bus is placed on the return stretch and glides there', async () => {
+    const LOOP = [[LAT, 103.80], [LAT, 103.82], [LAT, 103.80]];     // out east 2.2 km, back west on the same road
+    const loop = measure(LOOP.map(([lat, lng]) => ({ lat, lng })));
+    const stops = [
+      { code: 'A', name: 'West', lat: LAT, lng: 103.80, seq: 1 },
+      { code: 'B', name: 'Mid out', lat: LAT, lng: 103.81, seq: 2 },
+      { code: 'C', name: 'East end', lat: LAT, lng: 103.82, seq: 3 },
+      { code: 'D', name: 'Mid back', lat: LAT, lng: 103.81, seq: 4 },
+      { code: 'E', name: 'West', lat: LAT, lng: 103.80, seq: 5 },
+    ];
+    // on the way back: 103.8150, then 103.8120 (330 m further west), both before stop D (seq 4)
+    const reads = [[LAT, 103.8150], [LAT, 103.8120]];
+    let n = 0;
+    const fetchJson = async (u) => {
+      if (u.includes('/bus-route?')) return u.endsWith('direction=2') ? null : { stops, shape: LOOP, shapeSource: 'directions' };
+      const [lat, lng] = reads[Math.min(n++, reads.length - 1)];
+      return { buses: [{ lat, lng, minutes: 2, nextStop: 'Mid back', nextStopCode: 'D', nextStopSeq: 4 }], readAt: Date.now() };
+    };
+    const { made, gmaps } = fakeGmaps();
+    const layer = createBusRouteLayer({}, gmaps, { fetchJson, now: () => Date.now(), schedule: (f) => setTimeout(f, 100), cancel: clearTimeout, lang: 'en' });
+    await layer.show('10', 'A');
+    const [m] = live(made);
+    const outEnd = loop.cum[1];                                     // the turn at the east end
+    // where it is drawn is on the line; the record of HOW FAR it has come is what must be past the turn
+    await vi.advanceTimersByTimeAsync(ROUTE_REFRESH_MS + GLIDE_MS + 200);
+    expect(live(made)).toHaveLength(1);
+    expect(made.filter((x) => x.zIndex === 6)).toHaveLength(1);    // never replaced: the same marker glided
+    expect(m.position.lng).toBeCloseTo(103.8120, 6);
+    // it moved west by small steps, never jumping east to the outbound reading
+    for (let i = 1; i < m.moves.length; i++) expect(m.moves[i].lng).toBeLessThanOrEqual(m.moves[i - 1].lng + 1e-9);
+    expect(outEnd).toBeGreaterThan(2000);
+    layer.stop();
+  });
   it('a bus that has not moved stays put', async () => {
     const r = [[LAT, 103.83]];
     const { made, layer } = harness([r, r, r, r]);

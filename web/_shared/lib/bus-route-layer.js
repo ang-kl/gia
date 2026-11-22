@@ -9,8 +9,8 @@
 // one already drawn by how far along the route it has come, held on the route line, and slid along it to its new
 // place over one refresh (bus-motion.js). Reads are as before: the route once per direction, the buses every 30 s
 // while shown, none while the page is hidden, none after ✕. `onState` feeds each app's header strip.
-import { BUS_COLOUR, pickDirection, bt, routeStripModel } from './bus-route.js';
-import { GLIDE_MS, measure, locate, pointAt, matchAlong, createAnimator } from './bus-motion.js';
+import { BUS_COLOUR, pickDirection, bt, routeStripModel, SAMPLE_EVERY } from './bus-route.js';
+import { GLIDE_MS, measure, locate, pointAt, matchAlong, stopDistances, createAnimator } from './bus-motion.js';
 
 export { routeStripModel };
 export const ROUTE_REFRESH_MS = 30000;
@@ -27,6 +27,7 @@ export function createBusRouteLayer(map, gmaps, { fetchJson = null, onState = nu
   let cur = null;
   let line = null;
   let track = null;
+  let stopD = null;         // stop sequence → metres along the line (bus-motion.js stopDistances)
   let dots = [];
   let labels = [];
   let buses = [];           // { id, marker, d, pos, b }
@@ -65,6 +66,7 @@ export function createBusRouteLayer(map, gmaps, { fetchJson = null, onState = nu
     for (const l of labels) dropMarker(l); labels = [];
     clearBuses();
     track = null;
+    stopD = null;
     if (info) info.close();
     lastCount = 0;
   }
@@ -75,6 +77,7 @@ export function createBusRouteLayer(map, gmaps, { fetchJson = null, onState = nu
       ? d.shape.map(([lat, lng]) => ({ lat, lng }))
       : stops.map((s) => ({ lat: s.lat, lng: s.lng }));
     track = path.length > 1 ? measure(path) : null;
+    stopD = track ? stopDistances(track, stops) : null;
     line = new gmaps.Polyline({ map, path, strokeColor: BUS_COLOUR, strokeOpacity: 0.9, strokeWeight: 3, clickable: false, zIndex: 3 });
     dots = stops.map((s) => new gmaps.Marker({
       map, position: { lat: s.lat, lng: s.lng }, clickable: false, zIndex: 4,
@@ -108,13 +111,27 @@ export function createBusRouteLayer(map, gmaps, { fetchJson = null, onState = nu
     m.addListener('click', onTap);
     return m;
   }
+  // Where along the line a reported bus is. The server reports the sampled stop it is coming to (nextStopSeq), so it is
+  // looked for only on the stretch before that stop (two sampling steps back), nearest that stop: on a road the route
+  // drives twice, a bus on the way back is then never placed on the way out (Codex review of #1933). Without a usable
+  // stop, or if nothing on that stretch is near (80 m), the whole line is searched, as before.
+  function along(b, raw) {
+    const seq = Number(b.nextStopSeq);
+    if (stopD && stopD.has(seq)) {
+      let lo = 0;
+      for (const [s, d] of stopD) if (s <= seq - 2 * SAMPLE_EVERY && d > lo) lo = d;
+      const at = locate(track, raw, { from: lo, to: stopD.get(seq) + 30, slack: 15, prefer: 'last' });
+      if (at.off <= 80) return at;
+    }
+    return locate(track, raw);
+  }
   // B4 — a new reading: each bus continues the one already drawn (matched by distance along the route), held on the
   // route line, and slides there over one refresh; a bus not seen before appears where it is; one gone is removed.
   function place(list) {
     const fresh = list.map((b) => {
       const raw = { lat: b.lat, lng: b.lng };
       if (!track) return { b, d: null, pos: raw };
-      const at = locate(track, raw);
+      const at = along(b, raw);
       return { b, d: at.d, pos: pointAt(track, at.d) };
     });
     if (!track) {
