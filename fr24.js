@@ -86,7 +86,10 @@ const ETA_MAX = 15;                     // amendment 10 (I32): the board's in-ai
 // Letters A to F: no source was reachable from the build (Wikipedia's text names no other terminal's gates; the
 // OpenStreetMap Overpass API refused the connection twice on 05-11 '26). Add a row only with its source.
 const GATE_TERMINALS = Object.freeze({ G: 'T4', H: 'T4' });
-function terminalForGate(gate) {
+// v0.62.989 — Codex review of #1931 (P2): the letters above are Changi's, so a gate at any other airport carries no
+// terminal ("G1" at Haneda is not Terminal 4). The one-argument call is Changi's, as it always was.
+function terminalForGate(gate, icao = 'WSSS') {
+  if (icao !== 'WSSS') return null;
   const m = typeof gate === 'string' ? gate.match(/^([A-Z])\d/) : null;
   return m && Object.prototype.hasOwnProperty.call(GATE_TERMINALS, m[1]) ? GATE_TERMINALS[m[1]] : null;
 }
@@ -494,13 +497,15 @@ function createFr24({ token = '', request, cache = null, now = Date.now, budget 
     if (!list.length || list.length > GATES_MAX || !list.every((x) => FLIGHT_ID.test(x))) return { ok: false, reason: 'badids' };
     const url = `${BASE}/historic/flight-events/light?flight_ids=${list.join(',')}&event_types=gate_arrival`;
     const events = (d) => listOf(d).flatMap((f) => (Array.isArray(f && f.events) ? f.events : []));
-    return call(`fr24:gates:${[...list].sort().join(',')}`, GATES_TTL_S, url,
+    // v0.62.989: the airport is part of the key, because the terminal in the answer depends on it (Changi's letters
+    // only); keyed by ids alone, one airport's answer would be served for another.
+    return call(`fr24:gates:${icao}:${[...list].sort().join(',')}`, GATES_TTL_S, url,
       (d) => { const n = events(d).length; return n > 0 ? 2 * n : 1; },
       (d) => {
         const out = {};
         for (const f of listOf(d)) {
           const e = (Array.isArray(f && f.events) ? f.events : []).find((x) => x && x.type === 'gate_arrival' && x.details && x.details.gate_ident);
-          if (e) out[String(f.fr24_id)] = { gate: String(e.details.gate_ident), terminal: terminalForGate(String(e.details.gate_ident)) };
+          if (e) out[String(f.fr24_id)] = { gate: String(e.details.gate_ident), terminal: terminalForGate(String(e.details.gate_ident), icao) };
         }
         return { icao, gates: out };
       },

@@ -151,6 +151,21 @@ describe('I3 — the whitelist is the table\'s airports with an IATA code', () =
     }
     expect(calls).toHaveLength(0);
   });
+  // Codex review of #1931 (P2): the G/H → Terminal 4 letters are sourced for Changi only. Once other airports were
+  // accepted, a gate "G1" at Haneda would have been shown as "G1 · T4".
+  it('a gate at another airport carries no terminal; Changi keeps its sourced letters', async () => {
+    const calls = [];
+    const request = async (url) => {
+      calls.push(url);
+      return { status: 200, data: { data: [{ fr24_id: '3b000001', events: [{ type: 'gate_arrival', details: { gate_ident: 'G1' } }] }] } };
+    };
+    const svc = fr24.createFr24({ token: TOKEN, request, now: () => T0 });
+    expect((await svc.gates('RJTT', ['3b000001'])).gates['3b000001']).toEqual({ gate: 'G1', terminal: null });
+    expect((await svc.gates('WSSS', ['3b000001'])).gates['3b000001']).toEqual({ gate: 'G1', terminal: 'T4' });
+    expect(fr24.terminalForGate('G1', 'RJTT')).toBeNull();
+    expect(fr24.terminalForGate('G1', 'WSSS')).toBe('T4');
+    expect(fr24.terminalForGate('G1')).toBe('T4');   // the existing one-argument call is still Changi's
+  });
   it('the near route: owner-only like every other route, 400 on a bad point, a city by name', async () => {
     const { svc, calls } = svcWith();
     expect((await fr24.handle(svc, { kind: 'near', lat: '-6.2', lng: '106.8', userId: '999', env })).status).toBe(403);

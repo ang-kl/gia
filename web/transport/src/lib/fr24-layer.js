@@ -506,10 +506,13 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   const AME = gmaps && gmaps.marker && gmaps.marker.AdvancedMarkerElement;
   let lang = lang0;
   // ── v0.62.989 (I4, I5): this reader's daily usage, from the `usage` every capped answer carries ──────────────
-  let full = false;           // the day is used up: ask FR24 for nothing more (A8)
+  // The Singapore day this reader's credits ran out, or null. Codex review of #1931 (P2): a plain flag outlived its
+  // day, so an app left open across midnight kept refusing every request after the server's count had started again.
+  let fullDay = null;
   let warnStep = 0;           // the threshold the open board's usage line names, until the board closes
   let warnedMem = null;       // the stored warning, when the page has no storage
   const sgtDayNow = () => new Date(now() + SGT_MS).toISOString().slice(0, 10);
+  const isFull = () => fullDay !== null && fullDay === sgtDayNow();
   function warnedToday() {
     let v = warnedMem;
     try { if (storage) v = storage.getItem(WARN_KEY); } catch { /* blocked */ }
@@ -523,14 +526,14 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   function noteUsage(r) {
     if (!r) return;
     const pct = r.usage && Number.isFinite(r.usage.pct) ? r.usage.pct : null;
-    if (r.reason === 'quota' || (pct != null && pct >= 100)) { full = true; return; }
+    if (r.reason === 'quota' || (pct != null && pct >= 100)) { fullDay = sgtDayNow(); return; }
     if (pct == null) return;
     const step = USAGE_STEPS.filter((s) => s <= pct).pop() || 0;
     if (step && step > warnedToday()) { setWarned(step); warnStep = step; }
   }
   // Every request that can cost credits goes through here: none at all once the day is used up.
   async function fr24Json(u) {
-    if (full) return { ok: false, reason: 'quota' };
+    if (isFull()) return { ok: false, reason: 'quota' };
     const r = await getJson(u);
     noteUsage(r);
     return r;
@@ -664,6 +667,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     const b = boards.get(`${boardIcao}:${tab}`);
     const w = wx.get(boardIcao);
     // v0.62.989: a tab never loaded once the day is used up shows the used-up board, not "Loading…" forever.
+    const full = isFull();
     const data = b ? b.data : (full ? { ok: false, reason: 'quota' } : null);
     return boardModel({ icao: boardIcao, dir: tab, view, sort, data, loading: !b && !full, lang, planesOn: planesIcao === boardIcao, wx: w ? w.text : null, selectedId, detail, gates: gateOf, etas: (etaTabs.get(`${boardIcao}:${tab}`) || {}).etas || null, live: liveNow(), name: airportLabel(boardIcao, lang), usage: warnStep ? ft('usage.warn', lang, { pct: warnStep }) : null, full });
   }
@@ -732,7 +736,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   }
   async function loadWx(icao) {
     // v0.62.989: the lightning line is NEA's, so Singapore's two airports only; and nothing once the day is used up.
-    if (full || !Object.prototype.hasOwnProperty.call(FR24_AIRPORTS, icao)) return;
+    if (isFull() || !Object.prototype.hasOwnProperty.call(FR24_AIRPORTS, icao)) return;
     const w = wx.get(icao);
     if (w && now() - w.at < WX_CLIENT_TTL_MS) return;
     const a = FR24_AIRPORTS[icao];
@@ -774,14 +778,14 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     render();
   }
   function startGates() {
-    if (full || gatesOff || gateTimer || !boardIcao || !gateCandidates().length) return;
+    if (isFull() || gatesOff || gateTimer || !boardIcao || !gateCandidates().length) return;
     gateTimer = setInterval(pollGates, GATE_POLL_MS);
     pollGates();
   }
 
   // I29: once a tab has loaded with a flight in the air, ask for the ETAs, at most every 5 minutes per tab.
   async function loadEta(icao, dir) {
-    if (!enabled || etaOff || full || boardIcao !== icao) return;
+    if (!enabled || etaOff || isFull() || boardIcao !== icao) return;
     const b = boards.get(`${icao}:${dir}`);
     const rows = b && b.data && b.data.ok && Array.isArray(b.data.rows) ? b.data.rows : [];
     // I32: the board's own in-air rows, by callsign, at most 15 - not "any 20 flights to Changi".
@@ -947,7 +951,7 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
   }
   async function togglePlanes(icao = boardIcao) {
     if (!enabled || !airportPoint(icao)) return;   // a second tap while loading stops in fetchPlanes (I31)
-    if (full && planesIcao !== icao) return;        // v0.62.989 (A8): no new planes once the day is used up
+    if (isFull() && planesIcao !== icao) return;    // v0.62.989 (A8): no new planes once the day is used up
     if (planesIcao === icao) { planesIcao = null; planesData = null; planesNote = null; clearPlanes(); emit(); render(); return; }
     await fetchPlanes(icao);
   }
@@ -1105,6 +1109,6 @@ export function createFr24Layer(map, gmaps, { fetchJson = null, lang: lang0 = 'e
     pinCount: () => pins.length, openIcao: () => boardIcao, planeCount: () => planeMarkers.length + (focus ? 1 : 0), board: () => currentModel(),
     enabled: () => enabled,
     // v0.62.989
-    jumpTo, openDefault, menuRows, menuPick, menuReady, usageFull: () => full,
+    jumpTo, openDefault, menuRows, menuPick, menuReady, usageFull: () => isFull(),
   };
 }

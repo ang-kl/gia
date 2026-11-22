@@ -254,6 +254,23 @@ describe('I5 — the board warns once at each of 50, 70, 80 and 90 %', () => {
     await h.layer.openFlight('3b000001');
     expect(h.calls.length).toBe(before);
   });
+  // Codex review of #1931 (P2): an app left open across Singapore midnight kept refusing every request, although the
+  // server's count had started again.
+  it('a used-up day ends at Singapore midnight: the next board asks the server again', async () => {
+    const h = layerWith([100, 10]);
+    await h.layer.init();
+    await h.layer.openBoard('WSSS');                             // quota
+    expect(h.last().full).toBe(true);
+    const before = h.calls.length;
+    await h.layer.openBoard('WSSL');
+    expect(h.calls.length).toBe(before);                         // still the same day: nothing asked
+    h.layer.closeBoard();
+    h.advance(10 * 3600 * 1000);                                 // 14:00 SGT + 10 h = 00:00 the next day
+    await h.layer.openBoard('WSSL');
+    expect(h.calls.filter((u) => u.startsWith('/api/fr24/board/WSSL'))).toHaveLength(1);
+    expect(h.last().full).toBe(false);
+    expect(h.last().usage).toBeNull();                           // 10 %: under the first threshold
+  });
   it('the warning and the used-up message exist in all nine languages, with the number in each', () => {
     for (const l of FR24_LOCALES) {
       expect(FR24_STRINGS['usage.warn'][l], l).toBeTruthy();
