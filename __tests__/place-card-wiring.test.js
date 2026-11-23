@@ -273,6 +273,17 @@ describe('createPlaceTap: the buttons act on the place whose card is open', () =
     expect(log.actions).toEqual([]);
   });
 
+  // Found by a mutation that survived: nothing checked that "set" is ignored where the card has no such button.
+  it.each(['hawker', 'transport'])('%s: "set" does nothing even if something calls it, and "near" still works', async (app) => {
+    const { tap, log, win } = rig({ app });
+    tap.open(TAP);
+    await tap.last;
+    win.__giaPlaceAction('set');
+    expect(log.actions).toEqual([]);
+    win.__giaPlaceAction('near');
+    expect(log.actions.map((a) => a.kind)).toEqual(['near']);
+  });
+
   it('after a refusal there is no place to act on', async () => {
     const { tap, log, win } = rig({ answer: { ok: false, reason: 'cap' } });
     tap.open(TAP);

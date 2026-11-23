@@ -140,8 +140,10 @@ export const PLACE_CARD_STRINGS = {
 // unknown key reads as an empty string, so a typo shows nothing instead of the key's own name.
 export function pct(key, lang, vars) {
   const two = String(lang || '').slice(0, 2).toLowerCase();
-  const table = PLACE_CARD_STRINGS[two] || PLACE_CARD_STRINGS.en;
-  let s = Object.prototype.hasOwnProperty.call(table, key) ? table[key] : (Object.prototype.hasOwnProperty.call(PLACE_CARD_STRINGS.en, key) ? PLACE_CARD_STRINGS.en[key] : '');
+  const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+  const table = PLACE_CARD_STRINGS[two] || {};
+  // One fallback, not two: a line missing from this language (or a language we do not have) reads as English.
+  let s = own(table, key) ? table[key] : (own(PLACE_CARD_STRINGS.en, key) ? PLACE_CARD_STRINGS.en[key] : '');
   if (vars && typeof s === 'string') {
     for (const k of Object.keys(vars)) s = s.split(`{${k}}`).join(String(vars[k]));
   }
