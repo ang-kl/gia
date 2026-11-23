@@ -213,6 +213,32 @@ describe('what is written down (I8)', () => {
       expect(await b.spent('reader-a')).toBe(1000);
     });
 
+    // Found by a mutation that survived: the counts above read back correctly, but nothing checked that what was
+    // spent during the outage still COUNTS TOWARDS THE LIMIT once Redis is answering again.
+    it('the last lookup, spent while Redis was away, still closes the limit when Redis is back', async () => {
+      const store = switchable();
+      const b = pc.createBudget({ store, now: clock() });
+      for (let i = 0; i < 49; i++) await b.reserve('reader-a', pc.CARD_MILLS);    // Redis: 980
+      store.down();
+      expect((await b.reserve('reader-a', pc.CARD_MILLS)).ok, 'the 50th, in memory only').toBe(true);
+      store.back();
+      const r = await b.reserve('reader-a', pc.CARD_MILLS);                       // Redis alone would say 1,000
+      expect(r).toMatchObject({ ok: false, reason: 'cap' });
+      expect(await b.spent('reader-a')).toBe(1000);
+    });
+
+    it('the same for the month: 20 spent during an outage is not handed out again afterwards', async () => {
+      const store = switchable();
+      store.m.set(MONTH, '19960');
+      const b = pc.createBudget({ store, now: clock() });
+      await b.reserve('reader-a', pc.CARD_MILLS);                                 // Redis: 19,980
+      store.down();
+      expect((await b.reserve('reader-b', pc.CARD_MILLS)).ok, 'reaches 20,000 in memory').toBe(true);
+      store.back();
+      expect(await b.reserve('reader-c', pc.CARD_MILLS)).toMatchObject({ ok: false, reason: 'budget' });
+      expect(await b.monthSpent()).toBe(20000);
+    });
+
     it('a release made while Redis is away is given back once, not lost and not doubled', async () => {
       const store = switchable();
       const b = pc.createBudget({ store, now: clock() });
