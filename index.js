@@ -5705,6 +5705,31 @@ function fr24Service() {
   return require('./fr24').forServer(fr24Cache);
 }
 
+// v0.62.992 - the map place card (place-card.js; spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md, B).
+// One service for the process, because it holds the lookups under way and mirrors both limits in memory. Redis keeps
+// the 24-hour answers, the remembered links to our own records, and the two counts; with Redis away the limits still
+// hold in memory. The Google key stays here and in place-card.js; a reader is only ever a hash inside a key.
+const placeCardStore = {
+  get: (k) => (redis.isOpen ? redis.get(k) : Promise.resolve(null)),
+  set: (k, v) => (redis.isOpen ? redis.set(k, v) : Promise.resolve()),
+  setEx: (k, ttl, v) => (redis.isOpen ? redis.setEx(k, ttl, v) : Promise.resolve()),
+  incrBy: (k, n) => (redis.isOpen ? redis.incrBy(k, n) : Promise.resolve()),
+  expire: (k, s) => (redis.isOpen ? redis.expire(k, s) : Promise.resolve()),
+  del: (k) => (redis.isOpen ? redis.del(k) : Promise.resolve()),
+};
+let placeCardSvc = null;
+function placeCardService() {
+  if (!placeCardSvc) {
+    placeCardSvc = require('./place-card').createPlaceCard({
+      request: ({ url, headers, params, timeout }) => axios.get(url, { headers, params, timeout }).then((r) => r.data),
+      store: placeCardStore,
+      apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+      onCall: (endpoint) => { require('./api-cost').recordMapsCall(redis, endpoint).catch(() => {}); },
+    });
+  }
+  return placeCardSvc;
+}
+
 // v0.62.975 — /fr24usage, owner-only (spec C8, amendment 2): FR24's credits used over 30 days, per endpoint, and our
 // own monthly count against FR24_MONTHLY_CREDIT_BUDGET. Silent for anyone else, like /ver, and never added to the
 // public command menu. FR24_PUBLIC opens the map feature, not this.
@@ -19325,6 +19350,18 @@ async function cacheBotUsername() {
         res.json({ ok: false, reason: 'error' });
       }
     };
+    // v0.62.992 - a tap on a Google map icon (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md, A and B).
+    // The same Telegram session check as the flight routes; the reader comes from that verified session and from
+    // nowhere else, because the reader is who the daily limit is counted against.
+    app.get('/api/place-card', requireInitDataFromBodyOrHeader, async (req, res) => {
+      try {
+        const out = await placeCardService().lookup({ placeId: String(req.query.id || ''), lang: String(req.query.lang || ''), readerId: req.tg?.user?.id });
+        res.status(out.status).json(out.body);
+      } catch (err) {
+        console.error('[Error] /api/place-card failed:', err.message);
+        res.json({ ok: false, reason: 'unavailable' });
+      }
+    });
     app.get('/api/fr24/access', requireInitDataFromBodyOrHeader, fr24Route('access', () => ({})));
     app.get('/api/fr24/board/:icao', requireInitDataFromBodyOrHeader, fr24Route('board', (req) => ({ icao: req.params.icao, dir: req.query.dir })));
     app.get('/api/fr24/airport/:icao', requireInitDataFromBodyOrHeader, fr24Route('airport', (req) => ({ icao: req.params.icao })));
