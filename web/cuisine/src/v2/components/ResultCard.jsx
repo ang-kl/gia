@@ -714,6 +714,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
 
+          {/* v0.62.993 - a card added from the map by "Details, review & links" (spec doc/Feature/
+              2026-11-23-place-card-any-map-icon.spec.md, Amendment 1, F-8). It is not one of the search's
+              results, sits first in the strip, and says where it came from. */}
+          {venue.fromMap === true && (
+            <div className={`text-[12px] text-tg-hint font-semibold ${horizontal ? 'mt-0.5' : 'mt-1'}`}>
+              📍 {tr('card.fromMap', lang)}
+            </div>
+          )}
+
           {/* v0.62.588 — operator (Brisbane): the street address is now VISIBLE on
               the collapsed card (was revealed only on expand since v0.62.124). Sits
               just above the collapse boundary with the 🍲 Try / Michelin rows.

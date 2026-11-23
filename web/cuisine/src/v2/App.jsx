@@ -64,6 +64,7 @@ import { routeStripModel } from '../../../_shared/lib/bus-route-layer.js';
 import OutsideNowSheet from '../../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../../_shared/lib/use-weather-abroad.js';
+import { insertVenue, searchTotal } from '../../../_shared/lib/place-card.js';
 import { ot, badgeDot } from '../../../_shared/lib/outside-now-i18n.js';
 import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
@@ -3939,7 +3940,20 @@ export default function App() {
   // the place becomes the location and nothing is searched. "Eateries here" / "Eateries near here" is the same pick
   // WITHOUT noAutoFire, so onLocationSelect runs the search itself; no search call is added here. The map card is
   // closed first, so the result cards are unfolded for whatever comes next.
+  //
+  // v0.62.993 - "Details, review & links" (spec Amendment 1, F-8; invariant I13). The server has already built the
+  // card; this only places it: once, at the front of the results, marked as from the map (insertVenue hands back
+  // the same list when the place is already there), with the strip shown and that card selected. It is not a search
+  // and not a change of location, so nothing else is touched. The card leaves when the list is next replaced.
   const handlePlaceAction = React.useCallback((kind, place) => {
+    if (kind === 'full') {
+      const added = place && place.venue;
+      if (!added || typeof added.placeId !== 'string' || !added.placeId) return;
+      setVenues((prev) => insertVenue(prev, added));
+      setDrawerDismissed(false);
+      unfoldCard(added.placeId);
+      return;
+    }
     if (kind !== 'near' && kind !== 'set') return;
     if (!place || !Number.isFinite(place.lat) || !Number.isFinite(place.lng)) return;
     if (typeof window !== 'undefined' && typeof window.__giaMapCardsClose === 'function') window.__giaMapCardsClose();
@@ -4818,11 +4832,12 @@ export default function App() {
               selectedCity={selectedCityLocation}
               suffix={loading
                 ? t('banner.locating.suffix', lang)
-                : (!venues.length
+                /* v0.62.993 - the banner counts what the SEARCH found; a card added from the map is not one of them. */
+                : (!searchTotal(venues)
                   ? t('banner.no.match', lang)
-                  : (venues.length === 1
+                  : (searchTotal(venues) === 1
                     ? t('banner.places.one', lang)
-                    : tn('banner.places.many', lang, { n: venues.length })))}
+                    : tn('banner.places.many', lang, { n: searchTotal(venues) })))}
               onSelect={onLocationSelect}
               onSearch={triggerSearch}
               /* v0.62.x — pulse the 🔍 when criteria changed since the last
@@ -6008,7 +6023,9 @@ export default function App() {
           );
         })()}
         {(() => {
-          const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
+          // v0.62.993 - counted without cards added from the map, or one such card would make a finished search look
+          // unfinished and re-arm the search button.
+          const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && searchTotal(venues) === knownTotal;
           const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
           const pulse = (searchHintActive || searchFabFlash) && !searchDisabled;
           return composerOpen ? (

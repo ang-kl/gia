@@ -14,7 +14,10 @@
 
 export const PLACE_CARD_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
-export const PLACE_CARD_KEYS = ['eateriesHere', 'eateriesNear', 'setLocation', 'fromGoogle', 'openMaps', 'probablyClosed', 'distance', 'loading', 'capReached', 'budgetReached', 'unavailable'];
+// v0.62.993 (spec Amendment 1, F-9) adds two lines: `details`, the main button on the card of an eatery or a bar on
+// the Cuisine map, worded as the folded result card already words it ("details, review & links"); and `notOperating`,
+// shown when Google lists the place as closed for now, closed for good or not yet open.
+export const PLACE_CARD_KEYS = ['eateriesHere', 'eateriesNear', 'setLocation', 'fromGoogle', 'openMaps', 'probablyClosed', 'distance', 'loading', 'capReached', 'budgetReached', 'unavailable', 'details', 'notOperating'];
 
 export const PLACE_CARD_STRINGS = {
   en: {
@@ -29,6 +32,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: "Today's place look-ups are used up. Try again tomorrow.",
     budgetReached: 'Place look-ups are paused until next month.',
     unavailable: 'Could not load this place.',
+    details: 'Details, review & links',
+    notOperating: 'Google says this place is not operating at present.',
   },
   fr: {
     eateriesHere: 'Restaurants ici',
@@ -42,6 +47,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: 'Les recherches de lieux du jour sont épuisées. Réessayez demain.',
     budgetReached: "Les recherches de lieux sont suspendues jusqu'au mois prochain.",
     unavailable: 'Impossible de charger ce lieu.',
+    details: 'Détails, avis & liens',
+    notOperating: "D'après Google, ce lieu n'est pas en activité pour le moment.",
   },
   id: {
     eateriesHere: 'Tempat makan di sini',
@@ -55,6 +62,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: 'Pencarian tempat hari ini sudah habis. Coba lagi besok.',
     budgetReached: 'Pencarian tempat dijeda sampai bulan depan.',
     unavailable: 'Tidak dapat memuat tempat ini.',
+    details: 'Detail, ulasan & tautan',
+    notOperating: 'Menurut Google, tempat ini sedang tidak beroperasi.',
   },
   ru: {
     eateriesHere: 'Заведения здесь',
@@ -68,6 +77,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: 'Поиск мест на сегодня исчерпан. Попробуйте завтра.',
     budgetReached: 'Поиск мест приостановлен до следующего месяца.',
     unavailable: 'Не удалось загрузить это место.',
+    details: 'Детали, отзывы и ссылки',
+    notOperating: 'По данным Google, это заведение сейчас не действует.',
   },
   de: {
     eateriesHere: 'Lokale hier',
@@ -81,6 +92,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: 'Die Ortssuchen für heute sind aufgebraucht. Bitte morgen erneut versuchen.',
     budgetReached: 'Ortssuchen sind bis zum nächsten Monat pausiert.',
     unavailable: 'Dieser Ort konnte nicht geladen werden.',
+    details: 'Details, Bewertungen & Links',
+    notOperating: 'Laut Google ist dieser Ort derzeit nicht in Betrieb.',
   },
   zh: {
     eateriesHere: '这里的餐饮',
@@ -94,6 +107,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: '今天的地点查询次数已用完，请明天再试。',
     budgetReached: '地点查询已暂停，下月恢复。',
     unavailable: '无法加载此地点。',
+    details: '详情、点评及链接',
+    notOperating: 'Google 显示此地点目前已停止营业。',
   },
   ja: {
     eateriesHere: 'ここの飲食店',
@@ -107,6 +122,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: '本日の場所検索は上限に達しました。明日もう一度お試しください。',
     budgetReached: '場所検索は来月まで停止中です。',
     unavailable: 'この場所を読み込めませんでした。',
+    details: '詳細・レビュー・リンク',
+    notOperating: 'Google では、この場所は現在営業していないと表示されています。',
   },
   es: {
     eateriesHere: 'Sitios para comer aquí',
@@ -120,6 +137,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: 'Las búsquedas de lugares de hoy se han agotado. Inténtalo mañana.',
     budgetReached: 'Las búsquedas de lugares están en pausa hasta el mes que viene.',
     unavailable: 'No se pudo cargar este lugar.',
+    details: 'Detalles, reseñas y enlaces',
+    notOperating: 'Según Google, este lugar no está en funcionamiento por ahora.',
   },
   ko: {
     eateriesHere: '이곳의 음식점',
@@ -133,6 +152,8 @@ export const PLACE_CARD_STRINGS = {
     capReached: '오늘의 장소 조회 횟수를 모두 사용했습니다. 내일 다시 시도해 주세요.',
     budgetReached: '장소 조회가 다음 달까지 일시 중지되었습니다.',
     unavailable: '이 장소를 불러올 수 없습니다.',
+    details: '자세히, 리뷰 및 링크',
+    notOperating: 'Google에 따르면 이 장소는 현재 운영되지 않습니다.',
   },
 };
 

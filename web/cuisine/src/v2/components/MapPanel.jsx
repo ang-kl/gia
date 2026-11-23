@@ -541,6 +541,9 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
       regionMode: region || 'SG',
       // v0.62.992 - the place card asks our own server with this reader's Telegram session, and hands its buttons here.
       fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() || '' } }).then((r) => r.json()).catch(() => null),
+      // v0.62.993 - "Details, review & links" on a place card (spec Amendment 1, F-2): a POST, so the set location
+      // travels in the body and never in the address. Only this map hands one in.
+      postJson: (u, b) => fetch(u, { method: 'POST', headers: { 'content-type': 'application/json', 'x-telegram-init-data': initData() || '' }, body: JSON.stringify(b) }).then((r) => r.json()).catch(() => null),
       onPlaceAction: (kind, place) => onPlaceActionRef.current?.(kind, place),
       getOrigin: () => searchCenterRef.current,
     });

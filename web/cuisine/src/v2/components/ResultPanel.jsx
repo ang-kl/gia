@@ -6,6 +6,7 @@ import { insightLineText } from './InsightStrip.jsx';
 import { likelyServesText } from '../lib/dish-category.js';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { groupByAwardCity, groupNeedsJumpRow } from '../lib/michelin-city-groups.js';
+import { searchCounts } from '../../../../_shared/lib/place-card.js';
 
 // v0.58.4: human-readable label for each warm-start seed id. Surfaces
 // as a muted caption above the result list so users know the initial
@@ -376,8 +377,12 @@ export default function ResultPanel({
             single-line "Showing N results" string. */}
         <div className="text-xs font-semibold flex-shrink-0 leading-tight">{(() => {
           if (!venues) return tr('rp.results', lang);
-          const visibleStart = (page - 1) * PAGE_SIZE + 1;
-          const visibleEnd = Math.min(page * PAGE_SIZE, venues.length);
+          // v0.62.993 - the search's own numbers. A card added from the map (venue.fromMap) is on the page but is
+          // not a search result, so it is left out of every figure below; with no such card these are the same
+          // figures as before (spec 2026-11-23 place card, Amendment 1, I13).
+          const counts = searchCounts(venues, page, PAGE_SIZE);
+          const visibleStart = counts.visibleStart;
+          const visibleEnd = counts.visibleEnd;
           // Known total: prefer Michelin's curated pool; else App.jsx's
           // running max; else null (unknown — pre-first-fetch state).
           let known = null;
@@ -387,7 +392,7 @@ export default function ResultPanel({
           const isExhaustedNow = !!finalBatch || !!exhausted;
           // Single-line fallback when total isn't known yet.
           if (!known) {
-            return tr('panel.discovering', lang).replace('{n}', venues.length);
+            return tr('panel.discovering', lang).replace('{n}', counts.total);
           }
           const line1 = tr('panel.line1', lang).replace('{known}', known);
           // Build line 2 per state.
@@ -406,7 +411,7 @@ export default function ResultPanel({
             line2 = '';
           } else if (cap && known >= cap && isExhaustedNow) {
             line2 = tr('panel.line2.limit', lang);
-          } else if (venues.length <= PAGE_SIZE && known === venues.length) {
+          } else if (venues.length <= PAGE_SIZE && known === counts.total) {
             line2 = tr('panel.line2.all', lang);
           } else if (visibleStart === 1 && visibleEnd <= PAGE_SIZE) {
             // First batch / first page — "Showing first N".

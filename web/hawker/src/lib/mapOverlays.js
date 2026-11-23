@@ -2562,6 +2562,9 @@ export function createOverlayController(map, googleMaps, opts) {
     getLang: () => _lang,
     isDestroyed: () => destroyed,
     fetchJson: (u) => (opts && typeof opts.fetchJson === 'function' ? opts.fetchJson(u) : Promise.resolve(null)),
+    // v0.62.993 - the full Soleat card is a POST (the reader's set location goes in its body). Only a host that hands
+    // one in can reach that route; today that is the Cuisine map.
+    postJson: (u, b) => (opts && typeof opts.postJson === 'function' ? opts.postJson(u, b) : Promise.resolve(null)),
     onAction: (kind, place) => { if (opts && typeof opts.onPlaceAction === 'function') opts.onPlaceAction(kind, place); },
     openOwn: (kind, rec) => !!(opts && typeof opts.openOwnPlace === 'function' && opts.openOwnPlace(kind, rec) === true),
     getOrigin: () => (opts && typeof opts.getOrigin === 'function' ? opts.getOrigin() : null),
