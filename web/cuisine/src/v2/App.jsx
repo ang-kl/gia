@@ -6,7 +6,7 @@ import { OTHER_COUNTRIES } from './lib/countries.js';
 import { shouldFoldOnComposerOpen, RESULTS_BLINK_MS } from './lib/composer-fold.js';
 import { cuisineName } from './lib/cuisine-i18n.js';
 import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
-import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash, initialState } from './lib/state.js';
+import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash, initialState, regionAfterPick } from './lib/state.js';
 import { loadKept, saveKept } from '../../../_shared/lib/kept-settings.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from '../../../_shared/lib/location-sync.js';
@@ -3975,7 +3975,12 @@ export default function App() {
     // press would search with the cuisines and filters the app had when it started.
     const live = placeActionLiveRef.current;
     live.onLocationSelect({ lat: place.lat, lng: place.lng, label: placeLabel, fly: true, ...(kind === 'set' ? { noAutoFire: true } : {}) });
-    if (kind === 'near') live.runSearch(live.state, { lat: place.lat, lng: place.lng, name: placeLabel });
+    // Review finding on #1937: the commit above changes the region asynchronously, so the search has to carry the
+    // region the PLACE is in, worked out here by the same rule (regionAfterPick). Without it a reader in JB mode who
+    // pressed on a Singapore icon searched Johor Bahru: the server snaps a JB request at Singapore coordinates to JB.
+    const pickedCountry = coordsToCountry({ lat: place.lat, lng: place.lng });
+    const searchState = regionAfterPick(live.state, pickedCountry, pickedCountry === 'MY' && isJbCoords({ lat: place.lat, lng: place.lng }));
+    if (kind === 'near') live.runSearch(searchState, { lat: place.lat, lng: place.lng, name: placeLabel });
   }, [lang]);
 
   // v0.62.965 — "↩ Back to <place>" (spec C4): restore the place the start-up check switched away from, as a fresh

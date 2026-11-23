@@ -533,9 +533,20 @@ describe('Cuisine app: what the two buttons do (Part C)', () => {
   // The assertion had passed BECAUSE of the defect: it checked how the code was spelled, not what the button did.
   it('"Set as my location" does not search; "Eateries here / near here" makes one search, at the place it was pressed on', () => {
     expect(body.match(/runSearch\(/g) || []).toHaveLength(1);
-    expect(body).toMatch(/if \(kind === 'near'\) live\.runSearch\(live\.state, \{ lat: place\.lat, lng: place\.lng, name: placeLabel \}\);/);
+    expect(body).toMatch(/if \(kind === 'near'\) live\.runSearch\(searchState, \{ lat: place\.lat, lng: place\.lng, name: placeLabel \}\);/);
     expect(body.indexOf('onLocationSelect(')).toBeLessThan(body.indexOf("if (kind === 'near') live.runSearch("));
     expect(body).not.toMatch(/triggerSearch\(/);
+  });
+
+  // Review finding on #1937 (Codex, P2): the place is committed, but the search that follows at once still carried the
+  // region the app was in a moment before. A JB reader pressing on a Singapore icon then searched Johor Bahru, because
+  // the server snaps a JB-region request made at Singapore coordinates to JB's centre.
+  it('the search carries the region the PLACE is in, worked out from the latest state', () => {
+    expect(body).toMatch(/const pickedCountry = coordsToCountry\(\{ lat: place\.lat, lng: place\.lng \}\);/);
+    expect(body).toMatch(/const searchState = regionAfterPick\(live\.state, pickedCountry, pickedCountry === 'MY' && isJbCoords\(\{ lat: place\.lat, lng: place\.lng \}\)\);/);
+    expect(body.indexOf('const searchState = ')).toBeLessThan(body.indexOf('live.runSearch(searchState,'));
+    expect(body).not.toMatch(/runSearch\(live\.state,/);
+    expect(src).toMatch(/import \{[^}]*\bregionAfterPick\b[^}]*\} from '\.\/lib\/state\.js';/);
   });
 
   it('uses the app\'s latest search and criteria, not the ones from the render that made the handler', () => {

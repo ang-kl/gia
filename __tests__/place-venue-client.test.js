@@ -383,6 +383,85 @@ describe('the search\'s own count does not move (I13)', () => {
   });
 });
 
+// Review findings on #1937 (Codex, two P2), both real.
+describe('"Eateries here" searches in the region the place is in (review finding on #1937)', () => {
+  // Finding: a reader in JB mode presses "Eateries near here" on a Singapore icon. The place is committed, but the
+  // search that follows at once still carried the OLD region, and the server snaps a JB-region request made at
+  // Singapore coordinates to JB's centre. The search ran in Johor Bahru while the map showed Singapore.
+  let regionAfterPick; let coordsToCountry; let isJbCoords;
+  const SG_POINT = { lat: 1.2871, lng: 103.8501 };
+  const JB_POINT = { lat: 1.4927, lng: 103.7414 };
+  const KL_POINT = { lat: 3.139, lng: 101.6869 };
+  const TOKYO_POINT = { lat: 35.6719, lng: 139.7648 };
+  const pick = (s, p) => { const c = coordsToCountry(p); return regionAfterPick(s, c, c === 'MY' && isJbCoords(p)); };
+
+  it('loads the rule and the two checks it is fed by', async () => {
+    ({ regionAfterPick } = await import('../web/cuisine/src/v2/lib/state.js'));
+    ({ coordsToCountry, isJbCoords } = await import('../web/cuisine/src/v2/lib/coords-to-country.js'));
+    expect(typeof regionAfterPick).toBe('function');
+    expect(coordsToCountry(SG_POINT)).toBe('SG');
+    expect(coordsToCountry(JB_POINT)).toBe('MY');
+    expect(isJbCoords(JB_POINT)).toBe(true);
+    expect(isJbCoords(KL_POINT)).toBe(false);
+    expect(coordsToCountry(TOKYO_POINT)).toBe(null);
+  });
+
+  it('a JB reader pressing on a Singapore place searches Singapore', () => {
+    const s = { region: 'JB', countryPref: 'MY', cuisines: ['japanese'] };
+    expect(pick(s, SG_POINT)).toEqual({ region: 'SG', countryPref: 'MY', cuisines: ['japanese'] });
+  });
+
+  it('a Singapore reader pressing on a JB place searches JB; elsewhere in Malaysia, Malaysia', () => {
+    expect(pick({ region: 'SG' }, JB_POINT)).toEqual({ region: 'JB' });
+    expect(pick({ region: 'SG', countryPref: 'JP' }, KL_POINT)).toEqual({ region: 'OTHER', countryPref: 'MY' });
+    expect(pick({ region: 'JB' }, KL_POINT)).toEqual({ region: 'OTHER', countryPref: 'MY' });
+  });
+
+  it('outside Singapore and Malaysia the reader\'s own region and country stand', () => {
+    const s = { region: 'OTHER', countryPref: 'JP' };
+    expect(pick(s, TOKYO_POINT)).toBe(s);
+  });
+
+  it('changes nothing, and hands back the very same state, when the region is already right', () => {
+    const sg = { region: 'SG' }; const jb = { region: 'JB' }; const my = { region: 'OTHER', countryPref: 'MY' };
+    expect(pick(sg, SG_POINT)).toBe(sg);
+    expect(pick(jb, JB_POINT)).toBe(jb);
+    expect(pick(my, KL_POINT)).toBe(my);
+  });
+
+  it('never changes the state it is given', () => {
+    const s = Object.freeze({ region: 'JB', countryPref: 'MY' });
+    expect(() => pick(s, SG_POINT)).not.toThrow();
+    expect(s).toEqual({ region: 'JB', countryPref: 'MY' });
+  });
+
+  it('is the same rule the location handler applies when it commits the place', () => {
+    // The handler's own lines are left as they were (a hot path), so the rule exists twice. This is the tripwire:
+    // if either of these lines changes, regionAfterPick in lib/state.js must change with it, or better, be called here.
+    const app = maskComments(read('web/cuisine/src/v2/App.jsx'));
+    expect(app).toMatch(/setState\(\(s\) => \(s\.region === 'SG' \? s : \{ \.\.\.s, region: 'SG' \}\)\);/);
+    expect(app).toMatch(/const target = isJbCoords\(\{ lat: p\.lat, lng: p\.lng \}\) \? 'JB' : 'OTHER';/);
+    expect(app).toMatch(/if \(target === 'OTHER'\) next\.countryPref = 'MY';/);
+  });
+});
+
+describe('the card added from the map arrives with its details open (review finding on #1937)', () => {
+  // Finding: in the strip, cards are closed by default and a selected card does not open by itself. So pressing
+  // "Details, review & links" added and selected the card and left its review and links hidden behind a second press.
+  const drawer = maskComments(read('web/cuisine/src/v2/components/ResultDrawer.jsx'));
+  it('the strip opens a card from the map when it is first drawn, and only such a card', () => {
+    expect(drawer).toMatch(/autoExpandFocus=\{false\}\s*defaultExpanded=\{v\.fromMap === true\}/);
+  });
+  it('the copy of the first card that closes the loop matches it', () => {
+    expect(drawer).toMatch(/autoExpandFocus=\{false\}\s*defaultExpanded=\{list\[0\]\.fromMap === true\}/);
+  });
+  it('the strip still keeps every other card closed until asked', () => {
+    expect(drawer.match(/autoExpandFocus=\{false\}/g) || []).toHaveLength(2);
+    expect(drawer).not.toMatch(/defaultExpanded=\{true\}/);
+    expect(drawer).not.toMatch(/defaultExpanded\b(?!=\{(v|list\[0\])\.fromMap === true\})/);
+  });
+});
+
 describe('wording in nine languages, hyphens only (F-9, I9)', () => {
   it('the button and the not-operating line exist everywhere and read as text, not as a key', () => {
     expect(pct('details', 'en')).toBe('Details, review & links');

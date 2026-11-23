@@ -108,7 +108,8 @@ describe('a locale toggle re-languages the map without re-running the search', (
     'runSearch(state, { lat: hit.lat, lng: hit.lng })',             // a search-result pick
     'runSearch(state, null, { resetSeen: true })',                  // ↺ Start over
     // v0.62.993 - "Eateries here / near here" on a map place card: the reader pressed a button that says it searches.
-    'runSearch(live.state, { lat: place.lat, lng: place.lng, name: placeLabel })',
+    // (its first argument became `searchState` after a review finding on #1937: the state with the region the place is in)
+    'runSearch(searchState, { lat: place.lat, lng: place.lng, name: placeLabel })',
   ];
 
   // A third category, and it needs naming rather than hiding in EXPLICIT: the two `boot: true`

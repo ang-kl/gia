@@ -268,6 +268,11 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
               horizontal
               isShort={isShort}
               autoExpandFocus={false}
+              /* v0.62.993 - review finding on #1937: a card added from the map by "Details, review & links" arrives
+                 with its details OPEN. Strip cards are closed by default and a selected card does not open by itself,
+                 so without this the review and links the reader had just asked for sat behind a second press. Only a
+                 card from the map gets it; it seeds the first draw, and the reader can close it like any card. */
+              defaultExpanded={v.fromMap === true}
               nearbyLabel={nearbyLabel}
               nearbyAccent={nearbyAccent}
               nearbyStrips={nearbyStrips}
@@ -312,6 +317,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
                with the measuring pass in v0.62.955.) */
             isShort={isShort}
             autoExpandFocus={false}
+            defaultExpanded={list[0].fromMap === true}
             folded={folded}
             onUnfold={onUnfold}
           />
