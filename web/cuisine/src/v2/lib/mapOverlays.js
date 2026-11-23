@@ -2870,6 +2870,14 @@ export function createOverlayController(map, googleMaps, opts) {
   // own server what the place is. One of our records is drawn with the card the layers above already use; a station
   // opens the station view; a kind the host app shows itself is handed to it (openOwnPlace). The ring goes into
   // iconStopPins, so closeInfo() clears it with the rest. It is built here, after the card builders it names.
+  //
+  // Two review findings on #1936 are held here. placePin is the ring this card drew: a late answer fills the bubble
+  // only while the bubble is still open on that ring, so a stop or layer card the reader opened meanwhile is left
+  // alone. stationOpener is the station view THIS map has: the panel's own opener when it gives one (Hawker, Train),
+  // otherwise the hook the Cuisine controller installs; null where there is none, and the station is shown by name.
+  let placePin = null;
+  const stationOpener = () => (opts && typeof opts.focusStation === 'function' ? opts.focusStation
+    : (typeof window.__giaFocusStation === 'function' ? window.__giaFocusStation : null));
   const placeTap = createPlaceTap({
     app: tma,
     getLang: () => _lang,
@@ -2882,7 +2890,10 @@ export function createOverlayController(map, googleMaps, opts) {
     card: (inner) => infoCard(inner, null),
     update: (html) => info.setContent(html),
     dismiss: () => { clearIconStopPins(); info.close(); },
-    focusStation: (code) => { if (typeof window.__giaFocusStation === 'function') window.__giaFocusStation(code); },
+    canFocusStation: () => !!stationOpener(),
+    focusStation: (code) => { const open = stationOpener(); return open ? open(code) : false; },
+    stillOpen: () => cardWatch.isOpen() && cardWatch.anchor() === placePin,
+    lost: () => { if (placePin) { placePin.map = null; iconStopPins = iconStopPins.filter((m) => m !== placePin); placePin = null; } },
     own: { hospital: hospitalInfo, police: poiInfo('👮'), attraction: attractionInfo, hawker: (f) => hawkerCardHtml(f, null) },
     refine: {
       hawker: (f) => fetch('/api/hawker/centre-transit?lat=' + encodeURIComponent(f.lat) + '&lng=' + encodeURIComponent(f.lng))
@@ -2892,6 +2903,7 @@ export function createOverlayController(map, googleMaps, opts) {
     show: (html, at) => {
       const marker = new AdvancedMarkerElement({ position: { lat: at.lat, lng: at.lng }, content: pinNode(document) });
       marker.map = map;
+      placePin = marker;
       iconStopPins.push(marker);
       info.setContent(html);
       info.open(map, marker);

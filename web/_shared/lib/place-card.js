@@ -166,7 +166,9 @@ export function pinNode(doc) {
 //   palette() → { sub, link }, card(inner) → bubble markup, show(html, at), update(html), dismiss(),
 //   own: { hospital, police, attraction, hawker } → bubble markup for one of our records,
 //   openOwn(kind, record) → true when the host opened its own view for it, refine: { kind: (record) => Promise<html> },
-//   focusStation(code), and win (the window; a stand-in under test).
+//   canFocusStation() and focusStation(code) (the opener answers false only when it knows it cannot open that code),
+//   stillOpen() → the bubble is still open on the ring this tap drew, lost() → remove that ring and nothing else,
+//   and win (the window; a stand-in under test).
 // open(tap) answers at once whether a card is now open; `last` is the fill still under way.
 export function createPlaceTap(deps) {
   const d = deps || {};
@@ -177,6 +179,11 @@ export function createPlaceTap(deps) {
   const lang = () => (typeof d.getLang === 'function' && d.getLang()) || 'en';
   const gone = () => typeof d.isDestroyed === 'function' && d.isDestroyed() === true;
   const palette = () => (typeof d.palette === 'function' && d.palette()) || {};
+  // The bubble is shared with every other map card. An answer that arrives after the reader has opened something else
+  // in it (a stop, a layer pin) or closed it must not be drawn there (review finding on #1936). The host says whether
+  // the bubble is still open on the ring this tap drew; a host that cannot say is taken at its word, as before.
+  const ours = () => typeof d.stillOpen !== 'function' || d.stillOpen() === true;
+  const lose = () => { current = null; if (typeof d.lost === 'function') d.lost(); return undefined; };
 
   function act(kind) {
     if (kind !== 'near' && kind !== 'set') return;
@@ -197,7 +204,16 @@ export function createPlaceTap(deps) {
     const o = { lang: lang(), app };
     if (body.source === 'own' && body.own) {
       // A station opens our station view; a kind the host shows itself (a hawker centre on the Hawker map) opens that.
-      if (body.kind === 'station' && body.own.code) { d.dismiss(); d.focusStation(body.own.code); return undefined; }
+      if (body.kind === 'station' && body.own.code && typeof d.focusStation === 'function'
+        && (typeof d.canFocusStation !== 'function' || d.canFocusStation() === true)) {
+        // The lookup card goes first, because the station view may open in this same bubble.
+        d.dismiss();
+        if (d.focusStation(body.own.code) !== false) return undefined;
+        // The map could not open that station after all: put a card back on the icon and show the station by name.
+        d.show(d.card(ownPlainInner(body, o)), { lat: tap.at.lat, lng: tap.at.lng });
+        current = place;
+        return undefined;
+      }
       if (typeof d.openOwn === 'function' && d.openOwn(body.kind, body.own) === true) { d.dismiss(); return undefined; }
       const row = actionsRow(body, o);
       const draw = d.own && d.own[body.kind];
@@ -206,7 +222,7 @@ export function createPlaceTap(deps) {
       const better = typeof draw === 'function' && d.refine && d.refine[body.kind];
       if (typeof better !== 'function') return undefined;
       return Promise.resolve().then(() => better(body.own))
-        .then((html) => { if (html && mine === seq && !gone()) d.update(withActions(html, row)); })
+        .then((html) => { if (html && mine === seq && !gone() && ours()) d.update(withActions(html, row)); })
         .catch(() => { /* the card already shown stays */ });
     }
     if (body.source !== 'google') return refusal('unavailable', tap);
@@ -229,8 +245,14 @@ export function createPlaceTap(deps) {
       let pending;
       try { pending = Promise.resolve(d.fetchJson(url)); } catch (err) { pending = Promise.reject(err); }
       api.last = pending
-        .then((body) => (mine !== seq || gone() ? undefined : fill(body, tap, mine)))
-        .catch(() => { if (mine === seq && !gone()) refusal('unavailable', tap); });
+        .then((body) => {
+          if (mine !== seq || gone()) return undefined;
+          return ours() ? fill(body, tap, mine) : lose();
+        })
+        .catch(() => {
+          if (mine !== seq || gone()) return;
+          if (ours()) refusal('unavailable', tap); else lose();
+        });
       return true;
     },
   };
