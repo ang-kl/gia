@@ -559,6 +559,15 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       // "Eateries near here", opens the Cuisine app at the place.
       fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() || '' } }).then((r) => r.json()).catch(() => null),
       onPlaceAction: (kind, place) => { const url = kind === 'near' ? cuisineLink(place) : ''; if (url) window.location.assign(url); },
+      // A Google icon that turns out to be a train station selects that station the way "Getting there" does, by its
+      // code (review finding on #1936: the hook the shared card first called exists only in Cuisine). A code this app
+      // does not know answers false, and the shared card then shows the station by name.
+      focusStation: (code) => {
+        const s = (fr24StationsRef.current || []).find((x) => (x.codes || []).includes(code));
+        if (!s) return false;
+        onStationSelect?.(s);
+        return true;
+      },
     });
     overlayControllerRef.current.onPcnLock(setPcnLocked);
     // v0.61.95 — operator part 5: the coloured SVG train-line overlay,

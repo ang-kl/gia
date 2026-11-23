@@ -485,6 +485,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       // "Eateries near here", opens the Cuisine app at the place.
       fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() || '' } }).then((r) => r.json()).catch(() => null),
       onPlaceAction: (kind, place) => { const url = kind === 'near' ? cuisineLink(place) : ''; if (url) window.location.assign(url); },
+      // A Google icon that turns out to be a train station opens that station the way this app's own cards do
+      // (review finding on #1936: the hook the shared card first called exists only in Cuisine).
+      focusStation: (code) => { if (typeof window.__giaHawkerFocusStation !== 'function') return false; window.__giaHawkerFocusStation(code); return true; },
       // A hawker centre is this app's own subject: a Google icon that turns out to be one opens the centre's pop-up
       // here, as a tap on its pin does. False (no such pin) leaves the shared card to show the place.
       openOwnPlace: (kind, rec) => {
