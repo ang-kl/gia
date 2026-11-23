@@ -71,8 +71,8 @@ const HOSPITAL = { ok: true, source: 'own', kind: 'hospital', family: 'health', 
 const STATION = { ok: true, source: 'own', kind: 'station', family: 'transit', own: { name: 'Fixture Station', code: 'NS1', lat: 1.3, lng: 103.8 }, place: { placeId: 'ChIJfixtureStation0000004', name: 'Fixture Station', lat: 1.3, lng: 103.8 } };
 const TAP = { placeId: 'ChIJfixtureMall0000000001', at: { lat: 1.3044, lng: 103.8339 } };
 
-function rig({ answer = MALL, app = 'cuisine', origin = null, destroyed = () => false, refine = {}, openOwn = undefined } = {}) {
-  const log = { shown: [], updated: [], dismissed: 0, urls: [], actions: [], stations: [] };
+function rig({ answer = MALL, app = 'cuisine', origin = null, destroyed = () => false, refine = {}, openOwn = undefined, stillOpen = undefined, canFocusStation = undefined, stationOpens = true } = {}) {
+  const log = { shown: [], updated: [], dismissed: 0, lost: 0, urls: [], actions: [], stations: [] };
   const win = {};
   let resolve;
   const gate = new Promise((r) => { resolve = r; });
@@ -90,7 +90,11 @@ function rig({ answer = MALL, app = 'cuisine', origin = null, destroyed = () => 
     own: { hospital: (f) => `<div class="card"><div>${f.name}</div></div>`, police: (f) => `<div class="card">${f.name}</div>`, attraction: (f) => `<div class="card">${f.name}</div>`, hawker: (f) => `<div class="card">${f.name}</div>` },
     refine,
     openOwn,
-    focusStation: (code) => log.stations.push(code),
+    stillOpen,
+    canFocusStation,
+    lost: () => { log.lost++; },
+    // A host's station opener answers false only when it knows it cannot open that station.
+    focusStation: (code) => { log.stations.push(code); return stationOpens; },
   });
   return { tap, log, win, release: resolve };
 }
@@ -245,6 +249,126 @@ describe('createPlaceTap: what a tap does', () => {
     for (const bad of [null, {}, { placeId: 'ChIJx' }, { placeId: '', at: { lat: 1, lng: 2 } }, { placeId: 'ChIJx', at: { lat: NaN, lng: 2 } }]) expect(tap.open(bad)).toBe(false);
     expect(log.shown).toEqual([]);
     expect(log.urls).toEqual([]);
+  });
+});
+
+// Review finding on #1936 (P2): the place card shares one bubble with every other map card. A reader who taps a
+// place and then opens a stop or a layer card before our server answers must not see the place's content, and its
+// buttons, land on that other card.
+describe('createPlaceTap: a late answer never overwrites another card (review P2)', () => {
+  const slow = (answer = () => MALL) => {
+    let open = true;
+    const r = rig({ answer: (_u, gate) => gate.then(answer), stillOpen: () => open });
+    return { ...r, lose: () => { open = false; } };
+  };
+
+  it('another card took the bubble before the answer: nothing is drawn, and only our ring is removed', async () => {
+    const { tap, log, release, lose } = slow();
+    tap.open(TAP);
+    lose();
+    release();
+    await tap.last;
+    expect(log.updated).toEqual([]);
+    expect(log.lost).toBe(1);
+    expect(log.dismissed, 'the other card is not closed').toBe(0);
+  });
+
+  it('and the buttons of the place that lost the bubble do nothing', async () => {
+    const { tap, log, win, release, lose } = slow();
+    tap.open(TAP);
+    lose();
+    release();
+    await tap.last;
+    win.__giaPlaceAction('near');
+    expect(log.actions).toEqual([]);
+  });
+
+  it('a failed request after the bubble was taken draws no "could not load" over the other card', async () => {
+    const { tap, log, release, lose } = slow(() => { throw new Error('offline'); });
+    tap.open(TAP);
+    lose();
+    release();
+    await tap.last;
+    expect(log.updated).toEqual([]);
+    expect(log.lost).toBe(1);
+  });
+
+  it('a linked station is not opened either, once the reader has moved on', async () => {
+    const { tap, log, release, lose } = slow(() => STATION);
+    tap.open({ placeId: STATION.place.placeId, at: { lat: 1.3, lng: 103.8 } });
+    lose();
+    release();
+    await tap.last;
+    expect(log.stations).toEqual([]);
+    expect(log.dismissed).toBe(0);
+  });
+
+  it('a bubble that is still ours is filled as before', async () => {
+    const { tap, log } = rig({ stillOpen: () => true });
+    tap.open(TAP);
+    await tap.last;
+    expect(log.updated.length).toBe(1);
+    expect(log.lost).toBe(0);
+  });
+
+  it('a later refresh of our own card is dropped once another card has the bubble', async () => {
+    let open = true;
+    let finish;
+    const wait = new Promise((r) => { finish = r; });
+    const { tap, log } = rig({
+      answer: { ...HOSPITAL, kind: 'hawker' }, stillOpen: () => open,
+      refine: { hawker: (f) => wait.then(() => `<div class="card">${f.name} + trains</div>`) },
+    });
+    tap.open({ placeId: HOSPITAL.place.placeId, at: { lat: 1.305, lng: 103.835 } });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(log.updated.length, 'the first card is drawn').toBe(1);
+    open = false;
+    finish();
+    await tap.last;
+    expect(log.updated.length, 'the refresh is not').toBe(1);
+  });
+});
+
+// Review finding on #1936 (P2): only Cuisine installs the hook the first version called, so on Hawker and Train a
+// linked station closed the "looking up" card and opened nothing.
+describe('createPlaceTap: a linked station where the map cannot open it (review P2)', () => {
+  const at = { lat: 1.3, lng: 103.8 };
+
+  it('a map that says it has no station view keeps the card and shows the station by name, with the buttons', async () => {
+    const { tap, log } = rig({ answer: STATION, app: 'transport', canFocusStation: () => false });
+    tap.open({ placeId: STATION.place.placeId, at });
+    await tap.last;
+    expect(log.stations).toEqual([]);
+    expect(log.dismissed).toBe(0);
+    expect(log.updated.length).toBe(1);
+    expect(log.updated[0]).toContain('Fixture Station');
+    expect(log.updated[0]).toContain('data-place-action="near"');
+    expect(log.updated[0]).not.toContain('Looking up');
+  });
+
+  it('a map whose opener answers "no" for that station puts the card back on the icon, by name', async () => {
+    const { tap, log, win } = rig({ answer: STATION, app: 'transport', stationOpens: false });
+    tap.open({ placeId: STATION.place.placeId, at });
+    await tap.last;
+    expect(log.stations).toEqual(['NS1']);
+    expect(log.dismissed).toBe(1);
+    expect(log.shown.length, 'the bubble is opened again on the icon').toBe(2);
+    expect(log.shown[1].at).toEqual(at);
+    expect(log.shown[1].html).toContain('Fixture Station');
+    expect(log.shown[1].html).toContain('data-place-action="near"');
+    expect(log.shown[1].html).not.toContain('Looking up');
+    win.__giaPlaceAction('near');
+    expect(log.actions.map((a) => a.place.name)).toEqual(['Fixture Station']);
+  });
+
+  it('a map that can open it still does, exactly once', async () => {
+    const { tap, log } = rig({ answer: STATION, app: 'transport', canFocusStation: () => true });
+    tap.open({ placeId: STATION.place.placeId, at });
+    await tap.last;
+    expect(log.stations).toEqual(['NS1']);
+    expect(log.dismissed).toBe(1);
+    expect(log.shown.length).toBe(1);
+    expect(log.updated).toEqual([]);
   });
 });
 
@@ -436,7 +560,7 @@ describe.each(['hawker', 'transport'])('%s panel: "Eateries near here" opens Cui
 describe.each(Object.keys(COPIES))('%s map controller: the place card uses the bubble and the cards already there', (name) => {
   const src = read(COPIES[name]);
   const at = src.indexOf('const placeTap = createPlaceTap({');
-  const body = src.slice(at, at + 2200);
+  const body = src.slice(at, src.indexOf('\n  });', at) + 6);   // the whole block, to its closing line
 
   it('imports the shared place card', () => {
     expect(src).toMatch(/import \{[^}]*\bcreatePlaceTap\b[^}]*\bpinNode\b[^}]*\} from '[./]+\/_shared\/lib\/place-card\.js';/);
@@ -469,8 +593,19 @@ describe.each(Object.keys(COPIES))('%s map controller: the place card uses the b
     expect(body).toMatch(/dismiss: \(\) => \{ clearIconStopPins\(\); info\.close\(\); \},/);
   });
 
-  it('a linked station opens the station view the cards already link to', () => {
-    expect(body).toMatch(/focusStation: \(code\) => \{ if \(typeof window\.__giaFocusStation === 'function'\) window\.__giaFocusStation\(code\); \},/);
+  it('a linked station opens the station view THIS map has, and says so when it has none (review P2)', () => {
+    // The panel's own opener when it gives one (Hawker, Train); otherwise the hook the Cuisine controller installs.
+    expect(src).toMatch(/const stationOpener = \(\) => \(opts && typeof opts\.focusStation === 'function' \? opts\.focusStation\s*: \(typeof window\.__giaFocusStation === 'function' \? window\.__giaFocusStation : null\)\);/);
+    expect(body).toMatch(/canFocusStation: \(\) => !!stationOpener\(\),/);
+    expect(body).toMatch(/focusStation: \(code\) => \{ const open = stationOpener\(\); return open \? open\(code\) : false; \},/);
+  });
+
+  it('fills the bubble only while it is still open on the ring it drew (review P2)', () => {
+    expect(src).toMatch(/let placePin = null;/);
+    expect(body).toMatch(/placePin = marker;/);
+    expect(body).toMatch(/stillOpen: \(\) => cardWatch\.isOpen\(\) && cardWatch\.anchor\(\) === placePin,/);
+    // Losing the bubble removes our ring and nothing else: the card that took the bubble keeps its own pin.
+    expect(body).toMatch(/lost: \(\) => \{ if \(placePin\) \{ placePin\.map = null; iconStopPins = iconStopPins\.filter\(\(m\) => m !== placePin\); placePin = null; \} \},/);
   });
 
   it('exposes openPlaceAt, and leaves openStopAt as it was', () => {
@@ -523,5 +658,29 @@ describe('Hawker panel: a hawker centre opens the pop-up the Hawker map already 
 
   it('says no when it has no such pin, so the shared card still shows the place', () => {
     expect(optsText).toMatch(/if \(!entry \|\| !entry\.marker\) return false;/);
+  });
+});
+
+// Review finding on #1936 (P2): each map opens a station its own way. Only Cuisine has the window hook.
+describe('Hawker and Train panels: a linked station opens the station view each map already has (review P2)', () => {
+  const optsOf = (name) => {
+    const src = read(PANELS[name]);
+    const c = src.indexOf('createOverlayController(mapRef.current, window.google.maps, {');
+    return src.slice(c, src.indexOf('\n    });', c));
+  };
+
+  it('Hawker uses the hook its own cards use for a station, and says no when that hook is not there', () => {
+    expect(optsOf('hawker')).toMatch(/focusStation: \(code\) => \{ if \(typeof window\.__giaHawkerFocusStation !== 'function'\) return false; window\.__giaHawkerFocusStation\(code\); return true; \},/);
+  });
+
+  it('Train selects the station the way "Getting there" does, and says no for a code it does not know', () => {
+    expect(optsOf('transport')).toMatch(/focusStation: \(code\) => \{\s*const s = \(fr24StationsRef\.current \|\| \[\]\)\.find\(\(x\) => \(x\.codes \|\| \[\]\)\.includes\(code\)\);\s*if \(!s\) return false;\s*onStationSelect\?\.\(s\);\s*return true;\s*\},/);
+  });
+
+  it('Cuisine gives no opener of its own: its controller installs the hook the shared block falls back to', () => {
+    expect(optsOf('cuisine')).not.toMatch(/focusStation:/);
+    expect(read(COPIES.cuisine)).toMatch(/window\.__giaFocusStation = \(code\) => \{/);
+    expect(read(COPIES.hawker)).not.toMatch(/window\.__giaFocusStation = /);
+    expect(read(COPIES.transport)).not.toMatch(/window\.__giaFocusStation = /);
   });
 });
