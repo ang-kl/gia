@@ -103,17 +103,19 @@ Visual: https://claude.ai/artifact/JfcFvV92Sy5hvoaKi6jhDe (Direction A, frames 1
 | A5 | An eatery not in the results can become a full Soleat card | confirmed | Operator, 23-11 '26 |
 | A6 | Hawker and Train: "Eateries near here" opens Cuisine; no "Set as my location" | confirmed | Operator, 23-11 '26 |
 | A7 | Closing guess: new card only; ends 6 AM; no guess outside Singapore, Japan and Korea; two releases, one spec | confirmed | Operator, 23-11 '26 |
-| A8 | Both limits apply to every reader, the owner included | pending | The flight feature exempts the owner because FR24 does not charge for them; Google does |
-| A9 | The monthly limit counts list price and ignores Google's free monthly allowance, so it stops early rather than late | pending | |
-| A10 | Linking covers hospitals, police, attractions, hawker centres and stations. Clinics, taxi stands and parks get the Google card in this release | pending | Our park data is a name and an outline only; clinic names are too alike to link safely without measuring |
-| A11 | A place that fails to link shows the Google card. It is correct but lacks our extra detail; a link is never guessed | pending | |
-| A12 | How Google names police posts and stations is unknown until the first live lookups, so the share of taps that link is not known. Only the hit rate is at risk, not correctness | pending | Not measurable here: this container has no Google key |
-| A13 | Keeping a place's details for 24 hours, and its place ID with our record's name indefinitely, is within Google's terms | pending | Inferred from what the repo already does with place data; I have not read the current terms |
-| A14 | Opening Cuisine from Hawker or Train keeps the Telegram session | pending | Read in Telegram's own script: it stores the launch data per tab and reuses it. Not tried on a phone |
-| A15 | Between the two releases an eatery not in the results shows "Eateries near here", "Set as my location" and the Google Maps link | pending | |
-| A16 | The card's fixed wording in nine languages is written by me and not checked by a native speaker; the place-type label and the place name come from Google in the reader's language | pending | Same standing as earlier strings |
-| A17 | The "how to say it" line from the mock-up is left out of the Google card; the full Soleat card (Part F) has it | pending | No free source for it on a place we have not searched |
-| A18 | Cards opened from our own layer pins (hospital, police and the rest) keep today's content; only a card opened from a Google icon gets the new buttons | pending | Keeps live surfaces unchanged |
+| A8 | Both limits apply to every reader, the owner included | confirmed | The flight feature exempts the owner because FR24 does not charge for them; Google does |
+| A9 | The monthly limit counts list price and ignores Google's free monthly allowance, so it stops early rather than late | confirmed | |
+| A10 | Linking covers hospitals, police, attractions, hawker centres and stations. Clinics, taxi stands and parks get the Google card in this release | confirmed | Our park data is a name and an outline only; clinic names are too alike to link safely without measuring |
+| A11 | A place that fails to link shows the Google card. It is correct but lacks our extra detail; a link is never guessed | confirmed | |
+| A12 | How Google names police posts and stations is unknown until the first live lookups, so the share of taps that link is not known. Only the hit rate is at risk, not correctness | confirmed | Not measurable here: this container has no Google key |
+| A13 | Keeping a place's details for 24 hours, and its place ID with our record's name indefinitely, is within Google's terms | confirmed | Inferred from what the repo already does with place data; I have not read the current terms |
+| A14 | Opening Cuisine from Hawker or Train keeps the Telegram session | confirmed | Read in Telegram's own script: it stores the launch data per tab and reuses it. Not tried on a phone |
+| A15 | Between the two releases an eatery not in the results shows "Eateries near here", "Set as my location" and the Google Maps link | confirmed | |
+| A16 | The card's fixed wording in nine languages is written by me and not checked by a native speaker; the place-type label and the place name come from Google in the reader's language | confirmed | Same standing as earlier strings |
+| A17 | The "how to say it" line from the mock-up is left out of the Google card; the full Soleat card (Part F) has it | confirmed | No free source for it on a place we have not searched |
+| A18 | Cards opened from our own layer pins (hospital, police and the rest) keep today's content; only a card opened from a Google icon gets the new buttons | confirmed | Keeps live surfaces unchanged |
+
+Rows A8 to A18 were confirmed by the operator on 23-11 '26 at 11:21 SGT, verbatim: "confirm all".
 
 Status is `pending`, `confirmed` or `corrected`. Only the user confirms; the approval hook refuses a spec with any `pending` row.
 
