@@ -145,6 +145,87 @@ describe('what is written down (I8)', () => {
     for (const id of [null, undefined, '', 0]) expect((await b.reserve(id, pc.CARD_MILLS)).ok).toBe(false);
   });
 
+  // Review finding on #1936 (P1): the memory counts only knew what THIS process had added. After a restart Redis held
+  // the month's real total and memory held almost nothing, so a Redis outage switched the limit to the small number
+  // and reopened a budget that was already spent.
+  describe('Redis going away must not reopen a limit that Redis says is reached', () => {
+    // The server's adapter answers nothing when Redis is closed (get → null, incrBy → undefined); it does not throw.
+    function switchable() {
+      const inner = fakeStore();
+      let up = true;
+      return {
+        m: inner.m,
+        down() { up = false; },
+        back() { up = true; },
+        get: (k) => (up ? inner.get(k) : Promise.resolve(null)),
+        incrBy: (k, n) => (up ? inner.incrBy(k, n) : Promise.resolve(undefined)),
+        expire: () => Promise.resolve(),
+      };
+    }
+    const DAY = '2026-11-23';
+    const MONTH = 'placecard:month:2026-11';
+    const readerKey = (id) => `placecard:reader:${pc.hashId(id)}:${DAY}`;
+
+    it('the month: a new process learns the total from Redis, and keeps it when Redis goes away', async () => {
+      const store = switchable();
+      store.m.set(MONTH, '19980');                       // spent by an earlier process this month
+      const b = pc.createBudget({ store, now: clock() });
+      expect((await b.reserve('reader-a', pc.CARD_MILLS)).ok, '19,980 + 20 is exactly the limit').toBe(true);
+      store.down();
+      const r = await b.reserve('reader-b', pc.CARD_MILLS);
+      expect(r).toMatchObject({ ok: false, reason: 'budget' });
+      expect(await b.monthSpent()).toBe(20000);
+    });
+
+    it('the reader: the same, for one reader\'s day', async () => {
+      const store = switchable();
+      store.m.set(readerKey('reader-a'), '980');
+      const b = pc.createBudget({ store, now: clock() });
+      expect((await b.reserve('reader-a', pc.CARD_MILLS)).ok).toBe(true);
+      store.down();
+      expect(await b.reserve('reader-a', pc.CARD_MILLS)).toMatchObject({ ok: false, reason: 'cap' });
+      expect(await b.spent('reader-a')).toBe(1000);
+    });
+
+    it('what is spent while Redis is away is still counted when Redis comes back', async () => {
+      const store = switchable();
+      const b = pc.createBudget({ store, now: clock() });
+      await b.reserve('reader-a', pc.CARD_MILLS);        // Redis: 20
+      store.down();
+      await b.reserve('reader-a', pc.CARD_MILLS);        // memory only
+      await b.reserve('reader-a', pc.CARD_MILLS);        // memory only
+      expect(await b.spent('reader-a')).toBe(60);
+      store.back();
+      expect(await b.spent('reader-a'), 'Redis knows 20; 40 more were spent while it was away').toBe(60);
+      await b.reserve('reader-a', pc.CARD_MILLS);
+      expect(await b.spent('reader-a')).toBe(80);
+      expect(await b.monthSpent()).toBe(80);
+    });
+
+    it('a reader at the limit before the outage stays at the limit through it and after it', async () => {
+      const store = switchable();
+      const b = pc.createBudget({ store, now: clock() });
+      for (let i = 0; i < 50; i++) await b.reserve('reader-a', pc.CARD_MILLS);
+      store.down();
+      expect((await b.reserve('reader-a', pc.CARD_MILLS)).ok).toBe(false);
+      store.back();
+      expect((await b.reserve('reader-a', pc.CARD_MILLS)).ok).toBe(false);
+      expect(await b.spent('reader-a')).toBe(1000);
+    });
+
+    it('a release made while Redis is away is given back once, not lost and not doubled', async () => {
+      const store = switchable();
+      const b = pc.createBudget({ store, now: clock() });
+      const held = await b.reserve('reader-a', pc.CARD_MILLS);   // Redis: 20
+      await b.reserve('reader-a', pc.CARD_MILLS);                // Redis: 40
+      store.down();
+      await held.release();
+      expect(await b.spent('reader-a')).toBe(20);
+      store.back();
+      expect(await b.spent('reader-a')).toBe(20);
+    });
+  });
+
   it('a store that throws does not throw at the caller, and the limit still holds in memory', async () => {
     const broken = { get: async () => { throw new Error('down'); }, incrBy: async () => { throw new Error('down'); }, expire: async () => { throw new Error('down'); } };
     const b = pc.createBudget({ store: broken, now: clock() });

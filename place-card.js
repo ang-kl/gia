@@ -245,26 +245,43 @@ function linkOwn(place, own) {
 // `store` is the Redis adapter index.js passes ({ get, set, setEx, incrBy, expire, del }) or null. Every count is
 // mirrored in memory, as fr24.js does, so the limits hold inside this process when Redis is away.
 function createBudget({ store = null, now = Date.now } = {}) {
+  // Two views of every count, kept in step so that Redis going away, or coming back, can never reopen a limit
+  // (review finding on #1936, P1: memory used to know only what THIS process had added, so after a restart a Redis
+  // outage switched the limit to an almost empty count).
+  //   mem  - the last total this process knows: Redis's own answer whenever Redis gave one;
+  //   owed - what was counted here while Redis could not take it. It is added to every later Redis answer, so
+  //          spending made during an outage is not forgotten when Redis returns.
+  // A process that starts while Redis is already away cannot know what Redis holds; it counts from zero until Redis
+  // answers once. That gap is stated, not hidden.
   const mem = new Map();
+  const owed = new Map();
   const readerKey = (id) => `placecard:reader:${hashId(id)}:${sgtDay(now())}`;
   const monthKey = () => `placecard:month:${sgtMonth(now())}`;
+  const live = (k) => k.endsWith(`:${sgtDay(now())}`) || k.endsWith(`:${sgtMonth(now())}`);
 
   async function bump(key, n, ttl) {
     const local = (mem.get(key) || 0) + n;
     mem.set(key, local);
-    if (mem.size > 20000) { const day = sgtDay(now()); const month = sgtMonth(now()); for (const k of mem.keys()) if (!k.endsWith(`:${day}`) && !k.endsWith(`:${month}`)) mem.delete(k); }
+    if (mem.size > 20000) { for (const k of mem.keys()) if (!live(k)) { mem.delete(k); owed.delete(k); } }
     if (store && typeof store.incrBy === 'function') {
-      try {
-        const v = await store.incrBy(key, n);
-        if (typeof store.expire === 'function') await store.expire(key, ttl);
-        if (v != null && Number.isFinite(Number(v))) return Number(v);
-      } catch { /* memory holds it */ }
+      let v = null;
+      try { v = await store.incrBy(key, n); } catch { v = null; }
+      if (v != null && Number.isFinite(Number(v))) {
+        if (typeof store.expire === 'function') { try { await store.expire(key, ttl); } catch { /* the count itself is in */ } }
+        const total = Number(v) + (owed.get(key) || 0);
+        mem.set(key, total);
+        return total;
+      }
+      owed.set(key, (owed.get(key) || 0) + n);
     }
     return local;
   }
   async function read(key) {
     if (store && typeof store.get === 'function') {
-      try { const v = await store.get(key); if (v != null && Number.isFinite(Number(v))) return Number(v); } catch { /* fall through */ }
+      try {
+        const v = await store.get(key);
+        if (v != null && Number.isFinite(Number(v))) return Number(v) + (owed.get(key) || 0);
+      } catch { /* fall through */ }
     }
     return mem.get(key) || 0;
   }
