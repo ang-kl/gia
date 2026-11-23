@@ -315,7 +315,7 @@ describe('createPlaceTap: a late answer never overwrites another card (review P2
     let open = true;
     let finish;
     const wait = new Promise((r) => { finish = r; });
-    const { tap, log } = rig({
+    const { tap, log, win } = rig({
       answer: { ...HOSPITAL, kind: 'hawker' }, stillOpen: () => open,
       refine: { hawker: (f) => wait.then(() => `<div class="card">${f.name} + trains</div>`) },
     });
@@ -326,6 +326,9 @@ describe('createPlaceTap: a late answer never overwrites another card (review P2
     finish();
     await tap.last;
     expect(log.updated.length, 'the refresh is not').toBe(1);
+    expect(log.lost, 'and our ring is removed').toBe(1);
+    win.__giaPlaceAction('near');
+    expect(log.actions, 'the place that lost the bubble can no longer be acted on').toEqual([]);
   });
 });
 

@@ -222,7 +222,11 @@ export function createPlaceTap(deps) {
       const better = typeof draw === 'function' && d.refine && d.refine[body.kind];
       if (typeof better !== 'function') return undefined;
       return Promise.resolve().then(() => better(body.own))
-        .then((html) => { if (html && mine === seq && !gone() && ours()) d.update(withActions(html, row)); })
+        .then((html) => {
+          if (mine !== seq || gone()) return;
+          if (!ours()) { lose(); return; }
+          if (html) d.update(withActions(html, row));
+        })
         .catch(() => { /* the card already shown stays */ });
     }
     if (body.source !== 'google') return refusal('unavailable', tap);
