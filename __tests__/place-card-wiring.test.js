@@ -89,6 +89,7 @@ function rig({ answer = MALL, app = 'cuisine', origin = null, destroyed = () => 
     card: (inner) => `<div class="card">${inner}</div>`,
     own: { hospital: (f) => `<div class="card"><div>${f.name}</div></div>`, police: (f) => `<div class="card">${f.name}</div>`, attraction: (f) => `<div class="card">${f.name}</div>`, hawker: (f) => `<div class="card">${f.name}</div>` },
     refine,
+    openOwn,
     focusStation: (code) => log.stations.push(code),
   });
   return { tap, log, win, release: resolve };
@@ -174,6 +175,36 @@ describe('createPlaceTap: what a tap does', () => {
     expect(log.updated[0]).toContain('Open in Google Maps');
     expect(log.updated[0]).toContain('query_place_id=ChIJfixtureMall0000000001');
     expect(log.updated[0]).not.toContain('Looking up');
+  });
+
+  it('one of our records this map has no card for still gets a card: its name and the buttons', async () => {
+    const { tap, log } = rig({ answer: { ...HOSPITAL, kind: 'lighthouse' } });
+    tap.open({ placeId: HOSPITAL.place.placeId, at: { lat: 1.305, lng: 103.835 } });
+    await tap.last;
+    expect(log.updated.length).toBe(1);
+    expect(log.updated[0]).toMatch(/^<div class="card">/);
+    expect(log.updated[0]).toContain('Fixture Hospital');
+    expect(log.updated[0]).toContain('data-place-action="near"');
+    expect(log.updated[0]).not.toContain('Looking up');
+  });
+
+  it('a kind the host app shows itself is handed to it, and the lookup card is closed', async () => {
+    const asked = [];
+    const { tap, log } = rig({ answer: { ...HOSPITAL, kind: 'hawker' }, openOwn: (kind, rec) => { asked.push([kind, rec.name]); return true; } });
+    tap.open({ placeId: HOSPITAL.place.placeId, at: { lat: 1.305, lng: 103.835 } });
+    await tap.last;
+    expect(asked).toEqual([['hawker', 'Fixture Hospital']]);
+    expect(log.dismissed).toBe(1);
+    expect(log.updated).toEqual([]);
+  });
+
+  it('when the host app has no view for it after all, the shared card shows it', async () => {
+    const { tap, log } = rig({ answer: { ...HOSPITAL, kind: 'hawker' }, openOwn: () => false });
+    tap.open({ placeId: HOSPITAL.place.placeId, at: { lat: 1.305, lng: 103.835 } });
+    await tap.last;
+    expect(log.dismissed).toBe(0);
+    expect(log.updated.length).toBe(1);
+    expect(log.updated[0]).toContain('Fixture Hospital');
   });
 
   it('a request that throws ends the same way, never stuck on "looking up" (I10)', async () => {
@@ -409,8 +440,15 @@ describe.each(Object.keys(COPIES))('%s map controller: the place card uses the b
   });
 
   it('draws our own records with the cards the layers already use', () => {
-    expect(body).toMatch(/own: \{ hospital: hospitalInfo, police: poiInfo\('👮'\), attraction: attractionInfo, hawker: \(f\) => hawkerCardHtml\(f, null\) \},/);
+    // The Hawker map draws hawker centres itself (HawkerMapPanel), so its controller has no hawker card: a linked
+    // centre is handed to the panel through openOwnPlace instead.
+    const hawker = name === 'hawker' ? 'null' : "\\(f\\) => hawkerCardHtml\\(f, null\\)";
+    expect(body).toMatch(new RegExp(`own: \\{ hospital: hospitalInfo, police: poiInfo\\('👮'\\), attraction: attractionInfo, hawker: ${hawker} \\},`));
     expect(body).toMatch(/card: \(inner\) => infoCard\(inner, null\),/);
+  });
+
+  it('hands a kind the host app shows itself to the panel, and to nobody when the panel has no such view', () => {
+    expect(body).toMatch(/openOwn: \(kind, rec\) => !!\(opts && typeof opts\.openOwnPlace === 'function' && opts\.openOwnPlace\(kind, rec\) === true\),/);
   });
 
   it('opens in the shared bubble on a pin that closeInfo already clears', () => {
@@ -436,15 +474,43 @@ describe.each(Object.keys(COPIES))('%s map controller: the place card uses the b
   });
 });
 
-describe('the three map controllers wire the place card identically', () => {
-  it('the createPlaceTap block is the same text in all three', () => {
-    const blocks = Object.values(COPIES).map((p) => {
-      const src = read(p);
-      const at = src.indexOf('const placeTap = createPlaceTap({');
-      return src.slice(at, src.indexOf('\n  });', at) + 6);
-    });
-    expect(blocks[0].length).toBeGreaterThan(400);
-    expect(blocks[1]).toBe(blocks[0]);
-    expect(blocks[2]).toBe(blocks[0]);
+describe('the three map controllers wire the place card the same way', () => {
+  const block = (p) => {
+    const src = read(p);
+    const at = src.indexOf('const placeTap = createPlaceTap({');
+    return src.slice(at, src.indexOf('\n  });', at) + 6);
+  };
+
+  it('Cuisine and Train are the same text', () => {
+    expect(block(COPIES.cuisine).length).toBeGreaterThan(400);
+    expect(block(COPIES.transport)).toBe(block(COPIES.cuisine));
+  });
+
+  it('Hawker has no hawker card of its own, and is otherwise the same lines', () => {
+    const h = block(COPIES.hawker);
+    expect(h).toMatch(/hawker: null \},/);
+    expect(h).toMatch(/refine: \{\},/);
+    expect(h).not.toContain('hawkerCardHtml');
+    // The lines that hold the hawker card and its later refresh are the only ones allowed to differ.
+    const mayDiffer = (l) => /^own: |^refine: |hawkerCardHtml|centre-transit|^\.then\(\(r\)|^\},$/.test(l);
+    const shared = block(COPIES.cuisine).split('\n').map((l) => l.trim()).filter((l) => l && !mayDiffer(l));
+    expect(shared.length).toBeGreaterThan(15);
+    for (const line of shared) expect(h, line).toContain(line);
+  });
+});
+
+describe('Hawker panel: a hawker centre opens the pop-up the Hawker map already has', () => {
+  const src = read(PANELS.hawker);
+  const c = src.indexOf('createOverlayController(mapRef.current, window.google.maps, {');
+  const optsText = src.slice(c, src.indexOf('\n    });', c));
+
+  it('looks the centre up among its own pins by name, and taps that pin', () => {
+    expect(optsText).toMatch(/openOwnPlace: \(kind, rec\) => \{/);
+    expect(optsText).toMatch(/const entry = kind === 'hawker' && rec \? markersByNameRef\.current\[rec\.name\] : null;/);
+    expect(optsText).toMatch(/window\.google\?\.maps\?\.event\?\.trigger\(entry\.marker, 'click'\);\s*return true;/);
+  });
+
+  it('says no when it has no such pin, so the shared card still shows the place', () => {
+    expect(optsText).toMatch(/if \(!entry \|\| !entry\.marker\) return false;/);
   });
 });
