@@ -20,6 +20,7 @@ scope:
   - "web/cuisine/src/v2/App.jsx"
   - "web/cuisine/src/v2/components/ResultDrawer.jsx"
   - "web/cuisine/src/v2/components/ResultCard.jsx"
+  - "web/cuisine/src/v2/components/ResultPanel.jsx"
   - "web/cuisine/src/v2/lib/state.js"
   - "web/cuisine/src/v2/lib/i18n.js"
   - "__tests__/**"
@@ -167,3 +168,96 @@ Release 2 (v0.62.993):
 ## Evidence
 Filled at the end: INVARIANTS REPORT (Passed / Failed / Not Verifiable, each with evidence), verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+---
+
+## Amendment 1 - 23-11 '26 16:49 SGT: Part F rewritten after FLOW ALERT F5 (release 2, v0.62.993)
+
+Version 2, 23-11 '26. Everything above stands as approved, and Parts A to E are built and live as v0.62.992. This amendment replaces Part F, adds assumptions A19 to A26, adds invariants I14 and I15, replaces the release 2 acceptance criteria, and adds one path to `scope:` (`web/cuisine/src/v2/components/ResultPanel.jsx`). Nothing in Parts A to E changes.
+
+### Why Part F changes
+Part F as approved reads: "It fetches that one place at the dearer tier (US$0.025, counted as 25 against the same limits), runs it through the same mapping and enrichment a search result gets, adds it to the results strip once, and selects it."
+
+Reading the code before building showed that the search enrichment (`cuisine-enrich.js`, `enrichSlow`) makes further paid calls for every card: Google Routes twice, Gemini up to three times, Claude Haiku once, BestTime once in Singapore, and one more Google call abroad for the local name. The 25 counts none of them, so a reader could pass US$1 a day in real spend while the count said otherwise. That breaks I1. It was raised as FLOW ALERT F5 on 23-11 '26 at 16:08 SGT, before any release 2 code.
+
+The operator chose, verbatim: "(c) Lean + translation". Five follow-up points were then put to them in two question dialogs on 23-11 '26 between 16:46 and 16:49 SGT. Their answers are rows A20 to A26 below.
+
+### Part F - a Soleat card for a tapped eatery or bar (replaces the Part F above)
+
+**F-1 The button.** On the Cuisine map only, the Google card for an eatery or a bar gains a main button, "Details, review & links", above the two buttons it has today. Eatery and bar are the two families `place-card.js` already tells apart: restaurants, cafes, bakeries, food courts, takeaways, dessert and tea shops; bars, pubs and night clubs. Hawker and Train do not get the button. A place already in the results never shows it, because its tap selects the result card (Part A, step 2).
+
+**F-2 The call.** `POST /api/place-card/full`, with the place ID, the language and the reader's set location in the request body, as a search sends them. The location is never put in the address of the request. A valid Telegram session is required. The server makes one Google call: Place Details with the same field list a search asks for (US$0.025 on Google's list).
+
+**F-3 The count.** Each paid full card counts 26 against the same two limits: 25 for the Google call at list price, and 1 as a flat allowance for the review translation. 38 full cards fit in a reader's day (1,000 / 26). The amount is reserved before the call and returned if the Google call fails. `FULL_MILLS` stays 25, because it is Google's price and `/cost` reads it; the route reserves `FULL_MILLS + TRANSLATE_MILLS`. The 1 is an allowance and not a measured price: by the repo's own rate card, and on my assumed token counts (250 in, 60 to 250 out), one translation of a 160-character review comes to about US$0.0002 to US$0.0011, according to which of the three models in the chain answers. Each real call is recorded in the `/cost` ledger.
+
+**F-4 The store.** The answer is kept 24 hours per place and language, together with the review wording that was decided when it was paid for. A stored answer costs nothing, counts nothing and makes no Gemini call. Two presses at the same instant share one call and one count.
+
+**F-5 Refusals.** No session, a malformed place ID, the daily limit, the monthly limit and Google unavailable are refused as in Part B. Two more:
+- The place is neither an eatery nor a bar. Refused before any paid call when the 24-hour card store already knows its type; otherwise after the lookup.
+- Google marks the place as not operating (closed for now, closed for good, or not yet open). Refused after the lookup.
+
+A refusal that follows a paid lookup is still counted, because Google was paid. Every refusal leaves the bubble with a reason in one line and "Open in Google Maps".
+
+**F-6 What the card is built from, in this order.**
+1. The search's own place-to-venue mapping. The inline mapping inside `discover` (`pipeline.js`) becomes a named, exported function that `discover` then calls, and the search's field list is exported in the form a single-place request needs. Search results must come out identical.
+2. Distance and walking minutes from the set location, by the search's own formula (a straight line; 80 m a minute). Left out when no location is sent.
+3. The search's local step (`enrichFast`, called and not edited): dishes found by plain text match in the reviews, a review snippet, the open or closed line in nine languages, the type label, the price line.
+4. The price line shows the place's own currency only. There is no conversion to the reader's home currency, so no exchange-rate call and no geocoding call is made.
+5. The badges from our own data: Michelin, healthier choice, inside a building.
+6. The review. If step 3 found no snippet, the first review, cut to 160 characters, with Google's "X ago". Its language is read from Google's own language tag on that review. Where that differs from the reader's language it is translated once (Gemini, through `translate-review.js`, which keeps a translation 30 days) and cut to 200 characters. If the translation is not back in 6 seconds, the original shows and is what the store keeps.
+7. The working fields a search removes before it answers are removed here too: the review list, the hours periods, the UTC offset and Google's raw type label.
+
+**F-7 What the card does not do.** No Routes call (transit and drive minutes), no crowd or footfall, no AI-extracted dishes or dish wording, no AI "sanctuary" read, no name pronunciation or local-name line, no curated "Try" fill, no city-classic tag. `cuisine-enrich.js`, `translate-review.js` and the badge modules are called, not edited.
+
+**F-8 On the phone.** Pressing the button shows the "looking up" line in the bubble. On success the bubble closes, the card goes to the front of the results with a small "From the map" chip, the strip returns to its first page, and the card is selected and unfolded. The other results keep their order. If the place is already in the list, nothing is added and that card is selected. "Results: N" and the "Showing ..." line beneath it keep counting search results only. The card leaves when the list is replaced: by a new search, by a step through the search history, or by a batch of a search that is still loading. Tapping the icon again within 24 hours brings it back at no cost.
+
+**F-9 Wording.** Three new fixed lines in the nine languages, hyphens only: the button, the not-operating refusal, and the "From the map" chip. A refusal for a place that is neither eatery nor bar reuses the existing "unavailable" line, because the button is never offered for such a place.
+
+**F-10 How the map reaches the new route.** The shared card gets a second, separate way to call the server that can send a body. The line that carries today's free look-up is not altered. The same line is added to the Cuisine, Train and Hawker map files so the three stay alike; only Cuisine uses it.
+
+### Assumptions (added by this amendment)
+| ID | Assumption | Status | Note |
+|----|------------|--------|------|
+| A19 | The full card is the lean card plus the review in the reader's language. No Routes, crowd, footfall, AI-extracted dishes or name lines | confirmed | Operator, 23-11 '26, verbatim: "(c) Lean + translation" |
+| A20 | Each paid full card counts 26: 25 for Google and 1 for the translation | confirmed | Operator, 23-11 '26, dialog answer: "Count translation too". The 1 is a flat allowance, not a measured price (see F-3 and Known limits) |
+| A21 | The card goes to the front of the results with a "From the map" chip; the strip returns to its first page; "Results: N" keeps counting search results only; the card leaves when the list is replaced | confirmed | Operator, 23-11 '26, dialog answer: "Agree (Recommended)" |
+| A22 | Bars, pubs and night clubs get the button too | confirmed | Operator, 23-11 '26, dialog answer: "Include bars" |
+| A23 | The set location is sent with the request, as a search sends it, and the server works out the distance | confirmed | Operator, 23-11 '26, dialog answer: "Distance on the server". It travels in the request body, never in the address |
+| A24 | The price line shows the place's own currency only, so no exchange-rate call is made | confirmed | Operator, 23-11 '26, dialog answer: "All three stand (Recommended)" |
+| A25 | A place Google marks as not operating is refused after the lookup, and that lookup still counts | confirmed | Operator, 23-11 '26, same answer |
+| A26 | The review's language is read from Google's own tag on the review; it is translated only when that differs from the reader's language | confirmed | Operator, 23-11 '26, same answer |
+
+### Invariants (added or restated by this amendment)
+| ID | Maxim | Scope | Limit | Contrary | Check |
+|----|-------|-------|-------|----------|-------|
+| I1 | Restated for the full card: it reserves 26, never passes either limit, and gives the 26 back when the Google call fails | `POST /api/place-card/full` | A stored answer counts nothing | A full card counted as 25, or counted twice for two presses at once | `__tests__/place-venue-route.test.js`; `__tests__/place-card-budget.test.js` (existing, unchanged) |
+| I12 | As approved: moving the mapping changes no search result | `pipeline.js` `discover` | - | A "pure" refactor that drops or renames a field | `__tests__/place-to-venue.test.js`, against a record of `discover`'s output taken before the change; the existing pipeline suites unchanged and green |
+| I13 | As approved, made exact: the card is added once, at the front, selected; the other results keep their order; the search's own count does not move | Cuisine results | A replaced list drops it | A duplicate card, a re-ordered strip, "Results: 8" over nine cards with nothing saying why | `__tests__/place-venue-client.test.js` |
+| I14 | A full card makes exactly one Google call and at most one Gemini call, and no other paid call | The whole build path of the full card | The price line and the badges read our own data only | A convenient reuse of `enrichSlow` that brings Routes, Haiku or BestTime back | `__tests__/place-venue-route.test.js`: every outside call goes through a stand-in that is counted, and the build is run with the real `enrichFast` |
+| I15 | The reader's set location reaches the server only in the request body, and is neither stored nor logged | `POST /api/place-card/full`, the 24-hour store, the route's log lines | The distance itself is returned to that reader | A location in the address of a request, or kept beside the stored place | `__tests__/place-venue-route.test.js`, `__tests__/place-venue-client.test.js` |
+
+I2 to I11 are unchanged. I8 already covers the new route: a valid Telegram session only, and no reader ID or owner coordinates in any file.
+
+### Acceptance criteria, release 2 (v0.62.993) - replaces the three lines above
+- [ ] The named mapping returns, for the same Google place, exactly what `discover` returned before the change; `discover` itself returns the same list for the same answer from Google → `place-to-venue.test.js`
+- [ ] A paid full card reserves 26; the 39th in a reader's day is refused; a failed Google call gives the 26 back; two presses at once make one call and one count; a second press within 24 hours makes no Google call and no Gemini call → `place-venue-route.test.js`
+- [ ] A place that is neither eatery nor bar is refused, with no paid call when the card store knows its type; a place Google marks as not operating is refused; no session and a malformed ID are refused before anything else → `place-venue-route.test.js`
+- [ ] The venue carries distance and walking minutes by the search's formula when a location is sent and none when it is not; the price line is in the place's own currency; no working field is left on it → `place-venue-route.test.js`
+- [ ] The review is translated once when its language differs from the reader's, not at all when it is the same, and the original is kept when the translation is late or fails → `place-venue-route.test.js`
+- [ ] The button appears for an eatery and for a bar on Cuisine, and never on Hawker or Train or for another kind of place; a refusal leaves a reason and the Google Maps link → `place-venue-client.test.js`
+- [ ] The card is added once at the front, carries the chip, is selected, and the other results keep their order; "Results: N" does not move; the set location is in the request body and not in its address → `place-venue-client.test.js`
+- [ ] Each new test file passes three runs in a row; `npm test` green; the Cuisine, Hawker and Train builds pass
+
+### Existing tests this release is expected to change
+- `__tests__/place-card-html.test.js` pins the exact list of the card's eleven wording keys. Two keys are added (the button and the not-operating line), so that one assertion changes to thirteen.
+- No other existing test is expected to change. One that fails is reported under F7, not edited to pass.
+
+### Out of scope (added)
+- Transit and drive minutes, crowd, footfall, AI dishes and name lines on a card added from the map.
+- Keeping an added card across a new search or a step through the search history.
+- A price converted to the reader's home currency on a card added from the map.
+- A finding, not changed here: on a search, the place-to-venue mapping drops Google's language tag from each review, so the search's own translation step can only tell a review's language by its script (Chinese, Japanese, Korean, Thai) and treats every other review as English. Read in the code, not measured against live answers.
+
+### Known limits (added)
+- This container has no Google or Gemini key, so the new route is proved against stand-ins only. Whether Google returns every field for a single place exactly as it does in a search is inferred from Google's documentation of the two calls, not measured.
+- The 1 counted for a translation is an allowance (F-3). The first real bills in `/cost` are the measurement.
