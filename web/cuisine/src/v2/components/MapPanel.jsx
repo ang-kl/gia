@@ -17,7 +17,8 @@ import { createStopBusesLayer } from '../../../../_shared/lib/stop-buses.js';
 import { createFr24Layer, ft as fr24T } from '../../../../_shared/lib/fr24-layer.js';
 import { globeAvailable } from '../../../../_shared/lib/globe-available.js';
 // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, C: a tap on Google's own bus-stop icon.
-import { handleIconTap } from '../../../../_shared/lib/base-icon-stop.js';
+import { handleIconTap, thenPlace } from '../../../../_shared/lib/base-icon-stop.js';
+import { resultMatch } from '../../../../_shared/lib/place-card.js';
 import Fr24Board from '../../../../_shared/components/Fr24Board.jsx';
 const FlightGlobe = lazy(() => import('../../../../_shared/components/FlightGlobe.jsx'));
 // A5: the Airports menu's point when there is no search centre and no GPS fix.
@@ -180,7 +181,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, onPcnLockChange = null, restorePcnLock = null, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, onBusRouteChange = null, onStopBusesChange = null, onMapCardChange = null, children }) {
+export default function MapPanel({ venues, pronunciations = null, restoredMount = false, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, onPcnLockChange = null, restorePcnLock = null, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, onBusRouteChange = null, onStopBusesChange = null, onMapCardChange = null, onPlaceAction = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -190,6 +191,15 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
   // still deselects. Press timing tracked on the container via DOM events.
   const onLongPressRef = useRef(null);
   useEffect(() => { onLongPressRef.current = onLongPress; }, [onLongPress]);
+  // v0.62.992 - the place card (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md). The map's click listener
+  // is made once, so what it calls is kept in refs: the pin-tap handler (a Google icon that is one of the reader's own
+  // results selects that result), the two buttons' handler, and the set location the distance line is measured from.
+  const onPinTapRef = useRef(null);
+  useEffect(() => { onPinTapRef.current = onPinTap; }, [onPinTap]);
+  const onPlaceActionRef = useRef(null);
+  useEffect(() => { onPlaceActionRef.current = onPlaceAction; }, [onPlaceAction]);
+  const searchCenterRef = useRef(null);
+  searchCenterRef.current = searchCenter || null;
   const pressStartRef = useRef(0);
   const pressMovedRef = useRef(false);
   const [lang] = useLocale();
@@ -526,7 +536,14 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
     // v0.61.168 — thread the region mode into the overlay controller
     // so the carpark layer can pick LTA (SG) vs Places (JB/MY-PUT).
     // MapPanel keeps the controller in sync via setRegionMode below.
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'cuisine', regionMode: region || 'SG' });
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, {
+      tma: 'cuisine',
+      regionMode: region || 'SG',
+      // v0.62.992 - the place card asks our own server with this reader's Telegram session, and hands its buttons here.
+      fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() || '' } }).then((r) => r.json()).catch(() => null),
+      onPlaceAction: (kind, place) => onPlaceActionRef.current?.(kind, place),
+      getOrigin: () => searchCenterRef.current,
+    });
     // v0.62.991 - D: the overlay says when its card opens and closes; the Cuisine eatery cards fold meanwhile.
     overlayControllerRef.current.onCardChange((open) => setOverlayCardOpen(open));
     overlayControllerRef.current.onPcnLock((n) => {
@@ -590,9 +607,15 @@ export default function MapPanel({ venues, pronunciations = null, restoredMount 
         onLongPressRef.current({ lat: ll.lat(), lng: ll.lng() });
         return;
       }
-      // v0.62.991 - C: a tap on a Google icon. A bus stop opens our stop card (not a deselect); any other icon falls
-      // through to what a tap on empty map does, as before (A7).
-      const iconTap = handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at));
+      // v0.62.991 - C: a tap on a Google icon. A bus stop opens our stop card (not a deselect).
+      // v0.62.992 - any other icon: one of the reader's own results is selected, as a tap on its own pin does, and
+      // nothing is looked up; anything else opens the place card. Only when none of the three opened does the tap
+      // fall through to what a tap on empty map does.
+      const iconTap = thenPlace(handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at)), e, (tap) => {
+        const hit = resultMatch(venuesRef.current, tap.placeId);
+        if (hit) { onPinTapRef.current?.(hit.placeId); return true; }
+        return overlayControllerRef.current?.openPlaceAt?.(tap);
+      });
       if (iconTap) {
         iconTap.then((opened) => { if (!opened) onDeselectRef.current?.(); });
         return;

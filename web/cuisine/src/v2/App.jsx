@@ -3934,6 +3934,20 @@ export default function App() {
       .catch(() => commit(t('region.current', lang)));
   }, [lang]);
 
+  // v0.62.992 - the two buttons on a map place card (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md,
+  // Part C). "Set as my location" does what a long press does, with the place's own name instead of a looked-up one:
+  // the place becomes the location and nothing is searched. "Eateries here" / "Eateries near here" is the same pick
+  // WITHOUT noAutoFire, so onLocationSelect runs the search itself; no search call is added here. The map card is
+  // closed first, so the result cards are unfolded for whatever comes next.
+  const handlePlaceAction = React.useCallback((kind, place) => {
+    if (kind !== 'near' && kind !== 'set') return;
+    if (!place || !Number.isFinite(place.lat) || !Number.isFinite(place.lng)) return;
+    if (typeof window !== 'undefined' && typeof window.__giaMapCardsClose === 'function') window.__giaMapCardsClose();
+    explicitPickRef.current = true;
+    const placeLabel = String(place.name || '').trim() || t('region.current', lang);
+    onLocationSelect({ lat: place.lat, lng: place.lng, label: placeLabel, fly: true, ...(kind === 'set' ? { noAutoFire: true } : {}) });
+  }, [lang]);
+
   // v0.62.965 — "↩ Back to <place>" (spec C4): restore the place the start-up check switched away from, as a fresh
   // deliberate pick. onLocationSelect latches explicit-pick, persists it with its label (a new 6-hour lock) and
   // searches it; the region and country are put back first so the pill and the picker agree with the anchor.
@@ -5286,6 +5300,7 @@ export default function App() {
         }}
         /* v0.62.x — long-press the map → drop a pin → set location (no auto-search). */
         onLongPress={handleMapLongPress}
+        onPlaceAction={handlePlaceAction}
         /* v0.62.138 — horizontal mode: a card tap blinks the pin only (no zoom,
            no info pop-up). Vertical mode keeps the full pop/zoom behaviour.
            v0.62.562 — O-54 Hawker parity (operator: "follow hawker codes"): on a

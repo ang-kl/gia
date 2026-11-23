@@ -47,6 +47,11 @@ const PRICES = Object.freeze({
     placeAutocomplete: 0.00283,
     placeDetails:      0.017,
     placeResolve:      0.017,
+    // v0.62.992 - the map place card (place-card.js): one Place Details call at the Enterprise tier, and the full
+    // Soleat card at Enterprise + Atmosphere. Google's price list as read 22-11 '26; the limits in place-card.js
+    // count the same two amounts, in thousandths of a US dollar.
+    placeCard:         0.02,
+    placeCardFull:     0.025,
     geocode:           0.005,
     reverseGeocode:    0.005,
     // v0.62.71x — Routes API computeRouteMatrix, billed per ELEMENT

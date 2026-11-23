@@ -287,10 +287,15 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
         ))}
         {/* v0.62.151 — operator: a terminal card after the last result. Scroll to
             the right end → "Last card" + how to refine. */}
-        <div className={`snap-center shrink-0 ${basisClass} max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4`}>
+        {/* v0.62.992 - operator, 23-11 '26: "the 'last card' can it be collapse accordingly as well". While a map card
+            is open it keeps its title line and drops the two hint lines, like the folded eatery cards beside it; the
+            strip is bottom-aligned, so it sits on their baseline. */}
+        <div className={`snap-center shrink-0 ${basisClass} max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 ${folded ? 'py-2' : 'py-4'}`}>
           <div className="text-[13px] font-semibold text-tg-text">{t('lastCard.title', lang)}</div>
-          <div className="text-[12px] text-tg-hint leading-snug">📍 {t('lastCard.enterLocation', lang)} · 💬 {t('lastCard.typeDish', lang)}</div>
-          <div className="text-[12px] text-tg-hint leading-snug">{t('lastCard.tapSearch', lang)}</div>
+          {!folded && (<>
+            <div className="text-[12px] text-tg-hint leading-snug">📍 {t('lastCard.enterLocation', lang)} · 💬 {t('lastCard.typeDish', lang)}</div>
+            <div className="text-[12px] text-tg-hint leading-snug">{t('lastCard.tapSearch', lang)}</div>
+          </>)}
         </div>
         {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
             on reach, see the scroll effect above). */}

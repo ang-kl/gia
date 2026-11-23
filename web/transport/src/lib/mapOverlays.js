@@ -806,6 +806,7 @@ import { createBusRouteLayer as createSharedBusRouteLayer } from '../../../_shar
 // bus-stop icons open our stop card) and D (the card watcher behind the Cuisine eatery-card fold).
 import { createStopLinger, watchInfoWindow } from '../../../_shared/lib/stop-linger.js';
 import { nearestStop } from '../../../_shared/lib/base-icon-stop.js';
+import { createPlaceTap, pinNode } from '../../../_shared/lib/place-card.js';
 import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createPcnLayer, fetchPcn, parkMeta, parkVisible, mapBounds, PARK_FILL_OPACITY } from '../../../_shared/lib/pcn-layer.js';
 export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
@@ -2589,6 +2590,51 @@ export function createOverlayController(map, googleMaps, opts) {
     map.fitBounds(bounds, 80);
   }
 
+  // v0.62.992 - a tap on a Google icon that is not a bus stop opens a place card in this same bubble (spec
+  // doc/Feature/2026-11-23-place-card-any-map-icon.spec.md, Parts A and C). The shared card (place-card.js) asks our
+  // own server what the place is. One of our records is drawn with the card the layers above already use; a station
+  // opens the station view; a kind the host app shows itself is handed to it (openOwnPlace). The ring goes into
+  // iconStopPins, so closeInfo() clears it with the rest. It is built here, after the card builders it names.
+  //
+  // Two review findings on #1936 are held here. placePin is the ring this card drew: a late answer fills the bubble
+  // only while the bubble is still open on that ring, so a stop or layer card the reader opened meanwhile is left
+  // alone. stationOpener is the station view THIS map has: the panel's own opener when it gives one (Hawker, Train),
+  // otherwise the hook the Cuisine controller installs; null where there is none, and the station is shown by name.
+  let placePin = null;
+  const stationOpener = () => (opts && typeof opts.focusStation === 'function' ? opts.focusStation
+    : (typeof window.__giaFocusStation === 'function' ? window.__giaFocusStation : null));
+  const placeTap = createPlaceTap({
+    app: tma,
+    getLang: () => _lang,
+    isDestroyed: () => destroyed,
+    fetchJson: (u) => (opts && typeof opts.fetchJson === 'function' ? opts.fetchJson(u) : Promise.resolve(null)),
+    onAction: (kind, place) => { if (opts && typeof opts.onPlaceAction === 'function') opts.onPlaceAction(kind, place); },
+    openOwn: (kind, rec) => !!(opts && typeof opts.openOwnPlace === 'function' && opts.openOwnPlace(kind, rec) === true),
+    getOrigin: () => (opts && typeof opts.getOrigin === 'function' ? opts.getOrigin() : null),
+    palette: () => { const c = infoPalette(); return { sub: c.sub, link: c.link }; },
+    card: (inner) => infoCard(inner, null),
+    update: (html) => info.setContent(html),
+    dismiss: () => { clearIconStopPins(); info.close(); },
+    canFocusStation: () => !!stationOpener(),
+    focusStation: (code) => { const open = stationOpener(); return open ? open(code) : false; },
+    stillOpen: () => cardWatch.isOpen() && cardWatch.anchor() === placePin,
+    lost: () => { if (placePin) { placePin.map = null; iconStopPins = iconStopPins.filter((m) => m !== placePin); placePin = null; } },
+    own: { hospital: hospitalInfo, police: poiInfo('👮'), attraction: attractionInfo, hawker: (f) => hawkerCardHtml(f, null) },
+    refine: {
+      hawker: (f) => fetch('/api/hawker/centre-transit?lat=' + encodeURIComponent(f.lat) + '&lng=' + encodeURIComponent(f.lng))
+        .then((r) => (r.ok ? r.json() : null))
+        .then((t) => (t ? hawkerCardHtml(f, t) : null)),
+    },
+    show: (html, at) => {
+      const marker = new AdvancedMarkerElement({ position: { lat: at.lat, lng: at.lng }, content: pinNode(document) });
+      marker.map = map;
+      placePin = marker;
+      iconStopPins.push(marker);
+      info.setContent(html);
+      info.open(map, marker);
+    },
+  });
+
   return {
     // v0.61.22 — let the host TMA close the overlay popup (in-card ✕ /
     // tap-elsewhere) alongside its own venue/station InfoWindow.
@@ -2608,6 +2654,9 @@ export function createOverlayController(map, googleMaps, opts) {
     },
     // v0.62.991 - D: tell a listener when this overlay's card opens or closes (the Cuisine eatery cards fold meanwhile).
     onCardChange(fn) { cardListeners.add(fn); return () => cardListeners.delete(fn); },
+    // v0.62.992 - a tap on any other Google icon opens the place card built above (place-card.js). True at once: the
+    // card is open on "looking up" and fills when our server answers.
+    openPlaceAt(tap) { return placeTap.open(tap); },
     // v0.62.991 - C: a tap on Google's own bus-stop icon (base-icon-stop.js) opens our stop card on the LTA stop within
     // 20 m, from the catalogue already fetched for the Bus Stop layer. False when no stop is that close.
     async openStopAt(at) {
