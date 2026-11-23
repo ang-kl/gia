@@ -59,7 +59,8 @@ import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
 // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, C: a tap on Google's own bus-stop icon.
-import { handleIconTap } from '../../../_shared/lib/base-icon-stop.js';
+import { handleIconTap, thenPlace } from '../../../_shared/lib/base-icon-stop.js';
+import { cuisineLink } from '../../../_shared/lib/place-card.js';
 // v0.62.990 — spec doc/Feature/2026-11-12-remove-simulate-smooth-buses-shared-route.spec.md, B1-B3: the simulated
 // trains of v0.62.961-v0.62.979 are removed, with their toggle, caption, station list and timetable; a station tap
 // selects the station and opens its card, as it did before.
@@ -551,7 +552,14 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.61.22 — headerDisabled drops Google's white header + ✕ so the
     // themed infoCard (with its own in-card ✕) is the whole popup.
     infoWindowRef.current = new window.google.maps.InfoWindow({ headerDisabled: true });
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'transport' });
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, {
+      tma: 'transport',
+      // v0.62.992 - the place card (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md, Part C). It asks our
+      // own server with this reader's Telegram session. This app has no location of its own to set, so its one button,
+      // "Eateries near here", opens the Cuisine app at the place.
+      fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() || '' } }).then((r) => r.json()).catch(() => null),
+      onPlaceAction: (kind, place) => { const url = kind === 'near' ? cuisineLink(place) : ''; if (url) window.location.assign(url); },
+    });
     overlayControllerRef.current.onPcnLock(setPcnLocked);
     // v0.61.95 — operator part 5: the coloured SVG train-line overlay,
     // shown in monochrome mode so the lines don't grey out with the
@@ -604,9 +612,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     };
     window.__giaMapInfoClose = closeInfo;
     // v0.62.991 - C: a tap on a Google bus-stop icon opens our stop card; any other tap closes, as before.
+    // v0.62.992 - and a Google icon that is not a bus stop opens the place card, after the stop check.
     mapRef.current.addListener('click', (e) => {
       closeInfo();
-      handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at));
+      thenPlace(handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at)), e, (tap) => overlayControllerRef.current?.openPlaceAt?.(tap));
     });
     mapRef.current.addListener('click', () => fr24Ref.current?.closeInfo());
     if (stations) renderPins(stations);

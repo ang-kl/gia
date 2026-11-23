@@ -40,3 +40,22 @@ export function handleIconTap(e, openStopAt) {
   try { pending = openStopAt(at); } catch { return Promise.resolve(false); }
   return Promise.resolve(pending).then((opened) => opened === true).catch(() => false);
 }
+
+// v0.62.992 - spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md, Part A. Operator, 23-11 '26: "since now I
+// can click on the bus stop and you give details, how about - other eateries on the map, hospital, hotel, shopping".
+// The bus-stop check above still goes first and is unchanged. Only when no stop opened is `openPlace` asked, with the
+// icon's place ID and position; the answer is again a promise of whether a card is open, so the caller's "nothing
+// opened" handling (a deselect on Cuisine) keeps meaning what it meant. A tap that is not on a Google icon stays null.
+export function thenPlace(iconTap, e, openPlace) {
+  if (!iconTap || !e || !e.placeId) return null;
+  return Promise.resolve(iconTap).then((opened) => {
+    if (opened === true) return true;
+    if (typeof openPlace !== 'function') return false;
+    const ll = e.latLng;
+    const at = ll && typeof ll.lat === 'function' ? { lat: ll.lat(), lng: ll.lng() } : ll ? { lat: ll.lat, lng: ll.lng } : null;
+    if (!at) return false;
+    let pending;
+    try { pending = openPlace({ placeId: e.placeId, at }); } catch { return false; }
+    return Promise.resolve(pending).then((v) => v === true).catch(() => false);
+  }).catch(() => false);
+}

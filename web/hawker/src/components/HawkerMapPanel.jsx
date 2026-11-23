@@ -43,7 +43,8 @@ import { createStopBusesLayer } from '../../../_shared/lib/stop-buses.js';
 import { createFr24Layer, ft as fr24T } from '../../../_shared/lib/fr24-layer.js';
 import { globeAvailable } from '../../../_shared/lib/globe-available.js';
 // v0.62.991 - spec 2026-11-22-l-flag-stops-linger-icon-tap-card-fold, C: a tap on Google's own bus-stop icon.
-import { handleIconTap } from '../../../_shared/lib/base-icon-stop.js';
+import { handleIconTap, thenPlace } from '../../../_shared/lib/base-icon-stop.js';
+import { cuisineLink } from '../../../_shared/lib/place-card.js';
 import Fr24Board from '../../../_shared/components/Fr24Board.jsx';
 const FlightGlobe = lazy(() => import('../../../_shared/components/FlightGlobe.jsx'));
 // A5: the Airports menu's point when the app has no device location for the reader.
@@ -477,7 +478,22 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'hawker' });
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, {
+      tma: 'hawker',
+      // v0.62.992 - the place card (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md, Part C). It asks our
+      // own server with this reader's Telegram session. This app has no location of its own to set, so its one button,
+      // "Eateries near here", opens the Cuisine app at the place.
+      fetchJson: (u) => fetch(u, { headers: { 'x-telegram-init-data': initData() || '' } }).then((r) => r.json()).catch(() => null),
+      onPlaceAction: (kind, place) => { const url = kind === 'near' ? cuisineLink(place) : ''; if (url) window.location.assign(url); },
+      // A hawker centre is this app's own subject: a Google icon that turns out to be one opens the centre's pop-up
+      // here, as a tap on its pin does. False (no such pin) leaves the shared card to show the place.
+      openOwnPlace: (kind, rec) => {
+        const entry = kind === 'hawker' && rec ? markersByNameRef.current[rec.name] : null;
+        if (!entry || !entry.marker) return false;
+        window.google?.maps?.event?.trigger(entry.marker, 'click');
+        return true;
+      },
+    });
     overlayControllerRef.current.onPcnLock(setPcnLocked);
     // v0.62.537 — ring layer bound to this map; a hawker pin tap draws, tap-out clears.
     ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
@@ -502,9 +518,10 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     };
     window.__giaMapInfoClose = closeInfo;
     // v0.62.991 - C: a tap on a Google bus-stop icon opens our stop card; any other tap closes, as before.
+    // v0.62.992 - and a Google icon that is not a bus stop opens the place card, after the stop check.
     mapRef.current.addListener('click', (e) => {
       closeInfo();
-      handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at));
+      thenPlace(handleIconTap(e, (at) => overlayControllerRef.current?.openStopAt?.(at)), e, (tap) => overlayControllerRef.current?.openPlaceAt?.(tap));
     });
     // v0.62.989 (I7): a tap on the empty map closes a flight card, as on Train.
     mapRef.current.addListener('click', () => fr24Ref.current?.closeInfo());
