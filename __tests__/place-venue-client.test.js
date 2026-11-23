@@ -276,6 +276,18 @@ describe('pressing "Details, review & links" (F-2, F-8, I15)', () => {
     expect(actions.map((a) => a.kind)).toEqual(['near']);   // the card itself is alive; only the offer is gone
   });
 
+  it('the offer is made in one place only, which is what keeps the press closed on Hawker and Train', () => {
+    // A mutation that removes the handler's own `app !== 'cuisine'` check SURVIVES every case above, because the
+    // handler also needs the offer (`fullFor`) and the offer is only ever made through canShowFull(body, app), which
+    // checks the app. So that check is a second lock that today cannot be reached. It is kept, because this is the
+    // path that spends money, and this case fails the day the offer is made anywhere else, which is the day the
+    // second lock starts to matter and needs a case of its own.
+    const src = maskComments(read('web/_shared/lib/place-card.js'));
+    const sets = src.match(/\bfullFor = [^;]+;/g) || [];
+    expect(sets.sort()).toEqual(['fullFor = canShowFull(body, app) ? place.placeId : null;', 'fullFor = null;', 'fullFor = null;']);
+    expect(src).toMatch(/if \(app !== 'cuisine' \|\| !current \|\| fullFor !== current\.placeId\) return;/);
+  });
+
   it('leaves "Eateries near here" and "Set as my location" working on the same card', async () => {
     const r = await opened();
     r.win.__giaPlaceAction('near');

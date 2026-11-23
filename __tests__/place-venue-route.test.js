@@ -235,6 +235,34 @@ describe('refusals (F-5)', () => {
     expect(calls).toHaveLength(0);
   });
 
+  it('a caller with no session gets nothing, even when the answer is already in the store', async () => {
+    // Found by a surviving mutation: without its own check the route fell through to the budget, which also says
+    // "no session", so the refusal looked the same. The difference is a STORED answer, which is read before the
+    // budget is asked: with no check of its own it would be handed to anyone.
+    const { svc, calls } = make();
+    expect((await press(svc, IZAKAYA)).body.ok).toBe(true);
+    for (const readerId of ['', null, undefined]) {
+      expect(await svc.full({ placeId: IZAKAYA.id, lang: 'en', readerId }), String(readerId)).toEqual({ status: 401, body: { ok: false, reason: 'no-session' } });
+    }
+    expect(calls).toHaveLength(1);
+  });
+
+  it('a server that is only half set up asks Google for nothing and counts nothing', async () => {
+    // Found by a surviving mutation: with NO setup at all the request fails before it leaves, so the guard looked
+    // unnecessary. With HALF a setup (a field list and a mapping, but no local step) the request would leave, Google
+    // would be paid, and the card could not be built.
+    const calls = [];
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const svc = pc.createPlaceCard({
+      request: async (req) => { calls.push(req); return asFull(IZAKAYA); }, store: fakeStore(), apiKey: 'test-key',
+      full: { fieldMask: pipeline.PLACE_DETAILS_FIELD_MASK, placeToVenue: pipeline.placeToVenue },
+    });
+    expect((await svc.full({ placeId: IZAKAYA.id, lang: 'en', readerId: 'reader-a' })).body).toEqual({ ok: false, reason: 'unavailable' });
+    expect(calls).toHaveLength(0);
+    expect(await svc.budget.spent('reader-a')).toBe(0);
+    expect(errors).not.toHaveBeenCalled();
+  });
+
   it('a place the card store knows is neither eatery nor bar is refused with no paid call', async () => {
     const { svc, calls } = make();
     await svc.lookup({ placeId: MALL.id, lang: 'en', readerId: 'reader-a' });
