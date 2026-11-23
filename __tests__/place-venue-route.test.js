@@ -175,7 +175,10 @@ describe('the count: 26 for a paid full card (I1, F-3)', () => {
     expect(again.body.ok).toBe(true);
     expect(calls).toHaveLength(1);
     expect(tcalls).toHaveLength(1);
-    expect(await svc.budget.spent('reader-a')).toBe(26);
+    // 23 hours on it is Tuesday in Singapore: the reader's day has started again at zero, and the second press
+    // added nothing to it. The month still holds the one paid card.
+    expect(await svc.budget.spent('reader-a')).toBe(0);
+    expect(await svc.budget.monthSpent()).toBe(26);
     expect(store.ttl.get(`placecard:full:v1:${IZAKAYA.id}:ja`)).toBe(pc.STORE_TTL_S);
     expect(pc.STORE_TTL_S).toBe(24 * 3600);
   });
@@ -331,18 +334,43 @@ describe('the venue: the search\'s mapping and local step, nothing slower (F-6, 
   });
 
   it('shows the price in the place\'s own currency only, and asks for no conversion', async () => {
-    const seen = [];
-    const { svc } = make();
+    // The spy goes on BEFORE the service is made, because the service keeps the function it is handed.
     const spy = vi.spyOn(cf, 'formatPriceRangeForVenue');
+    const { svc } = make();
     const sg = (await press(svc, IZAKAYA)).body.venue;
     const jp = (await press(svc, RAMEN)).body.venue;
-    for (const c of spy.mock.calls) seen.push([c[1], c[2]]);
+    const seen = spy.mock.calls.map((c) => [c[1], c[2]]);
     expect(sg.priceRangeDisplay).toMatch(/^S\$20.30\.50$/);
     expect(jp.priceRangeDisplay).toBe('¥2,000');
     expect(sg.priceRangeDisplay).not.toMatch(/\(/);
     expect(jp.priceRangeDisplay).not.toMatch(/\(/);
     expect(outside).toEqual([]);
-    for (const [venueCountry, userCountry] of seen) expect(userCountry, 'the reader is treated as local, so nothing is converted').toBe(venueCountry);
+    expect(seen, 'the price line was really asked for, once per card').toEqual([['SG', 'SG'], ['JP', 'JP']]);
+  });
+
+  it('shows no hours line when Google has no hours at all, instead of the search\'s "Closed"', async () => {
+    // Operator, 23-11 '26: "No hours line". The search's local step writes "Closed" for a place with no hours; on a
+    // card added from the map that would state a guess as a fact, one tap after the small card said nothing.
+    const { svc } = make();
+    const v = (await press(svc, BAR)).body.venue;
+    expect(v.openNow).toBe(null);
+    for (const k of ['closedTodayLabel', 'closedTodayByLang', 'openClosingLabel', 'openClosingByLang']) expect(k in v, k).toBe(false);
+    // and the search's own step does write it, which is why this card has to take it off
+    const plain = pipeline.placeToVenue(asFull(BAR));
+    await enrich.enrichFast([plain], { csLang: 'en', cuisineQueries: [], humaniseRestaurantType, enrichPriceRangeDisplay: async () => {} });
+    expect(plain.closedTodayLabel).toBe('Closed');
+  });
+
+  it('keeps Google\'s own "closed now" for a place with no hours, while that verdict is fresh', async () => {
+    const shutNow = { ...clone(BAR), id: 'ChIJtest0000000000000000011', currentOpeningHours: { openNow: false } };
+    const { svc } = make({ places: [shutNow] });
+    const fresh = (await press(svc, shutNow)).body.venue;
+    expect(fresh.openNow).toBe(false);
+    expect(fresh.closedTodayLabel).toBe('Closed');
+    // read again from the store, the old verdict has nothing behind it and is not repeated
+    const later = (await press(svc, shutNow)).body.venue;
+    expect(later.openNow).toBe(null);
+    expect('closedTodayLabel' in later).toBe(false);
   });
 
   it('adds distance and walking minutes by the search\'s formula when a location is sent', async () => {
@@ -551,7 +579,11 @@ describe('the route in index.js and what the module may reach (I8, I14, I15)', (
   it('the service is wired to the search\'s local step and to nothing slower', () => {
     const from = src.indexOf('function placeCardService');
     expect(from, 'placeCardService exists').toBeGreaterThan(0);
-    const wiring = src.slice(from, from + 3200);
+    const end = src.indexOf('\n}\n', from);
+    expect(end, 'placeCardService ends').toBeGreaterThan(from);
+    const wiring = src.slice(from, end);
+    expect(wiring.length, 'the whole function, and only it').toBeGreaterThan(400);
+    expect(wiring).toMatch(/translate-review/);
     expect(wiring).toMatch(/PLACE_DETAILS_FIELD_MASK/);
     expect(wiring).toMatch(/placeToVenue/);
     expect(wiring).toMatch(/enrichFast/);

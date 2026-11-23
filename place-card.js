@@ -32,6 +32,8 @@ const PLACES_URL = 'https://places.googleapis.com/v1/places';
 // ── money ────────────────────────────────────────────────────────────────────────────────────────────────────────
 const CARD_MILLS = 20;            // US$0.020: Place Details, Enterprise tier
 const FULL_MILLS = 25;            // US$0.025: Enterprise + Atmosphere, used by the full Soleat card (spec Part F)
+const TRANSLATE_MILLS = 1;        // a flat allowance for the one review translation a full card may make (Amendment 1, F-3)
+const FULL_CARD_MILLS = FULL_MILLS + TRANSLATE_MILLS;   // 26: what a paid full card counts against both limits
 const READER_DAILY_MILLS = 1000;  // US$1.00 per reader per Singapore day
 const MONTHLY_MILLS = 20000;      // US$20.00 for everyone per Singapore calendar month
 const STORE_TTL_S = 24 * 60 * 60;
@@ -347,9 +349,148 @@ function toEntry(data) {
   };
 }
 
+// ── the full Soleat card for one tapped eatery or bar (v0.62.993; spec Amendment 1, Part F) ───────────────────────
+// Operator, 23-11 '26: "(c) Lean + translation". The card is built from the search's own mapping and its own LOCAL
+// step, plus our own badges and the review in the reader's language. It is NOT run through the search's slow step:
+// no Routes call, no crowd or footfall, no AI dishes, no AI read, no name lines. So a full card is exactly one Google
+// call and at most one translation call, which is why it can be counted (26: 25 for Google, 1 flat for the
+// translation; operator: "Count translation too").
+//
+// Everything this build needs from outside the module is handed in (`deps`), so the module itself requires nothing
+// that can spend money: index.js passes the real functions, tests pass the real local ones and count the rest.
+const FULL_FAMILIES = new Set(['eatery', 'bar']);   // operator: "Include bars"
+const REVIEW_MAX = 160;             // the search's own cut for a review snippet
+const TRANSLATED_MAX = 200;         // the search's own cut for a translated one
+const TRANSLATE_BUDGET_MS = 6000;   // the search's own limit; past it the original shows
+const hasPeriods = (x) => Array.isArray(x) && x.length > 0;
+const tidy = (s) => String(s || '').replace(/\s+/g, ' ').trim();
+const cut = (s, n) => [...String(s)].slice(0, n).join('');
+
+// "Open now" is Google's verdict at the moment it answered, and a stored answer is read for 24 hours. So the verdict
+// is worked out again from the hours every time the card is built (the same rule openLine() follows for the small
+// card). With no hours behind it, a verdict is kept only while it is fresh.
+function withOpenVerdict(place, nowMs, fresh) {
+  const cur = (place && place.currentOpeningHours) || null;
+  const reg = (place && place.regularOpeningHours) || null;
+  const periods = hasPeriods(cur && cur.periods) ? cur.periods : (hasPeriods(reg && reg.periods) ? reg.periods : null);
+  const out = { ...place };
+  if (periods) {
+    const offset = Number.isFinite(place.utcOffsetMinutes) ? place.utcOffsetMinutes : undefined;
+    out.currentOpeningHours = { ...(cur || {}), openNow: !!currentOpenString(periods, new Date(nowMs), offset, 'en') };
+  } else if (!fresh && cur && typeof cur.openNow === 'boolean') {
+    const { openNow: _stale, ...rest } = cur;
+    out.currentOpeningHours = rest;
+  }
+  return out;
+}
+
+// One translation, or none. A late, failed, empty or unchanged answer all mean "keep the original".
+async function translatedOnce(text, sourceLang, targetLang, placeId, deps) {
+  const budget = Number.isFinite(deps.translateBudgetMs) && deps.translateBudgetMs > 0 ? deps.translateBudgetMs : TRANSLATE_BUDGET_MS;
+  let timer = null;
+  try {
+    // The kept translation is tied to the review's own text. translate-review.js keys its 30-day store on place,
+    // index and languages only, so without this an old translation could be shown under a newer, different review.
+    const reviewIdx = `c${crypto.createHash('sha256').update(text).digest('hex').slice(0, 10)}`;
+    const call = Promise.resolve().then(() => deps.translateReview({ text, sourceLang, targetLang, placeId, reviewIdx }));
+    call.catch(() => { /* a failure after the wait is over is not an error anyone is waiting on */ });
+    const out = await Promise.race([call, new Promise((res) => { timer = setTimeout(() => res(null), budget); })]);
+    const s = typeof out === 'string' ? out.trim() : '';
+    return s && s !== text ? s : '';
+  } catch {
+    return '';
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// One Google place (the answer to the search's field list) → { venue, review }.
+//   opts.fresh   true when Google has just answered; false when the place comes from the 24-hour store
+//   opts.review  for a stored place: the review wording decided when it was paid for (null when there was none).
+//                Leave it undefined to decide the wording now, which may make the one translation call.
+// `review` in the result is what to store beside the place.
+async function buildFullVenue(place, opts = {}, deps = {}) {
+  const lang = cardLang(opts.lang);
+  const nowMs = Number.isFinite(opts.nowMs) ? opts.nowMs : Date.now();
+  const v = deps.placeToVenue(withOpenVerdict(place, nowMs, opts.fresh !== false));
+  const noHours = !hasPeriods(v.currentPeriods) && !hasPeriods(v.regularPeriods);
+  await deps.enrichFast([v], {
+    csLang: lang, cuisines: [], cuisineQueries: [], csChatId: null, deviceRegion: v.country || null,
+    humaniseRestaurantType: typeof deps.humaniseRestaurantType === 'function' ? deps.humaniseRestaurantType : () => '',
+    // The reader is treated as local to the place, so the price line is in the place's own currency and nothing is
+    // converted: no exchange-rate call and no geocoding call (operator, 23-11 '26: "All three stand").
+    enrichPriceRangeDisplay: async (_chat, venues) => {
+      if (typeof deps.formatPriceRange !== 'function') return;
+      for (const x of venues) {
+        const shown = await deps.formatPriceRange(x.priceRange, x.country, x.country, null);
+        if (shown) x.priceRangeDisplay = shown;
+      }
+    },
+  });
+  // With no hours at all from Google, the search's local step still writes "Closed". On this card that would state
+  // a guess as a fact, one tap after the small card said nothing. Operator, 23-11 '26: "No hours line".
+  if (noHours && v.openNow !== false) {
+    delete v.closedTodayLabel; delete v.closedTodayByLang; delete v.openClosingLabel; delete v.openClosingByLang;
+  }
+  for (const badge of (Array.isArray(deps.annotators) ? deps.annotators : [])) {
+    try { badge(v); } catch (err) { console.warn('[place-card] a badge step failed:', err && err.message); }
+  }
+
+  let review = null;
+  if (opts.review !== undefined) {
+    review = opts.review || null;
+    if (review && review.text) {
+      v.recentReview = review.text;
+      if (review.ago) v.recentReviewAgo = review.ago;
+      if (review.sourceLang) v.recentReviewSourceLang = review.sourceLang;
+    }
+  } else {
+    const mapped = Array.isArray(v.reviews) ? v.reviews : [];
+    // The same choice of text and the same filter as placeToVenue, so entry i here is review i there. This is where
+    // Google's own language tag survives: the mapping keeps the text and drops the tag.
+    const tagged = (Array.isArray(place && place.reviews) ? place.reviews : []).map((r) => {
+      const t = r && r.text && r.text.text ? r.text : ((r && r.originalText) || null);
+      return { text: (t && t.text) || '', languageCode: (t && t.languageCode) || '' };
+    }).filter((r) => r.text);
+    if (!v.recentReview && mapped[0] && mapped[0].text) v.recentReview = cut(tidy(mapped[0].text), REVIEW_MAX);
+    if (v.recentReview) {
+      const shown = String(v.recentReview);
+      let i = mapped.findIndex((r) => r && r.text && shown.includes(tidy(r.text).slice(0, 40)));
+      if (i < 0) i = 0;
+      if (!v.recentReviewAgo && mapped[i] && mapped[i].relative) v.recentReviewAgo = mapped[i].relative;
+      const tag = typeof deps.reviewLang === 'function' && tagged[i] ? deps.reviewLang({ text: tagged[i] }) : null;
+      const sourceLang = tag || 'en';
+      if (sourceLang !== lang && typeof deps.translateReview === 'function') {
+        const out = await translatedOnce(shown, sourceLang, lang, v.placeId, deps);
+        if (out) { v.recentReview = cut(out, TRANSLATED_MAX); v.recentReviewSourceLang = sourceLang; }
+      }
+      review = { text: v.recentReview, ago: v.recentReviewAgo || '', sourceLang: v.recentReviewSourceLang || '' };
+    }
+  }
+  // The working fields a search removes before it answers.
+  delete v.reviews; delete v.currentPeriods; delete v.regularPeriods; delete v.utcOffsetMinutes; delete v.primaryTypeDisplayName;
+  return { venue: v, review };
+}
+
+// Distance and walking minutes from the reader's set location, by the search's own formula (index.js: a straight
+// line on a 6,371 km sphere, 80 m a minute). The location is used here and nowhere else: it is not stored and not
+// logged. A copy is returned, because the venue it is given may be shared between readers.
+function withDistance(venue, origin) {
+  const ok = (n, max) => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) <= max;
+  if (!venue || !origin || !ok(origin.lat, 90) || !ok(origin.lng, 180) || !ok(venue.lat, 90) || !ok(venue.lng, 180)) return { ...venue };
+  const R = 6371000, toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(venue.lat - origin.lat), dLng = toRad(venue.lng - origin.lng);
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(origin.lat)) * Math.cos(toRad(venue.lat)) * Math.sin(dLng / 2) ** 2;
+  const dist = Math.round(2 * R * Math.asin(Math.sqrt(x)));
+  return { ...venue, distanceM: dist, walkMinutes: Math.round(dist / 80) };
+}
+
 // ── the service ──────────────────────────────────────────────────────────────────────────────────────────────────
 // request({ url, headers, params, timeout }) resolves to Google's JSON; index.js passes axios, tests pass a stand-in.
-function createPlaceCard({ request, store = null, now = Date.now, own = null, apiKey = '', onCall = null } = {}) {
+// `full` (v0.62.993) is what the full Soleat card is built with: { fieldMask, placeToVenue, enrichFast,
+// humaniseRestaurantType, formatPriceRange, annotators, reviewLang, translateReview, translateBudgetMs }. Without it
+// the full card answers "unavailable" and calls nothing.
+function createPlaceCard({ request, store = null, now = Date.now, own = null, apiKey = '', onCall = null, full = null } = {}) {
   const budget = createBudget({ store, now });
   const memStore = new Map();   // key → { exp, json }: the 24-hour store when Redis is away
   const memLinks = new Map();   // place ID → json
@@ -468,11 +609,80 @@ function createPlaceCard({ request, store = null, now = Date.now, own = null, ap
     return pending;
   }
 
-  return { lookup, budget };
+  // ── the full card (v0.62.993; spec Amendment 1, Part F) ─────────────────────────────────────────────
+  const inflightFull = new Map();   // store key → the paid full lookup already under way for it
+  const fullKey = (placeId, lang) => `placecard:full:v1:${placeId}:${lang}`;
+  const cardKey = (placeId, lang) => `placecard:v1:${placeId}:${lang}`;
+  const fullReady = () => !!full && typeof full.fieldMask === 'string' && !!full.fieldMask
+    && typeof full.placeToVenue === 'function' && typeof full.enrichFast === 'function';
+  const usable = (p) => !!p && typeof p.id === 'string' && !!(p.displayName && p.displayName.text)
+    && !!p.location && Number.isFinite(p.location.latitude) && Number.isFinite(p.location.longitude);
+
+  // The one paid step: reserve 26, ask Google once, build, store. Shared by presses that arrive together.
+  async function fullFromGoogle({ placeId, lang, readerId, key }) {
+    const hold = await budget.reserve(readerId, FULL_CARD_MILLS);
+    if (!hold.ok) return refuse(hold.reason === 'no-session' ? 'no-session' : hold.reason, hold.reason === 'no-session' ? 401 : 200);
+    let place;
+    try {
+      place = await request({
+        url: `${PLACES_URL}/${placeId}`,
+        headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': full.fieldMask },
+        params: { languageCode: googleLang(lang) },
+        timeout: 8000,
+      });
+    } catch (err) {
+      await hold.release();
+      console.error('[place-card] Google full lookup failed:', err && err.message);
+      return refuse('unavailable');
+    }
+    // From here on Google has been paid, so nothing below gives the 26 back.
+    if (typeof onCall === 'function') { try { onCall('placeCardFull'); } catch { /* the count is not worth failing a card for */ } }
+    if (!usable(place)) return refuse('unavailable');
+    // The small card's stored answer saw Google's whole type list; this answer has only the main type, because the
+    // search's field list has no `types`. Where the small card has a verdict, it stands.
+    const card = await storeGet(cardKey(placeId, lang));
+    const family = card && card.family ? card.family : familyOf(place.types, place.primaryType);
+    if (!FULL_FAMILIES.has(family)) { await storeSet(key, { reason: 'not-eatery' }); return refuse('not-eatery'); }
+    if ((place.businessStatus ?? 'OPERATIONAL') !== 'OPERATIONAL') { await storeSet(key, { reason: 'not-operating' }); return refuse('not-operating'); }
+    const built = await buildFullVenue(place, { lang, nowMs: now(), fresh: true }, full);
+    await storeSet(key, { place, review: built.review });
+    return answer({ ok: true, venue: built.venue });
+  }
+
+  // POST /api/place-card/full. `origin` is the reader's set location: it is used for the distance on the way out and
+  // goes nowhere else. It is not part of the stored answer, the shared lookup or any log line.
+  async function fullCard({ placeId, lang, readerId, origin } = {}) {
+    if (!isPlaceId(placeId)) return refuse('bad-request', 400);
+    if (readerId == null || readerId === '') return refuse('no-session', 401);
+    if (!fullReady()) return refuse('unavailable');
+    const l = cardLang(lang);
+    const key = fullKey(placeId, l);
+    let base = null;
+    const stored = await storeGet(key);
+    if (stored && stored.reason) return refuse(stored.reason);
+    if (stored && stored.place) {
+      const built = await buildFullVenue(stored.place, { lang: l, nowMs: now(), fresh: false, review: stored.review || null }, full);
+      base = answer({ ok: true, venue: built.venue });
+    }
+    if (!base) {
+      const card = await storeGet(cardKey(placeId, l));
+      if (card && card.family && !FULL_FAMILIES.has(card.family)) return refuse('not-eatery');
+      if (!apiKey || typeof request !== 'function') return refuse('unavailable');
+      if (!inflightFull.has(key)) {
+        inflightFull.set(key, fullFromGoogle({ placeId, lang: l, readerId, key }).finally(() => inflightFull.delete(key)));
+      }
+      base = await inflightFull.get(key);
+    }
+    if (!base || !base.body || base.body.ok !== true) return base;
+    return answer({ ok: true, venue: withDistance(base.body.venue, origin) });
+  }
+
+  return { lookup, full: fullCard, budget };
 }
 
 module.exports = {
-  CARD_MILLS, FULL_MILLS, READER_DAILY_MILLS, MONTHLY_MILLS, STORE_TTL_S,
+  CARD_MILLS, FULL_MILLS, TRANSLATE_MILLS, FULL_CARD_MILLS, READER_DAILY_MILLS, MONTHLY_MILLS, STORE_TTL_S,
+  FULL_FAMILIES, buildFullVenue, withDistance,
   CARD_FIELDS, PLACE_CARD_FIELD_MASK, LANGS, cardLang, googleLang, isPlaceId,
   familyOf, closedGuess, openLine, LINK_MAX_M, nameKey, loadOwn, linkOwn,
   createBudget, createPlaceCard, sgtDay, sgtMonth, hashId,
