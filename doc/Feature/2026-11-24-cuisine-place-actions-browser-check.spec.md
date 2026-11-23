@@ -18,6 +18,7 @@ verify: ""
 # Cuisine place card: a browser check for its three buttons
 
 Version 1, 24-11 '26 03:32 SGT. One release, v0.62.994, stacked on pull request #1937 (v0.62.993).
+Version 1.1, 24-11 '26 05:19 SGT: the fail-proof table (M) is now a section of its own, because the approval gate read its rows as invariants with no check. No content changed.
 Visual shown to the operator on 24-11 '26: a scratch picture of the card, its three buttons and four screenshots of
 the built v0.62.993 app. It is not part of the repository.
 
@@ -81,7 +82,7 @@ Status is `pending`, `confirmed` or `corrected`. Only the user confirms; the app
 | I12 | Only synthetic coordinates and invented names. | The new script and test. | - | A real person's location in a committed file. | Every name in the script begins "Stub"; `npm test` (which runs `no-owner-chat-id.test.js` and the coordinate guards) is green. |
 | I13 | Pictures are written only when asked, and prove nothing by themselves. | `GIA_PLACE_ACTIONS_SHOTS`. | Off in CI. | A check whose verdict depends on a picture, or files written on every run. | Run unset: no file written. Run set: one PNG per page, same verdict. |
 
-### M. Fail proofs (scratch copies, never committed)
+## M. Fail proofs (scratch copies, never committed)
 Each is one edit to a copy of the stacked tree, built with `vite build` in a scratch folder. Before its verdict is read it is proved applied: the source differs, and the built bundle differs. Expected result for all eight: the script exits 1 and names the line.
 
 | ID | The break | Must fail |
