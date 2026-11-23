@@ -139,8 +139,11 @@ describe('pressing "Details, review & links" (F-2, F-8, I15)', () => {
   });
 
   it('sends no location when none is set', async () => {
-    for (const origin of [null, undefined, {}, { lat: NaN, lng: 1 }]) {
+    // (`undefined` is not in this list: it would make the stand-in fall back to its default location, and the case
+    // would then pass or fail for a reason that has nothing to do with the code under test.)
+    for (const origin of [null, {}, { lat: NaN, lng: 1 }, { lat: 1.3 }, { lat: '1.3', lng: '103.8' }]) {
       const { log } = await pressed({ origin });
+      expect(log.posts, JSON.stringify(origin)).toHaveLength(1);
       expect(log.posts[0].body, JSON.stringify(origin)).toEqual({ id: ID, lang: 'en' });
     }
   });
@@ -185,12 +188,15 @@ describe('pressing "Details, review & links" (F-2, F-8, I15)', () => {
   });
 
   it('treats no answer, a broken answer, a thrown error and a venue for another place as "could not load"', async () => {
-    const bad = [null, undefined, {}, { ok: true }, { ok: true, venue: null }, { ok: true, venue: { ...VENUE, placeId: 'ChIJsomewhereElse00000000' } },
+    // "No answer" is written as a function, because a bare `undefined` would make the stand-in use its default answer.
+    const bad = [null, () => Promise.resolve(undefined), {}, { ok: true }, { ok: true, venue: null }, { ok: true, venue: { ...VENUE, placeId: 'ChIJsomewhereElse00000000' } },
       () => Promise.reject(new Error('offline')), () => { throw new Error('boom'); }];
-    for (const full of bad) {
+    for (const [i, full] of bad.entries()) {
       const { log } = await pressed({ full });
-      expect(lastCard(log)).toContain(pct('unavailable', 'en'));
-      expect(log.actions).toEqual([]);
+      expect(log.posts, `case ${i}`).toHaveLength(1);
+      expect(lastCard(log), `case ${i}`).toContain(pct('unavailable', 'en'));
+      expect(log.actions, `case ${i}`).toEqual([]);
+      expect(log.dismissed, `case ${i}`).toBe(0);
     }
   });
 
