@@ -186,8 +186,9 @@ describe('a refusal or a failure always leaves a card with a reason and a way ou
     for (const lang of PLACE_CARD_LOCALES) expect(loadingInner(lang).length, lang).toBeGreaterThan(10);
   });
 
+  // The English line has an apostrophe, and the card escapes it like any other text: that is I7 holding, not a slip.
   it.each([
-    ['cap', "Today's place look-ups are used up"],
+    ['cap', 'Today&#39;s place look-ups are used up'],
     ['budget', 'Place look-ups are paused until next month'],
     ['unavailable', 'Could not load this place'],
   ])('%s: says why, and offers Google Maps', (reason, text) => {
@@ -205,7 +206,7 @@ describe('a refusal or a failure always leaves a card with a reason and a way ou
 
   it('with no position there is still a reason, just no link', () => {
     const h = refusalInner('cap', { lang: 'en' });
-    expect(h).toContain("Today's place look-ups are used up");
+    expect(h).toContain('Today&#39;s place look-ups are used up');
     expect(h).not.toContain('href=');
   });
 });

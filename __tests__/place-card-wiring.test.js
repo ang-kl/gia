@@ -71,7 +71,7 @@ const HOSPITAL = { ok: true, source: 'own', kind: 'hospital', family: 'health', 
 const STATION = { ok: true, source: 'own', kind: 'station', family: 'transit', own: { name: 'Fixture Station', code: 'NS1', lat: 1.3, lng: 103.8 }, place: { placeId: 'ChIJfixtureStation0000004', name: 'Fixture Station', lat: 1.3, lng: 103.8 } };
 const TAP = { placeId: 'ChIJfixtureMall0000000001', at: { lat: 1.3044, lng: 103.8339 } };
 
-function rig({ answer = MALL, app = 'cuisine', origin = null, destroyed = () => false, refine = {} } = {}) {
+function rig({ answer = MALL, app = 'cuisine', origin = null, destroyed = () => false, refine = {}, openOwn = undefined } = {}) {
   const log = { shown: [], updated: [], dismissed: 0, urls: [], actions: [], stations: [] };
   const win = {};
   let resolve;
@@ -159,12 +159,12 @@ describe('createPlaceTap: what a tap does', () => {
   });
 
   it.each([
-    ['the daily limit', { ok: false, reason: 'cap' }, "Today's place look-ups are used up"],
+    ['the daily limit', { ok: false, reason: 'cap' }, 'Today&#39;s place look-ups are used up'],
     ['the monthly limit', { ok: false, reason: 'budget' }, 'Place look-ups are paused until next month'],
     ['Google unavailable', { ok: false, reason: 'unavailable' }, 'Could not load this place'],
     ['no answer at all', null, 'Could not load this place'],
     ['an answer of the wrong shape', { ok: true }, 'Could not load this place'],
-    ['an own record of a kind this map cannot draw', { ...HOSPITAL, kind: 'lighthouse' }, 'Could not load this place'],
+    ['an answer from a source this card does not know', { ...MALL, source: 'somewhere-else' }, 'Could not load this place'],
   ])('%s: the card says why and offers Google Maps (I10)', async (_label, answer, text) => {
     const { tap, log } = rig({ answer });
     tap.open(TAP);
