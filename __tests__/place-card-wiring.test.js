@@ -525,9 +525,26 @@ describe('Cuisine app: what the two buttons do (Part C)', () => {
     expect(body).toMatch(/onLocationSelect\(\{ lat: place\.lat, lng: place\.lng, label: [^,]+, fly: true, \.\.\.\(kind === 'set' \? \{ noAutoFire: true \} : \{\}\) \}\);/);
   });
 
-  it('"Set as my location" does not search, and neither button adds a search call of its own (I5)', () => {
-    expect(body).not.toMatch(/runSearch\(/);
+  // v0.62.993 - CORRECTED. This case used to read: '"Set as my location" does not search, and neither button adds a
+  // search call of its own', and asserted that the handler holds no runSearch( at all. That was my wrong belief that
+  // setting a location searches by itself. It has not since v0.62.183 (operator's rule: a location pick never
+  // auto-fires a search), so "Eateries here" set the place and searched nothing. Operator, 23-11 '26: "i click 'see
+  // eateries here' for a building type card, the search didn't refresh the cards", then: "Fix it: search at once".
+  // The assertion had passed BECAUSE of the defect: it checked how the code was spelled, not what the button did.
+  it('"Set as my location" does not search; "Eateries here / near here" makes one search, at the place it was pressed on', () => {
+    expect(body.match(/runSearch\(/g) || []).toHaveLength(1);
+    expect(body).toMatch(/if \(kind === 'near'\) live\.runSearch\(live\.state, \{ lat: place\.lat, lng: place\.lng, name: placeLabel \}\);/);
+    expect(body.indexOf('onLocationSelect(')).toBeLessThan(body.indexOf("if (kind === 'near') live.runSearch("));
     expect(body).not.toMatch(/triggerSearch\(/);
+  });
+
+  it('uses the app\'s latest search and criteria, not the ones from the render that made the handler', () => {
+    // The handler is made once per language. Without this, a press would search with the cuisines and filters the
+    // app had when it started.
+    expect(body).toMatch(/const live = placeActionLiveRef\.current;/);
+    expect(body).toMatch(/live\.onLocationSelect\(\{ lat: place\.lat,/);
+    expect(src).toMatch(/placeActionLiveRef\.current = \{ onLocationSelect, runSearch, state \};/);
+    expect(src.indexOf('placeActionLiveRef.current = {')).toBeLessThan(at);
   });
 
   it('closes the map card first, so the result cards are unfolded for what comes next', () => {

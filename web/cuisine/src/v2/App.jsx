@@ -3935,6 +3935,12 @@ export default function App() {
       .catch(() => commit(t('region.current', lang)));
   }, [lang]);
 
+  // v0.62.993 - what handlePlaceAction (below) acts with: the app's latest location setter, search and criteria,
+  // refreshed on every render. The handler itself is made once per language, so on its own it would keep the search
+  // and the criteria of the render that made it.
+  const placeActionLiveRef = useRef(null);
+  placeActionLiveRef.current = { onLocationSelect, runSearch, state };
+
   // v0.62.992 - the two buttons on a map place card (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md,
   // Part C). "Set as my location" does what a long press does, with the place's own name instead of a looked-up one:
   // the place becomes the location and nothing is searched. "Eateries here" / "Eateries near here" is the same pick
@@ -3959,7 +3965,17 @@ export default function App() {
     if (typeof window !== 'undefined' && typeof window.__giaMapCardsClose === 'function') window.__giaMapCardsClose();
     explicitPickRef.current = true;
     const placeLabel = String(place.name || '').trim() || t('region.current', lang);
-    onLocationSelect({ lat: place.lat, lng: place.lng, label: placeLabel, fly: true, ...(kind === 'set' ? { noAutoFire: true } : {}) });
+    // v0.62.993 - CORRECTION to v0.62.992. The comment above said "onLocationSelect runs the search itself". It does
+    // not, and has not since v0.62.183 (the operator's rule: a location pick never auto-fires a search), so
+    // "Eateries here" set the place and searched nothing. Operator, 23-11 '26: "the search didn't refresh the cards",
+    // then "Fix it: search at once". A press on that button IS the reader asking for a search, so it now searches,
+    // as 🔍 does after a city pick: the place is committed, then the search runs at that exact place, handed over
+    // explicitly because the committed state has not flushed yet. "Set as my location" still searches nothing.
+    // `live` is the app's LATEST search and criteria: this handler is made once per language, and without it a
+    // press would search with the cuisines and filters the app had when it started.
+    const live = placeActionLiveRef.current;
+    live.onLocationSelect({ lat: place.lat, lng: place.lng, label: placeLabel, fly: true, ...(kind === 'set' ? { noAutoFire: true } : {}) });
+    if (kind === 'near') live.runSearch(live.state, { lat: place.lat, lng: place.lng, name: placeLabel });
   }, [lang]);
 
   // v0.62.965 — "↩ Back to <place>" (spec C4): restore the place the start-up check switched away from, as a fresh

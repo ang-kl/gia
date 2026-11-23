@@ -472,6 +472,19 @@ async function buildFullVenue(place, opts = {}, deps = {}) {
   return { venue: v, review };
 }
 
+// What is kept for 24 hours: the place as Google answered it, minus what the card never reads. A review keeps its
+// text, rating and dates, which is all the mapping uses; the reviewer's name, profile link and photo are not stored.
+function forStore(place) {
+  if (!place || !Array.isArray(place.reviews)) return place;
+  return {
+    ...place,
+    reviews: place.reviews.map((r) => (r ? {
+      text: r.text, originalText: r.originalText, rating: r.rating, publishTime: r.publishTime,
+      relativePublishTimeDescription: r.relativePublishTimeDescription,
+    } : r)),
+  };
+}
+
 // Distance and walking minutes from the reader's set location, by the search's own formula (index.js: a straight
 // line on a 6,371 km sphere, 80 m a minute). The location is used here and nowhere else: it is not stored and not
 // logged. A copy is returned, because the venue it is given may be shared between readers.
@@ -645,7 +658,7 @@ function createPlaceCard({ request, store = null, now = Date.now, own = null, ap
     if (!FULL_FAMILIES.has(family)) { await storeSet(key, { reason: 'not-eatery' }); return refuse('not-eatery'); }
     if ((place.businessStatus ?? 'OPERATIONAL') !== 'OPERATIONAL') { await storeSet(key, { reason: 'not-operating' }); return refuse('not-operating'); }
     const built = await buildFullVenue(place, { lang, nowMs: now(), fresh: true }, full);
-    await storeSet(key, { place, review: built.review });
+    await storeSet(key, { place: forStore(place), review: built.review });
     return answer({ ok: true, venue: built.venue });
   }
 

@@ -585,6 +585,22 @@ describe('the reader\'s location and identity stay out of the store and the log 
     expect(kept).toContain(`placecard:full:v1:${IZAKAYA.id}:ja`);
   });
 
+  it('the stored answer keeps a review\'s text and dates, not the reviewer\'s name, profile or photo', async () => {
+    const withAuthor = { ...clone(IZAKAYA), id: 'ChIJtest0000000000000000012' };
+    withAuthor.reviews[0].authorAttribution = { displayName: 'Reviewer Fixture-Name', uri: 'https://www.google.com/maps/contrib/123456', photoUri: 'https://lh3.googleusercontent.com/a/fixture-photo' };
+    withAuthor.reviews[0].flagContentUri = 'https://www.google.com/local/review/rap/report?fixture=1';
+    const { svc, store, calls } = make({ places: [withAuthor] });
+    const first = (await press(svc, withAuthor)).body.venue;
+    const raw = store.m.get(`placecard:full:v1:${withAuthor.id}:en`);
+    expect(raw).not.toMatch(/Reviewer Fixture-Name|contrib\/123456|fixture-photo|authorAttribution|flagContentUri/);
+    expect(raw).toContain('The yakitori and the ramen were excellent');
+    expect(raw).toContain('a month ago');
+    // and the card built from the stored answer is the same card
+    const again = (await press(svc, withAuthor)).body.venue;
+    expect(calls).toHaveLength(1);
+    expect(again).toEqual(first);
+  });
+
   it('the stored answer holds no distance, so one reader\'s distance cannot reach another', async () => {
     const { svc, store } = make();
     await press(svc, IZAKAYA, { origin: ORIGIN });
