@@ -899,6 +899,11 @@ const DISCOVER_FIELD_MASK = [
   'places.accessibilityOptions.wheelchairAccessibleEntrance'
 ].join(',');
 
+// v0.62.993 - the same list for ONE place. Place Details names its fields without the "places." prefix and has no page
+// token. It is derived from the list above, not typed out again, so a tapped eatery (place-card.js) is always asked
+// for exactly what a search asks for, and the two cannot drift apart.
+const PLACE_DETAILS_FIELD_MASK = DISCOVER_FIELD_MASK.split(',').map((f) => f.replace(/^places\./, '')).join(',');
+
 function priceLevelToInt(p) {
   if (typeof p === 'number') return p;
   const map = {
@@ -950,6 +955,82 @@ function extractCountryCode(addressComponents) {
     }
   }
   return null;
+}
+
+// v0.62.993 - one Google place to one Soleat venue (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md,
+// Amendment 1, F-6 and invariant I12). This is the mapping that sat inline inside discover(), moved here unchanged
+// and given a name, because a single tapped place (place-card.js, POST /api/place-card/full) needs exactly the venue
+// a search would have made of it. discover() calls it; nothing else maps a place. It only maps: dropping a place that
+// is not operating, or has no name, stays with discover(), which does both around this call.
+// __tests__/place-to-venue.test.js holds a record of discover()'s output taken BEFORE the move, and compares the JSON
+// text as well as the values, so a renamed, dropped, added or re-ordered field fails there.
+function placeToVenue(p) {
+  const overview = p.generativeSummary?.overview?.text?.trim();
+  const summary = overview ? {
+    overview,
+    disclosure: (p.generativeSummary?.disclosureText?.text || p.generativeSummary?.disclaimerText?.text || 'Summarized with Gemini').trim(),
+    flagUri: p.generativeSummary?.overviewFlagContentUri || ''
+  } : null;
+  return {
+    placeId: p.id,
+    name: p.displayName?.text || '',
+    area: p.formattedAddress || '',
+    lat: p.location?.latitude ?? null,
+    lng: p.location?.longitude ?? null,
+    rating: p.rating ?? null,
+    userRatingCount: p.userRatingCount ?? null,
+    priceLevel: priceLevelToInt(p.priceLevel),
+    openNow: p.currentOpeningHours?.openNow ?? null,
+    // v0.62.291 — prefer currentOpeningHours.periods (holiday-aware);
+    // regularPeriods stays as the fallback. utcOffsetMinutes drives the
+    // venue-local time math in open-hours.js.
+    currentPeriods: Array.isArray(p.currentOpeningHours?.periods) ? p.currentOpeningHours.periods : null,
+    utcOffsetMinutes: Number.isFinite(p.utcOffsetMinutes) ? p.utcOffsetMinutes : null,
+    regularPeriods: Array.isArray(p.regularOpeningHours?.periods) ? p.regularOpeningHours.periods : null,
+    // v0.58.50: full weekday schedule for the new venue templates.
+    // Pre-formatted by Google ("Monday: 11:00 AM – 9:00 PM").
+    weekdayDescriptions: Array.isArray(p.regularOpeningHours?.weekdayDescriptions)
+      ? p.regularOpeningHours.weekdayDescriptions
+      : null,
+    // v0.58.50: contact + web for the 🌐 / 📞 lines.
+    websiteUri: p.websiteUri || '',
+    phone: p.nationalPhoneNumber || '',
+    primaryType: p.primaryType || 'restaurant',
+    // v0.60.140 — Places' localized "Thai restaurant" / "Sushi
+    // restaurant" label; humanised + mapped to `restaurantType`
+    // downstream (index.js humaniseRestaurantType).
+    primaryTypeDisplayName: p.primaryTypeDisplayName?.text || '',
+    url: googleMapsUrl(p) ?? '',
+    directionsUri: p.googleMapsLinks?.directionsUri ?? '',
+    reviewsUri: p.googleMapsLinks?.reviewsUri ?? '',
+    photosUri: p.googleMapsLinks?.photosUri ?? '',
+    googleSummary: summary,
+    // v0.57.10: pass through Places reviews so downstream code
+    // (dish extraction, summary cache) can use them inline.
+    reviews: Array.isArray(p.reviews) ? p.reviews.map((r) => ({
+      text: r?.text?.text || r?.originalText?.text || '',
+      rating: r?.rating ?? null,
+      publishTime: r?.publishTime || r?.relativePublishTimeDescription || null,
+      // v0.61.417 — keep Google's relative "X ago" SEPARATELY (publishTime
+      // above conflates ISO + relative). Used to show the review's date a
+      // few spaces after the closing quote on the card / copy / chat.
+      relative: r?.relativePublishTimeDescription || ''
+    })).filter((r) => r.text) : [],
+    // v0.60.165 — pet-friendly attribute pass-through. Places
+    // returns true / false / undefined; treat undefined as
+    // "unknown" (downstream strict filter rejects, fallback
+    // text-query mode accepts via fuzzy match).
+    allowsDogs: p.allowsDogs === true,
+    // v0.60.201 — wheelchair accessibility marker. true only when
+    // Google's data explicitly says the entrance is accessible;
+    // undefined / false collapse to false (no marker shown).
+    wheelchairAccessible: p.accessibilityOptions?.wheelchairAccessibleEntrance === true,
+    // v0.60.183 — numeric price range + ISO country code so the
+    // venue-card price line can render "S$25–40 (US$18.50–29.60)"
+    // (parens only when user country ≠ venue country).
+    priceRange: normalisePriceRange(p.priceRange),
+    country: extractCountryCode(p.addressComponents)
+  };
 }
 
 // discover() — Google Places-first venue retrieval. When cuisines are
@@ -1198,74 +1279,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     const ms = Date.now() - t0;
     const raw = (data?.places || [])
       .filter((p) => (p.businessStatus ?? 'OPERATIONAL') === 'OPERATIONAL')
-      .map((p) => {
-        const overview = p.generativeSummary?.overview?.text?.trim();
-        const summary = overview ? {
-          overview,
-          disclosure: (p.generativeSummary?.disclosureText?.text || p.generativeSummary?.disclaimerText?.text || 'Summarized with Gemini').trim(),
-          flagUri: p.generativeSummary?.overviewFlagContentUri || ''
-        } : null;
-        return {
-          placeId: p.id,
-          name: p.displayName?.text || '',
-          area: p.formattedAddress || '',
-          lat: p.location?.latitude ?? null,
-          lng: p.location?.longitude ?? null,
-          rating: p.rating ?? null,
-          userRatingCount: p.userRatingCount ?? null,
-          priceLevel: priceLevelToInt(p.priceLevel),
-          openNow: p.currentOpeningHours?.openNow ?? null,
-          // v0.62.291 — prefer currentOpeningHours.periods (holiday-aware);
-          // regularPeriods stays as the fallback. utcOffsetMinutes drives the
-          // venue-local time math in open-hours.js.
-          currentPeriods: Array.isArray(p.currentOpeningHours?.periods) ? p.currentOpeningHours.periods : null,
-          utcOffsetMinutes: Number.isFinite(p.utcOffsetMinutes) ? p.utcOffsetMinutes : null,
-          regularPeriods: Array.isArray(p.regularOpeningHours?.periods) ? p.regularOpeningHours.periods : null,
-          // v0.58.50: full weekday schedule for the new venue templates.
-          // Pre-formatted by Google ("Monday: 11:00 AM – 9:00 PM").
-          weekdayDescriptions: Array.isArray(p.regularOpeningHours?.weekdayDescriptions)
-            ? p.regularOpeningHours.weekdayDescriptions
-            : null,
-          // v0.58.50: contact + web for the 🌐 / 📞 lines.
-          websiteUri: p.websiteUri || '',
-          phone: p.nationalPhoneNumber || '',
-          primaryType: p.primaryType || 'restaurant',
-          // v0.60.140 — Places' localized "Thai restaurant" / "Sushi
-          // restaurant" label; humanised + mapped to `restaurantType`
-          // downstream (index.js humaniseRestaurantType).
-          primaryTypeDisplayName: p.primaryTypeDisplayName?.text || '',
-          url: googleMapsUrl(p) ?? '',
-          directionsUri: p.googleMapsLinks?.directionsUri ?? '',
-          reviewsUri: p.googleMapsLinks?.reviewsUri ?? '',
-          photosUri: p.googleMapsLinks?.photosUri ?? '',
-          googleSummary: summary,
-          // v0.57.10: pass through Places reviews so downstream code
-          // (dish extraction, summary cache) can use them inline.
-          reviews: Array.isArray(p.reviews) ? p.reviews.map((r) => ({
-            text: r?.text?.text || r?.originalText?.text || '',
-            rating: r?.rating ?? null,
-            publishTime: r?.publishTime || r?.relativePublishTimeDescription || null,
-            // v0.61.417 — keep Google's relative "X ago" SEPARATELY (publishTime
-            // above conflates ISO + relative). Used to show the review's date a
-            // few spaces after the closing quote on the card / copy / chat.
-            relative: r?.relativePublishTimeDescription || ''
-          })).filter((r) => r.text) : [],
-          // v0.60.165 — pet-friendly attribute pass-through. Places
-          // returns true / false / undefined; treat undefined as
-          // "unknown" (downstream strict filter rejects, fallback
-          // text-query mode accepts via fuzzy match).
-          allowsDogs: p.allowsDogs === true,
-          // v0.60.201 — wheelchair accessibility marker. true only when
-          // Google's data explicitly says the entrance is accessible;
-          // undefined / false collapse to false (no marker shown).
-          wheelchairAccessible: p.accessibilityOptions?.wheelchairAccessibleEntrance === true,
-          // v0.60.183 — numeric price range + ISO country code so the
-          // venue-card price line can render "S$25–40 (US$18.50–29.60)"
-          // (parens only when user country ≠ venue country).
-          priceRange: normalisePriceRange(p.priceRange),
-          country: extractCountryCode(p.addressComponents)
-        };
-      })
+      .map(placeToVenue)
       .filter((v) => v.placeId && v.name);
     // v0.59.21 — global brand-throttle (cap=2 per brand). Same brand
     // with 3+ outlets crowded out dish-level variety in user
@@ -1969,6 +1983,9 @@ module.exports = {
   reason,
   reasonExecute,
   discover,
+  // v0.62.993 - the place-to-venue mapping by name, and the search's field list for one place (place-card.js).
+  placeToVenue,
+  PLACE_DETAILS_FIELD_MASK,
   rankAndNarrate,
   narrateMichelinVenues,
   fetchContext,
