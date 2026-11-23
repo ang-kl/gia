@@ -254,6 +254,28 @@ describe('pressing "Details, review & links" (F-2, F-8, I15)', () => {
     expect(lastCard(log)).toContain(FULL);   // the card is left as it was
   });
 
+  it('forgets the offer when the same icon is opened again and the card is no longer Google\'s eatery card', async () => {
+    // First tap: Google's card of an eatery, with the button. Second tap on the same icon: the server now answers
+    // with one of our own records (a link was remembered in between). A press must ask for nothing.
+    const own = { ok: true, source: 'own', kind: 'attraction', family: 'sight', own: { name: 'Fixture Garden', lat: 1.2871, lng: 103.8501 }, place: { placeId: ID, name: 'Fixture Garden', lat: 1.2871, lng: 103.8501 } };
+    const answers = [EATERY, own];
+    const posts = []; const actions = []; const win = {};
+    const tap = createPlaceTap({
+      app: 'cuisine', win, getLang: () => 'en',
+      fetchJson: () => Promise.resolve(answers.shift()),
+      postJson: (u, b) => { posts.push({ u, b }); return Promise.resolve({ ok: true, venue: VENUE }); },
+      getOrigin: () => ORIGIN, onAction: (kind, place) => actions.push({ kind, place }), isDestroyed: () => false,
+      show: () => {}, update: () => {}, dismiss: () => {}, card: (inner) => inner, own: {}, lost: () => {},
+    });
+    tap.open(TAP); await tap.last;
+    tap.open(TAP); await tap.last;
+    win.__giaPlaceAction('full'); await tap.last;
+    expect(posts).toEqual([]);
+    expect(actions).toEqual([]);
+    win.__giaPlaceAction('near');
+    expect(actions.map((a) => a.kind)).toEqual(['near']);   // the card itself is alive; only the offer is gone
+  });
+
   it('leaves "Eateries near here" and "Set as my location" working on the same card', async () => {
     const r = await opened();
     r.win.__giaPlaceAction('near');

@@ -518,6 +518,20 @@ describe('the review: in the reader\'s language, by at most one translation (F-6
     expect(c.tcalls[0].reviewIdx).toBe(a.tcalls[0].reviewIdx);
   });
 
+  it('with no snippet from the local step, shows the first review cut to 160 characters, with its date', async () => {
+    // buildFullVenue is called directly with a local step that finds nothing, so the fallback itself is measured.
+    const long = 'A very long review about the grilled fish. '.repeat(8).trim();
+    expect(long.length).toBeGreaterThan(300);
+    const place = { ...clone(IZAKAYA), reviews: [{ text: { text: `  ${long}  `, languageCode: 'en' }, rating: 5, relativePublishTimeDescription: '2 weeks ago' }] };
+    const { venue, review } = await pc.buildFullVenue(asFull(place), { lang: 'en', nowMs: MONDAY_1PM, fresh: true }, {
+      placeToVenue: pipeline.placeToVenue, enrichFast: async () => ({}), reviewLang: reviewLanguagePrimary,
+    });
+    expect([...venue.recentReview]).toHaveLength(160);
+    expect(long.startsWith(venue.recentReview)).toBe(true);
+    expect(venue.recentReviewAgo).toBe('2 weeks ago');
+    expect(review).toEqual({ text: venue.recentReview, ago: '2 weeks ago', sourceLang: '' });
+  });
+
   it('a place with no review has no review line and asks for no translation', async () => {
     const { svc, tcalls } = make({ translate: 'unused' });
     const v = (await press(svc, BAR, { lang: 'ja' })).body.venue;
