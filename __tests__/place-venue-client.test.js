@@ -427,5 +427,13 @@ describe('how the three maps and the Cuisine app are wired (F-8, F-10)', () => {
     const app = maskComments(read('web/cuisine/src/v2/App.jsx'));
     expect(app).toMatch(/searchTotal\(venues\) === knownTotal/);
     expect(app.match(/venues\.length === knownTotal/g) || []).toHaveLength(0);
+    // every place a count of RESULTS is shown or compared, not only the first one found
+    expect(panel).toMatch(/known === counts\.total/);
+    expect(panel).not.toMatch(/known === venues\.length/);
+    expect(panel).toMatch(/\.replace\('\{n\}', counts\.total\)/);
+    expect(panel).toMatch(/const visibleStart = counts\.visibleStart;\s*const visibleEnd = counts\.visibleEnd;/);
+    expect(app).toMatch(/!searchTotal\(venues\)\s*\? t\('banner\.no\.match', lang\)/);
+    expect(app).toMatch(/searchTotal\(venues\) === 1\s*\? t\('banner\.places\.one', lang\)/);
+    expect(app).toMatch(/tn\('banner\.places\.many', lang, \{ n: searchTotal\(venues\) \}\)/);
   });
 });
