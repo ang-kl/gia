@@ -5725,6 +5725,24 @@ function placeCardService() {
       store: placeCardStore,
       apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
       onCall: (endpoint) => { require('./api-cost').recordMapsCall(redis, endpoint).catch(() => {}); },
+      // v0.62.993 - what a full Soleat card is built with (spec Amendment 1, Part F; operator: "(c) Lean +
+      // translation"): the search's own mapping and field list, its LOCAL step, the price line in the place's own
+      // currency, our three badge steps, and the one review translation. Only these are handed over, so a full card
+      // cannot make a paid call that its count of 26 does not cover (invariant I14).
+      full: {
+        fieldMask: require('./pipeline').PLACE_DETAILS_FIELD_MASK,
+        placeToVenue: require('./pipeline').placeToVenue,
+        enrichFast: require('./cuisine-enrich').enrichFast,
+        humaniseRestaurantType: (label, type) => humaniseRestaurantType(label, type),
+        formatPriceRange: require('./currency-format').formatPriceRangeForVenue,
+        annotators: [
+          (v) => require('./SG-michelin').annotateVenueObject(v, 'Cuisine-Search'),
+          (v) => require('./healthier-eateries').annotateVenueObject(v),
+          (v) => require('./buildings').annotateVenueObject(v),
+        ],
+        reviewLang: require('./cuisine-review-language').reviewLanguagePrimary,
+        translateReview: (args) => require('./translate-review').translateReview({ ...args, redis: redis.isOpen ? redis : null }),
+      },
     });
   }
   return placeCardSvc;
@@ -19359,6 +19377,23 @@ async function cacheBotUsername() {
         res.status(out.status).json(out.body);
       } catch (err) {
         console.error('[Error] /api/place-card failed:', err.message);
+        res.json({ ok: false, reason: 'unavailable' });
+      }
+    });
+    // v0.62.993 - "Details, review & links" on the place card of an eatery or a bar (spec Amendment 1, Part F). It is
+    // a POST because the reader's set location travels with it and must stay out of the address (invariant I15): it
+    // is read from the body, used for the distance, and neither stored nor logged. The reader comes from the verified
+    // session and from nowhere else, because the reader is who the 26 is counted against.
+    app.post('/api/place-card/full', requireInitDataFromBodyOrHeader, async (req, res) => {
+      try {
+        const sent = req.body || {};
+        const out = await placeCardService().full({
+          placeId: String(sent.id || ''), lang: String(sent.lang || ''), readerId: req.tg?.user?.id,
+          origin: { lat: sent.lat, lng: sent.lng },
+        });
+        res.status(out.status).json(out.body);
+      } catch (err) {
+        console.error('[Error] /api/place-card/full failed:', err.message);
         res.json({ ok: false, reason: 'unavailable' });
       }
     });

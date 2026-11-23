@@ -107,6 +107,9 @@ describe('a locale toggle re-languages the map without re-running the search', (
     'runSearch(next)',                                              // filter change
     'runSearch(state, { lat: hit.lat, lng: hit.lng })',             // a search-result pick
     'runSearch(state, null, { resetSeen: true })',                  // ↺ Start over
+    // v0.62.993 - "Eateries here / near here" on a map place card: the reader pressed a button that says it searches.
+    // (its first argument became `searchState` after a review finding on #1937: the state with the region the place is in)
+    'runSearch(searchState, { lat: place.lat, lng: place.lng, name: placeLabel })',
   ];
 
   // A third category, and it needs naming rather than hiding in EXPLICIT: the two `boot: true`
@@ -151,8 +154,11 @@ describe('a locale toggle re-languages the map without re-running the search', (
     // i18n-coverage.test.js hardcodes KEYS.length rather than asserting a floor.
     // v0.62.965 — 17 → 19: the start-up check's two loads (at the kept place, and at the phone after a switch), both
     // automatic and both passing `auto: true`. Spec 2026-11-02-saved-place-expires-after-six-hours, Amendment 2.
+    // v0.62.993 - 19 → 20: "Eateries here / near here" on a map place card (spec 2026-11-23-place-card-any-map-icon,
+    // Part C). Explicit: the reader pressed a button that says it searches. It was missing in v0.62.992, where the
+    // button set the place and searched nothing (operator, 23-11 '26: "the search didn't refresh the cards").
     expect(calls.length, 'a runSearch call site was added or removed — classify it, then bump this')
-      .toBe(19);
+      .toBe(20);
   });
 
   it('the gate is ONE decision, not a patch at each site', () => {

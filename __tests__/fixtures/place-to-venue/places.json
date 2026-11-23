@@ -1,0 +1,143 @@
+{
+  "_about": "Raw answers in the shape Google Places (New) returns them, invented for the place-to-venue tests. No real business, no real person, no real coordinates of anyone. Six places chosen to walk every branch of the search's mapping: a full record, a bare one, legacy and odd field shapes, one that is not operating, one with no name, and a bar.",
+  "places": [
+    {
+      "id": "ChIJtest0000000000000000001",
+      "displayName": { "text": "Sakura Table Izakaya", "languageCode": "en" },
+      "formattedAddress": "1 Example Quay, #01-01, Singapore 049000",
+      "location": { "latitude": 1.2871, "longitude": 103.8501 },
+      "rating": 4.4,
+      "userRatingCount": 812,
+      "priceLevel": "PRICE_LEVEL_MODERATE",
+      "businessStatus": "OPERATIONAL",
+      "primaryType": "japanese_restaurant",
+      "types": ["japanese_restaurant", "restaurant", "food", "point_of_interest", "establishment"],
+      "googleMapsUri": "https://maps.google.com/?cid=1000000000000000001",
+      "googleMapsLinks": {
+        "placeUri": "https://maps.google.com/?cid=1000000000000000001",
+        "directionsUri": "https://www.google.com/maps/dir//example-1",
+        "reviewsUri": "https://www.google.com/maps/place//example-1/reviews",
+        "photosUri": "https://www.google.com/maps/place//example-1/photos"
+      },
+      "currentOpeningHours": {
+        "openNow": true,
+        "periods": [
+          { "open": { "day": 1, "hour": 11, "minute": 0 }, "close": { "day": 1, "hour": 22, "minute": 0 } },
+          { "open": { "day": 2, "hour": 11, "minute": 0 }, "close": { "day": 2, "hour": 22, "minute": 0 } }
+        ]
+      },
+      "utcOffsetMinutes": 480,
+      "regularOpeningHours": {
+        "periods": [
+          { "open": { "day": 1, "hour": 11, "minute": 0 }, "close": { "day": 1, "hour": 22, "minute": 0 } }
+        ],
+        "weekdayDescriptions": ["Monday: 11:00 AM - 10:00 PM", "Tuesday: 11:00 AM - 10:00 PM"]
+      },
+      "websiteUri": "https://example.com/sakura-table",
+      "nationalPhoneNumber": "6123 4567",
+      "generativeSummary": {
+        "overview": { "text": "  Lively izakaya known for grilled skewers.  ", "languageCode": "en" },
+        "disclosureText": { "text": "Summarized with Gemini", "languageCode": "en" },
+        "overviewFlagContentUri": "https://www.google.com/local/review/rap/report?example=1"
+      },
+      "primaryTypeDisplayName": { "text": "Japanese restaurant", "languageCode": "en" },
+      "reviews": [
+        {
+          "text": { "text": "The yakitori and the ramen were excellent, and the staff were kind.", "languageCode": "en" },
+          "originalText": { "text": "The yakitori and the ramen were excellent, and the staff were kind.", "languageCode": "en" },
+          "rating": 5,
+          "publishTime": "2026-10-01T10:00:00Z",
+          "relativePublishTimeDescription": "a month ago"
+        },
+        {
+          "originalText": { "text": "焼き鳥がとても美味しかったです。", "languageCode": "ja" },
+          "rating": 4,
+          "relativePublishTimeDescription": "2 months ago"
+        },
+        { "text": { "text": "" }, "rating": 3, "publishTime": "2026-09-01T10:00:00Z" }
+      ],
+      "allowsDogs": true,
+      "priceRange": {
+        "startPrice": { "currencyCode": "SGD", "units": "20" },
+        "endPrice": { "currencyCode": "SGD", "units": "30", "nanos": 500000000 }
+      },
+      "addressComponents": [
+        { "longText": "Example Quay", "shortText": "Example Quay", "types": ["route"] },
+        { "longText": "Singapore", "shortText": "SG", "types": ["country", "political"] }
+      ],
+      "accessibilityOptions": { "wheelchairAccessibleEntrance": true }
+    },
+    {
+      "id": "ChIJtest0000000000000000002",
+      "displayName": { "text": "Plain Kopi Stall" }
+    },
+    {
+      "id": "ChIJtest0000000000000000003",
+      "displayName": { "text": "Harbour Noodle House", "languageCode": "ja" },
+      "formattedAddress": "2 Example Dori, Chuo, Tokyo",
+      "location": { "latitude": 35.6719, "longitude": 139.7648 },
+      "rating": 3.9,
+      "userRatingCount": 57,
+      "priceLevel": 3,
+      "primaryType": "ramen_restaurant",
+      "currentOpeningHours": { "openNow": false, "periods": [] },
+      "utcOffsetMinutes": 540,
+      "regularOpeningHours": {
+        "periods": [
+          { "open": { "day": 3, "hour": 17, "minute": 30 }, "close": { "day": 3, "hour": 23, "minute": 0 } }
+        ]
+      },
+      "generativeSummary": {
+        "overview": { "text": "Hand-pulled noodles in a small room." },
+        "disclaimerText": { "text": "AI overview" }
+      },
+      "primaryTypeDisplayName": { "text": "ラーメン屋" },
+      "reviews": [
+        {
+          "text": { "text": "スープが濃厚で麺もおいしい。", "languageCode": "ja" },
+          "rating": 4,
+          "relativePublishTimeDescription": "3 週間前"
+        }
+      ],
+      "allowsDogs": false,
+      "priceRange": { "endPrice": { "currencyCode": "JPY", "units": "2000" } },
+      "addressComponents": [
+        { "long_name": "Japan", "short_name": "JP", "types": ["country", "political"] }
+      ],
+      "accessibilityOptions": { "wheelchairAccessibleEntrance": false }
+    },
+    {
+      "id": "ChIJtest0000000000000000004",
+      "displayName": { "text": "Shut Shophouse Cafe" },
+      "location": { "latitude": 1.2901, "longitude": 103.8455 },
+      "businessStatus": "CLOSED_TEMPORARILY",
+      "primaryType": "cafe"
+    },
+    {
+      "id": "ChIJtest0000000000000000005",
+      "displayName": { "text": "" },
+      "location": { "latitude": 1.2955, "longitude": 103.8522 },
+      "businessStatus": "OPERATIONAL",
+      "primaryType": "restaurant"
+    },
+    {
+      "id": "ChIJtest0000000000000000006",
+      "displayName": { "text": "Lantern Rooftop Lounge" },
+      "formattedAddress": "3 Example Hill, Singapore 179000",
+      "location": { "latitude": 1.2912, "longitude": 103.8493 },
+      "rating": 4.1,
+      "userRatingCount": 240,
+      "priceLevel": "PRICE_LEVEL_VERY_EXPENSIVE",
+      "businessStatus": "OPERATIONAL",
+      "primaryType": "bar",
+      "currentOpeningHours": {},
+      "utcOffsetMinutes": "480",
+      "generativeSummary": { "disclosureText": { "text": "Summarized with Gemini" } },
+      "reviews": null,
+      "priceRange": { "startPrice": { "units": "not-a-number" } },
+      "addressComponents": [
+        { "longText": "Singapore", "shortText": "SG", "types": ["country"] }
+      ]
+    }
+  ]
+}

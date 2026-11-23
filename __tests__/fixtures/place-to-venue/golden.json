@@ -1,0 +1,158 @@
+{
+  "_about": "What discover() in pipeline.js returned for places.json on 23-11 '26, at main 79ce9b87 (v0.62.992), BEFORE the place-to-venue mapping was given a name. Google was stood in for; one searchText call; cuisines ['japanese'], lang 'en'. Recorded by running the code, not written by hand. Do not edit: a change here hides a change in every search result.",
+  "recordedFrom": "79ce9b87",
+  "calls": 1,
+  "venues": [
+    {
+      "placeId": "ChIJtest0000000000000000001",
+      "name": "Sakura Table Izakaya",
+      "area": "1 Example Quay, #01-01, Singapore 049000",
+      "lat": 1.2871,
+      "lng": 103.8501,
+      "rating": 4.4,
+      "userRatingCount": 812,
+      "priceLevel": 2,
+      "openNow": true,
+      "currentPeriods": [
+        { "open": { "day": 1, "hour": 11, "minute": 0 }, "close": { "day": 1, "hour": 22, "minute": 0 } },
+        { "open": { "day": 2, "hour": 11, "minute": 0 }, "close": { "day": 2, "hour": 22, "minute": 0 } }
+      ],
+      "utcOffsetMinutes": 480,
+      "regularPeriods": [
+        { "open": { "day": 1, "hour": 11, "minute": 0 }, "close": { "day": 1, "hour": 22, "minute": 0 } }
+      ],
+      "weekdayDescriptions": ["Monday: 11:00 AM - 10:00 PM", "Tuesday: 11:00 AM - 10:00 PM"],
+      "websiteUri": "https://example.com/sakura-table",
+      "phone": "6123 4567",
+      "primaryType": "japanese_restaurant",
+      "primaryTypeDisplayName": "Japanese restaurant",
+      "url": "https://maps.google.com/?cid=1000000000000000001",
+      "directionsUri": "https://www.google.com/maps/dir//example-1",
+      "reviewsUri": "https://www.google.com/maps/place//example-1/reviews",
+      "photosUri": "https://www.google.com/maps/place//example-1/photos",
+      "googleSummary": {
+        "overview": "Lively izakaya known for grilled skewers.",
+        "disclosure": "Summarized with Gemini",
+        "flagUri": "https://www.google.com/local/review/rap/report?example=1"
+      },
+      "reviews": [
+        {
+          "text": "The yakitori and the ramen were excellent, and the staff were kind.",
+          "rating": 5,
+          "publishTime": "2026-10-01T10:00:00Z",
+          "relative": "a month ago"
+        },
+        {
+          "text": "焼き鳥がとても美味しかったです。",
+          "rating": 4,
+          "publishTime": "2 months ago",
+          "relative": "2 months ago"
+        }
+      ],
+      "allowsDogs": true,
+      "wheelchairAccessible": true,
+      "priceRange": { "currencyCode": "SGD", "start": 20, "end": 30.5 },
+      "country": "SG"
+    },
+    {
+      "placeId": "ChIJtest0000000000000000002",
+      "name": "Plain Kopi Stall",
+      "area": "",
+      "lat": null,
+      "lng": null,
+      "rating": null,
+      "userRatingCount": null,
+      "priceLevel": null,
+      "openNow": null,
+      "currentPeriods": null,
+      "utcOffsetMinutes": null,
+      "regularPeriods": null,
+      "weekdayDescriptions": null,
+      "websiteUri": "",
+      "phone": "",
+      "primaryType": "restaurant",
+      "primaryTypeDisplayName": "",
+      "url": "https://www.google.com/maps/search/?api=1&query=Plain%20Kopi%20Stall&query_place_id=ChIJtest0000000000000000002",
+      "directionsUri": "",
+      "reviewsUri": "",
+      "photosUri": "",
+      "googleSummary": null,
+      "reviews": [],
+      "allowsDogs": false,
+      "wheelchairAccessible": false,
+      "priceRange": null,
+      "country": null
+    },
+    {
+      "placeId": "ChIJtest0000000000000000003",
+      "name": "Harbour Noodle House",
+      "area": "2 Example Dori, Chuo, Tokyo",
+      "lat": 35.6719,
+      "lng": 139.7648,
+      "rating": 3.9,
+      "userRatingCount": 57,
+      "priceLevel": 3,
+      "openNow": false,
+      "currentPeriods": [],
+      "utcOffsetMinutes": 540,
+      "regularPeriods": [
+        { "open": { "day": 3, "hour": 17, "minute": 30 }, "close": { "day": 3, "hour": 23, "minute": 0 } }
+      ],
+      "weekdayDescriptions": null,
+      "websiteUri": "",
+      "phone": "",
+      "primaryType": "ramen_restaurant",
+      "primaryTypeDisplayName": "ラーメン屋",
+      "url": "https://www.google.com/maps/search/?api=1&query=Harbour%20Noodle%20House&query_place_id=ChIJtest0000000000000000003",
+      "directionsUri": "",
+      "reviewsUri": "",
+      "photosUri": "",
+      "googleSummary": {
+        "overview": "Hand-pulled noodles in a small room.",
+        "disclosure": "AI overview",
+        "flagUri": ""
+      },
+      "reviews": [
+        {
+          "text": "スープが濃厚で麺もおいしい。",
+          "rating": 4,
+          "publishTime": "3 週間前",
+          "relative": "3 週間前"
+        }
+      ],
+      "allowsDogs": false,
+      "wheelchairAccessible": false,
+      "priceRange": { "currencyCode": "JPY", "start": null, "end": 2000 },
+      "country": "JP"
+    },
+    {
+      "placeId": "ChIJtest0000000000000000006",
+      "name": "Lantern Rooftop Lounge",
+      "area": "3 Example Hill, Singapore 179000",
+      "lat": 1.2912,
+      "lng": 103.8493,
+      "rating": 4.1,
+      "userRatingCount": 240,
+      "priceLevel": 4,
+      "openNow": null,
+      "currentPeriods": null,
+      "utcOffsetMinutes": null,
+      "regularPeriods": null,
+      "weekdayDescriptions": null,
+      "websiteUri": "",
+      "phone": "",
+      "primaryType": "bar",
+      "primaryTypeDisplayName": "",
+      "url": "https://www.google.com/maps/search/?api=1&query=Lantern%20Rooftop%20Lounge&query_place_id=ChIJtest0000000000000000006",
+      "directionsUri": "",
+      "reviewsUri": "",
+      "photosUri": "",
+      "googleSummary": null,
+      "reviews": [],
+      "allowsDogs": false,
+      "wheelchairAccessible": false,
+      "priceRange": null,
+      "country": "SG"
+    }
+  ]
+}
