@@ -298,6 +298,28 @@ export function readOverridesFromHash() {
   return Object.keys(out).length ? out : null;
 }
 
+// v0.62.993 - the region a picked place puts the app in (review finding on #1937). `country` is what
+// coordsToCountry says for the place ('SG', 'MY' or null) and `inJb` what isJbCoords says. Singapore is SG; Johor
+// Bahru is JB; the rest of Malaysia is OTHER with Malaysia as the country; anywhere else the reader's own region and
+// country stand. It hands back the SAME state when nothing changes, and never alters the one it is given.
+//
+// It is the rule App.jsx's onLocationSelect applies when it commits a place. It exists here as well because a search
+// fired straight after a commit ("Eateries here" on a map place card) cannot wait for that commit to flush: it has to
+// carry the new region itself, or a JB reader pressing on a Singapore icon searches Johor Bahru.
+// __tests__/place-venue-client.test.js holds both copies to the same rule.
+export function regionAfterPick(s, country, inJb) {
+  if (!s || typeof s !== 'object') return s;
+  if (country === 'SG') return s.region === 'SG' ? s : { ...s, region: 'SG' };
+  if (country === 'MY') {
+    const target = inJb ? 'JB' : 'OTHER';
+    if (s.region === target) return s;
+    const next = { ...s, region: target };
+    if (target === 'OTHER') next.countryPref = 'MY';
+    return next;
+  }
+  return s;
+}
+
 export const FILTER_KEYS = QUICK_FILTERS;
 export const PRICE_KEYS = PRICE_LEVELS;
 export const REGION_KEYS = REGIONS;

@@ -249,7 +249,8 @@ describe('links (Part C)', () => {
 describe('every fixed line exists in all nine languages, with hyphens only (I9)', () => {
   it('the nine languages and the keys', () => {
     expect(PLACE_CARD_LOCALES).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
-    expect(PLACE_CARD_KEYS).toEqual(['eateriesHere', 'eateriesNear', 'setLocation', 'fromGoogle', 'openMaps', 'probablyClosed', 'distance', 'loading', 'capReached', 'budgetReached', 'unavailable']);
+    // v0.62.993 (spec Amendment 1, F-9): two keys added, 'details' and 'notOperating'. The eleven before them are unchanged.
+    expect(PLACE_CARD_KEYS).toEqual(['eateriesHere', 'eateriesNear', 'setLocation', 'fromGoogle', 'openMaps', 'probablyClosed', 'distance', 'loading', 'capReached', 'budgetReached', 'unavailable', 'details', 'notOperating']);
     expect(Object.keys(PLACE_CARD_STRINGS).sort()).toEqual([...PLACE_CARD_LOCALES].sort());
   });
 

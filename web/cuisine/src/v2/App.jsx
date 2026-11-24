@@ -6,7 +6,7 @@ import { OTHER_COUNTRIES } from './lib/countries.js';
 import { shouldFoldOnComposerOpen, RESULTS_BLINK_MS } from './lib/composer-fold.js';
 import { cuisineName } from './lib/cuisine-i18n.js';
 import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
-import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash, initialState } from './lib/state.js';
+import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash, initialState, regionAfterPick } from './lib/state.js';
 import { loadKept, saveKept } from '../../../_shared/lib/kept-settings.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from '../../../_shared/lib/location-sync.js';
@@ -64,6 +64,7 @@ import { routeStripModel } from '../../../_shared/lib/bus-route-layer.js';
 import OutsideNowSheet from '../../../_shared/components/OutsideNowSheet.jsx';
 import useOutsideNow from '../../../_shared/lib/use-outside-now.js';
 import useWeatherAbroad from '../../../_shared/lib/use-weather-abroad.js';
+import { insertVenue, searchTotal } from '../../../_shared/lib/place-card.js';
 import { ot, badgeDot } from '../../../_shared/lib/outside-now-i18n.js';
 import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
@@ -3934,18 +3935,52 @@ export default function App() {
       .catch(() => commit(t('region.current', lang)));
   }, [lang]);
 
+  // v0.62.993 - what handlePlaceAction (below) acts with: the app's latest location setter, search and criteria,
+  // refreshed on every render. The handler itself is made once per language, so on its own it would keep the search
+  // and the criteria of the render that made it.
+  const placeActionLiveRef = useRef(null);
+  placeActionLiveRef.current = { onLocationSelect, runSearch, state };
+
   // v0.62.992 - the two buttons on a map place card (spec doc/Feature/2026-11-23-place-card-any-map-icon.spec.md,
   // Part C). "Set as my location" does what a long press does, with the place's own name instead of a looked-up one:
   // the place becomes the location and nothing is searched. "Eateries here" / "Eateries near here" is the same pick
   // WITHOUT noAutoFire, so onLocationSelect runs the search itself; no search call is added here. The map card is
   // closed first, so the result cards are unfolded for whatever comes next.
+  //
+  // v0.62.993 - "Details, review & links" (spec Amendment 1, F-8; invariant I13). The server has already built the
+  // card; this only places it: once, at the front of the results, marked as from the map (insertVenue hands back
+  // the same list when the place is already there), with the strip shown and that card selected. It is not a search
+  // and not a change of location, so nothing else is touched. The card leaves when the list is next replaced.
   const handlePlaceAction = React.useCallback((kind, place) => {
+    if (kind === 'full') {
+      const added = place && place.venue;
+      if (!added || typeof added.placeId !== 'string' || !added.placeId) return;
+      setVenues((prev) => insertVenue(prev, added));
+      setDrawerDismissed(false);
+      unfoldCard(added.placeId);
+      return;
+    }
     if (kind !== 'near' && kind !== 'set') return;
     if (!place || !Number.isFinite(place.lat) || !Number.isFinite(place.lng)) return;
     if (typeof window !== 'undefined' && typeof window.__giaMapCardsClose === 'function') window.__giaMapCardsClose();
     explicitPickRef.current = true;
     const placeLabel = String(place.name || '').trim() || t('region.current', lang);
-    onLocationSelect({ lat: place.lat, lng: place.lng, label: placeLabel, fly: true, ...(kind === 'set' ? { noAutoFire: true } : {}) });
+    // v0.62.993 - CORRECTION to v0.62.992. The comment above said "onLocationSelect runs the search itself". It does
+    // not, and has not since v0.62.183 (the operator's rule: a location pick never auto-fires a search), so
+    // "Eateries here" set the place and searched nothing. Operator, 23-11 '26: "the search didn't refresh the cards",
+    // then "Fix it: search at once". A press on that button IS the reader asking for a search, so it now searches,
+    // as 🔍 does after a city pick: the place is committed, then the search runs at that exact place, handed over
+    // explicitly because the committed state has not flushed yet. "Set as my location" still searches nothing.
+    // `live` is the app's LATEST search and criteria: this handler is made once per language, and without it a
+    // press would search with the cuisines and filters the app had when it started.
+    const live = placeActionLiveRef.current;
+    live.onLocationSelect({ lat: place.lat, lng: place.lng, label: placeLabel, fly: true, ...(kind === 'set' ? { noAutoFire: true } : {}) });
+    // Review finding on #1937: the commit above changes the region asynchronously, so the search has to carry the
+    // region the PLACE is in, worked out here by the same rule (regionAfterPick). Without it a reader in JB mode who
+    // pressed on a Singapore icon searched Johor Bahru: the server snaps a JB request at Singapore coordinates to JB.
+    const pickedCountry = coordsToCountry({ lat: place.lat, lng: place.lng });
+    const searchState = regionAfterPick(live.state, pickedCountry, pickedCountry === 'MY' && isJbCoords({ lat: place.lat, lng: place.lng }));
+    if (kind === 'near') live.runSearch(searchState, { lat: place.lat, lng: place.lng, name: placeLabel });
   }, [lang]);
 
   // v0.62.965 — "↩ Back to <place>" (spec C4): restore the place the start-up check switched away from, as a fresh
@@ -4818,11 +4853,12 @@ export default function App() {
               selectedCity={selectedCityLocation}
               suffix={loading
                 ? t('banner.locating.suffix', lang)
-                : (!venues.length
+                /* v0.62.993 - the banner counts what the SEARCH found; a card added from the map is not one of them. */
+                : (!searchTotal(venues)
                   ? t('banner.no.match', lang)
-                  : (venues.length === 1
+                  : (searchTotal(venues) === 1
                     ? t('banner.places.one', lang)
-                    : tn('banner.places.many', lang, { n: venues.length })))}
+                    : tn('banner.places.many', lang, { n: searchTotal(venues) })))}
               onSelect={onLocationSelect}
               onSearch={triggerSearch}
               /* v0.62.x — pulse the 🔍 when criteria changed since the last
@@ -6008,7 +6044,9 @@ export default function App() {
           );
         })()}
         {(() => {
-          const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
+          // v0.62.993 - counted without cards added from the map, or one such card would make a finished search look
+          // unfinished and re-arm the search button.
+          const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && searchTotal(venues) === knownTotal;
           const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
           const pulse = (searchHintActive || searchFabFlash) && !searchDisabled;
           return composerOpen ? (

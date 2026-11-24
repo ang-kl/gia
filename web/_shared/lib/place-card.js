@@ -63,12 +63,45 @@ export function resultMatch(venues, placeId) {
   return venues.find((v) => v && v.placeId === placeId) || null;
 }
 
+// v0.62.993 - a card added from the map (spec Amendment 1, F-8; invariant I13). It goes to the FRONT of the results,
+// once, marked `fromMap`. The other results keep their order and stay the very same objects. A place that is already
+// in the list, or a card with no place ID, changes nothing and the SAME list comes back, so nothing re-renders and
+// the reader's page does not move.
+export function insertVenue(venues, venue) {
+  if (!venue || typeof venue !== 'object' || typeof venue.placeId !== 'string' || !venue.placeId) return venues;
+  const list = Array.isArray(venues) ? venues : [];
+  if (list.some((v) => v && v.placeId === venue.placeId)) return venues;
+  return [{ ...venue, fromMap: true }, ...list];
+}
+
+// The search's own numbers, leaving out cards added from the map: how many results the list holds, and which of them
+// the page on screen shows (1-based, as the results line words it). With no card from the map these are exactly the
+// figures the list has always shown. Operator, 23-11 '26: "Results: N" keeps counting search results only.
+const isFromMap = (v) => !!v && v.fromMap === true;
+export function searchTotal(venues) {
+  return Array.isArray(venues) ? venues.filter((v) => !isFromMap(v)).length : 0;
+}
+export function searchCounts(venues, page, pageSize) {
+  const list = Array.isArray(venues) ? venues : [];
+  const size = fin(pageSize) && pageSize > 0 ? pageSize : Math.max(1, list.length);
+  const start = (Math.max(1, Math.floor(Number(page)) || 1) - 1) * size;
+  const before = list.slice(0, start).filter((v) => !isFromMap(v)).length;
+  const shown = list.slice(start, start + size).filter((v) => !isFromMap(v)).length;
+  return { total: searchTotal(list), visibleStart: before + 1, visibleEnd: before + shown };
+}
+
 const FAMILY_GLYPH = {
   eatery: '🍴', bar: '🍸', lodging: '🏨', shopping: '🛍️', health: '🏥', safety: '👮', nature: '🌳', sight: '⚝',
   transit: '🚉', worship: '🛐', learning: '🎓', building: '🏢',
 };
 // "Eateries here" for a place one eats INSIDE (a mall, a hotel, a building); "near here" for everything else.
 const HERE_FAMILIES = new Set(['shopping', 'lodging', 'building']);
+// v0.62.993 - spec Amendment 1, F-1: a full Soleat card is offered for an eatery or a bar (operator: "Include bars"),
+// from Google, on the Cuisine map. Never for one of our own records, and never on Hawker or Train.
+const FULL_FAMILIES = new Set(['eatery', 'bar']);
+export function canShowFull(body, app) {
+  return app === 'cuisine' && !!body && body.source === 'google' && FULL_FAMILIES.has(body.family);
+}
 const SUB = '#6b6b70';
 const LINK = '#2481cc';
 
@@ -84,8 +117,12 @@ export function actionsRow(body, opts = {}) {
     + (primary ? `font-weight:700;border:none;background:${LINK};color:#fff;` : 'font-weight:600;border:1px solid rgba(128,128,128,0.55);background:transparent;color:inherit;')
     + `">${esc(label)}</button>`;
   const nearKey = app === 'cuisine' && HERE_FAMILIES.has(family) ? 'eateriesHere' : 'eateriesNear';
+  // v0.62.993: the Google card of an eatery or a bar on Cuisine leads with "Details, review & links". It is then the
+  // one filled button, and "Eateries near here" steps back to an outline beside it.
+  const full = canShowFull(body, app);
   let h = '<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">';
-  h += button('near', pct(nearKey, lang), true);
+  if (full) h += button('full', pct('details', lang), true);
+  h += button('near', pct(nearKey, lang), !full);
   if (app === 'cuisine') h += button('set', pct('setLocation', lang), false);
   return `${h}</div>`;
 }
@@ -132,10 +169,12 @@ export function loadingInner(lang) {
   return `<div style="font-weight:600;">⏳ ${esc(pct('loading', lang))}</div>`;
 }
 
-// Why there is no card, and a way out. Any reason other than the two limits reads as "could not load".
+// Why there is no card, and a way out. Any reason other than the two limits, and (v0.62.993) a place Google lists as
+// not operating, reads as "could not load".
 export function refusalInner(reason, opts = {}) {
   const lang = opts.lang || 'en';
-  const key = reason === 'cap' ? 'capReached' : reason === 'budget' ? 'budgetReached' : 'unavailable';
+  const key = reason === 'cap' ? 'capReached' : reason === 'budget' ? 'budgetReached'
+    : reason === 'not-operating' ? 'notOperating' : 'unavailable';
   const at = opts.at || {};
   const url = mapsLink({ placeId: opts.placeId, lat: at.lat, lng: at.lng });
   return `<div style="font-weight:600;">${esc(pct(key, lang))}</div>`
@@ -168,6 +207,7 @@ export function pinNode(doc) {
 //   openOwn(kind, record) → true when the host opened its own view for it, refine: { kind: (record) => Promise<html> },
 //   canFocusStation() and focusStation(code) (the opener answers false only when it knows it cannot open that code),
 //   stillOpen() → the bubble is still open on the ring this tap drew, lost() → remove that ring and nothing else,
+//   postJson(url, body) (v0.62.993: the full Soleat card; only the Cuisine map hands one in),
 //   and win (the window; a stand-in under test).
 // open(tap) answers at once whether a card is now open; `last` is the fill still under way.
 export function createPlaceTap(deps) {
@@ -176,6 +216,7 @@ export function createPlaceTap(deps) {
   const win = d.win || (typeof window !== 'undefined' ? window : {});
   let seq = 0;
   let current = null;   // the place whose card is filled; the buttons act on this and on nothing else
+  let fullFor = null;   // v0.62.993: the place ID whose filled card offers "Details, review & links", or null
   const lang = () => (typeof d.getLang === 'function' && d.getLang()) || 'en';
   const gone = () => typeof d.isDestroyed === 'function' && d.isDestroyed() === true;
   const palette = () => (typeof d.palette === 'function' && d.palette()) || {};
@@ -185,7 +226,41 @@ export function createPlaceTap(deps) {
   const ours = () => typeof d.stillOpen !== 'function' || d.stillOpen() === true;
   const lose = () => { current = null; if (typeof d.lost === 'function') d.lost(); return undefined; };
 
+  // v0.62.993 - "Details, review & links" (spec Amendment 1, F-2 and F-8). One POST to our own server, with the
+  // reader's set location in the BODY and never in the address. The handler does not trust the markup: it asks only
+  // for the place whose Google card of an eatery or a bar is the one now filled, and only on Cuisine. On success the
+  // bubble is closed and the venue handed to the app; a refusal says why and leaves the Google Maps link; an answer
+  // that arrives after the reader moved on is dropped, as a late look-up is.
+  function askFull() {
+    if (app !== 'cuisine' || !current || fullFor !== current.placeId) return;
+    if (typeof d.postJson !== 'function' || typeof d.onAction !== 'function') return;
+    const mine = seq;
+    const place = { ...current };
+    const tap = { placeId: place.placeId, at: { lat: place.lat, lng: place.lng } };
+    const origin = typeof d.getOrigin === 'function' ? d.getOrigin() : null;
+    const sent = { id: place.placeId, lang: lang(), ...(origin && fin(origin.lat) && fin(origin.lng) ? { lat: origin.lat, lng: origin.lng } : {}) };
+    current = null;   // no buttons while it waits, so a second press asks for nothing
+    d.update(d.card(loadingInner(lang())));
+    let pending;
+    try { pending = Promise.resolve(d.postJson('/api/place-card/full', sent)); } catch (err) { pending = Promise.reject(err); }
+    api.last = pending
+      .then((res) => {
+        if (mine !== seq || gone()) return undefined;
+        if (!ours()) return lose();
+        if (!res || res.ok !== true || !res.venue || res.venue.placeId !== place.placeId) {
+          return refusal(res && res.ok === false ? res.reason : 'unavailable', tap);
+        }
+        d.dismiss();
+        d.onAction('full', { ...place, venue: res.venue });
+        return undefined;
+      })
+      .catch(() => {
+        if (mine !== seq || gone()) return;
+        if (ours()) refusal('unavailable', tap); else lose();
+      });
+  }
   function act(kind) {
+    if (kind === 'full') { askFull(); return; }
     if (kind !== 'near' && kind !== 'set') return;
     if (kind === 'set' && app !== 'cuisine') return;
     if (!current || typeof d.onAction !== 'function') return;
@@ -234,6 +309,7 @@ export function createPlaceTap(deps) {
     const distanceM = origin && fin(origin.lat) && fin(origin.lng) ? distM(origin, place) : null;
     d.update(d.card(placeInner(body, { ...o, ...(distanceM == null ? {} : { distanceM }), ...palette() })));
     current = place;
+    fullFor = canShowFull(body, app) ? place.placeId : null;
     return undefined;
   }
 
@@ -243,6 +319,7 @@ export function createPlaceTap(deps) {
       if (gone() || !tap || typeof tap.placeId !== 'string' || !tap.placeId || !tap.at || !fin(tap.at.lat) || !fin(tap.at.lng)) return false;
       const mine = ++seq;
       current = null;
+      fullFor = null;
       win.__giaPlaceAction = act;
       d.show(d.card(loadingInner(lang())), { lat: tap.at.lat, lng: tap.at.lng });
       const url = `/api/place-card?id=${encodeURIComponent(tap.placeId)}&lang=${encodeURIComponent(lang())}`;
