@@ -13495,6 +13495,16 @@ async function cacheBotUsername() {
       const body = await healthBody();
       res.status(200).json({ ...body, ok: true });
     });
+    // v0.62.994 - DEPLOY GATE. Railway's deploy health check asks GET /readyz
+    // on a new build and switches traffic to it only on a 2xx (the service
+    // setting healthcheckPath, production; it lives outside this repository).
+    // The request carries no Telegram credentials and the hostname
+    // healthcheck.railway.app. So: put nothing in front of this route that
+    // wants credentials, and do not rename it without changing the service
+    // setting first. Either mistake fails every deploy: the old build keeps
+    // serving and no release goes live. /healthz above is NOT the gate; the
+    // webhook fail-over reads it and it must stay always-200.
+    // Tripwire: __tests__/deploy-health-gate.test.js.
     app.get('/readyz', async (req, res) => {
       const body = await healthBody();
       res.status(body.ready ? 200 : 503).json({ ...body, ok: body.ready });
