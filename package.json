@@ -41,6 +41,7 @@
     "redis": "^4.6.10"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "esbuild": "^0.28.2",
     "pino-pretty": "^11.0.0",
     "playwright-core": "^1.62.1",

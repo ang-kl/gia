@@ -19,7 +19,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['__tests__/**/*.test.js'],
-    exclude: ['node_modules/**', 'web/**', '__tests__/redis-stub.js'],
+    // v0.63.0 - 'visual/**' holds the Playwright phone snapshots (playwright.config.mjs); vitest must not run them.
+    exclude: ['node_modules/**', 'web/**', 'visual/**', '__tests__/redis-stub.js'],
     reporters: ['default'],
     coverage: {
       enabled: false,
