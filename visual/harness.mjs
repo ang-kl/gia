@@ -1,4 +1,4 @@
-// visual/harness.mjs - v0.63.0
+// visual/harness.mjs - v0.62.996 (v0.63 plan, phase 1)
 //
 // Opens one built Mini App in a Playwright page the same way every time. Spec:
 // doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md, Part B.

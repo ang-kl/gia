@@ -186,7 +186,7 @@ jobs:
       - name: Render smoke — every TMA must paint (Register O-120)
         run: npm run test:render
 
-  # v0.63.0 - phone snapshots (spec doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md). Every Mini App at
+  # v0.62.996 - phone snapshots (spec doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md). Every Mini App at
   # six phone sizes, compared pixel for pixel with the baselines in visual/*-snapshots/, plus a boot check of each
   # app under three Telegram client versions. It runs INSIDE Playwright's official image so the browser and the
   # fonts are the ones the baselines were made with (scripts/visual-docker.sh uses the same image); the tag must

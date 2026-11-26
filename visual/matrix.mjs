@@ -1,4 +1,4 @@
-// visual/matrix.mjs - v0.63.0
+// visual/matrix.mjs - v0.62.996 (v0.63 plan, phase 1)
 //
 // What the phone snapshots cover. The plan (v0.63 Stage 4, PR 1; spec
 // doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md) names five apps and six phone sizes; Oversight is

@@ -1,4 +1,4 @@
-// visual/compact-baseline.spec.mjs - v0.63.0
+// visual/compact-baseline.spec.mjs - v0.62.996 (v0.63 plan, phase 1)
 //
 // Invariant I1 of doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md (V1 of the v0.63 plan): with every
 // switch off, each Mini App at each phone size looks exactly as in its committed baseline. Zero tolerance

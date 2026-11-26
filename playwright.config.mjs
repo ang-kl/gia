@@ -1,4 +1,4 @@
-// playwright.config.mjs - v0.63.0
+// playwright.config.mjs - v0.62.996 (v0.63 plan, phase 1)
 //
 // Spec: doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md.
 //

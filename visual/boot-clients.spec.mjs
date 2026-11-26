@@ -1,4 +1,4 @@
-// visual/boot-clients.spec.mjs - v0.63.0
+// visual/boot-clients.spec.mjs - v0.62.996 (v0.63 plan, phase 1)
 //
 // Invariant I4 of doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md: every Mini App boots under each
 // of the three Telegram client generations without a page error or a console error, and reaches the render

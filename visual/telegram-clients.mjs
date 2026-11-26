@@ -1,4 +1,4 @@
-// visual/telegram-clients.mjs - v0.63.0
+// visual/telegram-clients.mjs - v0.62.996 (v0.63 plan, phase 1)
 //
 // Three stand-ins for Telegram's `window.Telegram.WebApp`, one per client generation the plan names (Stage 3,
 // C5): before 8.0, 8.0 (fullscreen, safe areas, orientation lock arrived there), and the latest. "Latest" is the

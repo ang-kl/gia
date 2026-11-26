@@ -1,4 +1,4 @@
-// visual/fixtures.mjs - v0.63.0
+// visual/fixtures.mjs - v0.62.996 (v0.63 plan, phase 1)
 //
 // Fixed answers for the apps' server calls, so each first screen renders its real components with the same
 // data on every run. Copied from scripts/render-smoke.mjs (03-08 '26) rather than imported, because that script

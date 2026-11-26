@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/visual-docker.sh - v0.63.0
+# scripts/visual-docker.sh - v0.62.996 (v0.63 plan, phase 1)
 #
 # Run the phone snapshots (visual/) inside Playwright's official image, the same image CI's `visual` job uses,
 # so the browser and the fonts match the committed baselines. Spec:
