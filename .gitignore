@@ -36,3 +36,8 @@ doc/VibeCodingRecord/wrong-log.html
 .claude/flow/.cache.json
 .claude/flow/approvals/
 .claude/flow/backups/
+
+# v0.62.996 - Playwright's run output for the phone snapshots (visual/). The baselines themselves are committed
+# under visual/*-snapshots/; these two folders are per-run results and reports.
+test-results/
+playwright-report/
