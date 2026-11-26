@@ -185,3 +185,36 @@ jobs:
       # browser-download step.
       - name: Render smoke — every TMA must paint (Register O-120)
         run: npm run test:render
+
+  # v0.62.996 - phone snapshots (spec doc/Feature/2026-11-26-v063-phase1-phone-snapshots.spec.md). Every Mini App at
+  # six phone sizes, compared pixel for pixel with the baselines in visual/*-snapshots/, plus a boot check of each
+  # app under three Telegram client versions. It runs INSIDE Playwright's official image so the browser and the
+  # fonts are the ones the baselines were made with (scripts/visual-docker.sh uses the same image); the tag must
+  # match @playwright/test in package.json, which __tests__/visual-pins.test.js checks. Its own job, so a red
+  # picture is told apart from a red build. Not a required check: that is a repository setting.
+  visual:
+    name: Phone snapshots (5 apps x 6 sizes, pinned browser)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v5
+      - name: Diagnostics
+        run: echo "node $(node --version) | npm $(npm --version) | $(npx playwright --version)"
+      - name: Install root deps (skip postinstall TMA build)
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Build all TMAs
+        run: npm run build
+      - name: Phone snapshots and boot check
+        run: npx playwright test
+      - name: Upload the report when a picture differs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone-snapshots-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
