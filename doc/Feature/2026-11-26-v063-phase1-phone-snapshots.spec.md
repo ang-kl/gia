@@ -116,3 +116,21 @@ Status is `pending`, `confirmed` or `corrected`. Only the user confirms; the app
 ## Evidence
 Filled at the end: INVARIANTS REPORT (Passed / Failed / Not Verifiable, each with evidence), verify output, PR link.
 Editing this file after approval voids the approval; append amendments and ask for APPROVE again.
+
+## Amendment 1 - 26-11 '26 09:10 SGT: released as v0.62.996, not v0.63.0 (FLOW ALERT F3)
+
+What happened: with everything else built and passing, `npm test` failed one existing test,
+`__tests__/register-current.test.js` ("a minor release with no register snapshot"). Every new minor version needs a
+`doc/Register/` snapshot, and `doc/Register/` is outside this spec's scope. The test is right and was not changed.
+
+The operator chose, in the dialog of 26-11 '26: *"0.62.996, keep 0.63.0 (Recommended)"*. Phase 1 changes nothing a
+reader sees, so it ships as a 0.62 patch, and 0.63.0 is kept for the first phase that does.
+
+Changes to the text above, and nothing else:
+- E-1 now reads: `package.json` and `package-lock.json` to **0.62.996**. (#1940 holds 0.62.995.)
+- The title line "released as v0.63.0" and the Intent's "v0.63.0" read v0.62.996 wherever they name this release.
+- The Register snapshot and the records it owes (`[AMD-349]` onward) stay owed, as logged in the Journal.
+
+| ID | Assumption | Status | Note |
+|----|------------|--------|------|
+| A5 | Phase 1 is released as v0.62.996; v0.63.0 is kept for the first phase with a change readers see | confirmed | Operator, dialog of 26-11 '26: *"0.62.996, keep 0.63.0 (Recommended)"* |
