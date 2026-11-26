@@ -34,8 +34,9 @@ export default defineConfig({
     browserName: 'chromium',
     headless: true,
     deviceScaleFactor: 1,
+    // A phone: touch input, and the page's viewport meta tag honoured, as in Telegram's webview.
     hasTouch: true,
-    isMobile: false,
+    isMobile: true,
     locale: 'en-SG',
     timezoneId: 'Asia/Singapore',
     colorScheme: 'light',
