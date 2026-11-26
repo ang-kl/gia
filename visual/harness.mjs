@@ -45,12 +45,25 @@ export const VERSION_PLACEHOLDER = 'v0.00.000';
 
 export async function freezeVersionText(page) {
   return page.evaluate(({ src, flags, placeholder }) => {
+    // React writes `v{BUILD_VERSION}` as TWO text nodes, "… · v" and "0.62.996" (measured in the Train footer,
+    // 26-11 '26), so a node-by-node replace never sees "v0.62.996" whole. Each run of adjacent text nodes under
+    // one element is therefore joined, replaced, and written back into its first node.
     const rx = new RegExp(src, flags.includes('g') ? flags : flags + 'g');
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let n = 0;
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      const next = node.nodeValue.replace(rx, () => { n += 1; return placeholder; });
-      if (next !== node.nodeValue) node.nodeValue = next;
+    for (const el of document.body.querySelectorAll('*')) {
+      let run = [];
+      const flush = () => {
+        if (run.length) {
+          const joined = run.map((t) => t.nodeValue).join('');
+          const next = joined.replace(rx, () => { n += 1; return placeholder; });
+          if (next !== joined) { run[0].nodeValue = next; for (const t of run.slice(1)) t.nodeValue = ''; }
+        }
+        run = [];
+      };
+      for (const child of el.childNodes) {
+        if (child.nodeType === Node.TEXT_NODE) run.push(child); else flush();
+      }
+      flush();
     }
     return n;
   }, { src: VERSION_TEXT.source, flags: VERSION_TEXT.flags, placeholder: VERSION_PLACEHOLDER });
