@@ -36,6 +36,26 @@ const QUIET = '*,*::before,*::after{animation:none!important;transition:none!imp
 // every release would change every image if it were not masked.
 export const VERSION_TEXT = /v\d+\.\d+\.\d+/;
 
+// A mask covers pixels but not layout. Measured 26-11 '26: the Train app prints the version INLINE in its footer,
+// so moving from "v0.63.0" to "v0.62.996" (two characters longer) pushed its List and Schematic buttons right and
+// changed 2,385 pixels in all six Train images, mask or no mask. The first version proof had used a same-length
+// number and could not see this. So before each picture every version string is replaced by one fixed placeholder
+// of fixed length; the layout then no longer depends on the release, and the mask still hides the digits.
+export const VERSION_PLACEHOLDER = 'v0.00.000';
+
+export async function freezeVersionText(page) {
+  return page.evaluate(({ src, flags, placeholder }) => {
+    const rx = new RegExp(src, flags.includes('g') ? flags : flags + 'g');
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let n = 0;
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const next = node.nodeValue.replace(rx, () => { n += 1; return placeholder; });
+      if (next !== node.nodeValue) node.nodeValue = next;
+    }
+    return n;
+  }, { src: VERSION_TEXT.source, flags: VERSION_TEXT.flags, placeholder: VERSION_PLACEHOLDER });
+}
+
 /**
  * Open `app` under the Telegram client `version`. Returns { errors, count }: page errors and console errors seen
  * while opening, and the settled element count. Throws if the app's build output is missing.

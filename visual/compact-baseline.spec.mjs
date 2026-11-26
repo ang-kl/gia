@@ -11,7 +11,7 @@
 import { test, expect } from '@playwright/test';
 import { APPS, SIZES } from './matrix.mjs';
 import { CLIENTS } from './telegram-clients.mjs';
-import { openApp, VERSION_TEXT } from './harness.mjs';
+import { openApp, freezeVersionText, VERSION_TEXT } from './harness.mjs';
 
 for (const app of APPS) {
   for (const size of SIZES) {
@@ -19,6 +19,7 @@ for (const app of APPS) {
       await page.setViewportSize(size);
       const { errors } = await openApp(page, app, CLIENTS.latest);
       expect(errors, `${app} reported errors while opening`).toEqual([]);
+      await freezeVersionText(page);
       await expect(page).toHaveScreenshot(`${app}-${size.width}x${size.height}.png`, {
         mask: [page.getByText(VERSION_TEXT)],
       });
