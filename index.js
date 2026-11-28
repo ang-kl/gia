@@ -16481,6 +16481,26 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-TMA] place-anchor detection failed (non-fatal):', err.message);
         }
+        // v0.62.997 — near first (spec doc/Feature/2026-11-28-cuisine-saved-place-near-first.spec.md). An ordinary
+        // search from the set place starts 2 km around it; the radius computed above (region default, anchor cap,
+        // OTHER ceiling) becomes the ceiling the widening may reach and never passes. The operator's search from
+        // Pasir Panjang MRT on 28-11 '26 ran at 20 km and showed places 6 to 9 km away.
+        const nearFirst = require('./cuisine-near-first');
+        const nearCeilingM = searchRadius;
+        const nearActive = nearFirst.nearFirstApplies({
+          clientRadius,
+          placeAnchor: !!detectedPlaceAnchor,
+          specialMode,
+          widen: wantWiden,
+          michelin: (cuisines || []).some((s) => String(s || '').toLowerCase() === 'michelin'),
+        });
+        let nearRadiusM = null;
+        let nearWidenedToM = null;
+        if (nearActive) {
+          searchRadius = nearFirst.nearStartRadius(nearCeilingM);
+          nearRadiusM = searchRadius;
+          console.log(`[Cuisine-Search] D797 near-first start ${searchRadius}m (ceiling ${nearCeilingM}m)`);
+        }
         // v0.61.185 — SG default, JB → 'MY', OTHER → undefined (rely
         // on locationBias.circle). Fixes the Putrajaya 0-result bug.
         // v0.61.271 — Phase 3 fix (audit ledger D6): prefer the
@@ -17294,6 +17314,14 @@ async function cacheBotUsername() {
             console.log(`[Cuisine-Search] D779 specialMode=${specialMode} post-filter ${beforeSpecial} → ${venues.length}`);
           }
         }
+        // v0.62.997 — near first: Places treats the circle as a bias, not a bound, so it returns places outside it.
+        // Keep only the ones inside the start radius; the widening further down adds wider ones only when this
+        // leaves too few.
+        if (nearActive) {
+          const beforeNear = venues.length;
+          venues = nearFirst.withinRadius(venues, searchCenter, searchRadius);
+          console.log(`[Cuisine-Search] D797 near-first within ${searchRadius}m: ${beforeNear} → ${venues.length}`);
+        }
         // v0.61.275 — Plan B: cached-Gemini-label post-filter.
         // Reads dgv:labels:<key> hash (populated by /ver → 🤖
         // Gemini verify OR the v0.61.282 inline D703f path) and
@@ -17954,7 +17982,43 @@ async function cacheBotUsername() {
         // ≤2 extra Places passes. I4 guard: the wider pool merges into THIS
         // request's unseen list only — never written back to the per-variant
         // `cuisine:pool:` cache (keyed on the base searchRadius).
-        if (!skipCacheForShuffle && !specialMode && isFirstBatch && trulyUnseen.length < FIRST_TAP_SLICE) {
+        // v0.62.997 — near first: fewer than 6 unseen places inside the start radius → search again at 5, 10, then
+        // 20 km (never past nearCeilingM), keeping only places inside each step and passing them through the same
+        // venue filter, rating floor and seen sets as the base pool. At most three extra searches. Any batch, not only
+        // the first, so a later tap that has used up the near circle widens too. Skipped past ~14 s, like the
+        // special-mode widening, so it cannot push the request into the 20 s deadline.
+        if (nearActive && trulyUnseen.length < nearFirst.NEAR_MIN && _elapsed() < 14000) {
+          try {
+            const vfNear = require('./venue-filters');
+            const nearFloorOpts = require('./newness-filter').newnessFloorOpts(ratingPrefLib.ratingPrefToFloorOpts(effRatingPref), !!filters.newlyOpened);
+            const nr = await nearFirst.widenNear({
+              have: trulyUnseen.length,
+              center: searchCenter,
+              startM: searchRadius,
+              ceilingM: nearCeilingM,
+              seeds: cuisinesForDiscover,
+              regionCode: searchRegionCode,
+              lang: csLang,
+              existingPlaceIds: [...venues.map((v) => v && v.placeId).filter(Boolean), ...seen, ...sessionSeen],
+              discoverFn: (opts) => pipeline.discover({ ...opts, redis, maxResults: 30, maxPages: 3, expandSingaporean: !skipExpand }),
+              prepare: (list) => {
+                let kept = list.filter(vfNear.passesVenueFilter);
+                if (!durianSoftRating) kept = vfNear.applyRatingFloor(kept, nearFloorOpts);
+                return kept.filter((v) => v.placeId && !seen.has(v.placeId) && !sessionSeen.has(v.placeId));
+              },
+            });
+            for (const v of nr.venues) { venues.push(v); unseenInCriteria.push(v); trulyUnseen.push(v); }
+            if (!skipCacheForShuffle) trulyUnseen.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+            if (nr.widened) {
+              nearRadiusM = nr.finalRadiusM;
+              nearWidenedToM = nr.finalRadiusM;
+            }
+            console.log(`[Cuisine-Search] D797 near-first done: +${nr.venues.length} (fetches=${nr.fetches}, radius ${nearRadiusM}m); unseen now ${trulyUnseen.length}`);
+          } catch (err) {
+            console.warn('[Cuisine-Search] near-first widening failed (non-fatal):', err.message);
+          }
+        }
+        if (!nearActive && !skipCacheForShuffle && !specialMode && isFirstBatch && trulyUnseen.length < FIRST_TAP_SLICE) {
           try {
             const { refetchOuterRings } = require('./cuisine-nearby-refetch');
             const vf = require('./venue-filters');
@@ -18065,9 +18129,11 @@ async function cacheBotUsername() {
         if (!skipCacheForShuffle && !specialMode && isFirstBatch) {
           try {
             const { widenAndPick } = require('./cuisine-nearby-widen');
-            const widenCap = (Number.isFinite(anchorCap) && anchorCap > 0)
-              ? Math.min(anchorCap, searchRadius)
-              : searchRadius;
+            // v0.62.997 — on a near-first search the pool may now reach nearRadiusM (widened), so that is the cap.
+            const widenCap = nearActive ? nearRadiusM
+              : (Number.isFinite(anchorCap) && anchorCap > 0)
+                ? Math.min(anchorCap, searchRadius)
+                : searchRadius;
             const widened = widenAndPick({ venues: trulyUnseen, cap: widenCap });
             console.log(`[Cuisine-Search] D790 nearby-widen tier=${widened.tier} radiusM=${widened.radiusM} satisfied=${widened.satisfied} from=${trulyUnseen.length} to=${widened.venues.length}`);
             // Only honour the tighter tier when it can fill the page; else
@@ -18565,6 +18631,12 @@ async function cacheBotUsername() {
           cumulativeStart, cumulativeEnd, finalBatch,
           debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' }
         };
+        // v0.62.997 — near first: the radius the places were drawn from, and the widened radius when it widened, so
+        // the result can say "widened to N km".
+        if (nearActive) {
+          payload.nearRadiusM = nearRadiusM;
+          if (nearWidenedToM) payload.nearWidenedToM = nearWidenedToM;
+        }
         // v0.61.126 — special-mode response metadata. The TMA renders
         // the "Limited matches nearby. Showing the closest <mode>-
         // related results." line per scripts/Create_2_buttons.MD when

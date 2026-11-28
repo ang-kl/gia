@@ -171,7 +171,10 @@ export const LOCALE_STASH = {
     'comboInfo', 'cuisinePlate', 'arrivalPlate', 'lastRunSnap', 'lastPrompt', 'noProvenNew', 'misrepNote',
     'cookMethodPivot', 'specialModeNotice', 'zeroReasonKey', 'zeroPlace', 'durianRatingNote', 'specialModeBlocked',
     'jbFallbackNotice', 'degradedNotice', 'specialModeWidenedInfo', 'questionDeclined', 'allSeenInRange',
-    'widenActive', 'exhaustedNote', 'sparseNotice', 'michelinNotice', 'zeroRetried'
+    'widenActive', 'exhaustedNote', 'sparseNotice', 'michelinNotice', 'zeroRetried',
+    // v0.62.997 — spec 2026-11-28-cuisine-saved-place-near-first: the "widened to N km" line belongs to the results
+    // it describes, which a language reload restores, so it travels with them like specialModeWidenedInfo.
+    'nearWidenedM'
   ],
   transient: {
     catalogue: 'refetched from the server on every mount',
@@ -181,8 +184,8 @@ export const LOCALE_STASH = {
     mapViewLocation: 'carried as the payload camera, with its zoom',
     flyTarget: 'one-shot; the camera is re-stamped from the payload on restore',
     locMoveNote: 'a toast about a location move that already happened',
-    // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, Amendment 1.
-    backTo: 'a one-open way back after the start-up check switched to the phone; a language reload runs the check again',
+    // v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours, Amendment 1, listed `backTo` here. v0.62.997
+    // (spec 2026-11-28-cuisine-saved-place-near-first) removed the state with the switch it belonged to.
     // v0.62.970 — spec 2026-11-03-station-and-stop-tap-animations-hawker-cuisine, Amendment 2.
     // v0.62.990 — spec 2026-11-12-remove-simulate-smooth-buses-shared-route, Amendment 1: `trains` went with Simulate;
     // `busRoute` is the route strip's state, and like the stop view it is not kept across a reload.
