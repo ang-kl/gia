@@ -127,27 +127,26 @@ describe('I2, I3, I5 in Cuisine — the latch reads the lock; the start-up check
     expect(src).not.toMatch(/if \(r\?\.label && String\(r\.label\)\.trim\(\)\) \{\s*explicitPickRef\.current = true;/);
     expect((src.match(/r\.locked === true/g) || []).length).toBeGreaterThanOrEqual(2);
   });
-  it('the follow sync is told whether the anchor is locked', () => {
-    expect(src).toMatch(/shouldFollowDevice\(\{[^}]*locked: anchorLockedRef\.current/s);
+  // v0.62.997 — the operator reversed C2 for Cuisine (spec 2026-11-28-cuisine-saved-place-near-first, A1: "Never
+  // automatically"). Cuisine no longer reads the phone at launch, so there is no follow sync, no switch and no chip;
+  // these four tests, which pinned them, now pin their absence. The Menu block below is unchanged: Menu keeps all three.
+  it('Cuisine starts no follow sync, so there is nothing to tell about the lock', () => {
+    expect(src).not.toMatch(/startLocationSync\(/);
+    expect(src).not.toMatch(/shouldFollowDevice\(/);
   });
-  it('the start-up check keeps a locked place and switches an unlocked one with shouldSwitchToDevice', () => {
-    expect(src).toMatch(/import \{ shouldSwitchToDevice \} from '\.\.\/\.\.\/\.\.\/_shared\/lib\/anchor-age\.js'/);
-    expect(src).toMatch(/shouldSwitchToDevice\(\{ saved: /);
-    expect(src).toMatch(/setBackTo\(\{/);
+  it('the start-up check keeps a saved place at any age and never switches to the phone', () => {
+    expect(src).not.toMatch(/shouldSwitchToDevice/);
+    expect(src).not.toMatch(/getFreshGps/);
+    expect(src).toMatch(/if \(savedName && !anchorLockedRef\.current\) \{[\s\S]*?runSearch\(keptSnap, \{ lat: savedPlace\.lat, lng: savedPlace\.lng, name: savedName \}, \{ boot: true, auto: true \}\);\s*return;/);
   });
-  it('the switch persists an automatic, label-less place (C8), and searches where the phone is', () => {
-    expect(src).toMatch(/switchedFromUnlocked \? \{\} : \(anchorName \? \{ label: anchorName \} : \{\}\)/);
-    expect(src).toMatch(/if \(switchedFromUnlocked\) \{\s*runSearch\(\{ \.\.\.state, \.\.\.stateDelta \}, \{ lat: target\.lat, lng: target\.lng, name: anchorName \}, \{ auto: true \}\);/);
-    // The restore carries the place's region and country, so the persisted pick is not stamped with the closure's
-    // stale region (the first render persisted Kyoto as region "SG").
+  it('with no switch, nothing persists a label-less place or searches where the phone is', () => {
+    expect(src).not.toMatch(/switchedFromUnlocked/);
+    // The ordinary pick path still carries the place's region and country (unchanged from v0.62.965).
     expect(src).toMatch(/const persistRegion = p\.region \|\| inferredRegion/);
-    expect(src).toMatch(/\.\.\.\(backTo\.region \? \{ region: backTo\.region \} : \{\}\)/);
   });
-  it('the chip renders from backToChipProps and restores through onLocationSelect with the kept label', () => {
-    expect(src).toMatch(/import \{ backToChipProps \} from '\.\.\/\.\.\/\.\.\/_shared\/lib\/anchor-age-i18n\.js'/);
-    expect(src).toMatch(/\{backTo && \(/);
-    expect(src).toMatch(/\{\.\.\.backToChipProps\(\{ label: backTo\.name, lang \}\)\}/);
-    expect(src).toMatch(/onLocationSelect\(\{ lat: backTo\.lat, lng: backTo\.lng, label: backTo\.name/);
+  it('there is no "Back to" chip in Cuisine', () => {
+    expect(src).not.toMatch(/backToChipProps/);
+    expect(src).not.toMatch(/\bbackTo\b/);
   });
 });
 

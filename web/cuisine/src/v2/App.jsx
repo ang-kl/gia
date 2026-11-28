@@ -9,7 +9,6 @@ import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash, initialState, regionAfterPick } from './lib/state.js';
 import { loadKept, saveKept } from '../../../_shared/lib/kept-settings.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
-import { startLocationSync } from '../../../_shared/lib/location-sync.js';
 // v0.62.561 — O-54 responsive port: shared device/orientation hook (drives the
 // tablet/desktop card-count in the result strip + the footer device cue).
 import BottomSheet from '../../../_shared/components/BottomSheet.jsx';
@@ -17,11 +16,9 @@ import { useViewport, viewportTag } from '../../../_shared/lib/use-viewport.js';
 // P1-d — shared dialog behaviour (focus trap / initial focus / Escape /
 // focus restore) for the three coherence modals below.
 import { useDialog } from '../../../_shared/lib/use-dialog.js';
-import { shouldFollowDevice } from './lib/location-follow.js';
-// v0.62.965 — spec 2026-11-02-saved-place-expires-after-six-hours: a place set on purpose is locked for 6 hours, then
-// the phone wins past 50 km, with "↩ Back to <place>". One rule, shared with Menu and the bot.
-import { shouldSwitchToDevice } from '../../../_shared/lib/anchor-age.js';
-import { backToChipProps } from '../../../_shared/lib/anchor-age-i18n.js';
+// v0.62.997 — the v0.62.965 switch to the phone past the 6-hour lock (shouldSwitchToDevice) and its "↩ Back to
+// <place>" chip (backToChipProps) left Cuisine with the follow sync (shouldFollowDevice): Cuisine no longer reads the
+// phone on its own, so there is no reading to switch to. The Menu app and the bot keep them.
 import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
@@ -400,69 +397,16 @@ export default function App() {
       lastSgAnchorRef.current = raw ? JSON.parse(raw) : undefined;
     } catch { lastSgAnchorRef.current = undefined; }
   }
-  const syncStartedRef = useRef(false);
-  useEffect(() => {
-    if (syncStartedRef.current) return;
-    syncStartedRef.current = true;
-    // v0.61.372 — the move/jitter math now lives in the unit-tested
-    // shouldFollowDevice (location-follow.js); no inline havM here.
-    const stop = startLocationSync({
-      current: userLocRef.current,
-      onLocation: (loc) => {
-        // v0.61.371/372 — operator: a Menu pick (e.g. Wellington / Tokyo) was
-        // overwritten by the SG device GPS. The pure shouldFollowDevice rule
-        // (location-follow.js, unit-tested) gates this: don't follow until the
-        // mount resolution settled (initialResolveDoneRef — closes the race
-        // where the first GPS tick clobbered the not-yet-installed cached
-        // pick), and never follow off an EXPLICIT named anchor (Menu /
-        // deep-link / LocationField). Sub-threshold jitter is ignored too.
-        const cur = userLocRef.current;
-        const anchorNow = locationAnchorRef.current;
-        if (!shouldFollowDevice({
-          initialResolveDone: initialResolveDoneRef.current,
-          firstLoadPending: firstLoadPendingRef.current, // v0.61.387 — don't re-search over the boot load
-          explicitAnchorName: anchorNow && anchorNow.name,
-          explicitPick: explicitPickRef.current,          // v0.61.430 — explicit pick wins over device GPS
-          locked: anchorLockedRef.current,                // v0.62.965 — a named anchor past its 6-hour lock follows past 50 km
-          current: cur,
-          loc,
-        })) return;
-        console.log('[LocationSync] following device →', loc.lat.toFixed(4), loc.lng.toFixed(4), '(' + loc.source + ')');
-        setUserLoc({ lat: loc.lat, lng: loc.lng });
-        const c = coordsToCountry({ lat: loc.lat, lng: loc.lng });
-        if (c === 'SG') {
-          setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
-        } else if (c === 'MY') {
-          const target = isJbCoords({ lat: loc.lat, lng: loc.lng }) ? 'JB' : 'OTHER';
-          setState((s) => { if (s.region === target) return s; const n = { ...s, region: target }; if (target === 'OTHER') n.countryPref = 'MY'; return n; });
-        } else {
-          // v0.61.362 — outside the SG/MY bbox, resolve the real country
-          // globally (same nearestIataCity detector the mount auto-detect
-          // uses) and follow it into the OTHER picker, so region + the
-          // country flag track the device beyond SG/MY (operator: "the
-          // 20 seconds codes will detect the location and the flag").
-          const near = nearestIataCity(loc.lat, loc.lng);
-          const cc = near && near.city && near.city.countryCode;
-          if (cc && CUISINE_OTHER_CODES.has(cc)) {
-            setState((s) => (s.region === 'OTHER' && s.countryPref === cc ? s : { ...s, region: 'OTHER', countryPref: cc }));
-            saveCountryPref(cc).catch(() => {});
-          }
-        }
-        setLocationAnchor({ lat: loc.lat, lng: loc.lng, name: '' });
-        setSearchCenter({ lat: loc.lat, lng: loc.lng });
-        setFlyTarget({ lat: loc.lat, lng: loc.lng, zoom: 13, _k: Date.now() });
-        // v0.62.31 — ambient: an AUTOMATIC follow-sync save; the server's
-        // D787 label-guard refuses it over a fresh labelled pick (defence-
-        // in-depth under the v0.62.30 explicit-pick latch).
-        saveUserLocation({ lat: loc.lat, lng: loc.lng, ambient: true }).catch(() => {});
-      },
-    });
-    return stop;
-  }, []); // eslint-disable-line
+  // v0.62.997 — the 20-second follow sync is no longer started in Cuisine (spec
+  // doc/Feature/2026-11-28-cuisine-saved-place-near-first.spec.md, operator: "Never automatically"). Its first
+  // tick read the phone and Telegram's location the moment the app opened, before deciding whether to follow, and
+  // that reading is what made Telegram ask although a place had been set in the Menu app; measured on the built
+  // app, a place saved five minutes earlier still drew 4 location requests at launch. Cuisine now reads the phone
+  // only on 📍 Current, or once when no place is saved at all (tryGps).
   const [venues, setVenues] = useState([]);
-  // v0.62.965 — the place the start-up check switched away from (C4): { name, lat, lng, region, country }. Shown as
-  // "↩ Back to <name>" until a pick is made; tapping it restores the place as a fresh deliberate pick.
-  const [backTo, setBackTo] = useState(null);
+  // v0.62.997 — near first: the radius the server widened to when the 2 km circle around the set place held fewer
+  // than 6 places (payload `nearWidenedToM`), shown as "widened to N km"; null when it did not widen.
+  const [nearWidenedM, setNearWidenedM] = useState(null);
 
   // v0.62.846 — THE SECOND LINE HAS TO FOLLOW THE TOGGLE, NOT THE SEARCH.
   //
@@ -2388,10 +2332,10 @@ export default function App() {
   // v0.62.959 — spec B2 / I7. Every useState above is carried, stashed here, or named as transient in
   // lib/state.js LOCALE_STASH, and __tests__/locale-restore-coherence.test.js fails on one that is none of them.
   viewStashRef.current = {
-    state, overlayLayers, pcnLock, drawerMode, drawerDismissed, focusedPlaceId, nlText, tellMeAi, placeAnchor, pages, cursor, cumulativeStart, cumulativeEnd, knownTotal, finalBatch, firstBatch, poolCount, sessionFull, pageStackDepth, michelinRemaining, searchedTerm, searchedTermMode, pinnedDish, comboInfo, cuisinePlate, arrivalPlate, lastRunSnap, lastPrompt, noProvenNew, misrepNote, cookMethodPivot, specialModeNotice, zeroReasonKey, zeroPlace, durianRatingNote, specialModeBlocked, jbFallbackNotice, degradedNotice, specialModeWidenedInfo, questionDeclined, allSeenInRange, widenActive, exhaustedNote, sparseNotice, michelinNotice, zeroRetried
+    state, overlayLayers, pcnLock, drawerMode, drawerDismissed, focusedPlaceId, nlText, tellMeAi, placeAnchor, pages, cursor, cumulativeStart, cumulativeEnd, knownTotal, finalBatch, firstBatch, poolCount, sessionFull, pageStackDepth, michelinRemaining, searchedTerm, searchedTermMode, pinnedDish, comboInfo, cuisinePlate, arrivalPlate, lastRunSnap, lastPrompt, noProvenNew, misrepNote, cookMethodPivot, specialModeNotice, zeroReasonKey, zeroPlace, durianRatingNote, specialModeBlocked, jbFallbackNotice, degradedNotice, specialModeWidenedInfo, questionDeclined, allSeenInRange, widenActive, exhaustedNote, sparseNotice, michelinNotice, zeroRetried, nearWidenedM
   };
   viewSettersRef.current = {
-    state: setState, overlayLayers: setOverlayLayers, pcnLock: setPcnLock, drawerMode: setDrawerMode, drawerDismissed: setDrawerDismissed, focusedPlaceId: setFocusedPlaceId, nlText: setNlText, tellMeAi: setTellMeAi, placeAnchor: setPlaceAnchor, pages: setPages, cursor: setCursor, cumulativeStart: setCumulativeStart, cumulativeEnd: setCumulativeEnd, knownTotal: setKnownTotal, finalBatch: setFinalBatch, firstBatch: setFirstBatch, poolCount: setPoolCount, sessionFull: setSessionFull, pageStackDepth: setPageStackDepth, michelinRemaining: setMichelinRemaining, searchedTerm: setSearchedTerm, searchedTermMode: setSearchedTermMode, pinnedDish: setPinnedDish, comboInfo: setComboInfo, cuisinePlate: setCuisinePlate, arrivalPlate: setArrivalPlate, lastRunSnap: setLastRunSnap, lastPrompt: setLastPrompt, noProvenNew: setNoProvenNew, misrepNote: setMisrepNote, cookMethodPivot: setCookMethodPivot, specialModeNotice: setSpecialModeNotice, zeroReasonKey: setZeroReasonKey, zeroPlace: setZeroPlace, durianRatingNote: setDurianRatingNote, specialModeBlocked: setSpecialModeBlocked, jbFallbackNotice: setJbFallbackNotice, degradedNotice: setDegradedNotice, specialModeWidenedInfo: setSpecialModeWidenedInfo, questionDeclined: setQuestionDeclined, allSeenInRange: setAllSeenInRange, widenActive: setWidenActive, exhaustedNote: setExhaustedNote, sparseNotice: setSparseNotice, michelinNotice: setMichelinNotice, zeroRetried: setZeroRetried
+    state: setState, overlayLayers: setOverlayLayers, pcnLock: setPcnLock, drawerMode: setDrawerMode, drawerDismissed: setDrawerDismissed, focusedPlaceId: setFocusedPlaceId, nlText: setNlText, tellMeAi: setTellMeAi, placeAnchor: setPlaceAnchor, pages: setPages, cursor: setCursor, cumulativeStart: setCumulativeStart, cumulativeEnd: setCumulativeEnd, knownTotal: setKnownTotal, finalBatch: setFinalBatch, firstBatch: setFirstBatch, poolCount: setPoolCount, sessionFull: setSessionFull, pageStackDepth: setPageStackDepth, michelinRemaining: setMichelinRemaining, searchedTerm: setSearchedTerm, searchedTermMode: setSearchedTermMode, pinnedDish: setPinnedDish, comboInfo: setComboInfo, cuisinePlate: setCuisinePlate, arrivalPlate: setArrivalPlate, lastRunSnap: setLastRunSnap, lastPrompt: setLastPrompt, noProvenNew: setNoProvenNew, misrepNote: setMisrepNote, cookMethodPivot: setCookMethodPivot, specialModeNotice: setSpecialModeNotice, zeroReasonKey: setZeroReasonKey, zeroPlace: setZeroPlace, durianRatingNote: setDurianRatingNote, specialModeBlocked: setSpecialModeBlocked, jbFallbackNotice: setJbFallbackNotice, degradedNotice: setDegradedNotice, specialModeWidenedInfo: setSpecialModeWidenedInfo, questionDeclined: setQuestionDeclined, allSeenInRange: setAllSeenInRange, widenActive: setWidenActive, exhaustedNote: setExhaustedNote, sparseNotice: setSparseNotice, michelinNotice: setMichelinNotice, zeroRetried: setZeroRetried, nearWidenedM: setNearWidenedM
   };
   // P1-d — focus trap for the anchor-coherence modal (forced choice, no onClose).
   const anchorDialogRef = useDialog({ open: !!anchorMismatch });
@@ -2802,53 +2746,27 @@ export default function App() {
     // venue load.
     initialSearchDone.current = true;
 
-    function getFreshGps() {
-      return new Promise((resolve) => {
-        if (typeof navigator === 'undefined' || !navigator.geolocation) {
-          resolve(null); return;
-        }
-        navigator.geolocation.getCurrentPosition(
-          (p) => {
-            const { latitude, longitude } = p.coords || {};
-            if (Number.isFinite(latitude) && Number.isFinite(longitude)
-                && !(Math.abs(latitude) < 0.001 && Math.abs(longitude) < 0.001)) {
-              resolve({ lat: latitude, lng: longitude });
-            } else resolve(null);
-          },
-          () => resolve(null),
-          { timeout: 5000, maximumAge: 60_000, enableHighAccuracy: false }
-        );
-      });
-    }
-
     (async () => {
-      const fresh = await getFreshGps();
-      // v0.62.965 — spec C2 / I2: a labelled place past its 6-hour lock (the latch above did not arm, so we are
-      // here) is kept unless the phone is over 50 km away; then we switch to the phone and offer "↩ Back to <name>".
-      // The switch persists an automatic, label-less place (C8) so the server's record no longer carries the old
-      // name; the server's D787 guard lets it through because the lock has expired (C3).
-      let switchedFromUnlocked = false;
+      // v0.62.997 — this check no longer reads the phone (spec doc/Feature/2026-11-28-cuisine-saved-place-near-first
+      // .spec.md, operator: "Never automatically"). It used to read it again here, a second request at launch, to
+      // decide the v0.62.965 switch for a place past its 6-hour lock. A saved place is now always kept, at any age;
+      // the reader moves it with 📍 Current or a pick. With no saved place, userLoc is the one reading tryGps took.
       const savedPlace = savedPlaceRef.current;
       const savedName = (savedPlace?.label || '').trim();
       if (savedName && !anchorLockedRef.current) {
-        if (!shouldSwitchToDevice({ saved: savedPlace, device: fresh, now: Date.now() })) {
-          console.log('[Cuisine-TMA-v2] auto-detect: KEPT unlocked pick "' + savedName + '" (phone within 50 km, or no reading)');
-          // The boot load was deferred to this decision (see tryServerCache): run it at the kept place, as
-          // runInitialLoad would have, with the place's own region and country.
-          // Automatic, so `auto: true` lets a locale-reload restore suppress it (v0.62.865), and one line, so the
-          // runSearch call-site census in locale-reload-no-research.test.js can read the flag.
-          const keptRegion = savedPlace.region === 'MY-PUT' ? 'OTHER' : (savedPlace.region || state.region);
-          const keptSnap = { ...state, region: keptRegion, ...(savedPlace.country ? { countryPref: savedPlace.country } : {}) };
-          setSearchCenter({ lat: savedPlace.lat, lng: savedPlace.lng });
-          runSearch(keptSnap, { lat: savedPlace.lat, lng: savedPlace.lng, name: savedName }, { boot: true, auto: true });
-          return;
-        }
-        switchedFromUnlocked = true;
-        setBackTo({ name: savedName, lat: savedPlace.lat, lng: savedPlace.lng, region: savedPlace.region || null, country: savedPlace.country || null });
-        console.log('[Cuisine-TMA-v2] auto-detect: SWITCHED to the phone; "' + savedName + '" is past its 6-hour lock and over 50 km away');
+        console.log('[Cuisine-TMA-v2] auto-detect: KEPT saved pick "' + savedName + '" (past its 6-hour lock; Cuisine does not read the phone)');
+        // The boot load was deferred to this decision (see tryServerCache): run it at the kept place, as
+        // runInitialLoad would have, with the place's own region and country.
+        // Automatic, so `auto: true` lets a locale-reload restore suppress it (v0.62.865), and one line, so the
+        // runSearch call-site census in locale-reload-no-research.test.js can read the flag.
+        const keptRegion = savedPlace.region === 'MY-PUT' ? 'OTHER' : (savedPlace.region || state.region);
+        const keptSnap = { ...state, region: keptRegion, ...(savedPlace.country ? { countryPref: savedPlace.country } : {}) };
+        setSearchCenter({ lat: savedPlace.lat, lng: savedPlace.lng });
+        runSearch(keptSnap, { lat: savedPlace.lat, lng: savedPlace.lng, name: savedName }, { boot: true, auto: true });
+        return;
       }
-      const target = fresh || userLoc;
-      console.log('[Cuisine-TMA-v2] auto-detect: target', target, 'fresh-gps=' + !!fresh);
+      const target = userLoc;
+      console.log('[Cuisine-TMA-v2] auto-detect: target', target);
 
       // 1) Try the v0.61.242 local IATA table.
       let detected = null;
@@ -2961,17 +2879,11 @@ export default function App() {
       // bare coords-only entry again (the root of the mixed-flag boot).
       saveUserLocation({
         lat: target.lat, lng: target.lng, ambient: true,
-        ...(switchedFromUnlocked ? {} : (anchorName ? { label: anchorName } : {})),
+        ...(anchorName ? { label: anchorName } : {}),
         ...(stateDelta.region ? { region: stateDelta.region } : {}),
         ...(stateDelta.countryPref ? { country: stateDelta.countryPref } : {})
       }).catch(() => {});
       if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
-
-      // v0.62.965 — the switch searches where the phone is (spec: "the app searches where the phone is"). The boot
-      // load was deferred to this decision, so this is the first and only load of this open.
-      if (switchedFromUnlocked) {
-        runSearch({ ...state, ...stateDelta }, { lat: target.lat, lng: target.lng, name: anchorName }, { auto: true });
-      }
 
       // 6) v0.61.323 — DO NOT fire the venue load here anymore. The boot
       //    load is deferred to the gate-opener's runInitialLoad() so no
@@ -3467,6 +3379,8 @@ export default function App() {
           ? { fromM: r.specialModeWidenedFromM, finalM: r.specialModeFinalRadiusM }
           : null
       );
+      // v0.62.997 — near first: the server widened past 2 km because the set place's circle held fewer than 6.
+      setNearWidenedM(Number.isFinite(r.nearWidenedToM) ? r.nearWidenedToM : null);
       // v0.61.130 — v0.61.129 O-20 backend metadata. `placeAnchor` is
       // the detected place ({ name, kind, lat, lng, source });
       // `placeAnchorQueryRemainder` is the stripped freeText (what's
@@ -3983,23 +3897,9 @@ export default function App() {
     if (kind === 'near') live.runSearch(searchState, { lat: place.lat, lng: place.lng, name: placeLabel });
   }, [lang]);
 
-  // v0.62.965 — "↩ Back to <place>" (spec C4): restore the place the start-up check switched away from, as a fresh
-  // deliberate pick. onLocationSelect latches explicit-pick, persists it with its label (a new 6-hour lock) and
-  // searches it; the region and country are put back first so the pill and the picker agree with the anchor.
-  const restoreBackTo = React.useCallback(() => {
-    if (!backTo) return;
-    if (backTo.region) {
-      setState((s) => ({ ...s, region: backTo.region, ...(backTo.region === 'OTHER' && backTo.country ? { countryPref: backTo.country } : {}) }));
-    }
-    anchorLockedRef.current = true;
-    onLocationSelect({ lat: backTo.lat, lng: backTo.lng, label: backTo.name, fly: true,
-      ...(backTo.region ? { region: backTo.region } : {}), ...(backTo.country ? { country: backTo.country } : {}) });   // also retires the chip
-  }, [backTo]); // eslint-disable-line
-
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
       linkPickRef.current = false;   // v0.62.987 — a pick made in the app: the place is no longer the chat link's
-      setBackTo(null);   // v0.62.965 — any pick retires the "↩ Back to" chip
       // v0.62.33 — operator: "i switch from putrajaya to Hanoi, the what to
       // try here is still the old dishes … the card should be wipe clean."
       // Wipe the Arrival Plate SYNCHRONOUSLY on every pick — the old city's
@@ -4549,21 +4449,6 @@ export default function App() {
             pills into ONE line ("Set location is: <X>. Click to change", temp-size
             font) just below the title, to give the map more room. Tapping it
             re-expands the pills; picking a region collapses again. */}
-        {/* v0.62.965 — "↩ Back to <place>" (spec C4), in the always-visible header above the "Set location is"
-            line: the start-up check switched to the phone because the saved place was past its 6-hour lock and
-            over 50 km away. The first draft put it beside the location field, inside the filters drawer, which is
-            closed on opening, so the headless render found it in the DOM and not on screen. Retired by any pick. */}
-        {backTo && (
-          <div className="px-0.5 pb-1">
-            <button
-              {...backToChipProps({ label: backTo.name, lang })}
-              onClick={restoreBackTo}
-              className="rounded-full border border-tg-accent/40 bg-tg-card px-3 py-1.5 text-[12px] leading-snug text-tg-text active:opacity-60"
-            >
-              {backToChipProps({ label: backTo.name, lang }).text}
-            </button>
-          </div>
-        )}
         {venues.length > 0 && !regionExpanded && (
           <div className="text-[11px] text-tg-hint text-left leading-tight px-0.5">
             {/* v0.62.176 — operator: "Click to change" on a SECOND line. */}
@@ -5615,6 +5500,15 @@ export default function App() {
               {' '}{tn('special.widened', lang, { km: (specialModeWidenedInfo.finalM / 1000).toFixed(1) })}
             </span>
           )}
+        </div>
+      )}
+      {/* v0.62.997 — near first (spec doc/Feature/2026-11-28-cuisine-saved-place-near-first.spec.md): the search
+          started 2 km around the set place and widened because fewer than 6 places were inside. The line the
+          special modes already show, in all nine languages; no new string. Not shown under a special-mode notice,
+          which carries its own. */}
+      {nearWidenedM && !loading && !specialModeNotice && (
+        <div className="px-1 text-[12px] leading-snug text-tg-hint" data-testid="near-widened">
+          {tn('special.widened', lang, { km: (nearWidenedM / 1000).toFixed(1) })}
         </div>
       )}
 

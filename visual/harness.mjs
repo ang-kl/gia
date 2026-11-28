@@ -73,7 +73,10 @@ export async function freezeVersionText(page) {
  * Open `app` under the Telegram client `version`. Returns { errors, count }: page errors and console errors seen
  * while opening, and the settled element count. Throws if the app's build output is missing.
  */
-export async function openApp(page, app, version) {
+// v0.62.997 — `opts` (optional, unused by the 30 snapshots): `routes` is a list of [regex, body] answered before the
+// shared FIXTURES, and `initScript` runs after the Telegram stub, so a check can replace what the stub installed (the
+// launch-location check counts location reads this way). Omitted, openApp behaves exactly as before.
+export async function openApp(page, app, version, opts = {}) {
   const dist = join(ROOT, 'public', app);
   if (!existsSync(join(dist, 'index.html'))) {
     throw new Error(`no build output at public/${app}/index.html: run \`npm run build\` first`);
@@ -84,11 +87,13 @@ export async function openApp(page, app, version) {
 
   await page.clock.setFixedTime(FIXED_TIME);
   await page.addInitScript(telegramStub(version));
+  if (opts.initScript) await page.addInitScript(opts.initScript);
+  const extraRoutes = Array.isArray(opts.routes) ? opts.routes : [];
   await page.route('**/*', async (route) => {
     const url = new URL(route.request().url());
     if (url.origin !== ORIGIN) return route.fulfill({ status: 200, contentType: 'text/javascript', body: '' });
     if (!url.pathname.startsWith(`/app/${app}`)) {
-      const hit = FIXTURES.find(([rx]) => rx.test(url.pathname));
+      const hit = extraRoutes.find(([rx]) => rx.test(url.pathname)) || FIXTURES.find(([rx]) => rx.test(url.pathname));
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(hit ? hit[1] : {}) });
     }
     const rel = url.pathname.replace(new RegExp(`^/app/${app}/?`), '') || 'index.html';
